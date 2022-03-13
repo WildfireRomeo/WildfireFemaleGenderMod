@@ -100,12 +100,11 @@ public class GenderPlayer {
 	}
 
 	public float getBounceMultiplier() {
-		float bounceMult = Float.valueOf(this.bounceMultiplier);
-		return Math.round((bounceMult * 3) * 100) / 100f;
+		return Math.round((this.bounceMultiplier * 3) * 100) / 100f;
 	}
 
 	public float getFloppiness() {
-		return Float.valueOf(this.floppyMultiplier);
+		return this.floppyMultiplier;
 	}
 
 	public SyncStatus getSyncStatus() {
@@ -140,22 +139,22 @@ public class GenderPlayer {
 	}
 	public static GenderPlayer fromJSONObject(JSONObject obj) {
 		GenderPlayer plr = new GenderPlayer(obj.get("username").toString());
-		plr.gender = Integer.valueOf(obj.get("gender").toString());
-		plr.pBustSize = Float.valueOf(obj.get("bust_size").toString());
-		plr.hurtSounds = Boolean.valueOf(obj.get("hurt_sounds").toString());
+		plr.gender = Integer.parseInt(obj.get("gender").toString());
+		plr.pBustSize = Float.parseFloat(obj.get("bust_size").toString());
+		plr.hurtSounds = Boolean.parseBoolean(obj.get("hurt_sounds").toString());
 
 		//physics
-		plr.breast_physics = Boolean.valueOf(obj.get("breast_physics").toString());
-		plr.breast_physics_armor = Boolean.valueOf(obj.get("breast_physics_armor").toString());
-		plr.show_in_armor = Boolean.valueOf(obj.get("show_in_armor").toString());
-		plr.bounceMultiplier = Float.valueOf(obj.get("bounce_multiplier").toString());
-		plr.floppyMultiplier = Float.valueOf(obj.get("floppy_multiplier").toString());
+		plr.breast_physics = Boolean.parseBoolean(obj.get("breast_physics").toString());
+		plr.breast_physics_armor = Boolean.parseBoolean(obj.get("breast_physics_armor").toString());
+		plr.show_in_armor = Boolean.parseBoolean(obj.get("show_in_armor").toString());
+		plr.bounceMultiplier = Float.parseFloat(obj.get("bounce_multiplier").toString());
+		plr.floppyMultiplier = Float.parseFloat(obj.get("floppy_multiplier").toString());
 
-		plr.getBreasts().xOffset = Float.valueOf(obj.get("breasts_xOffset").toString());
-		plr.getBreasts().yOffset = Float.valueOf(obj.get("breasts_yOffset").toString());
-		plr.getBreasts().zOffset = Float.valueOf(obj.get("breasts_zOffset").toString());
-		plr.getBreasts().isUniboob = Boolean.valueOf(obj.get("breasts_uniboob").toString());
-		plr.getBreasts().cleavage = Float.valueOf(obj.get("breasts_cleavage").toString());
+		plr.getBreasts().xOffset = Float.parseFloat(obj.get("breasts_xOffset").toString());
+		plr.getBreasts().yOffset = Float.parseFloat(obj.get("breasts_yOffset").toString());
+		plr.getBreasts().zOffset = Float.parseFloat(obj.get("breasts_zOffset").toString());
+		plr.getBreasts().isUniboob = Boolean.parseBoolean(obj.get("breasts_uniboob").toString());
+		plr.getBreasts().cleavage = Float.parseFloat(obj.get("breasts_cleavage").toString());
 
 		return plr;
 	}
@@ -167,25 +166,25 @@ public class GenderPlayer {
 			plr.lockSettings = false;
 			plr.syncStatus = SyncStatus.CACHED;
 			try {
-				plr.gender = Integer.valueOf(plr.getConfig().getParameter("gender").toString());
+				plr.gender = Integer.parseInt(plr.getConfig().getParameter("gender").toString());
 			} catch(Exception e) {
-				plr.gender = Boolean.valueOf(plr.getConfig().getParameter("gender").toString())?1:0;
+				plr.gender = Boolean.parseBoolean(plr.getConfig().getParameter("gender").toString()) ? 1 : 0;
 			}
-			plr.updateBustSize(Float.valueOf(plr.getConfig().getParameter("bust_size").toString()));
+			plr.updateBustSize(Float.parseFloat(plr.getConfig().getParameter("bust_size").toString()));
 			plr.hurtSounds = plr.getConfig().getBool("hurt_sounds");
 
 			//physics
 			plr.breast_physics = plr.getConfig().getBool("breast_physics");
 			plr.breast_physics_armor = plr.getConfig().getBool("breast_physics_armor");
 			plr.show_in_armor = plr.getConfig().getBool("show_in_armor");
-			plr.bounceMultiplier = Float.valueOf(plr.getConfig().getParameter("bounce_multiplier").toString());
-			plr.floppyMultiplier = Float.valueOf(plr.getConfig().getParameter("floppy_multiplier").toString());
+			plr.bounceMultiplier = Float.parseFloat(plr.getConfig().getParameter("bounce_multiplier").toString());
+			plr.floppyMultiplier = Float.parseFloat(plr.getConfig().getParameter("floppy_multiplier").toString());
 
-			plr.getBreasts().xOffset = Float.valueOf(plr.getConfig().getParameter("breasts_xOffset").toString());
-			plr.getBreasts().yOffset = Float.valueOf(plr.getConfig().getParameter("breasts_yOffset").toString());
-			plr.getBreasts().zOffset = Float.valueOf(plr.getConfig().getParameter("breasts_zOffset").toString());
-			plr.getBreasts().isUniboob = Boolean.valueOf(plr.getConfig().getParameter("breasts_uniboob").toString());
-			plr.getBreasts().cleavage = Float.valueOf(plr.getConfig().getParameter("breasts_cleavage").toString());
+			plr.getBreasts().xOffset = Float.parseFloat(plr.getConfig().getParameter("breasts_xOffset").toString());
+			plr.getBreasts().yOffset = Float.parseFloat(plr.getConfig().getParameter("breasts_yOffset").toString());
+			plr.getBreasts().zOffset = Float.parseFloat(plr.getConfig().getParameter("breasts_zOffset").toString());
+			plr.getBreasts().isUniboob = Boolean.parseBoolean(plr.getConfig().getParameter("breasts_uniboob").toString());
+			plr.getBreasts().cleavage = Float.parseFloat(plr.getConfig().getParameter("breasts_cleavage").toString());
 
 			return plr;
 		}

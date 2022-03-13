@@ -66,7 +66,7 @@ public class Configuration {
 	}
 	public boolean getBool(String key) {
 		try {
-			return Boolean.valueOf(SAVE_VALUES.get(key).toString());
+			return Boolean.parseBoolean(SAVE_VALUES.get(key).toString());
 		} catch(Exception e) {
 			return false;
 		}
