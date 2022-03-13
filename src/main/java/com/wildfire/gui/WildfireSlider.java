@@ -49,7 +49,7 @@ public class WildfireSlider extends Slider {
 		if (this.visible) {
 			this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 			if(this.visible) {
-				int clr = 0x000000 + (84 << 24);
+				int clr = 84 << 24;
 				fill(mStack, x, y, x + getWidth(), y + height, clr);
 
 				Screen.fill(mStack, x+1, y+1, x + this.width - 1, y + this.height-1, 0x222222 + (128 << 24));

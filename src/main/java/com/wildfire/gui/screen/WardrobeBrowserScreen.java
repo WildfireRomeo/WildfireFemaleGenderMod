@@ -162,11 +162,11 @@ public class WardrobeBrowserScreen extends Screen {
   	}
 
 	public static void drawEntityOnScreen(int p_98851_, int p_98852_, int p_98853_, float p_98854_, float p_98855_, LivingEntity p_98856_) {
-		float var6 = (float)Math.atan((double)(p_98854_ / 40.0F));
-		float var7 = (float)Math.atan((double)(p_98855_ / 40.0F));
+		float var6 = (float)Math.atan(p_98854_ / 40.0F);
+		float var7 = (float)Math.atan(p_98855_ / 40.0F);
 		PoseStack var8 = RenderSystem.getModelViewStack();
 		var8.pushPose();
-		var8.translate((double)p_98851_, (double)p_98852_, 1050.0D);
+		var8.translate(p_98851_, p_98852_, 1050.0D);
 		var8.scale(1.0F, 1.0F, -1.0F);
 		RenderSystem.applyModelViewMatrix();
 		PoseStack var9 = new PoseStack();

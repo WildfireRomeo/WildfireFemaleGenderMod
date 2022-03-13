@@ -75,7 +75,7 @@ public class WildfireGender {
 	public static GenderPlayer getPlayerByName(String username) {
 		for (int i = 0; i < CLOTHING_PLAYER.size(); i++) {
 			try {
-				if (username.toLowerCase().equals(CLOTHING_PLAYER.get(i).username.toLowerCase())) {
+				if (username.equalsIgnoreCase(CLOTHING_PLAYER.get(i).username)) {
 					return CLOTHING_PLAYER.get(i);
 				}
 			} catch (Exception e) {
