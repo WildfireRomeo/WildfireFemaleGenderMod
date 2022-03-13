@@ -231,7 +231,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 						VertexConsumer ivertexbuilder2 = vertexConsumers.getBuffer(type2);
 						renderBox(lBoobArmor, matrixStack, ivertexbuilder2, packedLightIn, 0xFFFFFF, armorR, armorG, armorB, 1f);
 
-						if (armorStack.isEnchanted()) {
+						if (armorStack.hasFoil()) {
 							RenderType type3 = RenderType.armorEntityGlint();
 							VertexConsumer ivertexbuilder3 = vertexConsumers.getBuffer(type3);
 							renderBox(lBoobArmor, matrixStack, ivertexbuilder3, packedLightIn, 0xFFFFFF, 1f, 1f, 1f, 1f);
@@ -316,7 +316,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 						VertexConsumer ivertexbuilder2 = vertexConsumers.getBuffer(type2);
 						renderBox(rBoobArmor, matrixStack, ivertexbuilder2, packedLightIn, 0xFFFFFF, armorR, armorG, armorB, getTransparency(ent));
 
-						if (armorStack.isEnchanted()) {
+						if (armorStack.hasFoil()) {
 							RenderType type3 = RenderType.armorEntityGlint();
 							VertexConsumer ivertexbuilder3 = vertexConsumers.getBuffer(type3);
 							renderBox(rBoobArmor, matrixStack, ivertexbuilder3, packedLightIn, 0xFFFFFF, 1f, 1f, 1f, getTransparency(ent));
