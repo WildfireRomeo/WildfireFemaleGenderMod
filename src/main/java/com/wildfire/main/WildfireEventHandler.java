@@ -118,8 +118,7 @@ public class WildfireEventHandler {
 	public void onPlayerJoin(EntityJoinWorldEvent evt) {
 		if(!evt.getWorld().isClientSide) return;
 
-		if(evt.getEntity() instanceof AbstractClientPlayer) {
-			AbstractClientPlayer plr = (AbstractClientPlayer) evt.getEntity();
+		if(evt.getEntity() instanceof AbstractClientPlayer plr) {
 
 			String playerName = plr.getGameProfile().getId().toString();
 			GenderPlayer aPlr = WildfireGender.getPlayerByName(plr.getStringUUID());

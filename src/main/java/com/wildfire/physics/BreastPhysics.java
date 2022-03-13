@@ -126,8 +126,7 @@ public class BreastPhysics {
 
 		//button option for extra entities
 		if(plr.getVehicle() != null) {
-			if(plr.getVehicle() instanceof Boat) {
-				Boat boat = (Boat) plr.getVehicle();
+			if(plr.getVehicle() instanceof Boat boat) {
 				int rowTime = (int) boat.getRowingTime(0, plr.animationPosition);
 				int rowTime2 = (int) boat.getRowingTime(1, plr.animationPosition);
 
@@ -139,8 +138,7 @@ public class BreastPhysics {
 				}
 			}
 
-			if(plr.getVehicle() instanceof Minecart) {
-				Minecart cart = (Minecart) plr.getVehicle();
+			if(plr.getVehicle() instanceof Minecart cart) {
 				float speed = (float) cart.getDeltaMovement().lengthSqr();
 				if(Math.random() * speed < 0.5f && speed > 0.2f) {
 					if(Math.random() > 0.5) {
@@ -153,16 +151,14 @@ public class BreastPhysics {
 					aPlr.targetBounce = bounceIntensity / 3.25f;
 				}*/
 			}
-			if(plr.getVehicle() instanceof AbstractHorse) {
-				AbstractHorse horse = (AbstractHorse) plr.getVehicle();
+			if(plr.getVehicle() instanceof AbstractHorse horse) {
 				float movement = (float) horse.getDeltaMovement().length();
 				if(horse.tickCount % clampMovement(movement) == 5 && movement > 0.1f) {
 					this.targetBounce = bounceIntensity / 4f;
 				}
 				//horse
 			}
-			if(plr.getVehicle() instanceof Pig) {
-				Pig pig = (Pig) plr.getVehicle();
+			if(plr.getVehicle() instanceof Pig pig) {
 				float movement = (float) pig.getDeltaMovement().length();
 				System.out.println(movement);
 				if(pig.tickCount % clampMovement(movement) == 5 && movement > 0.08f) {
@@ -170,8 +166,7 @@ public class BreastPhysics {
 				}
 				//horse
 			}
-			if(plr.getVehicle() instanceof Strider) {
-				Strider strider = (Strider) plr.getVehicle();
+			if(plr.getVehicle() instanceof Strider strider) {
 				this.targetBounce += ((float) (strider.getPassengersRidingOffset()*3f) - 4.5f) * bounceIntensity;
 				//horse
 			}
