@@ -131,7 +131,7 @@ public class BreastPhysics {
 
 				float rotationL = (float)Mth.clampedLerp(-(float)Math.PI / 3F, -0.2617994F, (double)((Mth.sin(-rowTime2) + 1.0F) / 2.0F));
 				float rotationR = (float)Mth.clampedLerp(-(float)Math.PI / 4F, (float)Math.PI / 4F, (double)((Mth.sin(-rowTime + 1.0F) + 1.0F) / 2.0F));
-				System.out.println(rotationL + ", " + rotationR);
+				//System.out.println(rotationL + ", " + rotationR);
 				if(rotationL < -1 || rotationR < -0.6f) {
 					this.targetBounce = bounceIntensity / 3.25f;
 				}
@@ -159,7 +159,7 @@ public class BreastPhysics {
 			}
 			if(plr.getVehicle() instanceof Pig pig) {
 				float movement = (float) pig.getDeltaMovement().length();
-				System.out.println(movement);
+				//System.out.println(movement);
 				if(pig.tickCount % clampMovement(movement) == 5 && movement > 0.08f) {
 					this.targetBounce = bounceIntensity / 4f;
 				}
