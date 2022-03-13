@@ -100,11 +100,7 @@ public class WildfireGender {
   	}
   	
   	public static void loadGenderInfoAsync(String uuid) {
-  		Thread thread = new Thread(new Runnable() {
-  			public void run() {
-  				WildfireGender.loadGenderInfo(uuid);
-  			}
-  		});
+  		Thread thread = new Thread(() -> WildfireGender.loadGenderInfo(uuid));
 		thread.setName("WFGM_GetPlayer-" + uuid);
   		thread.start();
   	}

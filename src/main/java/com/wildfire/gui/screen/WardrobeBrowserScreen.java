@@ -98,17 +98,14 @@ public class WardrobeBrowserScreen extends Screen {
 			GenderPlayer.saveGenderInfo(plr);
 		}));
 
-		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, new TextComponent("Appearance Settings..."), button -> {
-			Minecraft.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID));
-		}));
+		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, new TextComponent("Appearance Settings..."),
+			button -> Minecraft.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 
-		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 12, 158, 20, new TextComponent("Character Settings..."), button -> {
-			Minecraft.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID));
-		}));
+		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 12, 158, 20, new TextComponent("Character Settings..."),
+			button -> Minecraft.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 
-		this.addRenderableWidget(new WildfireButton(this.width / 2 + 111, j - 63, 9, 9, new TextComponent("X"), button -> {
-			Minecraft.getInstance().setScreen(parent);
-		}));
+		this.addRenderableWidget(new WildfireButton(this.width / 2 + 111, j - 63, 9, 9, new TextComponent("X"),
+			button -> Minecraft.getInstance().setScreen(parent)));
 	    
 	    modelRotation = 0.6F;
 
@@ -196,9 +193,7 @@ public class WardrobeBrowserScreen extends Screen {
 		var17.overrideCameraOrientation(var11);
 		var17.setRenderShadow(false);
 		MultiBufferSource.BufferSource var18 = Minecraft.getInstance().renderBuffers().bufferSource();
-		RenderSystem.runAsFancy(() -> {
-			var17.render(p_98856_, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, var9, var18, 15728880);
-		});
+		RenderSystem.runAsFancy(() -> var17.render(p_98856_, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, var9, var18, 15728880));
 		var18.endBatch();
 		var17.setRenderShadow(true);
 		p_98856_.yBodyRot = var12;

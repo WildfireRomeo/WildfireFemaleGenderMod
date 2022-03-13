@@ -72,9 +72,7 @@ public class WildfirePlayerListScreen extends Screen {
 			mc.displayGuiScreen(new WildfireSettingsScreen(SteinPlayerListScreen.this));
 		}));*/
 
-		this.addWidget(new WildfireButton(this.width / 2 + 53, y - 74, 9, 9, new TextComponent("X"), button -> {
-			Minecraft.getInstance().setScreen(null);
-		}));
+		this.addWidget(new WildfireButton(this.width / 2 + 53, y - 74, 9, 9, new TextComponent("X"), button -> Minecraft.getInstance().setScreen(null)));
 
 	    PLAYER_LIST = new WildfirePlayerList(this, 118, (y - 61), (y + 71));
 		PLAYER_LIST.setRenderBackground(false);
