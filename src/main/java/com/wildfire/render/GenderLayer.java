@@ -81,6 +81,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 	public void render(PoseStack matrixStack, MultiBufferSource vertexConsumers, int packedLightIn, AbstractClientPlayer ent, float limbAngle, float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
 		//Surround with a try/catch to fix for essential mod.
 		if(ent == null) return;
+		int pushCount = 0;
 		try {
 			//0.5 or 0
 			String playerName = ent.getStringUUID();
@@ -163,7 +164,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 				float rotationMultiplier = 0;
 				boolean bounceEnabled = (plr.breast_physics && !isChestplateOccupied) || (plr.breast_physics && plr.breast_physics_armor && isChestplateOccupied); //oh, you found this?
 
-				pushMatrix(matrixStack, rend.getModel().body, 0);
+				pushCount += pushMatrix(matrixStack, rend.getModel().body, 0);
 				//right breast
 				if (bounceEnabled) {
 					matrixStack.translate(lTotalX / 32f, 0, 0);
@@ -218,44 +219,43 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 						ResourceLocation ARMOR_TXTR = getArmorTexture((ArmorItem) armorStack.getItem(), false, null);
 						if (ARMOR_TXTR != null) {
-							if (armorStack.getItem() instanceof ArmorItem) {
+							if (armorStack.getItem() instanceof ArmorItem && !(armorStack.getItem() instanceof ElytraItem)) {
 								matrixStack.pushPose();
+								pushCount++;
 
 								float armorR = 1f;
 								float armorG = 1f;
 								float armorB = 1f;
+								ArmorItem armoritem = (ArmorItem) armorStack.getItem();
+								if (armoritem instanceof DyeableArmorItem) {
+									int i = ((DyeableArmorItem) armoritem).getColor(armorStack);
+									armorR = (float) (i >> 16 & 255) / 255.0F;
+									armorG = (float) (i >> 8 & 255) / 255.0F;
+									armorB = (float) (i & 255) / 255.0F;
 
-								if (!(armorStack.getItem() instanceof ElytraItem)) {
-									ArmorItem armoritem = (ArmorItem) armorStack.getItem();
-									if (armoritem instanceof DyeableArmorItem) {
-										int i = ((DyeableArmorItem) armoritem).getColor(armorStack);
-										armorR = (float) (i >> 16 & 255) / 255.0F;
-										armorG = (float) (i >> 8 & 255) / 255.0F;
-										armorB = (float) (i & 255) / 255.0F;
-
-									}
-									matrixStack.translate(0.001f, 0.015f * 1f, -0.015f * 1f);
-									matrixStack.scale(1.05f, 1, 1);
-									RenderType type2 = RenderType.armorCutoutNoCull(ARMOR_TXTR);
-									VertexConsumer ivertexbuilder2 = vertexConsumers.getBuffer(type2);
-									renderBox(lBoobArmor, matrixStack, ivertexbuilder2, packedLightIn, 0xFFFFFF, armorR, armorG, armorB, 1f);
-
-									if (armorStack.isEnchanted()) {
-										RenderType type3 = RenderType.armorEntityGlint();
-										VertexConsumer ivertexbuilder3 = vertexConsumers.getBuffer(type3);
-										renderBox(lBoobArmor, matrixStack, ivertexbuilder3, packedLightIn, 0xFFFFFF, 1f, 1f, 1f, 1f);
-									}
-									matrixStack.popPose();
 								}
+								matrixStack.translate(0.001f, 0.015f * 1f, -0.015f * 1f);
+								matrixStack.scale(1.05f, 1, 1);
+								RenderType type2 = RenderType.armorCutoutNoCull(ARMOR_TXTR);
+								VertexConsumer ivertexbuilder2 = vertexConsumers.getBuffer(type2);
+								renderBox(lBoobArmor, matrixStack, ivertexbuilder2, packedLightIn, 0xFFFFFF, armorR, armorG, armorB, 1f);
+
+								if (armorStack.isEnchanted()) {
+									RenderType type3 = RenderType.armorEntityGlint();
+									VertexConsumer ivertexbuilder3 = vertexConsumers.getBuffer(type3);
+									renderBox(lBoobArmor, matrixStack, ivertexbuilder3, packedLightIn, 0xFFFFFF, 1f, 1f, 1f, 1f);
+								}
+								matrixStack.popPose();
+								pushCount--;
 							}
 						}
 					}
 				}
 
-				matrixStack.popPose();;
+				matrixStack.popPose();
+				pushCount--;
 
-
-				pushMatrix(matrixStack, rend.getModel().body, 0);
+				pushCount += pushMatrix(matrixStack, rend.getModel().body, 0);
 				//left breast
 				if (bounceEnabled) {
 					matrixStack.translate(rTotalX / 32f, 0, 0);
@@ -308,45 +308,50 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 					if (!armorStack.isEmpty() && !(armorStack.getItem() instanceof ElytraItem)) {
 						ResourceLocation ARMOR_TXTR = getArmorTexture((ArmorItem) armorStack.getItem(), false, null);
 						if (ARMOR_TXTR != null) {
-							if (armorStack.getItem() instanceof ArmorItem) {
+							if (armorStack.getItem() instanceof ArmorItem && !(armorStack.getItem() instanceof ElytraItem)) {
 								matrixStack.pushPose();
+								pushCount++;
 
 								float armorR = 1f;
 								float armorG = 1f;
 								float armorB = 1f;
+								ArmorItem armoritem = (ArmorItem) armorStack.getItem();
+								if (armoritem instanceof DyeableArmorItem) {
+									int i = ((DyeableArmorItem) armoritem).getColor(armorStack);
+									armorR = (float) (i >> 16 & 255) / 255.0F;
+									armorG = (float) (i >> 8 & 255) / 255.0F;
+									armorB = (float) (i & 255) / 255.0F;
 
-								if (!(armorStack.getItem() instanceof ElytraItem)) {
-									ArmorItem armoritem = (ArmorItem) armorStack.getItem();
-									if (armoritem instanceof DyeableArmorItem) {
-										int i = ((DyeableArmorItem) armoritem).getColor(armorStack);
-										armorR = (float) (i >> 16 & 255) / 255.0F;
-										armorG = (float) (i >> 8 & 255) / 255.0F;
-										armorB = (float) (i & 255) / 255.0F;
-
-									}
-									matrixStack.translate(-0.001f, 0.015f * 1f, -0.015f * 1f);
-									matrixStack.scale(1.05f, 1, 1);
-									RenderType type2 = RenderType.armorCutoutNoCull(ARMOR_TXTR);
-									VertexConsumer ivertexbuilder2 = vertexConsumers.getBuffer(type2);
-									renderBox(rBoobArmor, matrixStack, ivertexbuilder2, packedLightIn, 0xFFFFFF, armorR, armorG, armorB, getTransparency(ent));
-
-									if (armorStack.isEnchanted()) {
-										RenderType type3 = RenderType.armorEntityGlint();
-										VertexConsumer ivertexbuilder3 = vertexConsumers.getBuffer(type3);
-										renderBox(rBoobArmor, matrixStack, ivertexbuilder3, packedLightIn, 0xFFFFFF, 1f, 1f, 1f, getTransparency(ent));
-									}
-									matrixStack.popPose();
 								}
+								matrixStack.translate(-0.001f, 0.015f * 1f, -0.015f * 1f);
+								matrixStack.scale(1.05f, 1, 1);
+								RenderType type2 = RenderType.armorCutoutNoCull(ARMOR_TXTR);
+								VertexConsumer ivertexbuilder2 = vertexConsumers.getBuffer(type2);
+								renderBox(rBoobArmor, matrixStack, ivertexbuilder2, packedLightIn, 0xFFFFFF, armorR, armorG, armorB, getTransparency(ent));
+
+								if (armorStack.isEnchanted()) {
+									RenderType type3 = RenderType.armorEntityGlint();
+									VertexConsumer ivertexbuilder3 = vertexConsumers.getBuffer(type3);
+									renderBox(rBoobArmor, matrixStack, ivertexbuilder3, packedLightIn, 0xFFFFFF, 1f, 1f, 1f, getTransparency(ent));
+								}
+								matrixStack.popPose();
+								pushCount--;
 							}
 						}
 					}
 				}
 
 				matrixStack.popPose(); //pop right breast
+				pushCount--;
 				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
+			while (pushCount > 0) {
+				//Reset any changes to the pose stack depth to avoid a mismatch and crashes later on
+				matrixStack.popPose();
+				pushCount--;
+			}
 		}
 	}
 
@@ -357,7 +362,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		return alphaChannel;
 	}
 
-	public static void pushMatrix(PoseStack m, ModelPart mdl, float f7) {
+	public static int pushMatrix(PoseStack m, ModelPart mdl, float f7) {
 
 		float rPointX = mdl.x;
 		float rPointY = mdl.y;
@@ -380,6 +385,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		if (rAngleX != 0.0F) {
 			m.mulPose(new Quaternion(rAngleX, 0f, 0f, false));
 		}
+		return 1;
 	}
 
 
