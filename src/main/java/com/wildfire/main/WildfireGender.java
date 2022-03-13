@@ -126,8 +126,7 @@ public class WildfireGender {
   	}
 
 	public static GenderPlayer loadGenderInfo(String uuid) {
-		GenderPlayer plr = GenderPlayer.loadCachedPlayer(uuid);
-		return plr;
+		return GenderPlayer.loadCachedPlayer(uuid);
 	}
   
 	public static void drawTextLabel(PoseStack m, String txt, int x, int y) {
@@ -149,6 +148,6 @@ public class WildfireGender {
 	}
 
 	public interface WildfireCB {
-		public void onExecute(boolean success, Object data);
+		void onExecute(boolean success, Object data);
 	}
 }
