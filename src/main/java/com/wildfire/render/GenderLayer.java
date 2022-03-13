@@ -28,7 +28,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -37,13 +36,11 @@ import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.*;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
@@ -146,9 +143,8 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 				ItemStack armorStack = ent.getInventory().getArmor(2);
 
-				boolean isChestplateOccupied =
-						!ent.getItemBySlot(EquipmentSlot.CHEST).equals(new ItemStack(Items.ELYTRA, 1), true) &&
-								!(ent.getItemBySlot(EquipmentSlot.CHEST).equals(new ItemStack(Items.AIR, 1), true));
+				boolean isChestplateOccupied = !(ent.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) &&
+											   !(ent.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof ElytraItem);
 
 				if (breastSize < 0.02f || (!plr.show_in_armor && isChestplateOccupied)) return;
 
@@ -218,7 +214,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 
 					//RIGHT BOOB ARMOR
-					if (!ItemStack.isSame(armorStack, new ItemStack(Items.AIR, 1)) && !(armorStack.getItem() instanceof ElytraItem) && !(armorStack.getItem() instanceof AirItem)) {
+					if (!armorStack.isEmpty() && !(armorStack.getItem() instanceof ElytraItem)) {
 
 						ResourceLocation ARMOR_TXTR = getArmorTexture((ArmorItem) armorStack.getItem(), false, null);
 						if (ARMOR_TXTR != null) {
@@ -309,7 +305,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 
 					//LEFT? BOOB ARMOR
-					if (!ItemStack.isSame(armorStack, new ItemStack(Items.AIR, 1)) && !(armorStack.getItem() instanceof ElytraItem) && !(armorStack.getItem() instanceof AirItem)) {
+					if (!armorStack.isEmpty() && !(armorStack.getItem() instanceof ElytraItem)) {
 						ResourceLocation ARMOR_TXTR = getArmorTexture((ArmorItem) armorStack.getItem(), false, null);
 						if (ARMOR_TXTR != null) {
 							if (armorStack.getItem() instanceof ArmorItem) {
