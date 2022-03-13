@@ -57,8 +57,8 @@ public class WildfireGender {
 			.serverAcceptedVersions(v -> v == NetworkRegistry.ACCEPTVANILLA || v.equals(PROTOCOL_VERSION))
 			.networkProtocolVersion(() -> PROTOCOL_VERSION).simpleChannel();
 
-  	public static ArrayList<GenderPlayer> CLOTHING_PLAYER = new ArrayList<GenderPlayer>();
-  	public static ArrayList<GenderPlayer> SERVER_PLAYER = new ArrayList<GenderPlayer>();
+  	public static ArrayList<GenderPlayer> CLOTHING_PLAYER = new ArrayList<>();
+  	public static ArrayList<GenderPlayer> SERVER_PLAYER = new ArrayList<>();
 
   	public static final GenderServer PROXY = DistExecutor.safeRunForDist(() -> GenderClient::new, () -> GenderServer::new);
 

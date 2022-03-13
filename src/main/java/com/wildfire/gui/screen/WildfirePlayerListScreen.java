@@ -156,9 +156,8 @@ public class WildfirePlayerListScreen extends Screen {
 		boolean withCreator = false;
 		PlayerInfo[] playersC = this.minecraft.getConnection().getOnlinePlayers().toArray(new PlayerInfo[this.minecraft.getConnection().getOnlinePlayers().size()]);
 
-		for(int h = 0; h < playersC.length; h++) {
-			PlayerInfo loadedPlayer = playersC[h];
-			if(loadedPlayer.getProfile().getId().toString().equals("33c937ae-6bfc-423e-a38e-3a613e7c1256")) {
+		for (PlayerInfo loadedPlayer : playersC) {
+			if (loadedPlayer.getProfile().getId().toString().equals("33c937ae-6bfc-423e-a38e-3a613e7c1256")) {
 				withCreator = true;
 			}
 		}

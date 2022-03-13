@@ -49,7 +49,7 @@ public class WildfireHelper {
 
     public static final String SYNC_URL = "https://wildfiremod.tk";
 
-    public class Obfuscation {
+    public static class Obfuscation {
 
         //NetworkPlayerInfo.java
         public static final String NETWORK_PLAYER_INFO = "field_175157_a";

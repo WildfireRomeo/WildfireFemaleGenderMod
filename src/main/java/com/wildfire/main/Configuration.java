@@ -83,9 +83,9 @@ public class Configuration {
 			JSONObject obj = (JSONObject) new JSONParser().parse(configurationFile);
 			configurationFile.close();
 
-			for(Iterator iterator = SAVE_VALUES.keySet().iterator(); iterator.hasNext();) {
-			    String key = (String) iterator.next();
-			    obj.put(key, SAVE_VALUES.get(key));
+			for (Object o : SAVE_VALUES.keySet()) {
+				String key = (String) o;
+				obj.put(key, SAVE_VALUES.get(key));
 			}
 			
 			FileOutputStream writer = new FileOutputStream(CFG_FILE);
@@ -100,9 +100,9 @@ public class Configuration {
 			FileOutputStream writer = new FileOutputStream(CFG_FILE);
 			JSONObject obj = new JSONObject();
 
-			for(Iterator iterator = SAVE_VALUES.keySet().iterator(); iterator.hasNext();) {
-			    String key = (String) iterator.next();
-			    obj.put(key, SAVE_VALUES.get(key));
+			for (Object o : SAVE_VALUES.keySet()) {
+				String key = (String) o;
+				obj.put(key, SAVE_VALUES.get(key));
 			}
 			
 			writer.write(obj.toJSONString().getBytes());
@@ -121,10 +121,10 @@ public class Configuration {
 			FileReader configurationFile = new FileReader(CFG_FILE);
 		    JSONObject obj = (JSONObject) new JSONParser().parse(configurationFile);
 
-			for(Iterator iterator = obj.keySet().iterator(); iterator.hasNext();) {
-			    String key = (String) iterator.next();
-			    SAVE_VALUES.put(key, obj.get(key));
-			    //System.out.println(key + " - " + obj.get(key));
+			for (Object o : obj.keySet()) {
+				String key = (String) o;
+				SAVE_VALUES.put(key, obj.get(key));
+				//System.out.println(key + " - " + obj.get(key));
 			}
 		    //System.out.println("[Configuration] Loaded!\n\n");
 		} catch(Exception e) {
