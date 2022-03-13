@@ -6,9 +6,9 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
-version = '2.8.2'
-group = 'com.wildfiregender.main'
-archivesBaseName = '[Fabric] Wildfire Female Gender Mod'
+archivesBaseName = project.archives_base_name
+version = project.mod_version
+group = project.maven_groupFix
 
 repositories {
 	maven {

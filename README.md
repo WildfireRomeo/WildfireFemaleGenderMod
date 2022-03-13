@@ -1,9 +1,21 @@
-# Fabric Example Mod
+# Wildfire's Female Gender Mod
+![Mod Banner](https://i.imgur.com/mtKmgT9.png)
+### Description
+The mod's primary purpose is to add breasts to your Minecraft player to give it a more unique appearance than the generic model.
 
-## Setup
+Client Only (Server required for settings to sync)
 
-For setup instructions please see the [fabric wiki page](https://fabricmc.net/wiki/tutorial:setup) that relates to the IDE that you are using.
+### Dependencies
+
+Fabric API
+
+### Incompatible
+Skin Layers 3D
+
+## Controls
+
+G - Open Wildfire's Gender Menu
 
 ## License
 
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+Wildfire's Female Gender Mod is provided under the All Rights Reserved license.
