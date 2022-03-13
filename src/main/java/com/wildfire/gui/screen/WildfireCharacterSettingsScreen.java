@@ -45,7 +45,7 @@ public class WildfireCharacterSettingsScreen extends Screen {
     }
 
 
-    public boolean isPauseScreen() { return false; }
+    public boolean shouldPause() { return false; }
 
     private int yPos = 0;
 

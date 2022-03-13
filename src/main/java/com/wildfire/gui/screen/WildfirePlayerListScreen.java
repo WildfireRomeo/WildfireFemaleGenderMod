@@ -48,7 +48,7 @@ public class WildfirePlayerListScreen extends Screen {
 		super.removed();
 	}
 	
-	public boolean isPauseScreen() { return false; }
+	public boolean shouldPause() { return false; }
 
   
   	public void init() {
@@ -56,9 +56,6 @@ public class WildfirePlayerListScreen extends Screen {
 
 	    int x = this.width / 2;
 	    int y = this.height / 2 - 20;
-		/*this.addButton(new SteinButton(this.width / 2 - 60, y + 75, 66, 15, new TranslationTextComponent("wildfire_gender.player_list.settings_button"), button -> {
-			mc.displayGuiScreen(new WildfireSettingsScreen(SteinPlayerListScreen.this));
-		}));*/
 
 		this.addDrawableChild(new WildfireButton(this.width / 2 + 53, y - 74, 9, 9, new LiteralText("X"), button -> {
 			MinecraftClient.getInstance().setScreen(null);

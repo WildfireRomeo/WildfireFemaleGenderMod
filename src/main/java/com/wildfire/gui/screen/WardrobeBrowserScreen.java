@@ -40,7 +40,7 @@ public class WardrobeBrowserScreen extends Screen {
 	}
   
  
-	public boolean isPauseScreen() { return false; }
+	public boolean shouldPause() { return false; }
 
   
   	public void init() {

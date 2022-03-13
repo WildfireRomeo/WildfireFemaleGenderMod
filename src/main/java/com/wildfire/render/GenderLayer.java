@@ -54,8 +54,6 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 
 		lBoobArmor = new WildfireModelRenderer.BreastModelBox(64, 32, 16, 19, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 		rBoobArmor = new WildfireModelRenderer.BreastModelBox(64, 32, 20, 19, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
-		//chest = new SteinModelRenderer.ModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 8, 5, 4, 0.0F, false);
-		//chestwear = new SteinModelRenderer.ModelBox(64, 64, 17, 34, -4F, 0.0F, 0F, 8, 5, 3, 0.0F, false);
 		sBox = new WildfireModelRenderer.ModelBox(64, 32, 17, 19, -4F, 0.0F, 0F, 8, 5, 3, 0.0F, false);
 
 	}
@@ -74,7 +72,6 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 		try {
 			//0.5 or 0
 			String playerName = ent.getUuid().toString();
-			//System.out.println(ent.getUuid().toString());
 			GenderPlayer plr = WildfireGender.getPlayerByName(playerName);
 			if(plr == null) return;
 
