@@ -11,7 +11,7 @@
   "contact": {
     "homepage": "https://www.curseforge.com/minecraft/mc-mods/female-gender-fabric"
   },
-  "license": "MIT License",
+  "license": "GNU GPLv3 License",
   "icon": "assets/wildfire_gender/icon.png",
 
   "environment": "*",
