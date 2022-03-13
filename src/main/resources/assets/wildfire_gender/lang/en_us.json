@@ -1,0 +1,49 @@
+{
+	"key.categories.wildfire_gender": "Wildfire's Female Gender Mod",
+	"wildfire_gender.key.gui": "Female Gender Menu",
+
+	"wildfire_gender.hurt.female": "Female Hurt",
+
+	"wildfire_gender.player_list.title": "Wildfire's Gender Mod",
+	"wildfire_gender.player_list.settings_button": "Settings",
+	"wildfire_gender.player_list.cape_button": "Edit Custom Cape...",
+	"wildfire_gender.player_list.sync_status": "Sync Status",
+	"wildfire_gender.player_list.state.loading": "Loading Data...",
+	"wildfire_gender.player_list.state.synced": "Synced Player",
+
+	"wildfire_gender.cape_screen.title": "Custom Cape URL",
+
+	"wildfire_gender.wardrobe.title": "Customization Menu",
+	"wildfire_gender.wardrobe.slider.breast_size": "Breast Size",
+
+	"wildfire_gender.char_settings.title": "Character Settings...",
+
+	"wildfire_gender.settings.title": "Wildfire's Settings Menu",
+
+	"wildfire_gender.web_key.title": "Enter Website Key Here",
+	"wildfire_gender.web_key.apply": "Apply",
+	"wildfire_gender.web_key.disable": "Disable",
+
+	"wildfire_gender.acknowledge.confirm": "Okay",
+
+	"wildfire_gender.label.gender": "Gender",
+	"wildfire_gender.label.female": "Female",
+	"wildfire_gender.label.male": "Male",
+	"wildfire_gender.label.other": "Other",
+
+	"wildfire_gender.label.enabled": "Enabled",
+	"wildfire_gender.label.disabled": "Disabled",
+
+	"wildfire_gender.settings.button_physics": "Breast Physics",
+	"wildfire_gender.tooltip.breast_physics": "Enable / Disable Breast Physics",
+
+	"wildfire_gender.settings.button_armor_physics": "Armor Physics",
+	"wildfire_gender.tooltip.armor_physics": "Enables Physics With Armor Equipped",
+
+	"wildfire_gender.slider.bounce": "Bounce Intensity",
+	"wildfire_gender.slider.floppy": "Breast Momentum",
+	"wildfire_gender.slider.min_bounce": "Why Are Physics Even On?",
+	"wildfire_gender.slider.max_bounce": "Anime Breast Physics!!!",
+	"wildfire_gender.slider.floppy.max_bounce": "Topsy-Turvy-Titties",
+	"wildfire_gender.tooltip.bounce_warning": "Setting 'Bounce Intensity' to a high value will look very unnatural!"
+}

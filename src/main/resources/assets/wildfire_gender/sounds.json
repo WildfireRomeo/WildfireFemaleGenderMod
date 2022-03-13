@@ -1,0 +1,12 @@
+{
+	"female_hurt1": {
+		"category": "block",
+		"subtitle": "wildfire_gender.hurt.female",
+		"sounds": [ "wildfire_gender:female_damage" ]
+	},
+	"female_hurt2": {
+		"category": "block",
+		"subtitle": "wildfire_gender.hurt.female",
+		"sounds": [ "wildfire_gender:female_damage2" ]
+	}
+}

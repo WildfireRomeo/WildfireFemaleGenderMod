@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.wildfire.mixins",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "PlayerEntityServerMixin"
+  ],
+  "client": [
+    "PlayerEntityMixin",
+    "PlayerRenderMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

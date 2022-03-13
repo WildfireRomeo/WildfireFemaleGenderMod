@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "wildfire_gender",
+  "version": "2.8.1",
+
+  "name": "Wildfire's Female Gender Mod",
+  "description": "A Minecraft Female Gender Mod!",
+  "authors": [
+    "WildfireRomeo"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/female-gender-fabric"
+  },
+  "license": "All Rights Reserved",
+  "icon": "assets/wildfire_gender/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.wildfire.main.WildfireGenderServer"
+    ],
+    "client": [
+      "com.wildfire.main.WildfireGender"
+    ]
+  },
+  "mixins": [
+    "wildfire_gender.mixins.json"
+  ],
+
+  "depends": {
+    "fabric-key-binding-api-v1": "*",
+    "fabric-networking-api-v1": "*",
+    "fabric-lifecycle-events-v1": "*",
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.18.x",
+    "java": ">=17"
+  }
+}
