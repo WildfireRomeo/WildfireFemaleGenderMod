@@ -49,7 +49,7 @@ public class WildfireBreastCustomizationScreen extends Screen {
     private Screen parent;
 
     public WildfireBreastCustomizationScreen(Screen parent, UUID uuid) {
-        super(new TranslatableComponent("wildfire_gender.settings.title"));
+        super(new TranslatableComponent("wildfire_gender.appearance_settings.title"));
         this.playerUUID = uuid;
         this.parent = parent;
     }
@@ -73,22 +73,22 @@ public class WildfireBreastCustomizationScreen extends Screen {
         preCleavage = plr.getBreasts().cleavage;
 
 
-        this.addRenderableWidget(new WildfireButton(this.width / 2 + 178, j - 61, 9, 9, new TextComponent("X"),
+        this.addRenderableWidget(new WildfireButton(this.width / 2 + 178, j - 61, 9, 9, new TranslatableComponent("wildfire_gender.label.exit"),
               button -> Minecraft.getInstance().setScreen(parent)));
 
 
-        this.addRenderableWidget(this.breastSlider = new WildfireSlider(this.width / 2 + 30, j - 48, 158, 20, new TextComponent(""), title, 0.0D, 1.0D, plr.getBustSize(), false, false, button -> {
+        this.addRenderableWidget(this.breastSlider = new WildfireSlider(this.width / 2 + 30, j - 48, 158, 20, TextComponent.EMPTY, title, 0.0D, 1.0D, plr.getBustSize(), false, false, button -> {
         }, slider -> {
         }));
 
         //Customization
-        this.addRenderableWidget(this.xOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 27, 158, 20, new TextComponent(""), title, -1.0D, 1.0D, plr.getBreasts().xOffset, false, false, button -> {
+        this.addRenderableWidget(this.xOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 27, 158, 20, TextComponent.EMPTY, title, -1.0D, 1.0D, plr.getBreasts().xOffset, false, false, button -> {
         }, slider -> {
         }));
-        this.addRenderableWidget(this.yOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 6, 158, 20, new TextComponent(""), title, -1.0D, 1.0D, plr.getBreasts().yOffset, false, false, button -> {
+        this.addRenderableWidget(this.yOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 6, 158, 20, TextComponent.EMPTY, title, -1.0D, 1.0D, plr.getBreasts().yOffset, false, false, button -> {
         }, slider -> {
         }));
-        this.addRenderableWidget(this.zOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j + 15, 158, 20, new TextComponent(""), title, -1.0D, 0.0D, plr.getBreasts().zOffset, false, false, button -> {
+        this.addRenderableWidget(this.zOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j + 15, 158, 20, TextComponent.EMPTY, title, -1.0D, 0.0D, plr.getBreasts().zOffset, false, false, button -> {
         }, slider -> {
         }));
 
@@ -96,13 +96,14 @@ public class WildfireBreastCustomizationScreen extends Screen {
 
 
 
-        this.addRenderableWidget(this.cleavageSlider = new WildfireSlider(this.width / 2 + 30, j + 36, 158, 20, new TextComponent(""), title, 0.0D, 1.0D, plr.getBreasts().cleavage, false,  false, button -> {
+        this.addRenderableWidget(this.cleavageSlider = new WildfireSlider(this.width / 2 + 30, j + 36, 158, 20, TextComponent.EMPTY, title, 0.0D, 1.0D, plr.getBreasts().cleavage, false,  false, button -> {
         }, slider -> {
         }));
 
-        this.addRenderableWidget(new WildfireButton(this.width / 2 + 30, j + 57, 158, 20, new TextComponent("Dual-Physics: " + (plr.getBreasts().isUniboob?"No":"Yes")), button -> {
+        this.addRenderableWidget(new WildfireButton(this.width / 2 + 30, j + 57, 158, 20,
+              new TranslatableComponent("wildfire_gender.breast_customization.dual_physics", new TranslatableComponent(plr.getBreasts().isUniboob ? "wildfire_gender.label.no" : "wildfire_gender.label.yes")), button -> {
             plr.getBreasts().isUniboob ^= true;
-            button.setMessage(new TextComponent("Dual-Physics: " + (plr.getBreasts().isUniboob?"No":"Yes")));
+            button.setMessage(new TranslatableComponent("wildfire_gender.breast_customization.dual_physics", new TranslatableComponent(plr.getBreasts().isUniboob ? "wildfire_gender.label.no" : "wildfire_gender.label.yes")));
             GenderPlayer.saveGenderInfo(plr);
 
         }));
@@ -146,7 +147,7 @@ public class WildfireBreastCustomizationScreen extends Screen {
         int y = this.height / 2;
         fill(m, x + 28, y - 64, x + 190, y + 79, 0x55000000);
         fill(m, x + 29, y - 63, x + 189, y - 50, 0x55000000);
-        this.font.draw(m, new TextComponent("Appearance Settings"), x + 32, y - 60, 0xFFFFFF);
+        this.font.draw(m, title, x + 32, y - 60, 0xFFFFFF);
 
 
         if(preBreastSize != (float) this.breastSlider.getValue()) {
@@ -176,11 +177,11 @@ public class WildfireBreastCustomizationScreen extends Screen {
         }
         super.render(m, f1, f2, f3);
 
-        if(breastSlider.visible) this.font.draw(m, new TranslatableComponent("wildfire_gender.wardrobe.slider.breast_size").getString() + ": " + Math.round(plr.getBustSize() * 100) + "%", x + 36, y - 42, (this.breastSlider.isMouseOver(f1,  f2) || changedBreastSlider) ? 0xFFFF55: 0xFFFFFF);
-        if(xOffsetBoobSlider.visible) this.font.draw(m, "Separation: " + Math.round((Math.round(plr.getBreasts().xOffset * 100f) / 100f) * 10) + "", x + 36, y - 21, (this.xOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderX) ? 0xFFFF55: 0xFFFFFF);
-        if(yOffsetBoobSlider.visible) this.font.draw(m, "Height: " + Math.round((Math.round(plr.getBreasts().yOffset * 100f) / 100f) * 10) + "", x + 36, y, (this.yOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderY) ? 0xFFFF55: 0xFFFFFF);
-        if(zOffsetBoobSlider.visible) this.font.draw(m, "Depth: " + Math.round((Math.round(plr.getBreasts().zOffset * 100f) / 100f) * 10) + "", x + 36, y + 21, (this.zOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderZ) ? 0xFFFF55: 0xFFFFFF);
-        if(cleavageSlider.visible) this.font.draw(m, "Rotation: " + Math.round((Math.round(plr.getBreasts().cleavage * 100f) / 100f) * 100) + " degrees", x + 36, y + 42, (this.cleavageSlider.isMouseOver(f1,  f2) || changedCleavageSlider) ? 0xFFFF55: 0xFFFFFF);
+        if(breastSlider.visible) this.font.draw(m, new TranslatableComponent("wildfire_gender.wardrobe.slider.breast_size", Math.round(plr.getBustSize() * 100)), x + 36, y - 42, (this.breastSlider.isMouseOver(f1,  f2) || changedBreastSlider) ? 0xFFFF55: 0xFFFFFF);
+        if(xOffsetBoobSlider.visible) this.font.draw(m, new TranslatableComponent("wildfire_gender.wardrobe.slider.separation", Math.round((Math.round(plr.getBreasts().xOffset * 100f) / 100f) * 10)), x + 36, y - 21, (this.xOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderX) ? 0xFFFF55: 0xFFFFFF);
+        if(yOffsetBoobSlider.visible) this.font.draw(m, new TranslatableComponent("wildfire_gender.wardrobe.slider.height", Math.round((Math.round(plr.getBreasts().yOffset * 100f) / 100f) * 10)), x + 36, y, (this.yOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderY) ? 0xFFFF55: 0xFFFFFF);
+        if(zOffsetBoobSlider.visible) this.font.draw(m, new TranslatableComponent("wildfire_gender.wardrobe.slider.depth", Math.round((Math.round(plr.getBreasts().zOffset * 100f) / 100f) * 10)), x + 36, y + 21, (this.zOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderZ) ? 0xFFFF55: 0xFFFFFF);
+        if(cleavageSlider.visible) this.font.draw(m, new TranslatableComponent("wildfire_gender.wardrobe.slider.rotation", Math.round((Math.round(plr.getBreasts().cleavage * 100f) / 100f) * 100)), x + 36, y + 42, (this.cleavageSlider.isMouseOver(f1,  f2) || changedCleavageSlider) ? 0xFFFF55: 0xFFFFFF);
     }
 
     @Override

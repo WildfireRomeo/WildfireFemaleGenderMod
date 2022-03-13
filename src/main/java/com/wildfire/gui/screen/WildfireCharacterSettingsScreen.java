@@ -31,6 +31,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -38,6 +39,8 @@ import net.minecraft.world.entity.player.Player;
 
 public class WildfireCharacterSettingsScreen extends Screen {
 
+    private static final Component ENABLED = new TranslatableComponent("wildfire_gender.label.enabled").withStyle(ChatFormatting.GREEN);
+    private static final Component DISABLED = new TranslatableComponent("wildfire_gender.label.disabled").withStyle(ChatFormatting.RED);
 
     private WildfireSlider bounceSlider, floppySlider;
     private ResourceLocation BACKGROUND;
@@ -49,7 +52,7 @@ public class WildfireCharacterSettingsScreen extends Screen {
     private UUID playerUUID;
 
     protected WildfireCharacterSettingsScreen(Screen parent, UUID uuid) {
-        super(new TranslatableComponent("Gender Settings"));
+        super(new TranslatableComponent("wildfire_gender.char_settings.title"));
         this.parent = parent;
         this.playerUUID = uuid;
     }
@@ -79,39 +82,43 @@ public class WildfireCharacterSettingsScreen extends Screen {
         bounceMult = aPlr.bounceMultiplier;
         floppyMult = aPlr.floppyMultiplier;
 
-        this.addRenderableWidget(new WildfireButton(this.width / 2 - 156/2-1, yPos, 157, 20, new TextComponent("Breast Physics: " + (enablePhysics ? ChatFormatting.GREEN + "Enabled" : ChatFormatting.RED + "Disabled")), button -> {
+        this.addRenderableWidget(new WildfireButton(this.width / 2 - 156/2-1, yPos, 157, 20,
+              new TranslatableComponent("wildfire_gender.char_settings.physics", enablePhysics ? ENABLED : DISABLED), button -> {
             enablePhysics ^= true;
-            button.setMessage(new TextComponent("Breast Physics: " + (enablePhysics ? ChatFormatting.GREEN + "Enabled" : ChatFormatting.RED + "Disabled")));
+            button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.physics", enablePhysics ? ENABLED : DISABLED));
             aPlr.breast_physics = enablePhysics;
             GenderPlayer.saveGenderInfo(aPlr);
         }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.breast_physics"), mouseX, mouseY)));
 
-        this.addRenderableWidget(new WildfireButton(this.width / 2 - 156/2-1, yPos + 20, 157, 20, new TextComponent("Armor Physics: " + (enablePhysicsArmor ? ChatFormatting.GREEN + "Enabled" : ChatFormatting.RED + "Disabled")), button -> {
+        this.addRenderableWidget(new WildfireButton(this.width / 2 - 156/2-1, yPos + 20, 157, 20,
+              new TranslatableComponent("wildfire_gender.char_settings.armor_physics", enablePhysicsArmor ? ENABLED : DISABLED), button -> {
             enablePhysicsArmor ^= true;
-            button.setMessage(new TextComponent("Armor Physics: " + (enablePhysicsArmor ? ChatFormatting.GREEN + "Enabled" : ChatFormatting.RED + "Disabled")));
+            button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.armor_physics", enablePhysicsArmor ? ENABLED : DISABLED));
             aPlr.breast_physics_armor = enablePhysicsArmor;
             GenderPlayer.saveGenderInfo(aPlr);
-        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TextComponent("Enables Breast Physics With Armor Equipped"), mouseX, mouseY)));
+        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.armor_physics"), mouseX, mouseY)));
 
-        this.addRenderableWidget(new WildfireButton(this.width / 2 - 156/2-1, yPos + 40, 157, 20, new TextComponent("Hide In Armor: " + (!enableShowInArmor ? ChatFormatting.GREEN + "Enabled" : ChatFormatting.RED + "Disabled")), button -> {
+        this.addRenderableWidget(new WildfireButton(this.width / 2 - 156/2-1, yPos + 40, 157, 20,
+              new TranslatableComponent("wildfire_gender.char_settings.hide_in_armor", enableShowInArmor ? DISABLED : ENABLED), button -> {
             enableShowInArmor ^= true;
-            button.setMessage(new TextComponent("Hide In Armor: " + (!enableShowInArmor ? ChatFormatting.GREEN + "Enabled" : ChatFormatting.RED + "Disabled")));
+            button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.hide_in_armor", enableShowInArmor ? DISABLED : ENABLED));
             aPlr.show_in_armor = enableShowInArmor;
             GenderPlayer.saveGenderInfo(aPlr);
-        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TextComponent("Hide Breast Model When Wearing Armor"), mouseX, mouseY)));
+        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.hide_in_armor"), mouseX, mouseY)));
 
-        this.addRenderableWidget(this.bounceSlider = new WildfireSlider(this.width / 2 - 160/2-1, yPos + 60, 160, 22, new TextComponent(""), title, 0.0D, 1.0D, bounceMult, false,  false, button -> {
+        this.addRenderableWidget(this.bounceSlider = new WildfireSlider(this.width / 2 - 160/2-1, yPos + 60, 160, 22, TextComponent.EMPTY, title, 0.0D, 1.0D, bounceMult, false,  false, button -> {
         }, slider -> {
         }));
 
-        this.addRenderableWidget(this.floppySlider = new WildfireSlider(this.width / 2 - 160/2-1, yPos + 80, 160, 22, new TextComponent(""), title, 0.0D, 1.0D, floppyMult, false,  false, button -> {
+        this.addRenderableWidget(this.floppySlider = new WildfireSlider(this.width / 2 - 160/2-1, yPos + 80, 160, 22, TextComponent.EMPTY, title, 0.0D, 1.0D, floppyMult, false,  false, button -> {
         }, slider -> {
         }));
 
 
-        this.addRenderableWidget((new WildfireButton(this.width / 2 - 156/2-1, yPos + 100, 157, 20, new TextComponent("Female Hurt Sounds: " + (enableHurtSounds ? ChatFormatting.GREEN + "Enabled" : ChatFormatting.RED + "Disabled")), button -> {
+        this.addRenderableWidget((new WildfireButton(this.width / 2 - 156/2-1, yPos + 100, 157, 20,
+              new TranslatableComponent("wildfire_gender.char_settings.hurt_sounds", enableHurtSounds ? ENABLED : DISABLED), button -> {
             enableHurtSounds ^= true;
-            button.setMessage(new TextComponent("Female Hurt Sounds: " + (enableHurtSounds ? ChatFormatting.GREEN + "Enabled" : ChatFormatting.RED + "Disabled")));
+            button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.hurt_sounds", enableHurtSounds ? ENABLED : DISABLED));
             aPlr.hurtSounds = enableHurtSounds;
             GenderPlayer.saveGenderInfo(aPlr);
         }, (button, matrices, mouseX, mouseY) -> {
@@ -123,7 +130,7 @@ public class WildfireCharacterSettingsScreen extends Screen {
             //RenderSystem.enableDepthTest();
         })));
 
-        this.addRenderableWidget(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, new TextComponent("X"),
+        this.addRenderableWidget(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, new TranslatableComponent("wildfire_gender.label.exit"),
               button -> Minecraft.getInstance().setScreen(parent)));
 
         this.BACKGROUND = new ResourceLocation("wildfire_gender", "textures/gui/settings_bg.png");
@@ -149,7 +156,7 @@ public class WildfireCharacterSettingsScreen extends Screen {
         int x = this.width / 2;
         int y = this.height / 2;
 
-        this.font.draw(m, new TranslatableComponent("wildfire_gender.char_settings.title"), x - 79, yPos - 10, 4473924);
+        this.font.draw(m, title, x - 79, yPos - 10, 4473924);
 
         //modelRotation = (float)this.rotateSlider.getValue();
         if(preBounceMult != (float) this.bounceSlider.getValue()) {
@@ -166,21 +173,21 @@ public class WildfireCharacterSettingsScreen extends Screen {
         super.render(m, f1, f2, f3);
 
         if(plrEntity != null) {
-            Screen.drawCenteredString(m, this.font, plrEntity.getDisplayName().getString(), x, yPos - 30, 0xFFFFFF);
+            Screen.drawCenteredString(m, this.font, plrEntity.getDisplayName(), x, yPos - 30, 0xFFFFFF);
         }
 
         float bounceText = (bounceMult * 3);
         if (Math.round(bounceText * 10) / 10f == 3) {
-            this.font.draw(m, "#Anime Breast Physics!!!", x - 72, yPos+67, (this.bounceSlider.isMouseOver(f1,  f2) || changedSlider) ? 0xFFFF55: 0xFFFFFF);
+            this.font.draw(m, new TranslatableComponent("wildfire_gender.slider.max_bounce"), x - 72, yPos+67, (this.bounceSlider.isMouseOver(f1,  f2) || changedSlider) ? 0xFFFF55: 0xFFFFFF);
         } else if (Math.round(bounceText * 100) / 100f == 0) {
-            this.font.draw(m, "Why Are Physics Even On?", x - 72, yPos+67, (this.bounceSlider.isMouseOver(f1,  f2) || changedSlider) ? 0xFFFF55: 0xFFFFFF);
+            this.font.draw(m, new TranslatableComponent("wildfire_gender.slider.min_bounce"), x - 72, yPos+67, (this.bounceSlider.isMouseOver(f1,  f2) || changedSlider) ? 0xFFFF55: 0xFFFFFF);
         } else {
-            this.font.draw(m, "Bounce Intensity: " + Math.round(bounceText * 10) / 10f + "x", x - 72, yPos+67, (this.bounceSlider.isMouseOver(f1,  f2) || changedSlider) ? 0xFFFF55: 0xFFFFFF);
+            this.font.draw(m, new TranslatableComponent("wildfire_gender.slider.bounce", Math.round(bounceText * 10) / 10f), x - 72, yPos+67, (this.bounceSlider.isMouseOver(f1,  f2) || changedSlider) ? 0xFFFF55: 0xFFFFFF);
         }
-        this.font.draw(m, "Breast Momentum: " + Math.round(floppyMult * 100) + "%", x - 72, yPos+87, (this.floppySlider.isMouseOver(f1,  f2) || changedFloppySlider) ? 0xFFFF55: 0xFFFFFF);
+        this.font.draw(m, new TranslatableComponent("wildfire_gender.slider.floppy", Math.round(floppyMult * 100)), x - 72, yPos+87, (this.floppySlider.isMouseOver(f1,  f2) || changedFloppySlider) ? 0xFFFF55: 0xFFFFFF);
 
         if(Math.round(bounceText * 10) / 10f > 1f) {
-            Screen.drawCenteredString(m, font, ChatFormatting.ITALIC + "Setting 'Bounce Intensity' to a high value will look very unnatural!", x, y+90, 0xFF6666);
+            Screen.drawCenteredString(m, font, new TranslatableComponent("wildfire_gender.tooltip.bounce_warning").withStyle(ChatFormatting.ITALIC), x, y+90, 0xFF6666);
         }
     }
 
