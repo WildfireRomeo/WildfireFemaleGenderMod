@@ -53,8 +53,8 @@ public class WildfireGender {
 	private static final String PROTOCOL_VERSION = "1";
 	//public static SimpleChannel NETWORK = NetworkRegistry.newSimpleChannel(new ResourceLocation("wildfire_gender", "main_channel"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
 	public static SimpleChannel NETWORK = NetworkRegistry.ChannelBuilder.named(new ResourceLocation("wildfire_gender", "main_channel"))
-			.clientAcceptedVersions(v -> v == NetworkRegistry.ABSENT || v == NetworkRegistry.ACCEPTVANILLA || v.equals(PROTOCOL_VERSION))
-			.serverAcceptedVersions(v -> v == NetworkRegistry.ACCEPTVANILLA || v.equals(PROTOCOL_VERSION))
+			.clientAcceptedVersions(v -> v.equals(NetworkRegistry.ABSENT) || v.equals(NetworkRegistry.ACCEPTVANILLA) || v.equals(PROTOCOL_VERSION))
+			.serverAcceptedVersions(v -> v.equals(NetworkRegistry.ACCEPTVANILLA) || v.equals(PROTOCOL_VERSION))
 			.networkProtocolVersion(() -> PROTOCOL_VERSION).simpleChannel();
 
   	public static ArrayList<GenderPlayer> CLOTHING_PLAYER = new ArrayList<>();
