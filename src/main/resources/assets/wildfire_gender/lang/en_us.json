@@ -1,17 +1,14 @@
 {
-	"key.categories.wildfire_gender": "Wildfire's Female Gender Mod",
-	"wildfire_gender.key.gui": "Female Gender Menu",
+	"category.wildfire_gender.generic": "Wildfire's Female Gender Mod",
+	"key.wildfire_gender.gender_menu": "Female Gender Menu",
 
-	"wildfire_gender.hurt.female": "Female Hurt",
+	"wildfire_gender.hurt.female": "Female Player Hurt",
 
 	"wildfire_gender.player_list.title": "Wildfire's Gender Mod",
 	"wildfire_gender.player_list.settings_button": "Settings",
-	"wildfire_gender.player_list.cape_button": "Edit Custom Cape...",
 	"wildfire_gender.player_list.sync_status": "Sync Status",
 	"wildfire_gender.player_list.state.loading": "Loading Data...",
 	"wildfire_gender.player_list.state.synced": "Synced Player",
-
-	"wildfire_gender.cape_screen.title": "Custom Cape URL",
 
 	"wildfire_gender.wardrobe.title": "Customization Menu",
 	"wildfire_gender.wardrobe.slider.breast_size": "Breast Size",
@@ -19,10 +16,6 @@
 	"wildfire_gender.char_settings.title": "Character Settings...",
 
 	"wildfire_gender.settings.title": "Wildfire's Settings Menu",
-
-	"wildfire_gender.web_key.title": "Enter Website Key Here",
-	"wildfire_gender.web_key.apply": "Apply",
-	"wildfire_gender.web_key.disable": "Disable",
 
 	"wildfire_gender.acknowledge.confirm": "Okay",
 
