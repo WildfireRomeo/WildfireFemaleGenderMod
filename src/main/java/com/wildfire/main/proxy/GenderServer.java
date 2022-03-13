@@ -1,4 +1,3 @@
-package com.wildfire.main.proxy;
 /*
 Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
 Copyright (C) 2022  WildfireRomeo
@@ -16,6 +15,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
+package com.wildfire.main.proxy;
+
 import com.wildfire.main.WildfireCommonEvents;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
