@@ -95,7 +95,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			float breastOffsetY = -Math.round((Math.round(plr.getBreasts().yOffset * 100f) / 100f) * 10) / 10f;
 			float breastOffsetZ = -Math.round((Math.round(plr.getBreasts().zOffset * 100f) / 100f) * 10) / 10f;
 
-			float bSize = plr.getLeftBreastPhysics().getBreastSize(partialTicks);
+			final float bSize = plr.getLeftBreastPhysics().getBreastSize(partialTicks);
 			float outwardAngle = (Math.round(plr.getBreasts().cleavage * 100f) / 100f) * 100f;
 			outwardAngle = Math.min(outwardAngle, 10);
 			boolean uniboob = plr.getBreasts().isUniboob;
@@ -135,10 +135,10 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 					rTotalX = lTotalX;
 					rightBounceRotation = leftBounceRotation;
 				}
-				float breastSize = plr.getLeftBreastPhysics().getBreastSize(partialTicks) * 1.5f;
+				float breastSize = bSize * 1.5f;
 				if (breastSize > 0.7f) breastSize = 0.7f;
-				if (plr.getLeftBreastPhysics().getBreastSize(partialTicks) > 0.7f) {
-					breastSize = plr.getLeftBreastPhysics().getBreastSize(partialTicks);
+				if (bSize > 0.7f) {
+					breastSize = bSize;
 				}
 
 				ItemStack armorStack = ent.getInventory().getArmor(2);
@@ -148,8 +148,8 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 				if (breastSize < 0.02f || (!plr.show_in_armor && isChestplateOccupied)) return;
 
-				float zOff = 0.0625f - (plr.getLeftBreastPhysics().getBreastSize(partialTicks) * 0.0625f);
-				breastSize = plr.getLeftBreastPhysics().getBreastSize(partialTicks) + 0.5f * Math.abs(plr.getLeftBreastPhysics().getBreastSize(partialTicks) - 0.7f) * 2f;
+				float zOff = 0.0625f - (bSize * 0.0625f);
+				breastSize = bSize + 0.5f * Math.abs(bSize - 0.7f) * 2f;
 
 				//matrixStack.translate(0, 0, zOff);
 				//System.out.println(bounceRotation);
