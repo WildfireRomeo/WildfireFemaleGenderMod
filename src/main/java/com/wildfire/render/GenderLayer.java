@@ -20,6 +20,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.*;
+import java.util.Locale;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -42,6 +43,7 @@ import net.minecraft.world.item.*;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraftforge.client.ForgeHooksClient;
 
 public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
@@ -71,10 +73,29 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 	}
 
-	private static final Map<String, ResourceLocation> ARMOR_TEXTURE_CACHE = new HashMap<String, ResourceLocation>();
-	private ResourceLocation getArmorTexture(ArmorItem item, boolean legs, @Nullable String overlay) {
-		String string = "textures/models/armor/" + item.getMaterial().getName() + "_layer_" + (legs ? 2 : 1) + (overlay == null ? "" : "_" + overlay) + ".png";
-		return (ResourceLocation) ARMOR_TEXTURE_CACHE.computeIfAbsent(string, ResourceLocation::new);
+	private static final Map<String, ResourceLocation> ARMOR_LOCATION_CACHE = new HashMap<>();
+	//Copy of Forge's patched in HumanoidArmorLayer#getArmorResource
+	public ResourceLocation getArmorResource(AbstractClientPlayer entity, ItemStack stack, EquipmentSlot slot, @Nullable String type) {
+		ArmorItem item = (ArmorItem) stack.getItem();
+		String texture = item.getMaterial().getName();
+		String domain = "minecraft";
+		int idx = texture.indexOf(':');
+		if (idx != -1) {
+			domain = texture.substring(0, idx);
+			texture = texture.substring(idx + 1);
+		}
+		String s1 = String.format(Locale.ROOT, "%s:textures/models/armor/%s_layer_%d%s.png", domain, texture,
+			(slot == EquipmentSlot.LEGS ? 2 : 1), type == null ? "" : String.format(Locale.ROOT, "_%s", type));
+
+		s1 = ForgeHooksClient.getArmorTexture(entity, stack, s1, slot, type);
+		ResourceLocation resourcelocation = ARMOR_LOCATION_CACHE.get(s1);
+
+		if (resourcelocation == null) {
+			resourcelocation = new ResourceLocation(s1);
+			ARMOR_LOCATION_CACHE.put(s1, resourcelocation);
+		}
+
+		return resourcelocation;
 	}
 
 	@Override
@@ -210,7 +231,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 				//RIGHT BOOB ARMOR
 				if (!armorStack.isEmpty() && !(armorStack.getItem() instanceof ElytraItem) && armorStack.getItem() instanceof ArmorItem armorItem) {
-					ResourceLocation ARMOR_TXTR = getArmorTexture(armorItem, false, null);
+					ResourceLocation ARMOR_TXTR = getArmorResource(ent, armorStack, EquipmentSlot.CHEST, null);
 					if (ARMOR_TXTR != null) {
 						matrixStack.pushPose();
 						pushCount++;
@@ -295,7 +316,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 				//LEFT? BOOB ARMOR
 				if (!armorStack.isEmpty() && !(armorStack.getItem() instanceof ElytraItem) && armorStack.getItem() instanceof ArmorItem armorItem) {
-					ResourceLocation ARMOR_TXTR = getArmorTexture(armorItem, false, null);
+					ResourceLocation ARMOR_TXTR = getArmorResource(ent, armorStack, EquipmentSlot.CHEST, null);
 					if (ARMOR_TXTR != null) {
 						matrixStack.pushPose();
 						pushCount++;
