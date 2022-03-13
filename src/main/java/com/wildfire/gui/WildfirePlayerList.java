@@ -77,7 +77,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
 
     public void refreshList() {
         this.clearEntries();
-        PlayerInfo[] playersC = this.minecraft.getConnection().getOnlinePlayers().toArray(new PlayerInfo[this.minecraft.getConnection().getOnlinePlayers().size()]);
+        PlayerInfo[] playersC = this.minecraft.getConnection().getOnlinePlayers().toArray(new PlayerInfo[0]);
 
         for (PlayerInfo loadedPlayer : playersC) {
             this.addEntry(new Entry(loadedPlayer, false));

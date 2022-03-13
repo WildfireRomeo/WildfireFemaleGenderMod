@@ -154,7 +154,7 @@ public class WildfirePlayerListScreen extends Screen {
 	    this.font.draw(m, new TranslatableComponent("wildfire_gender.player_list.title"), x - 60, y - 73, 4473924);
 
 		boolean withCreator = false;
-		PlayerInfo[] playersC = this.minecraft.getConnection().getOnlinePlayers().toArray(new PlayerInfo[this.minecraft.getConnection().getOnlinePlayers().size()]);
+		PlayerInfo[] playersC = this.minecraft.getConnection().getOnlinePlayers().toArray(new PlayerInfo[0]);
 
 		for (PlayerInfo loadedPlayer : playersC) {
 			if (loadedPlayer.getProfile().getId().toString().equals("33c937ae-6bfc-423e-a38e-3a613e7c1256")) {
