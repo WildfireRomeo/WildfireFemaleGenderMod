@@ -31,7 +31,7 @@ logoFile="icon.png" #optional
 # A text field displayed in the mod UI
 # credits="" #optional
 # A text field displayed in the mod UI
-authors="WildfireRomeo" #optional
+authors="WildfireRomeo, Kichura, pupnewfster, arcti_cc, Archl, Powerless001" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
 Allows players to choose what gender they want to be.
