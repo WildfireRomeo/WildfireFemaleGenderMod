@@ -32,9 +32,12 @@ public class GenderClient extends GenderServer {
 
 	public static final KeyMapping toggleEditGUI = new KeyMapping("wildfire_gender.key.gui", GLFW.GLFW_KEY_G, "key.categories.wildfire_gender");
 
+	@Override
 	public void playSound(SoundEvent evt, SoundSource cat, float vol, float pitch, Player ent){
 		Minecraft.getInstance().getSoundManager().play(new EntityBoundSoundInstance(evt, cat, vol, pitch, ent));
 	}
+
+	@Override
 	public void register() {
 		ClientRegistry.registerKeyBinding(toggleEditGUI);
   		MinecraftForge.EVENT_BUS.register(new WildfireEventHandler());

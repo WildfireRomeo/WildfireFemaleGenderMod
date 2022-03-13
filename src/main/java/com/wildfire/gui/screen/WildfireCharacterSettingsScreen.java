@@ -24,6 +24,7 @@ import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
+import javax.annotation.Nonnull;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -52,12 +53,15 @@ public class WildfireCharacterSettingsScreen extends Screen {
     }
 
 
+    @Override
     public boolean isPauseScreen() { return false; }
 
     private int yPos = 0;
 
     boolean enablePhysics, enablePhysicsArmor, enableHurtSounds, enableShowInArmor;
     float bounceMult, floppyMult;
+
+    @Override
     public void init() {
         Minecraft m = Minecraft.getInstance();
         GenderPlayer aPlr = WildfireGender.getPlayerByName(this.playerUUID.toString());
@@ -125,7 +129,8 @@ public class WildfireCharacterSettingsScreen extends Screen {
         super.init();
     }
 
-    public void render(PoseStack m, int f1, int f2, float f3) {
+    @Override
+    public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
         super.renderBackground(m);
         Player plrEntity = Minecraft.getInstance().level.getPlayerByUUID(this.playerUUID);
 
@@ -177,6 +182,7 @@ public class WildfireCharacterSettingsScreen extends Screen {
         }
     }
 
+    @Override
     public boolean mouseReleased(double mouseX, double mouseY, int state) {
         Minecraft m = Minecraft.getInstance();
         GenderPlayer aPlr = WildfireGender.getPlayerByName(this.playerUUID.toString());

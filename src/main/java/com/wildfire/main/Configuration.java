@@ -91,7 +91,7 @@ public class Configuration {
 			writer.write(obj.toJSONString().getBytes());
 			writer.close();
 			//System.out.println("[Configuration] Saved Existing File!");
-		} catch(Exception e) {}
+		} catch(Exception ignored) {}
 	}
 	
 	public void save() {

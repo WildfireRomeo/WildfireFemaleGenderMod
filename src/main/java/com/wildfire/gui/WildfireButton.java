@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -44,7 +45,7 @@ public class WildfireButton extends AbstractButton {
    }
 
    @Override
-   public void render(PoseStack m, int mouseX, int mouseY, float partialTicks) {
+   public void render(@Nonnull PoseStack m, int mouseX, int mouseY, float partialTicks) {
       Minecraft minecraft = Minecraft.getInstance();
       Font font = minecraft.font;
       if(this.visible) {
@@ -62,6 +63,7 @@ public class WildfireButton extends AbstractButton {
       RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
    }
 
+   @Override
    public void onPress() {
       if(this.onPress != null) this.onPress.onPress(this);
    }
@@ -71,12 +73,13 @@ public class WildfireButton extends AbstractButton {
       this.transparent = b;
       return this;
    }
-   public void renderToolTip(PoseStack matrixStack, int mouseX, int mouseY) {
+   @Override
+   public void renderToolTip(@Nonnull PoseStack matrixStack, int mouseX, int mouseY) {
       this.onTooltip.onTooltip(this, matrixStack, mouseX, mouseY);
    }
 
    @Override
-   public void updateNarration(NarrationElementOutput narrationElementOutput) {
+   public void updateNarration(@Nonnull NarrationElementOutput narrationElementOutput) {
 
    }
 

@@ -25,6 +25,7 @@ import com.mojang.math.Vector3f;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.GenderPlayer;
+import javax.annotation.Nonnull;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -54,10 +55,11 @@ public class WardrobeBrowserScreen extends Screen {
 		this.parent = parent;
 	}
   
- 
+
+	@Override
 	public boolean isPauseScreen() { return false; }
 
-  
+	@Override
   	public void init() {
 	  	Minecraft m = Minecraft.getInstance();
 	    int j = this.height / 2;
@@ -113,7 +115,8 @@ public class WardrobeBrowserScreen extends Screen {
 	    super.init();
   	}
 
-  	public void render(PoseStack m, int f1, int f2, float f3) {
+  	@Override
+	public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
 		Minecraft minecraft = Minecraft.getInstance();
 	    GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
 	    super.renderBackground(m);
@@ -154,7 +157,8 @@ public class WardrobeBrowserScreen extends Screen {
 		}
 	    super.render(m, f1, f2, f3);
 	}
-  	
+
+	@Override
   	public boolean mouseReleased(double mouseX, double mouseY, int state) {
 	    GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
 	  

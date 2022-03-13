@@ -22,6 +22,7 @@ import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.gui.screen.WardrobeBrowserScreen;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.GenderPlayer;
+import javax.annotation.Nonnull;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -80,7 +81,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
     }
 
     @Override
-    protected void renderBackground(PoseStack mStack) {}
+    protected void renderBackground(@Nonnull PoseStack mStack) {}
 
     public boolean isLoadingPlayers() {
         boolean loadingPlayers = false;
@@ -110,7 +111,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
 
                 try {
                     Minecraft.getInstance().setScreen(new WardrobeBrowserScreen(parent, nInfo.getProfile().getId()));
-                } catch(Exception e) {}
+                } catch(Exception ignored) {}
             });
             GenderPlayer aPlr = WildfireGender.getPlayerByName(nInfo.getProfile().getId().toString());
             if(aPlr != null) {
@@ -123,7 +124,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
         }
 
         @Override
-        public void render(PoseStack m, int entryIdx, int top, int left, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean p_194999_5_, float partialTicks) {
+        public void render(@Nonnull PoseStack m, int entryIdx, int top, int left, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean p_194999_5_, float partialTicks) {
             Font font = minecraft.font;
             String tooltip = "";
 
@@ -177,6 +178,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
         }
 
 
+        @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if(this.btnOpenGUI.mouseClicked(mouseX, mouseY, button)) {
                 return true;
@@ -184,10 +186,12 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
             return super.mouseClicked(mouseX, mouseY, button);
         }
 
+        @Override
         public boolean mouseReleased(double mouseX, double mouseY, int button) {
             return this.btnOpenGUI.mouseReleased(mouseX, mouseY, button);
         }
 
+        @Nonnull
         @Override
         public Component getNarration() {
             return TextComponent.EMPTY;

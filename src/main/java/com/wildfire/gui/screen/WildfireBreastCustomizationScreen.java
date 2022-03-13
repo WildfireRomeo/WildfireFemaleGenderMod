@@ -22,6 +22,7 @@ import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
+import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextComponent;
@@ -52,9 +53,10 @@ public class WildfireBreastCustomizationScreen extends Screen {
     }
 
 
+    @Override
     public boolean isPauseScreen() { return false; }
 
-
+    @Override
     public void init() {
         Minecraft m = Minecraft.getInstance();
         int j = this.height / 2;
@@ -106,7 +108,8 @@ public class WildfireBreastCustomizationScreen extends Screen {
         super.init();
     }
 
-    public void render(PoseStack m, int f1, int f2, float f3) {
+    @Override
+    public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
         Minecraft minecraft = Minecraft.getInstance();
         GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
         super.renderBackground(m);
@@ -178,6 +181,7 @@ public class WildfireBreastCustomizationScreen extends Screen {
         if(cleavageSlider.visible) this.font.draw(m, "Rotation: " + Math.round((Math.round(plr.getBreasts().cleavage * 100f) / 100f) * 100) + " degrees", x + 36, y + 42, (this.cleavageSlider.isMouseOver(f1,  f2) || changedCleavageSlider) ? 0xFFFF55: 0xFFFFFF);
     }
 
+    @Override
     public boolean mouseReleased(double mouseX, double mouseY, int state) {
         GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
         if(changedBreastSlider) {

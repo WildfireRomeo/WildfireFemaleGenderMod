@@ -62,7 +62,7 @@ public class WildfireEventHandler {
 		boolean isVanillaServer = true;
 		try {
 			isVanillaServer = NetworkHooks.isVanillaConnection(Minecraft.getInstance().getConnection().getConnection());
-		} catch(Exception e) {}
+		} catch(Exception ignored) {}
 
 		if(!isVanillaServer) {
 			//20 ticks per second / 5 = 4 times per second

@@ -21,6 +21,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfirePlayerList;
 import com.wildfire.main.GenderPlayer;
+import javax.annotation.Nonnull;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -52,14 +53,16 @@ public class WildfirePlayerListScreen extends Screen {
 		Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
 	}
 
+	@Override
 	public void onClose() {
 		Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(false);
 		super.onClose();
 	}
 
+	@Override
 	public boolean isPauseScreen() { return false; }
 
-
+	@Override
   	public void init() {
 	  	Minecraft mc = Minecraft.getInstance();
 
@@ -81,7 +84,8 @@ public class WildfirePlayerListScreen extends Screen {
 	    super.init();
   	}
 
-	public void render(PoseStack m, int f1, int f2, float f3) {
+	@Override
+	public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
 		HOVER_PLAYER = null;
 		this.setTooltip("");
 		PLAYER_LIST.refreshList();
@@ -195,11 +199,15 @@ public class WildfirePlayerListScreen extends Screen {
 	public void setTooltip(String val) {
   		this.tooltip = val;
 	}
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+
+    @Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 
 		return super.keyPressed(keyCode, scanCode, modifiers);
   	}
-  	public boolean mouseReleased(double mouseX, double mouseY, int state) {
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int state) {
 
 	    return super.mouseReleased(mouseX, mouseY, state);
   	}
