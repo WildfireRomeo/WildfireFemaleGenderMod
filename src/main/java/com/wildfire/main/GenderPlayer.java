@@ -16,14 +16,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import com.google.common.hash.Hashing;
 import com.wildfire.physics.BreastPhysics;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import org.json.simple.JSONObject;
-
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class GenderPlayer {
 

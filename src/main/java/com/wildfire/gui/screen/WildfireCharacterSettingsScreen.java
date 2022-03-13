@@ -16,8 +16,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -28,16 +26,12 @@ import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.gui.widget.Slider;
-import net.minecraftforge.common.ForgeHooks;
 
 public class WildfireCharacterSettingsScreen extends Screen {
 

@@ -16,11 +16,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import java.util.List;
-import java.util.UUID;
-
-import com.google.common.collect.ImmutableList;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.gui.screen.WildfirePlayerListScreen;

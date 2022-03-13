@@ -31,9 +31,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
 import java.util.UUID;
 
 

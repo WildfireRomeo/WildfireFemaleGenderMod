@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 import com.wildfire.main.GenderPlayer;
-import com.wildfire.main.WildfireGender;
 import com.wildfire.main.WildfireHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
