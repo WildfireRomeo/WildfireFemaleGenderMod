@@ -36,7 +36,6 @@ import net.minecraft.util.Mth;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.*;
 
@@ -221,46 +220,16 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			VertexConsumer ivertexbuilder = vertexConsumers.getBuffer(type);
 
 			if ((teamSeeFriendly && ent.isInvisible()) || !ent.isInvisible()) {
-				renderBox(lBreast, matrixStack, ivertexbuilder, packedLightIn, combineTex, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
+				renderBox(lBreast.quads, matrixStack, ivertexbuilder, packedLightIn, combineTex, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
 				if (ent.isModelPartShown(PlayerModelPart.JACKET)) {
 					matrixStack.translate(0, 0, -0.015f);
 					matrixStack.scale(1.05f, 1.05f, 1.05f);
-					renderBox(lBreastWear, matrixStack, ivertexbuilder, packedLightIn, combineTex, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
+					renderBox(lBreastWear.quads, matrixStack, ivertexbuilder, packedLightIn, combineTex, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
 				}
 
 
 				//RIGHT BOOB ARMOR
-				if (!armorStack.isEmpty() && !(armorStack.getItem() instanceof ElytraItem) && armorStack.getItem() instanceof ArmorItem armorItem) {
-					ResourceLocation ARMOR_TXTR = getArmorResource(ent, armorStack, EquipmentSlot.CHEST, null);
-					if (ARMOR_TXTR != null) {
-						matrixStack.pushPose();
-						pushCount++;
-
-						float armorR = 1f;
-						float armorG = 1f;
-						float armorB = 1f;
-						if (armorItem instanceof DyeableArmorItem dyeableArmorItem) {
-							int i = dyeableArmorItem.getColor(armorStack);
-							armorR = (float) (i >> 16 & 255) / 255.0F;
-							armorG = (float) (i >> 8 & 255) / 255.0F;
-							armorB = (float) (i & 255) / 255.0F;
-
-						}
-						matrixStack.translate(0.001f, 0.015f, -0.015f);
-						matrixStack.scale(1.05f, 1, 1);
-						RenderType type2 = RenderType.armorCutoutNoCull(ARMOR_TXTR);
-						VertexConsumer ivertexbuilder2 = vertexConsumers.getBuffer(type2);
-						renderBox(lBoobArmor, matrixStack, ivertexbuilder2, packedLightIn, 0xFFFFFF, armorR, armorG, armorB, 1f);
-
-						if (armorStack.hasFoil()) {
-							RenderType type3 = RenderType.armorEntityGlint();
-							VertexConsumer ivertexbuilder3 = vertexConsumers.getBuffer(type3);
-							renderBox(lBoobArmor, matrixStack, ivertexbuilder3, packedLightIn, 0xFFFFFF, 1f, 1f, 1f, 1f);
-						}
-						matrixStack.popPose();
-						pushCount--;
-					}
-				}
+				renderBreastArmor(ent, armorStack, matrixStack, vertexConsumers, packedLightIn, true);
 			}
 
 			matrixStack.popPose();
@@ -306,46 +275,16 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			VertexConsumer ivertexbuilderR = vertexConsumers.getBuffer(typeR);
 
 			if ((teamSeeFriendly && ent.isInvisible()) || !ent.isInvisible()) {
-				renderBox(rBreast, matrixStack, ivertexbuilderR, packedLightIn, combineTexR, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
+				renderBox(rBreast.quads, matrixStack, ivertexbuilderR, packedLightIn, combineTexR, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
 				if (ent.isModelPartShown(PlayerModelPart.JACKET)) {
 					matrixStack.translate(0, 0, -0.015f);
 					matrixStack.scale(1.05f, 1.05f, 1.05f);
-					renderBox(rBreastWear, matrixStack, ivertexbuilderR, packedLightIn, combineTexR, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
+					renderBox(rBreastWear.quads, matrixStack, ivertexbuilderR, packedLightIn, combineTexR, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
 				}
 
 
 				//LEFT? BOOB ARMOR
-				if (!armorStack.isEmpty() && !(armorStack.getItem() instanceof ElytraItem) && armorStack.getItem() instanceof ArmorItem armorItem) {
-					ResourceLocation ARMOR_TXTR = getArmorResource(ent, armorStack, EquipmentSlot.CHEST, null);
-					if (ARMOR_TXTR != null) {
-						matrixStack.pushPose();
-						pushCount++;
-
-						float armorR = 1f;
-						float armorG = 1f;
-						float armorB = 1f;
-						if (armorItem instanceof DyeableArmorItem dyeableArmorItem) {
-							int i = dyeableArmorItem.getColor(armorStack);
-							armorR = (float) (i >> 16 & 255) / 255.0F;
-							armorG = (float) (i >> 8 & 255) / 255.0F;
-							armorB = (float) (i & 255) / 255.0F;
-
-						}
-						matrixStack.translate(-0.001f, 0.015f, -0.015f);
-						matrixStack.scale(1.05f, 1, 1);
-						RenderType type2 = RenderType.armorCutoutNoCull(ARMOR_TXTR);
-						VertexConsumer ivertexbuilder2 = vertexConsumers.getBuffer(type2);
-						renderBox(rBoobArmor, matrixStack, ivertexbuilder2, packedLightIn, 0xFFFFFF, armorR, armorG, armorB, getTransparency(ent));
-
-						if (armorStack.hasFoil()) {
-							RenderType type3 = RenderType.armorEntityGlint();
-							VertexConsumer ivertexbuilder3 = vertexConsumers.getBuffer(type3);
-							renderBox(rBoobArmor, matrixStack, ivertexbuilder3, packedLightIn, 0xFFFFFF, 1f, 1f, 1f, getTransparency(ent));
-						}
-						matrixStack.popPose();
-						pushCount--;
-					}
-				}
+				renderBreastArmor(ent, armorStack, matrixStack, vertexConsumers, packedLightIn, false);
 			}
 
 			matrixStack.popPose(); //pop right breast
@@ -359,13 +298,6 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 				pushCount--;
 			}
 		}
-	}
-
-	public static float getTransparency(LivingEntity ent) {
-		float alphaChannel = 1f;
-		boolean flag1 = ent.isInvisible() && !ent.isInvisibleTo(Minecraft.getInstance().player);
-		if(flag1) alphaChannel = 0.15f; else if(ent.isInvisible()) alphaChannel = 0;
-		return alphaChannel;
 	}
 
 	public static int pushMatrix(PoseStack m, ModelPart mdl, float f7) {
@@ -394,8 +326,6 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		return 1;
 	}
 
-
-
 	public float getTransparency(AbstractClientPlayer ent) {
 		float alphaChannel = 1f;
 		boolean flag1 = ent.isInvisible() && !ent.isInvisibleTo(Minecraft.getInstance().player);
@@ -403,22 +333,50 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		return alphaChannel;
 	}
 
-	public static void renderBox(WildfireModelRenderer.ModelBox box, PoseStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+	private void renderBreastArmor(AbstractClientPlayer entity, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource vertexConsumers, int packedLightIn,
+		boolean left) {
+		if (!armorStack.isEmpty() && !(armorStack.getItem() instanceof ElytraItem) && armorStack.getItem() instanceof ArmorItem armorItem) {
+			ResourceLocation ARMOR_TXTR = getArmorResource(entity, armorStack, EquipmentSlot.CHEST, null);
+			float armorR = 1f;
+			float armorG = 1f;
+			float armorB = 1f;
+			if (armorItem instanceof DyeableArmorItem dyeableArmorItem) {
+				int i = dyeableArmorItem.getColor(armorStack);
+				armorR = (float) (i >> 16 & 255) / 255.0F;
+				armorG = (float) (i >> 8 & 255) / 255.0F;
+				armorB = (float) (i & 255) / 255.0F;
+
+			}
+			matrixStack.pushPose();
+			matrixStack.translate(left ? 0.001f : -0.001f, 0.015f, -0.015f);
+			matrixStack.scale(1.05f, 1, 1);
+			RenderType type2 = RenderType.armorCutoutNoCull(ARMOR_TXTR);
+			VertexConsumer ivertexbuilder2 = vertexConsumers.getBuffer(type2);
+
+			WildfireModelRenderer.BreastModelBox armor = left ? lBoobArmor : rBoobArmor;
+			float transparency = left ? 1 : getTransparency(entity);
+			renderBox(armor.quads, matrixStack, ivertexbuilder2, packedLightIn, 0xFFFFFF, armorR, armorG, armorB, transparency);
+
+			if (armorStack.hasFoil()) {
+				RenderType type3 = RenderType.armorEntityGlint();
+				VertexConsumer ivertexbuilder3 = vertexConsumers.getBuffer(type3);
+				renderBox(armor.quads, matrixStack, ivertexbuilder3, packedLightIn, 0xFFFFFF, 1f, 1f, 1f, transparency);
+			}
+			matrixStack.popPose();
+		}
+	}
+
+	public static void renderBox(WildfireModelRenderer.TexturedQuad[] quads, PoseStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
 		Matrix4f matrix4f = matrixStack.last().pose();
 		Matrix3f matrix3f =	matrixStack.last().normal();
-
-		WildfireModelRenderer.TexturedQuad[] var13 = box.quads;
-		int var14 = var13.length;
-
-		for(int var15 = 0; var15 < var14; ++var15) {
-			WildfireModelRenderer.TexturedQuad quad = var13[var15];
+		for (WildfireModelRenderer.TexturedQuad quad : quads) {
 			Vector3f vector3f = new Vector3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
 			vector3f.transform(matrix3f);
 			float f = vector3f.x();
 			float g = vector3f.y();
 			float h = vector3f.z();
 
-			for(int i = 0; i < 4; ++i) {
+			for (int i = 0; i < 4; ++i) {
 				WildfireModelRenderer.PositionTextureVertex vertex = quad.vertexPositions[i];
 				float j = vertex.vector3D.x() / 16.0F;
 				float k = vertex.vector3D.y() / 16.0F;
@@ -429,60 +387,4 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			}
 		}
 	}
-
-	public static void renderBox(WildfireModelRenderer.BreastModelBox box, PoseStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-		Matrix4f matrix4f = matrixStack.last().pose();
-		Matrix3f matrix3f =	matrixStack.last().normal();
-
-		WildfireModelRenderer.TexturedQuad[] var13 = box.quads;
-		int var14 = var13.length;
-
-		for(int var15 = 0; var15 < var14; ++var15) {
-			WildfireModelRenderer.TexturedQuad quad = var13[var15];
-			Vector3f vector3f = new Vector3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
-			vector3f.transform(matrix3f);
-			float f = vector3f.x();
-			float g = vector3f.y();
-			float h = vector3f.z();
-
-			for(int i = 0; i < 4; ++i) {
-				WildfireModelRenderer.PositionTextureVertex vertex = quad.vertexPositions[i];
-				float j = vertex.vector3D.x() / 16.0F;
-				float k = vertex.vector3D.y() / 16.0F;
-				float l = vertex.vector3D.z() / 16.0F;
-				Vector4f vector4f = new Vector4f(j, k, l, 1.0F);
-				vector4f.transform(matrix4f);
-				bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.texturePositionX, vertex.texturePositionY, packedOverlayIn, packedLightIn, f, g, h);
-			}
-		}
-	}
-
-	public static void renderBox(WildfireModelRenderer.OverlayModelBox box, PoseStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-		Matrix4f matrix4f = matrixStack.last().pose();
-		Matrix3f matrix3f =	matrixStack.last().normal();
-
-		WildfireModelRenderer.TexturedQuad[] var13 = box.quads;
-		int var14 = var13.length;
-
-		for(int var15 = 0; var15 < var14; ++var15) {
-			WildfireModelRenderer.TexturedQuad quad = var13[var15];
-			Vector3f vector3f = new Vector3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
-			vector3f.transform(matrix3f);
-			float f = vector3f.x();
-			float g = vector3f.y();
-			float h = vector3f.z();
-
-			for(int i = 0; i < 4; ++i) {
-				WildfireModelRenderer.PositionTextureVertex vertex = quad.vertexPositions[i];
-				float j = vertex.vector3D.x() / 16.0F;
-				float k = vertex.vector3D.y() / 16.0F;
-				float l = vertex.vector3D.z() / 16.0F;
-				Vector4f vector4f = new Vector4f(j, k, l, 1.0F);
-				vector4f.transform(matrix4f);
-				bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.texturePositionX, vertex.texturePositionY, packedOverlayIn, packedLightIn, f, g, h);
-			}
-		}
-	}
-
 }
-
