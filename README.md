@@ -18,4 +18,4 @@ G - Open Wildfire's Gender Menu
 
 ## License
 
-Wildfire's Female Gender Mod is provided under the All Rights Reserved license.
+Wildfire's Female Gender Mod is provided under the MIT license.
