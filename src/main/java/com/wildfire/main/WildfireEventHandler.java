@@ -21,6 +21,7 @@ import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.main.proxy.GenderClient;
 import com.wildfire.render.GenderLayer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -50,13 +51,12 @@ public class WildfireEventHandler {
 	private static class EntityRenderEventsTestClientModStuff {
 		@SubscribeEvent
 		public static void entityLayers(EntityRenderersEvent.AddLayers event) {
-
-			Map<String, EntityRenderer<? extends Player>> skinMap = Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap();
-			//System.out.println("SKIN MAP: " + skinMap.size());
-			skinMap.forEach((string, r) -> {
-				LivingEntityRenderer renderer = (LivingEntityRenderer) r;
-				renderer.addLayer(new GenderLayer(renderer));
-			});
+			for (String skinName : event.getSkins()) {
+				LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> renderer = event.getSkin(skinName);
+				if (renderer != null) {
+					renderer.addLayer(new GenderLayer(renderer));
+				}
+			}
 		}
 	}
 
