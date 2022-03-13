@@ -16,17 +16,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import java.util.List;
-import java.util.UUID;
-
-import com.google.common.collect.ImmutableList;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.gui.screen.WardrobeBrowserScreen;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.GenderPlayer;
+import javax.annotation.Nonnull;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -77,16 +73,15 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
 
     public void refreshList() {
         this.clearEntries();
-        PlayerInfo[] playersC = this.minecraft.getConnection().getOnlinePlayers().toArray(new PlayerInfo[this.minecraft.getConnection().getOnlinePlayers().size()]);
+        PlayerInfo[] playersC = this.minecraft.getConnection().getOnlinePlayers().toArray(new PlayerInfo[0]);
 
-        for(int h = 0; h < playersC.length; h++) {
-            PlayerInfo loadedPlayer = playersC[h];
-            this.addEntry(new WildfirePlayerList.Entry(loadedPlayer, false));
+        for (PlayerInfo loadedPlayer : playersC) {
+            this.addEntry(new Entry(loadedPlayer, false));
         }
     }
 
     @Override
-    protected void renderBackground(PoseStack mStack) {}
+    protected void renderBackground(@Nonnull PoseStack mStack) {}
 
     public boolean isLoadingPlayers() {
         boolean loadingPlayers = false;
@@ -116,7 +111,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
 
                 try {
                     Minecraft.getInstance().setScreen(new WardrobeBrowserScreen(parent, nInfo.getProfile().getId()));
-                } catch(Exception e) {}
+                } catch(Exception ignored) {}
             });
             GenderPlayer aPlr = WildfireGender.getPlayerByName(nInfo.getProfile().getId().toString());
             if(aPlr != null) {
@@ -129,7 +124,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
         }
 
         @Override
-        public void render(PoseStack m, int entryIdx, int top, int left, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean p_194999_5_, float partialTicks) {
+        public void render(@Nonnull PoseStack m, int entryIdx, int top, int left, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean p_194999_5_, float partialTicks) {
             Font font = minecraft.font;
             String tooltip = "";
 
@@ -151,17 +146,12 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
                 btnOpenGUI.active = !aPlr.lockSettings;
 
                 switch (aPlr.gender) {
-                    case 0: //female
-                        font.draw(m, (ChatFormatting.LIGHT_PURPLE + new TranslatableComponent("wildfire_gender.label.female").getString()), left + 23, top + 11, 0xFFFFFF);
-                        break;
-
-                    case 1: //male
-                        font.draw(m, (ChatFormatting.BLUE + new TranslatableComponent("wildfire_gender.label.male").getString()), left + 23, top + 11, 0xFFFFFF);
-                        break;
-
-                    case 2: //other
-                        font.draw(m, (ChatFormatting.GREEN + new TranslatableComponent("wildfire_gender.label.other").getString()), left + 23, top + 11, 0xFFFFFF);
-                        break;
+                    //female
+                    case 0 -> font.draw(m, (ChatFormatting.LIGHT_PURPLE + new TranslatableComponent("wildfire_gender.label.female").getString()), left + 23, top + 11, 0xFFFFFF);
+                    //male
+                    case 1 -> font.draw(m, (ChatFormatting.BLUE + new TranslatableComponent("wildfire_gender.label.male").getString()), left + 23, top + 11, 0xFFFFFF);
+                    //other
+                    case 2 -> font.draw(m, (ChatFormatting.GREEN + new TranslatableComponent("wildfire_gender.label.other").getString()), left + 23, top + 11, 0xFFFFFF);
                 }
                 if (aPlr.getSyncStatus() == GenderPlayer.SyncStatus.SYNCED) {
                     RenderSystem.setShaderTexture(0, TXTR_SYNC);
@@ -188,6 +178,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
         }
 
 
+        @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if(this.btnOpenGUI.mouseClicked(mouseX, mouseY, button)) {
                 return true;
@@ -195,10 +186,12 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
             return super.mouseClicked(mouseX, mouseY, button);
         }
 
+        @Override
         public boolean mouseReleased(double mouseX, double mouseY, int button) {
             return this.btnOpenGUI.mouseReleased(mouseX, mouseY, button);
         }
 
+        @Nonnull
         @Override
         public Component getNarration() {
             return TextComponent.EMPTY;

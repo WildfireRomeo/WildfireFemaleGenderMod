@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 import com.wildfire.main.GenderPlayer;
-import com.wildfire.main.WildfireGender;
 import com.wildfire.main.WildfireHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
@@ -126,21 +125,19 @@ public class BreastPhysics {
 
 		//button option for extra entities
 		if(plr.getVehicle() != null) {
-			if(plr.getVehicle() instanceof Boat) {
-				Boat boat = (Boat) plr.getVehicle();
+			if(plr.getVehicle() instanceof Boat boat) {
 				int rowTime = (int) boat.getRowingTime(0, plr.animationPosition);
 				int rowTime2 = (int) boat.getRowingTime(1, plr.animationPosition);
 
-				float rotationL = (float)Mth.clampedLerp((double)(-(float)Math.PI / 3F), (double)-0.2617994F, (double)((Mth.sin(-rowTime2) + 1.0F) / 2.0F));
-				float rotationR = (float)Mth.clampedLerp((double)(-(float)Math.PI / 4F), (double)((float)Math.PI / 4F), (double)((Mth.sin(-rowTime + 1.0F) + 1.0F) / 2.0F));
+				float rotationL = (float)Mth.clampedLerp(-(float)Math.PI / 3F, -0.2617994F, (double)((Mth.sin(-rowTime2) + 1.0F) / 2.0F));
+				float rotationR = (float)Mth.clampedLerp(-(float)Math.PI / 4F, (float)Math.PI / 4F, (double)((Mth.sin(-rowTime + 1.0F) + 1.0F) / 2.0F));
 				System.out.println(rotationL + ", " + rotationR);
 				if(rotationL < -1 || rotationR < -0.6f) {
 					this.targetBounce = bounceIntensity / 3.25f;
 				}
 			}
 
-			if(plr.getVehicle() instanceof Minecart) {
-				Minecart cart = (Minecart) plr.getVehicle();
+			if(plr.getVehicle() instanceof Minecart cart) {
 				float speed = (float) cart.getDeltaMovement().lengthSqr();
 				if(Math.random() * speed < 0.5f && speed > 0.2f) {
 					if(Math.random() > 0.5) {
@@ -153,16 +150,14 @@ public class BreastPhysics {
 					aPlr.targetBounce = bounceIntensity / 3.25f;
 				}*/
 			}
-			if(plr.getVehicle() instanceof AbstractHorse) {
-				AbstractHorse horse = (AbstractHorse) plr.getVehicle();
+			if(plr.getVehicle() instanceof AbstractHorse horse) {
 				float movement = (float) horse.getDeltaMovement().length();
 				if(horse.tickCount % clampMovement(movement) == 5 && movement > 0.1f) {
 					this.targetBounce = bounceIntensity / 4f;
 				}
 				//horse
 			}
-			if(plr.getVehicle() instanceof Pig) {
-				Pig pig = (Pig) plr.getVehicle();
+			if(plr.getVehicle() instanceof Pig pig) {
 				float movement = (float) pig.getDeltaMovement().length();
 				System.out.println(movement);
 				if(pig.tickCount % clampMovement(movement) == 5 && movement > 0.08f) {
@@ -170,8 +165,7 @@ public class BreastPhysics {
 				}
 				//horse
 			}
-			if(plr.getVehicle() instanceof Strider) {
-				Strider strider = (Strider) plr.getVehicle();
+			if(plr.getVehicle() instanceof Strider strider) {
 				this.targetBounce += ((float) (strider.getPassengersRidingOffset()*3f) - 4.5f) * bounceIntensity;
 				//horse
 			}
@@ -202,7 +196,7 @@ public class BreastPhysics {
 		float percent =  genderPlayer.getFloppiness();
 		float bounceAmount = 0.45f * (1f - percent) + 0.15f; //0.6f * percent - 0.15f;
 		bounceAmount = Mth.clamp(bounceAmount, 0.15f, 0.6f);
-		float delta = 2.25f - (1f * bounceAmount);
+		float delta = 2.25f - bounceAmount;
 		//if(plr.isInWater()) delta = 0.75f - (1f * bounceAmount); //water resistance
 
 		float distanceFromMin = Math.abs(bounceVel + 0.5f) * 0.5f;

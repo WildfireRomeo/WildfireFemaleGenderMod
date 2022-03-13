@@ -53,12 +53,12 @@ public class WildfireGender {
 	private static final String PROTOCOL_VERSION = "1";
 	//public static SimpleChannel NETWORK = NetworkRegistry.newSimpleChannel(new ResourceLocation("wildfire_gender", "main_channel"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
 	public static SimpleChannel NETWORK = NetworkRegistry.ChannelBuilder.named(new ResourceLocation("wildfire_gender", "main_channel"))
-			.clientAcceptedVersions(v -> v == NetworkRegistry.ABSENT || v == NetworkRegistry.ACCEPTVANILLA || v.equals(PROTOCOL_VERSION))
-			.serverAcceptedVersions(v -> v == NetworkRegistry.ACCEPTVANILLA || v.equals(PROTOCOL_VERSION))
+			.clientAcceptedVersions(v -> v.equals(NetworkRegistry.ABSENT) || v.equals(NetworkRegistry.ACCEPTVANILLA) || v.equals(PROTOCOL_VERSION))
+			.serverAcceptedVersions(v -> v.equals(NetworkRegistry.ACCEPTVANILLA) || v.equals(PROTOCOL_VERSION))
 			.networkProtocolVersion(() -> PROTOCOL_VERSION).simpleChannel();
 
-  	public static ArrayList<GenderPlayer> CLOTHING_PLAYER = new ArrayList<GenderPlayer>();
-  	public static ArrayList<GenderPlayer> SERVER_PLAYER = new ArrayList<GenderPlayer>();
+  	public static ArrayList<GenderPlayer> CLOTHING_PLAYER = new ArrayList<>();
+  	public static ArrayList<GenderPlayer> SERVER_PLAYER = new ArrayList<>();
 
   	public static final GenderServer PROXY = DistExecutor.safeRunForDist(() -> GenderClient::new, () -> GenderServer::new);
 
@@ -75,7 +75,7 @@ public class WildfireGender {
 	public static GenderPlayer getPlayerByName(String username) {
 		for (int i = 0; i < CLOTHING_PLAYER.size(); i++) {
 			try {
-				if (username.toLowerCase().equals(CLOTHING_PLAYER.get(i).username.toLowerCase())) {
+				if (username.equalsIgnoreCase(CLOTHING_PLAYER.get(i).username)) {
 					return CLOTHING_PLAYER.get(i);
 				}
 			} catch (Exception e) {
@@ -100,11 +100,7 @@ public class WildfireGender {
   	}
   	
   	public static void loadGenderInfoAsync(String uuid) {
-  		Thread thread = new Thread(new Runnable() {
-  			public void run() {
-  				WildfireGender.loadGenderInfo(uuid);
-  			}
-  		});
+  		Thread thread = new Thread(() -> WildfireGender.loadGenderInfo(uuid));
 		thread.setName("WFGM_GetPlayer-" + uuid);
   		thread.start();
   	}
@@ -130,8 +126,7 @@ public class WildfireGender {
   	}
 
 	public static GenderPlayer loadGenderInfo(String uuid) {
-		GenderPlayer plr = GenderPlayer.loadCachedPlayer(uuid);
-		return plr;
+		return GenderPlayer.loadCachedPlayer(uuid);
 	}
   
 	public static void drawTextLabel(PoseStack m, String txt, int x, int y) {
@@ -153,6 +148,6 @@ public class WildfireGender {
 	}
 
 	public interface WildfireCB {
-		public void onExecute(boolean success, Object data);
+		void onExecute(boolean success, Object data);
 	}
 }

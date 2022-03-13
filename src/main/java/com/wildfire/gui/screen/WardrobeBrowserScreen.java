@@ -25,6 +25,7 @@ import com.mojang.math.Vector3f;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.GenderPlayer;
+import javax.annotation.Nonnull;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -36,7 +37,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import org.lwjgl.opengl.GL11;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -55,10 +55,11 @@ public class WardrobeBrowserScreen extends Screen {
 		this.parent = parent;
 	}
   
- 
+
+	@Override
 	public boolean isPauseScreen() { return false; }
 
-  
+	@Override
   	public void init() {
 	  	Minecraft m = Minecraft.getInstance();
 	    int j = this.height / 2;
@@ -98,17 +99,14 @@ public class WardrobeBrowserScreen extends Screen {
 			GenderPlayer.saveGenderInfo(plr);
 		}));
 
-		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, new TextComponent("Appearance Settings..."), button -> {
-			Minecraft.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID));
-		}));
+		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, new TextComponent("Appearance Settings..."),
+			button -> Minecraft.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 
-		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 12, 158, 20, new TextComponent("Character Settings..."), button -> {
-			Minecraft.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID));
-		}));
+		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 12, 158, 20, new TextComponent("Character Settings..."),
+			button -> Minecraft.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 
-		this.addRenderableWidget(new WildfireButton(this.width / 2 + 111, j - 63, 9, 9, new TextComponent("X"), button -> {
-			Minecraft.getInstance().setScreen(parent);
-		}));
+		this.addRenderableWidget(new WildfireButton(this.width / 2 + 111, j - 63, 9, 9, new TextComponent("X"),
+			button -> Minecraft.getInstance().setScreen(parent)));
 	    
 	    modelRotation = 0.6F;
 
@@ -117,7 +115,8 @@ public class WardrobeBrowserScreen extends Screen {
 	    super.init();
   	}
 
-  	public void render(PoseStack m, int f1, int f2, float f3) {
+  	@Override
+	public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
 		Minecraft minecraft = Minecraft.getInstance();
 	    GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
 	    super.renderBackground(m);
@@ -158,7 +157,8 @@ public class WardrobeBrowserScreen extends Screen {
 		}
 	    super.render(m, f1, f2, f3);
 	}
-  	
+
+	@Override
   	public boolean mouseReleased(double mouseX, double mouseY, int state) {
 	    GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
 	  
@@ -166,11 +166,11 @@ public class WardrobeBrowserScreen extends Screen {
   	}
 
 	public static void drawEntityOnScreen(int p_98851_, int p_98852_, int p_98853_, float p_98854_, float p_98855_, LivingEntity p_98856_) {
-		float var6 = (float)Math.atan((double)(p_98854_ / 40.0F));
-		float var7 = (float)Math.atan((double)(p_98855_ / 40.0F));
+		float var6 = (float)Math.atan(p_98854_ / 40.0F);
+		float var7 = (float)Math.atan(p_98855_ / 40.0F);
 		PoseStack var8 = RenderSystem.getModelViewStack();
 		var8.pushPose();
-		var8.translate((double)p_98851_, (double)p_98852_, 1050.0D);
+		var8.translate(p_98851_, p_98852_, 1050.0D);
 		var8.scale(1.0F, 1.0F, -1.0F);
 		RenderSystem.applyModelViewMatrix();
 		PoseStack var9 = new PoseStack();
@@ -196,9 +196,7 @@ public class WardrobeBrowserScreen extends Screen {
 		var17.overrideCameraOrientation(var11);
 		var17.setRenderShadow(false);
 		MultiBufferSource.BufferSource var18 = Minecraft.getInstance().renderBuffers().bufferSource();
-		RenderSystem.runAsFancy(() -> {
-			var17.render(p_98856_, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, var9, var18, 15728880);
-		});
+		RenderSystem.runAsFancy(() -> var17.render(p_98856_, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, var9, var18, 15728880));
 		var18.endBatch();
 		var17.setRenderShadow(true);
 		p_98856_.yBodyRot = var12;

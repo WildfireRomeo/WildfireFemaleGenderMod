@@ -18,19 +18,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
+import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.gui.widget.Slider;
 
 import java.util.UUID;
 
@@ -56,9 +53,10 @@ public class WildfireBreastCustomizationScreen extends Screen {
     }
 
 
+    @Override
     public boolean isPauseScreen() { return false; }
 
-
+    @Override
     public void init() {
         Minecraft m = Minecraft.getInstance();
         int j = this.height / 2;
@@ -73,83 +71,32 @@ public class WildfireBreastCustomizationScreen extends Screen {
         preCleavage = plr.getBreasts().cleavage;
 
 
-        this.addRenderableWidget(new WildfireButton(this.width / 2 + 178, j - 61, 9, 9, new TextComponent("X"), button -> {
-            Minecraft.getInstance().setScreen(parent);
+        this.addRenderableWidget(new WildfireButton(this.width / 2 + 178, j - 61, 9, 9, new TextComponent("X"),
+              button -> Minecraft.getInstance().setScreen(parent)));
+
+
+        this.addRenderableWidget(this.breastSlider = new WildfireSlider(this.width / 2 + 30, j - 48, 158, 20, new TextComponent(""), title, 0.0D, 1.0D, plr.getBustSize(), false, false, button -> {
+        }, slider -> {
         }));
 
-
-        this.addRenderableWidget(this.breastSlider = new WildfireSlider(this.width / 2 + 30, j - 48, 158, 20, new TextComponent(""), title, 0.0D, 1.0D, plr.getBustSize(), false, false, new Button.OnPress() {
-            public void onPress(Button arg0) {
-
-            }
-        }, new Slider.ISlider() {
-
-            @Override
-            public void onChangeSliderValue(Slider slider) {
-                // TODO Auto-generated method stub
-
-            }
-        })
-        );
-
         //Customization
-        this.addRenderableWidget(this.xOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 27, 158, 20, new TextComponent(""), title, -1.0D, 1.0D, plr.getBreasts().xOffset, false, false, new Button.OnPress() {
-            public void onPress(Button arg0) {
-
-            }
-        }, new Slider.ISlider() {
-
-            @Override
-            public void onChangeSliderValue(Slider slider) {
-                // TODO Auto-generated method stub
-
-            }
-        })
-        );
-        this.addRenderableWidget(this.yOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 6, 158, 20, new TextComponent(""), title, -1.0D, 1.0D, plr.getBreasts().yOffset, false, false, new Button.OnPress() {
-            public void onPress(Button arg0) {
-
-            }
-        }, new Slider.ISlider() {
-
-            @Override
-            public void onChangeSliderValue(Slider slider) {
-                // TODO Auto-generated method stub
-
-            }
-        })
-        );
-        this.addRenderableWidget(this.zOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j + 15, 158, 20, new TextComponent(""), title, -1.0D, 0.0D, plr.getBreasts().zOffset, false, false, new Button.OnPress() {
-            public void onPress(Button arg0) {
-
-            }
-        }, new Slider.ISlider() {
-
-            @Override
-            public void onChangeSliderValue(Slider slider) {
-                // TODO Auto-generated method stub
-
-            }
-        })
-        );
+        this.addRenderableWidget(this.xOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 27, 158, 20, new TextComponent(""), title, -1.0D, 1.0D, plr.getBreasts().xOffset, false, false, button -> {
+        }, slider -> {
+        }));
+        this.addRenderableWidget(this.yOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 6, 158, 20, new TextComponent(""), title, -1.0D, 1.0D, plr.getBreasts().yOffset, false, false, button -> {
+        }, slider -> {
+        }));
+        this.addRenderableWidget(this.zOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j + 15, 158, 20, new TextComponent(""), title, -1.0D, 0.0D, plr.getBreasts().zOffset, false, false, button -> {
+        }, slider -> {
+        }));
 
         if(plr.getBreasts().cleavage > 0.1f) plr.getBreasts().cleavage = 0.1f;
 
 
 
-        this.addRenderableWidget(this.cleavageSlider = new WildfireSlider(this.width / 2 + 30, j + 36, 158, 20, new TextComponent(""), title, 0.0D, 1.0D, plr.getBreasts().cleavage, false,  false, new Button.OnPress() {
-                    public void onPress(Button arg0) {
-
-                    }
-                }, new Slider.ISlider() {
-
-                    @Override
-                    public void onChangeSliderValue(Slider slider) {
-                        // TODO Auto-generated method stub
-
-                    }
-                })
-        );
+        this.addRenderableWidget(this.cleavageSlider = new WildfireSlider(this.width / 2 + 30, j + 36, 158, 20, new TextComponent(""), title, 0.0D, 1.0D, plr.getBreasts().cleavage, false,  false, button -> {
+        }, slider -> {
+        }));
 
         this.addRenderableWidget(new WildfireButton(this.width / 2 + 30, j + 57, 158, 20, new TextComponent("Dual-Physics: " + (plr.getBreasts().isUniboob?"No":"Yes")), button -> {
             plr.getBreasts().isUniboob ^= true;
@@ -161,7 +108,8 @@ public class WildfireBreastCustomizationScreen extends Screen {
         super.init();
     }
 
-    public void render(PoseStack m, int f1, int f2, float f3) {
+    @Override
+    public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
         Minecraft minecraft = Minecraft.getInstance();
         GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
         super.renderBackground(m);
@@ -233,6 +181,7 @@ public class WildfireBreastCustomizationScreen extends Screen {
         if(cleavageSlider.visible) this.font.draw(m, "Rotation: " + Math.round((Math.round(plr.getBreasts().cleavage * 100f) / 100f) * 100) + " degrees", x + 36, y + 42, (this.cleavageSlider.isMouseOver(f1,  f2) || changedCleavageSlider) ? 0xFFFF55: 0xFFFFFF);
     }
 
+    @Override
     public boolean mouseReleased(double mouseX, double mouseY, int state) {
         GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
         if(changedBreastSlider) {

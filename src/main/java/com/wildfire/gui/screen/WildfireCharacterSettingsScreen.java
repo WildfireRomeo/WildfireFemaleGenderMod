@@ -16,8 +16,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -26,18 +24,15 @@ import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
+import javax.annotation.Nonnull;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.gui.widget.Slider;
-import net.minecraftforge.common.ForgeHooks;
 
 public class WildfireCharacterSettingsScreen extends Screen {
 
@@ -58,12 +53,15 @@ public class WildfireCharacterSettingsScreen extends Screen {
     }
 
 
+    @Override
     public boolean isPauseScreen() { return false; }
 
     private int yPos = 0;
 
     boolean enablePhysics, enablePhysicsArmor, enableHurtSounds, enableShowInArmor;
     float bounceMult, floppyMult;
+
+    @Override
     public void init() {
         Minecraft m = Minecraft.getInstance();
         GenderPlayer aPlr = WildfireGender.getPlayerByName(this.playerUUID.toString());
@@ -84,61 +82,29 @@ public class WildfireCharacterSettingsScreen extends Screen {
             button.setMessage(new TextComponent("Breast Physics: " + (enablePhysics ? ChatFormatting.GREEN + "Enabled" : ChatFormatting.RED + "Disabled")));
             aPlr.breast_physics = enablePhysics;
             GenderPlayer.saveGenderInfo(aPlr);
-        }, new WildfireButton.ITooltip() {
-            public void onTooltip(WildfireButton button, PoseStack matrices, int mouseX, int mouseY) {
-                renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.breast_physics"), mouseX, mouseY);
-            }
-        }));
+        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.breast_physics"), mouseX, mouseY)));
 
         this.addRenderableWidget(new WildfireButton(this.width / 2 - 156/2-1, yPos + 20, 157, 20, new TextComponent("Armor Physics: " + (enablePhysicsArmor ? ChatFormatting.GREEN + "Enabled" : ChatFormatting.RED + "Disabled")), button -> {
             enablePhysicsArmor ^= true;
             button.setMessage(new TextComponent("Armor Physics: " + (enablePhysicsArmor ? ChatFormatting.GREEN + "Enabled" : ChatFormatting.RED + "Disabled")));
             aPlr.breast_physics_armor = enablePhysicsArmor;
             GenderPlayer.saveGenderInfo(aPlr);
-        }, new WildfireButton.ITooltip() {
-            public void onTooltip(WildfireButton button, PoseStack matrices, int mouseX, int mouseY) {
-                renderTooltip(matrices, new TextComponent("Enables Breast Physics With Armor Equipped"), mouseX, mouseY);
-            }
-        }));
+        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TextComponent("Enables Breast Physics With Armor Equipped"), mouseX, mouseY)));
 
         this.addRenderableWidget(new WildfireButton(this.width / 2 - 156/2-1, yPos + 40, 157, 20, new TextComponent("Hide In Armor: " + (!enableShowInArmor ? ChatFormatting.GREEN + "Enabled" : ChatFormatting.RED + "Disabled")), button -> {
             enableShowInArmor ^= true;
             button.setMessage(new TextComponent("Hide In Armor: " + (!enableShowInArmor ? ChatFormatting.GREEN + "Enabled" : ChatFormatting.RED + "Disabled")));
             aPlr.show_in_armor = enableShowInArmor;
             GenderPlayer.saveGenderInfo(aPlr);
-        }, new WildfireButton.ITooltip() {
-            public void onTooltip(WildfireButton button, PoseStack matrices, int mouseX, int mouseY) {
-                renderTooltip(matrices, new TextComponent("Hide Breast Model When Wearing Armor"), mouseX, mouseY);
-            }
+        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TextComponent("Hide Breast Model When Wearing Armor"), mouseX, mouseY)));
+
+        this.addRenderableWidget(this.bounceSlider = new WildfireSlider(this.width / 2 - 160/2-1, yPos + 60, 160, 22, new TextComponent(""), title, 0.0D, 1.0D, bounceMult, false,  false, button -> {
+        }, slider -> {
         }));
 
-        this.addRenderableWidget(this.bounceSlider = new WildfireSlider(this.width / 2 - 160/2-1, yPos + 60, 160, 22, new TextComponent(""), title, 0.0D, 1.0D, bounceMult, false,  false, new Button.OnPress() {
-            public void onPress(Button arg0) {
-
-            }
-            }, new Slider.ISlider() {
-
-                @Override
-                public void onChangeSliderValue(Slider slider) {
-                    // TODO Auto-generated method stub
-
-                }
-            })
-        );
-
-        this.addRenderableWidget(this.floppySlider = new WildfireSlider(this.width / 2 - 160/2-1, yPos + 80, 160, 22, new TextComponent(""), title, 0.0D, 1.0D, floppyMult, false,  false, new Button.OnPress() {
-            public void onPress(Button arg0) {
-
-            }
-            }, new Slider.ISlider() {
-
-                @Override
-                public void onChangeSliderValue(Slider slider) {
-                    // TODO Auto-generated method stub
-
-                }
-            })
-        );
+        this.addRenderableWidget(this.floppySlider = new WildfireSlider(this.width / 2 - 160/2-1, yPos + 80, 160, 22, new TextComponent(""), title, 0.0D, 1.0D, floppyMult, false,  false, button -> {
+        }, slider -> {
+        }));
 
 
         this.addRenderableWidget((new WildfireButton(this.width / 2 - 156/2-1, yPos + 100, 157, 20, new TextComponent("Female Hurt Sounds: " + (enableHurtSounds ? ChatFormatting.GREEN + "Enabled" : ChatFormatting.RED + "Disabled")), button -> {
@@ -146,27 +112,25 @@ public class WildfireCharacterSettingsScreen extends Screen {
             button.setMessage(new TextComponent("Female Hurt Sounds: " + (enableHurtSounds ? ChatFormatting.GREEN + "Enabled" : ChatFormatting.RED + "Disabled")));
             aPlr.hurtSounds = enableHurtSounds;
             GenderPlayer.saveGenderInfo(aPlr);
-        }, new WildfireButton.ITooltip() {
-            public void onTooltip(WildfireButton button, PoseStack matrices, int mouseX, int mouseY) {
-                //List<TextComponent> list = new ArrayList<>();
-                //list.add(new TextComponent("Enables Custom Hurt Sounds."));
-                //list.add(new TextComponent(ChatFormatting.RED + "Mod Needed On Server To Work!"));
-                //RenderSystem.disableDepthTest();
-                //renderTooltip(matrices, list, mouseX, mouseY);
-                //RenderSystem.enableDepthTest();
-            }
+        }, (button, matrices, mouseX, mouseY) -> {
+            //List<TextComponent> list = new ArrayList<>();
+            //list.add(new TextComponent("Enables Custom Hurt Sounds."));
+            //list.add(new TextComponent(ChatFormatting.RED + "Mod Needed On Server To Work!"));
+            //RenderSystem.disableDepthTest();
+            //renderTooltip(matrices, list, mouseX, mouseY);
+            //RenderSystem.enableDepthTest();
         })));
 
-        this.addRenderableWidget(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, new TextComponent("X"), button -> {
-            Minecraft.getInstance().setScreen(parent);
-        }));
+        this.addRenderableWidget(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, new TextComponent("X"),
+              button -> Minecraft.getInstance().setScreen(parent)));
 
         this.BACKGROUND = new ResourceLocation("wildfire_gender", "textures/gui/settings_bg.png");
 
         super.init();
     }
 
-    public void render(PoseStack m, int f1, int f2, float f3) {
+    @Override
+    public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
         super.renderBackground(m);
         Player plrEntity = Minecraft.getInstance().level.getPlayerByUUID(this.playerUUID);
 
@@ -218,6 +182,7 @@ public class WildfireCharacterSettingsScreen extends Screen {
         }
     }
 
+    @Override
     public boolean mouseReleased(double mouseX, double mouseY, int state) {
         Minecraft m = Minecraft.getInstance();
         GenderPlayer aPlr = WildfireGender.getPlayerByName(this.playerUUID.toString());

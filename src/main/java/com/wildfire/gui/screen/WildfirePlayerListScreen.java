@@ -21,6 +21,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfirePlayerList;
 import com.wildfire.main.GenderPlayer;
+import javax.annotation.Nonnull;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -31,9 +32,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
 import java.util.UUID;
 
 
@@ -55,14 +53,16 @@ public class WildfirePlayerListScreen extends Screen {
 		Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
 	}
 
+	@Override
 	public void onClose() {
 		Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(false);
 		super.onClose();
 	}
 
+	@Override
 	public boolean isPauseScreen() { return false; }
 
-
+	@Override
   	public void init() {
 	  	Minecraft mc = Minecraft.getInstance();
 
@@ -72,9 +72,7 @@ public class WildfirePlayerListScreen extends Screen {
 			mc.displayGuiScreen(new WildfireSettingsScreen(SteinPlayerListScreen.this));
 		}));*/
 
-		this.addWidget(new WildfireButton(this.width / 2 + 53, y - 74, 9, 9, new TextComponent("X"), button -> {
-			Minecraft.getInstance().setScreen(null);
-		}));
+		this.addWidget(new WildfireButton(this.width / 2 + 53, y - 74, 9, 9, new TextComponent("X"), button -> Minecraft.getInstance().setScreen(null)));
 
 	    PLAYER_LIST = new WildfirePlayerList(this, 118, (y - 61), (y + 71));
 		PLAYER_LIST.setRenderBackground(false);
@@ -86,7 +84,8 @@ public class WildfirePlayerListScreen extends Screen {
 	    super.init();
   	}
 
-	public void render(PoseStack m, int f1, int f2, float f3) {
+	@Override
+	public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
 		HOVER_PLAYER = null;
 		this.setTooltip("");
 		PLAYER_LIST.refreshList();
@@ -154,11 +153,10 @@ public class WildfirePlayerListScreen extends Screen {
 	    this.font.draw(m, new TranslatableComponent("wildfire_gender.player_list.title"), x - 60, y - 73, 4473924);
 
 		boolean withCreator = false;
-		PlayerInfo[] playersC = this.minecraft.getConnection().getOnlinePlayers().toArray(new PlayerInfo[this.minecraft.getConnection().getOnlinePlayers().size()]);
+		PlayerInfo[] playersC = this.minecraft.getConnection().getOnlinePlayers().toArray(new PlayerInfo[0]);
 
-		for(int h = 0; h < playersC.length; h++) {
-			PlayerInfo loadedPlayer = playersC[h];
-			if(loadedPlayer.getProfile().getId().toString().equals("33c937ae-6bfc-423e-a38e-3a613e7c1256")) {
+		for (PlayerInfo loadedPlayer : playersC) {
+			if (loadedPlayer.getProfile().getId().toString().equals("33c937ae-6bfc-423e-a38e-3a613e7c1256")) {
 				withCreator = true;
 			}
 		}
@@ -201,11 +199,15 @@ public class WildfirePlayerListScreen extends Screen {
 	public void setTooltip(String val) {
   		this.tooltip = val;
 	}
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+
+    @Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 
 		return super.keyPressed(keyCode, scanCode, modifiers);
   	}
-  	public boolean mouseReleased(double mouseX, double mouseY, int state) {
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int state) {
 
 	    return super.mouseReleased(mouseX, mouseY, state);
   	}

@@ -21,24 +21,18 @@ import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.main.proxy.GenderClient;
 import com.wildfire.render.GenderLayer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.NetworkHooks;
-
-import java.util.Map;
 
 public class WildfireEventHandler {
 	
@@ -50,13 +44,12 @@ public class WildfireEventHandler {
 	private static class EntityRenderEventsTestClientModStuff {
 		@SubscribeEvent
 		public static void entityLayers(EntityRenderersEvent.AddLayers event) {
-
-			Map<String, EntityRenderer<? extends Player>> skinMap = Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap();
-			//System.out.println("SKIN MAP: " + skinMap.size());
-			skinMap.forEach((string, r) -> {
-				LivingEntityRenderer renderer = (LivingEntityRenderer) r;
-				renderer.addLayer(new GenderLayer(renderer));
-			});
+			for (String skinName : event.getSkins()) {
+				LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> renderer = event.getSkin(skinName);
+				if (renderer != null) {
+					renderer.addLayer(new GenderLayer(renderer));
+				}
+			}
 		}
 	}
 
@@ -69,7 +62,7 @@ public class WildfireEventHandler {
 		boolean isVanillaServer = true;
 		try {
 			isVanillaServer = NetworkHooks.isVanillaConnection(Minecraft.getInstance().getConnection().getConnection());
-		} catch(Exception e) {}
+		} catch(Exception ignored) {}
 
 		if(!isVanillaServer) {
 			//20 ticks per second / 5 = 4 times per second
@@ -118,8 +111,7 @@ public class WildfireEventHandler {
 	public void onPlayerJoin(EntityJoinWorldEvent evt) {
 		if(!evt.getWorld().isClientSide) return;
 
-		if(evt.getEntity() instanceof AbstractClientPlayer) {
-			AbstractClientPlayer plr = (AbstractClientPlayer) evt.getEntity();
+		if(evt.getEntity() instanceof AbstractClientPlayer plr) {
 
 			String playerName = plr.getGameProfile().getId().toString();
 			GenderPlayer aPlr = WildfireGender.getPlayerByName(plr.getStringUUID());
