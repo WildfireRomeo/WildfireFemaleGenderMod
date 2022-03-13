@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -38,6 +39,7 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -63,9 +65,10 @@ public class WildfireGender {
   	public static final GenderServer PROXY = DistExecutor.safeRunForDist(() -> GenderClient::new, () -> GenderServer::new);
 
   	public WildfireGender() {
-  		File f = new File(System.getProperty("user.dir")  + "/config/KittGender/");
-  		if(f.exists()) {
-  			boolean legacyConvert = f.renameTo(new File(System.getProperty("user.dir")  + "/config/WildfireGender/"));
+		Path configDir = FMLPaths.GAMEDIR.get().resolve(FMLPaths.CONFIGDIR.get());
+  		File legacyFolder = configDir.resolve("KittGender").toFile();
+  		if (legacyFolder.exists()) {
+  			boolean legacyConvert = legacyFolder.renameTo(configDir.resolve("WildfireGender").toFile());
 		}
 
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup); //common

@@ -1,7 +1,3 @@
-package com.wildfire.main;
-
-import com.wildfire.main.config.Configuration;
-
 /*
 Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
 Copyright (C) 2022  WildfireRomeo
@@ -19,9 +15,25 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-public class Breasts {
 
-    public float xOffset = Configuration.BREASTS_OFFSET_X.getDefault(), yOffset = Configuration.BREASTS_OFFSET_Y.getDefault(), zOffset = Configuration.BREASTS_OFFSET_Z.getDefault();
-    public float cleavage = Configuration.BREASTS_CLEAVAGE.getDefault();
-    public boolean isUniboob = Configuration.BREASTS_UNIBOOB.getDefault();
+package com.wildfire.main.config;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+public class BooleanConfigKey extends ConfigKey<Boolean> {
+
+    public BooleanConfigKey(String key, Boolean defaultValue) {
+        super(key, defaultValue);
+    }
+
+    @Override
+    protected Boolean read(JsonElement element) {
+        return element.isJsonPrimitive() ? element.getAsJsonPrimitive().getAsBoolean() : defaultValue;
+    }
+
+    @Override
+    public void save(JsonObject object, Boolean value) {
+        object.addProperty(key, value);
+    }
 }
