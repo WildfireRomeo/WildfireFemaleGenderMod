@@ -75,7 +75,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
         PlayerInfo[] playersC = this.minecraft.getConnection().getOnlinePlayers().toArray(new PlayerInfo[0]);
 
         for (PlayerInfo loadedPlayer : playersC) {
-            this.addEntry(new Entry(loadedPlayer, false));
+            this.addEntry(new Entry(loadedPlayer));
         }
     }
 
@@ -96,14 +96,12 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
     public class Entry extends ObjectSelectionList.Entry<WildfirePlayerList.Entry> {
 
         private final String name;
-        private final boolean gender;
         public final PlayerInfo nInfo;
         private final WildfireButton btnOpenGUI;
 
-        private Entry(final PlayerInfo nInfo, final boolean gender) {
+        private Entry(final PlayerInfo nInfo) {
             this.nInfo = nInfo;
             this.name = nInfo.getProfile().getName();
-            this.gender = gender;
             btnOpenGUI = new WildfireButton(0, 0, 112, 20, TextComponent.EMPTY, button -> {
                 GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
                 if(aPlr == null) return;

@@ -29,7 +29,6 @@ import com.mojang.math.Vector3f;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.GenderPlayer;
 import javax.annotation.Nonnull;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
