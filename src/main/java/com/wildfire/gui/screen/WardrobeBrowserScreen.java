@@ -48,8 +48,8 @@ public class WardrobeBrowserScreen extends Screen {
 	private ResourceLocation BACKGROUND;
 	public static float modelRotation = 0.5F;
 
-	private UUID playerUUID;
-	private Screen parent;
+	private final UUID playerUUID;
+	private final Screen parent;
 
 	public WardrobeBrowserScreen(Screen parent, UUID uuid) {
 		super(new TranslatableComponent("wildfire_gender.wardrobe.title"));
@@ -67,7 +67,7 @@ public class WardrobeBrowserScreen extends Screen {
 	    int j = this.height / 2;
 
 	    
-	    GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
+	    GenderPlayer plr = WildfireGender.getPlayerById(this.playerUUID);
 
 	    MutableComponent genderString = new TranslatableComponent("wildfire_gender.label.gender").append(" - ");
 
@@ -120,7 +120,7 @@ public class WardrobeBrowserScreen extends Screen {
   	@Override
 	public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
 		Minecraft minecraft = Minecraft.getInstance();
-	    GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
+	    GenderPlayer plr = WildfireGender.getPlayerById(this.playerUUID);
 	    super.renderBackground(m);
 	    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -159,13 +159,6 @@ public class WardrobeBrowserScreen extends Screen {
 		}
 	    super.render(m, f1, f2, f3);
 	}
-
-	@Override
-  	public boolean mouseReleased(double mouseX, double mouseY, int state) {
-	    GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
-	  
-	    return super.mouseReleased(mouseX, mouseY, state);
-  	}
 
 	public static void drawEntityOnScreen(int p_98851_, int p_98852_, int p_98853_, float p_98854_, float p_98855_, LivingEntity p_98856_) {
 		float var6 = (float)Math.atan(p_98854_ / 40.0F);

@@ -41,7 +41,7 @@ public class WildfireCommonEvents {
 
             Vec3 pos = p.getPosition(0);
 
-            GenderPlayer aPlr = WildfireGender.getPlayerByName(p.getStringUUID());
+            GenderPlayer aPlr = WildfireGender.getPlayerById(p.getUUID());
             if (aPlr == null) return;
 
             PacketHurt.send(false, pos, aPlr);

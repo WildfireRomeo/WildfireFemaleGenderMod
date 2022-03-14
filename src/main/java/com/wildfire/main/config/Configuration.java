@@ -27,14 +27,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.UUID;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 public class Configuration {
 
-	public static final ConfigKey<String> USERNAME = new StringConfigKey("username", "NOT_AVAILABLE");
+	public static final ConfigKey<UUID> USERNAME = new UUIDConfigKey("username", UUID.nameUUIDFromBytes("UNKNOWN".getBytes(StandardCharsets.UTF_8)));
 	public static final ConfigKey<String> CAPE_URL = new StringConfigKey("cape_url", "");
 	public static final ConfigKey<Integer> GENDER = new GenderConfigKey("gender");
 	public static final ConfigKey<Float> BUST_SIZE = new FloatConfigKey("bust_size", 0.6F);

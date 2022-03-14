@@ -84,9 +84,9 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
 
     public boolean isLoadingPlayers() {
         boolean loadingPlayers = false;
-        for(int i = 0; i < this.children().size(); i++) {
-            GenderPlayer aPlr = WildfireGender.getPlayerByName(this.children().get(i).nInfo.getProfile().getId().toString());
-            if(aPlr == null) {
+        for (Entry child : this.children()) {
+            GenderPlayer aPlr = WildfireGender.getPlayerById(child.nInfo.getProfile().getId());
+            if (aPlr == null) {
                 loadingPlayers = true;
             }
         }
@@ -105,14 +105,14 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
             this.name = nInfo.getProfile().getName();
             this.gender = gender;
             btnOpenGUI = new WildfireButton(0, 0, 112, 20, TextComponent.EMPTY, button -> {
-                GenderPlayer aPlr = WildfireGender.getPlayerByName(nInfo.getProfile().getId().toString());
+                GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
                 if(aPlr == null) return;
 
                 try {
                     Minecraft.getInstance().setScreen(new WardrobeBrowserScreen(parent, nInfo.getProfile().getId()));
                 } catch(Exception ignored) {}
             });
-            GenderPlayer aPlr = WildfireGender.getPlayerByName(nInfo.getProfile().getId().toString());
+            GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
             if(aPlr != null) {
                 btnOpenGUI.active = !aPlr.lockSettings;
             }
@@ -127,7 +127,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
             Font font = minecraft.font;
 
             Player playerentity = minecraft.level.getPlayerByUUID(nInfo.getProfile().getId());
-            GenderPlayer aPlr = WildfireGender.getPlayerByName(nInfo.getProfile().getId().toString());
+            GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
             boolean flag1 = false;
             RenderSystem.setShaderTexture(0, nInfo.getSkinLocation());
             int i3 = 8 + (flag1 ? 8 : 0);

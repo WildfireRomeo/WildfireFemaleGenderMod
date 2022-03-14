@@ -20,7 +20,8 @@ package com.wildfire.main;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -29,6 +30,8 @@ import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.main.networking.PacketSync;
 import com.wildfire.main.proxy.GenderClient;
 import com.wildfire.main.proxy.GenderServer;
+import java.util.UUID;
+import javax.annotation.Nullable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -54,15 +57,14 @@ public class WildfireGender {
   	public static boolean modEnabled = true;
   	public static final boolean SYNCING_ENABLED = false;
 
-	private static final String PROTOCOL_VERSION = "1";
+	private static final String PROTOCOL_VERSION = "2";
 	//public static SimpleChannel NETWORK = NetworkRegistry.newSimpleChannel(new ResourceLocation("wildfire_gender", "main_channel"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
 	public static SimpleChannel NETWORK = NetworkRegistry.ChannelBuilder.named(new ResourceLocation("wildfire_gender", "main_channel"))
 			.clientAcceptedVersions(v -> v.equals(NetworkRegistry.ABSENT) || v.equals(NetworkRegistry.ACCEPTVANILLA) || v.equals(PROTOCOL_VERSION))
 			.serverAcceptedVersions(v -> v.equals(NetworkRegistry.ACCEPTVANILLA) || v.equals(PROTOCOL_VERSION))
 			.networkProtocolVersion(() -> PROTOCOL_VERSION).simpleChannel();
 
-  	public static ArrayList<GenderPlayer> CLOTHING_PLAYER = new ArrayList<>();
-  	public static ArrayList<GenderPlayer> SERVER_PLAYER = new ArrayList<>();
+	public static Map<UUID, GenderPlayer> CLOTHING_PLAYERS = new HashMap<>();
 
   	public static final GenderServer PROXY = DistExecutor.safeRunForDist(() -> GenderClient::new, () -> GenderServer::new);
 
@@ -77,19 +79,13 @@ public class WildfireGender {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient); //client
     }
 
-	public static GenderPlayer getPlayerByName(String username) {
-		for (int i = 0; i < CLOTHING_PLAYER.size(); i++) {
-			try {
-				if (username.equalsIgnoreCase(CLOTHING_PLAYER.get(i).username)) {
-					return CLOTHING_PLAYER.get(i);
-				}
-			} catch (Exception e) {
-				GenderPlayer plr = new GenderPlayer(username);
-				CLOTHING_PLAYER.add(plr);
-				return plr;
-			}
-		}
-		return null;
+	@Nullable
+	public static GenderPlayer getPlayerById(UUID id) {
+		  return CLOTHING_PLAYERS.get(id);
+	}
+
+	public static GenderPlayer getPlayerOrAddById(UUID id) {
+		return CLOTHING_PLAYERS.computeIfAbsent(id, GenderPlayer::new);
 	}
 
 	public void setup(FMLCommonSetupEvent event) {
@@ -104,7 +100,7 @@ public class WildfireGender {
   		PROXY.register();
   	}
   	
-  	public static void loadGenderInfoAsync(String uuid) {
+  	public static void loadGenderInfoAsync(UUID uuid) {
   		Thread thread = new Thread(() -> WildfireGender.loadGenderInfo(uuid));
 		thread.setName("WFGM_GetPlayer-" + uuid);
   		thread.start();
@@ -130,7 +126,7 @@ public class WildfireGender {
   		thread.start();*/
   	}
 
-	public static GenderPlayer loadGenderInfo(String uuid) {
+	public static GenderPlayer loadGenderInfo(UUID uuid) {
 		return GenderPlayer.loadCachedPlayer(uuid);
 	}
   

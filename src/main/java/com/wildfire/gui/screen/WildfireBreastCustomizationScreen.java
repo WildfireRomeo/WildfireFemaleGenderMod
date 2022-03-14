@@ -45,8 +45,8 @@ public class WildfireBreastCustomizationScreen extends Screen {
     private float preCleavage;
     private boolean changedCleavageSlider;
 
-    private UUID playerUUID;
-    private Screen parent;
+    private final UUID playerUUID;
+    private final Screen parent;
 
     public WildfireBreastCustomizationScreen(Screen parent, UUID uuid) {
         super(new TranslatableComponent("wildfire_gender.appearance_settings.title"));
@@ -64,7 +64,7 @@ public class WildfireBreastCustomizationScreen extends Screen {
         int j = this.height / 2;
 
 
-        GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
+        GenderPlayer plr = WildfireGender.getPlayerById(this.playerUUID);
 
         preBreastSize = plr.getBustSize();
         preXOff = plr.getBreasts().xOffset;
@@ -114,7 +114,7 @@ public class WildfireBreastCustomizationScreen extends Screen {
     @Override
     public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
         Minecraft minecraft = Minecraft.getInstance();
-        GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
+        GenderPlayer plr = WildfireGender.getPlayerById(this.playerUUID);
         super.renderBackground(m);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -186,7 +186,7 @@ public class WildfireBreastCustomizationScreen extends Screen {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int state) {
-        GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
+        GenderPlayer plr = WildfireGender.getPlayerById(this.playerUUID);
         if(changedBreastSlider) {
             plr.updateBustSize((float) this.breastSlider.getValue());
             changedBreastSlider = false;

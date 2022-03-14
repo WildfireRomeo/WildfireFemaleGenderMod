@@ -35,28 +35,28 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 public class PacketHurt {
-    private final String uuid;
-    private boolean hurtSounds;
+    private final UUID uuid;
+    private final boolean hurtSounds;
     private final int gender;
-    private Vec3 pos;
+    private final Vec3 pos;
 
     public PacketHurt(Vec3 pos, GenderPlayer plr) {
-        this.uuid = plr.username;
+        this.uuid = plr.uuid;
         this.gender = plr.gender;
         this.hurtSounds = plr.hurtSounds;
         this.pos = pos;
     }
 
     public PacketHurt(FriendlyByteBuf buffer) {
-        this.uuid = buffer.readUtf(36);
-        this.gender = buffer.readInt();
+        this.uuid = buffer.readUUID();
+        this.gender = buffer.readVarInt();
         this.pos = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
         this.hurtSounds = buffer.readBoolean();
     }
 
     public void encode(FriendlyByteBuf buffer) {
-        buffer.writeUtf(this.uuid);
-        buffer.writeInt(this.gender);
+        buffer.writeUUID(this.uuid);
+        buffer.writeVarInt(this.gender);
         buffer.writeDouble(this.pos.x);
         buffer.writeDouble(this.pos.y);
         buffer.writeDouble(this.pos.z);
@@ -65,7 +65,7 @@ public class PacketHurt {
 
     public static void handle(final PacketHurt packet, Supplier<NetworkEvent.Context> context) {
         context.get().enqueueWork(() -> {
-            GenderPlayer plr = WildfireGender.getPlayerByName(packet.uuid);
+            GenderPlayer plr = WildfireGender.getPlayerById(packet.uuid);
             if(plr == null) return;
             if(context.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT) {
                 //play the sound
@@ -76,7 +76,7 @@ public class PacketHurt {
                 }
                 if(hurtSound == null) return;
                 if(packet.hurtSounds) {
-                    Player ent = Minecraft.getInstance().level.getPlayerByUUID(UUID.fromString(packet.uuid));
+                    Player ent = Minecraft.getInstance().level.getPlayerByUUID(packet.uuid);
                     if (ent != null) {
                         WildfireGender.PROXY.playSound(hurtSound, SoundSource.PLAYERS, 1f, 1f, ent);
                     }

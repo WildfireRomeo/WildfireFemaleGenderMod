@@ -20,6 +20,7 @@ package com.wildfire.main.networking;
 
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
+import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,7 +30,7 @@ import net.minecraftforge.network.PacketDistributor;
 import java.util.function.Supplier;
 
 public class PacketSync {
-    private final String uuid;
+    private final UUID uuid;
     private final int gender;
     private final float bust_size;
 
@@ -47,7 +48,7 @@ public class PacketSync {
     private final boolean hurtSounds;
 
     public PacketSync(GenderPlayer plr) {
-        this.uuid = plr.username;
+        this.uuid = plr.uuid;
         this.gender = plr.gender;
         this.bust_size = plr.getBustSize();
         this.hurtSounds = plr.hurtSounds;
@@ -68,8 +69,8 @@ public class PacketSync {
     }
 
     public PacketSync(FriendlyByteBuf buffer) {
-        this.uuid = buffer.readUtf(36);
-        this.gender = buffer.readInt();
+        this.uuid = buffer.readUUID();
+        this.gender = buffer.readVarInt();
         this.bust_size = buffer.readFloat();
         this.hurtSounds = buffer.readBoolean();
 
@@ -88,8 +89,8 @@ public class PacketSync {
     }
 
     public void encode(FriendlyByteBuf buffer) {
-        buffer.writeUtf(this.uuid);
-        buffer.writeInt(this.gender);
+        buffer.writeUUID(this.uuid);
+        buffer.writeVarInt(this.gender);
         buffer.writeFloat(this.bust_size);
         buffer.writeBoolean(this.hurtSounds);
 
@@ -110,8 +111,8 @@ public class PacketSync {
     public static void handle(final PacketSync packet, Supplier<NetworkEvent.Context> context) {
         context.get().enqueueWork(() -> {
             ServerPlayer player = context.get().getSender();
-            if(!packet.uuid.equals(Minecraft.getInstance().player.getStringUUID())) {
-                GenderPlayer plr = WildfireGender.getPlayerByName(packet.uuid);
+            if(!packet.uuid.equals(Minecraft.getInstance().player.getUUID())) {
+                GenderPlayer plr = WildfireGender.getPlayerById(packet.uuid);
                 if(plr != null) {
                     plr.gender = packet.gender;
                     plr.updateBustSize(packet.bust_size);

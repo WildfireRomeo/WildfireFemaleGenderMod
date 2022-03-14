@@ -127,7 +127,7 @@ public class WildfirePlayerListScreen extends Screen {
 	    if(HOVER_PLAYER != null) {
 			int dialogX = x + 75;
 			int dialogY = y - 73;
-			Player pEntity = mc.level.getPlayerByUUID(UUID.fromString(HOVER_PLAYER.username));
+			Player pEntity = mc.level.getPlayerByUUID(HOVER_PLAYER.uuid);
 			if(pEntity != null) {
 				this.font.drawShadow(m, pEntity.getDisplayName().copy().withStyle(ChatFormatting.UNDERLINE), dialogX, dialogY - 2, 0xFFFFFF);
 			}

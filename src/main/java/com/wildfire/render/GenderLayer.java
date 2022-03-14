@@ -26,6 +26,7 @@ import com.wildfire.render.WildfireModelRenderer.BreastModelBox;
 import com.wildfire.render.WildfireModelRenderer.OverlayModelBox;
 import com.wildfire.render.WildfireModelRenderer.PositionTextureVertex;
 import java.util.Locale;
+import java.util.UUID;
 import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -111,9 +112,9 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		int pushCount = 0;
 		try {
 			//0.5 or 0
-			String playerName = ent.getStringUUID();
-			//System.out.println(ent.getUuid().toString());
-			GenderPlayer plr = WildfireGender.getPlayerByName(playerName);
+			UUID playerUUID = ent.getUUID();
+			//System.out.println(playerUUID);
+			GenderPlayer plr = WildfireGender.getPlayerById(playerUUID);
 			if(plr == null) return;
 
 			PlayerRenderer rend = (PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(ent);

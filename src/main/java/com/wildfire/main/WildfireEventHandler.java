@@ -22,6 +22,7 @@ import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.main.proxy.GenderClient;
 import com.wildfire.render.GenderLayer;
+import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -57,8 +58,8 @@ public class WildfireEventHandler {
 
  	@SubscribeEvent
 	public void onGUI(TickEvent.ClientTickEvent evt) {
- 		if(Minecraft.getInstance().level == null && WildfireGender.CLOTHING_PLAYER.size() > 0) {
-			WildfireGender.CLOTHING_PLAYER.clear();
+ 		if (Minecraft.getInstance().level == null) {
+			WildfireGender.CLOTHING_PLAYERS.clear();
 		}
 
 		boolean isVanillaServer = true;
@@ -73,7 +74,7 @@ public class WildfireEventHandler {
 			if (timer >= 5) {
 				//System.out.println("sync");
 				try {
-					GenderPlayer aPlr = WildfireGender.getPlayerByName(Minecraft.getInstance().player.getStringUUID());
+					GenderPlayer aPlr = WildfireGender.getPlayerById(Minecraft.getInstance().player.getUUID());
 					if(aPlr == null) return;
 					PacketSendGenderInfo.send(aPlr);
 				} catch (Exception e) {
@@ -88,7 +89,7 @@ public class WildfireEventHandler {
  	@SubscribeEvent
 	public void onPlayerTick(PlayerTickEvent evt) {
 		if(evt.phase == TickEvent.Phase.END && evt.side.isClient()) {
-			GenderPlayer aPlr = WildfireGender.getPlayerByName(evt.player.getStringUUID());
+			GenderPlayer aPlr = WildfireGender.getPlayerById(evt.player.getUUID());
 			if(aPlr == null) return;
 			aPlr.getLeftBreastPhysics().update(evt.player);
 			aPlr.getRightBreastPhysics().update(evt.player);
@@ -111,23 +112,17 @@ public class WildfireEventHandler {
 
 	@SubscribeEvent
 	public void onPlayerJoin(EntityJoinWorldEvent evt) {
-		if(!evt.getWorld().isClientSide) return;
-
-		if(evt.getEntity() instanceof AbstractClientPlayer plr) {
-
-			String playerName = plr.getGameProfile().getId().toString();
-			GenderPlayer aPlr = WildfireGender.getPlayerByName(plr.getStringUUID());
-			if(aPlr == null) {
-				aPlr = new GenderPlayer(plr.getStringUUID());
-				WildfireGender.CLOTHING_PLAYER.add(aPlr);
-				WildfireGender.loadGenderInfoAsync(plr.getStringUUID());
+		if (evt.getWorld().isClientSide && evt.getEntity() instanceof AbstractClientPlayer plr) {
+			UUID uuid = plr.getUUID();
+			GenderPlayer aPlr = WildfireGender.getPlayerById(uuid);
+			if (aPlr == null) {
+				aPlr = new GenderPlayer(uuid);
+				WildfireGender.CLOTHING_PLAYERS.put(uuid, aPlr);
+				WildfireGender.loadGenderInfoAsync(uuid);
 
 				WildfireGender.refreshAllGenders();
-
-				return;
 			}
 		} 
 	}
-	public boolean addedLayer = false;
   
 }

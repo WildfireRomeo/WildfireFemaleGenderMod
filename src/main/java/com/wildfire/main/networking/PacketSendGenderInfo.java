@@ -20,6 +20,7 @@ package com.wildfire.main.networking;
 
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
+import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
@@ -28,7 +29,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class PacketSendGenderInfo {
-    private final String uuid;
+    private final UUID uuid;
     private final int gender;
     private final float bust_size;
 
@@ -46,7 +47,7 @@ public class PacketSendGenderInfo {
     private final boolean hurtSounds;
 
     public PacketSendGenderInfo(GenderPlayer plr) {
-        this.uuid = plr.username;
+        this.uuid = plr.uuid;
         this.gender = plr.gender;
         this.bust_size = plr.getBustSize();
         this.hurtSounds = plr.hurtSounds;
@@ -67,8 +68,8 @@ public class PacketSendGenderInfo {
     }
 
     public PacketSendGenderInfo(FriendlyByteBuf buffer) {
-        this.uuid = buffer.readUtf(36);
-        this.gender = buffer.readInt();
+        this.uuid = buffer.readUUID();
+        this.gender = buffer.readVarInt();
         this.bust_size = buffer.readFloat();
         this.hurtSounds = buffer.readBoolean();
 
@@ -87,8 +88,8 @@ public class PacketSendGenderInfo {
     }
 
     public void encode(FriendlyByteBuf buffer) {
-        buffer.writeUtf(this.uuid);
-        buffer.writeInt(this.gender);
+        buffer.writeUUID(this.uuid);
+        buffer.writeVarInt(this.gender);
         buffer.writeFloat(this.bust_size);
         buffer.writeBoolean(this.hurtSounds);
         buffer.writeBoolean(this.breast_physics);
@@ -107,13 +108,9 @@ public class PacketSendGenderInfo {
     public static void handle(final PacketSendGenderInfo packet, Supplier<NetworkEvent.Context> context) {
         context.get().enqueueWork(() -> {
             ServerPlayer player = context.get().getSender();
-            if(!player.getStringUUID().equals(packet.uuid)) return;
+            if(!player.getUUID().equals(packet.uuid)) return;
 
-            GenderPlayer plr = WildfireGender.getPlayerByName(packet.uuid);
-            if(plr == null) {
-                plr = new GenderPlayer(packet.uuid);
-                WildfireGender.CLOTHING_PLAYER.add(plr);
-            }
+            GenderPlayer plr = WildfireGender.getPlayerOrAddById(packet.uuid);
             plr.gender = packet.gender;
             plr.updateBustSize(packet.bust_size);
             //plr.capeURL = packet.capeURL;
@@ -136,7 +133,7 @@ public class PacketSendGenderInfo {
             try {
                 List<ServerPlayer> PLAYERS = player.getServer().getPlayerList().getPlayers();
                 for(ServerPlayer sPlayer : PLAYERS) {
-                    PacketSync.send(player, WildfireGender.getPlayerByName(sPlayer.getStringUUID()));
+                    PacketSync.send(player, WildfireGender.getPlayerById(sPlayer.getUUID()));
                 }
             } catch(Exception e) {
                 e.printStackTrace();

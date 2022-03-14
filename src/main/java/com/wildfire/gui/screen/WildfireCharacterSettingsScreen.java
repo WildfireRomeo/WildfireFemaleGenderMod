@@ -48,8 +48,8 @@ public class WildfireCharacterSettingsScreen extends Screen {
     private float preFloppyMult = 0f;
     private boolean changedSlider = false, changedFloppySlider = false;
 
-    private Screen parent;
-    private UUID playerUUID;
+    private final Screen parent;
+    private final UUID playerUUID;
 
     protected WildfireCharacterSettingsScreen(Screen parent, UUID uuid) {
         super(new TranslatableComponent("wildfire_gender.char_settings.title"));
@@ -69,7 +69,7 @@ public class WildfireCharacterSettingsScreen extends Screen {
     @Override
     public void init() {
         Minecraft m = Minecraft.getInstance();
-        GenderPlayer aPlr = WildfireGender.getPlayerByName(this.playerUUID.toString());
+        GenderPlayer aPlr = WildfireGender.getPlayerById(this.playerUUID);
 
         int x = this.width / 2;
         int y = this.height / 2;
@@ -193,8 +193,7 @@ public class WildfireCharacterSettingsScreen extends Screen {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int state) {
-        Minecraft m = Minecraft.getInstance();
-        GenderPlayer aPlr = WildfireGender.getPlayerByName(this.playerUUID.toString());
+        GenderPlayer aPlr = WildfireGender.getPlayerById(this.playerUUID);
 
         if(changedSlider) {
             bounceMult = (float) this.bounceSlider.getValue();
