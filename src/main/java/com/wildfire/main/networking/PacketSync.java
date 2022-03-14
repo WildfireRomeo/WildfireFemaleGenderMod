@@ -111,7 +111,6 @@ public class PacketSync {
 
     public static void handle(final PacketSync packet, Supplier<NetworkEvent.Context> context) {
         context.get().enqueueWork(() -> {
-            ServerPlayer player = context.get().getSender();
             if(!packet.uuid.equals(Minecraft.getInstance().player.getUUID())) {
                 GenderPlayer plr = WildfireGender.getPlayerById(packet.uuid);
                 if(plr != null) {

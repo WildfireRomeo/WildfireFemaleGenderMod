@@ -20,31 +20,38 @@ package com.wildfire.main;
 
 import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.main.networking.PacketSendGenderInfo;
-import com.wildfire.main.proxy.GenderClient;
 import com.wildfire.render.GenderLayer;
+import java.util.Set;
 import java.util.UUID;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.network.NetworkHooks;
+import org.lwjgl.glfw.GLFW;
 
 public class WildfireEventHandler {
-	
-	public WildfireEventHandler() {
-		
-	}
 
-	@Mod.EventBusSubscriber(value= Dist.CLIENT, bus= Mod.EventBusSubscriber.Bus.MOD)
-	private static class EntityRenderEventsTestClientModStuff {
+	public static final KeyMapping toggleEditGUI = new KeyMapping("wildfire_gender.key.gui", GLFW.GLFW_KEY_G, "key.categories.wildfire_gender");
+
+	@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD, modid = WildfireGender.MODID)
+	private static class ClientModEventBusListeners {
 		@SubscribeEvent
 		public static void entityLayers(EntityRenderersEvent.AddLayers event) {
 			for (String skinName : event.getSkins()) {
@@ -53,6 +60,12 @@ public class WildfireEventHandler {
 					renderer.addLayer(new GenderLayer(renderer));
 				}
 			}
+		}
+
+		@SubscribeEvent
+		public static void setupClient(FMLClientSetupEvent event) {
+			ClientRegistry.registerKeyBinding(toggleEditGUI);
+			MinecraftForge.EVENT_BUS.register(new WildfireEventHandler());
 		}
 	}
 
@@ -97,7 +110,7 @@ public class WildfireEventHandler {
  	}
  	@SubscribeEvent
 	public void onKeyInput(InputEvent.KeyInputEvent evt) {
-		if(GenderClient.toggleEditGUI.isDown()) {
+		if (toggleEditGUI.isDown()) {
 
 			String playerUUID = Minecraft.getInstance().player.getGameProfile().getId().toString();
 			//if(KittGender.modEnabled) Minecraft.getInstance().displayGuiScreen(new WardrobeBrowserScreen(playerUUID));
@@ -124,5 +137,22 @@ public class WildfireEventHandler {
 			}
 		} 
 	}
-  
+
+	//TODO: Eventually we may want to replace this with a map or something and replace things like drowning sounds with other drowning sounds
+	private final Set<SoundEvent> playerHurtSounds = Set.of(SoundEvents.PLAYER_HURT,
+		SoundEvents.PLAYER_HURT_DROWN,
+		SoundEvents.PLAYER_HURT_FREEZE,
+		SoundEvents.PLAYER_HURT_ON_FIRE,
+		SoundEvents.PLAYER_HURT_SWEET_BERRY_BUSH
+	);
+
+	@SubscribeEvent
+	public void onPlaySound(PlaySoundAtEntityEvent event) {
+		if (playerHurtSounds.contains(event.getSound()) && event.getEntity() instanceof Player p && p.level.isClientSide) {
+			GenderPlayer plr = WildfireGender.getPlayerById(p.getUUID());
+			if (plr != null && plr.hurtSounds && plr.gender.hasFemaleHurtSounds()) {
+				event.setSound(Math.random() > 0.5f ? WildfireSounds.FEMALE_HURT1 : WildfireSounds.FEMALE_HURT2);
+			}
+		}
+	}
 }

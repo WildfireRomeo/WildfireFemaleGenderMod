@@ -25,24 +25,18 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.wildfire.main.networking.PacketHurt;
 import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.main.networking.PacketSync;
-import com.wildfire.main.proxy.GenderClient;
-import com.wildfire.main.proxy.GenderServer;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.network.NetworkDirection;
@@ -66,8 +60,6 @@ public class WildfireGender {
 
 	public static Map<UUID, GenderPlayer> CLOTHING_PLAYERS = new HashMap<>();
 
-  	public static final GenderServer PROXY = DistExecutor.safeRunForDist(() -> GenderClient::new, () -> GenderServer::new);
-
   	public WildfireGender() {
 		Path configDir = FMLPaths.GAMEDIR.get().resolve(FMLPaths.CONFIGDIR.get());
   		File legacyFolder = configDir.resolve("KittGender").toFile();
@@ -76,7 +68,6 @@ public class WildfireGender {
 		}
 
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup); //common
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient); //client
     }
 
 	@Nullable
@@ -89,16 +80,10 @@ public class WildfireGender {
 	}
 
 	public void setup(FMLCommonSetupEvent event) {
-		MinecraftForge.EVENT_BUS.register(new WildfireCommonEvents());
-
 		NETWORK.registerMessage(1, PacketSync.class, PacketSync::encode, PacketSync::new, PacketSync::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 		NETWORK.registerMessage(2, PacketSendGenderInfo.class, PacketSendGenderInfo::encode, PacketSendGenderInfo::new, PacketSendGenderInfo::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
 		//NETWORK.registerMessage(3, PacketSendCape.class, PacketSendCape::encode, PacketSendCape::new, PacketSendCape::handle);
-		NETWORK.registerMessage(3, PacketHurt.class, PacketHurt::encode, PacketHurt::new, PacketHurt::handle);
 	}
-  	public void setupClient(FMLClientSetupEvent event) {
-  		PROXY.register();
-  	}
   	
   	public static void loadGenderInfoAsync(UUID uuid) {
   		Thread thread = new Thread(() -> WildfireGender.loadGenderInfo(uuid));
