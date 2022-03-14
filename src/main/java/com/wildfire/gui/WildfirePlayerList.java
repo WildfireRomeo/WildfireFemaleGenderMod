@@ -42,9 +42,9 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
 {
     private static String stripControlCodes(String value) { return net.minecraft.util.StringUtil.stripColor(value); }
 
-    private static final ResourceLocation TXTR_SYNC = new ResourceLocation("wildfire_gender", "textures/sync.png");
-    private static final ResourceLocation TXTR_CACHED = new ResourceLocation("wildfire_gender", "textures/cached.png");
-    private static final ResourceLocation TXTR_UNKNOWN = new ResourceLocation("wildfire_gender", "textures/unknown.png");
+    private static final ResourceLocation TXTR_SYNC = new ResourceLocation(WildfireGender.MODID, "textures/sync.png");
+    private static final ResourceLocation TXTR_CACHED = new ResourceLocation(WildfireGender.MODID, "textures/cached.png");
+    private static final ResourceLocation TXTR_UNKNOWN = new ResourceLocation(WildfireGender.MODID, "textures/unknown.png");
 
     private final int listWidth;
 

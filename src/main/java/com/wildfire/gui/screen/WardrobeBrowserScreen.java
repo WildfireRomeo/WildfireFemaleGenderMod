@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.wildfire.gui.screen;
 
 import com.wildfire.main.GenderPlayer.Gender;
+import com.wildfire.main.WildfireGender;
 import java.util.UUID;
 
 import com.mojang.blaze3d.platform.Lighting;
@@ -78,7 +79,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	    
 	    modelRotation = 0.6F;
 
-	    this.BACKGROUND = new ResourceLocation("wildfire_gender", "textures/gui/wardrobe_bg.png");
+	    this.BACKGROUND = new ResourceLocation(WildfireGender.MODID, "textures/gui/wardrobe_bg.png");
     
 	    super.init();
   	}

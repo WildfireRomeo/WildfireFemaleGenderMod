@@ -23,6 +23,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfirePlayerList;
 import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.WildfireGender;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -43,7 +44,7 @@ public class WildfirePlayerListScreen extends Screen {
 
 	private static final UUID CREATOR_UUID = UUID.fromString("33c937ae-6bfc-423e-a38e-3a613e7c1256");
 	private ResourceLocation TXTR_BACKGROUND;
-	private static final ResourceLocation TXTR_RIBBON = new ResourceLocation("wildfire_gender", "textures/bc_ribbon.png");
+	private static final ResourceLocation TXTR_RIBBON = new ResourceLocation(WildfireGender.MODID, "textures/bc_ribbon.png");
 
 	@Nullable
 	private Component tooltip = null;
@@ -84,7 +85,7 @@ public class WildfirePlayerListScreen extends Screen {
 		PLAYER_LIST.setRenderTopAndBottom(false);
 	    this.addRenderableWidget(this.PLAYER_LIST);
 
-	    this.TXTR_BACKGROUND = new ResourceLocation("wildfire_gender", "textures/gui/player_list.png");
+	    this.TXTR_BACKGROUND = new ResourceLocation(WildfireGender.MODID, "textures/gui/player_list.png");
 
 	    super.init();
   	}

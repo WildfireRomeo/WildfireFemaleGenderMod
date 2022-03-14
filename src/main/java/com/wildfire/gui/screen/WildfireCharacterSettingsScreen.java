@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.gui.screen;
 
+import com.wildfire.main.WildfireGender;
 import java.util.UUID;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -120,7 +121,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
         this.addRenderableWidget(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, new TranslatableComponent("wildfire_gender.label.exit"),
               button -> Minecraft.getInstance().setScreen(parent)));
 
-        this.BACKGROUND = new ResourceLocation("wildfire_gender", "textures/gui/settings_bg.png");
+        this.BACKGROUND = new ResourceLocation(WildfireGender.MODID, "textures/gui/settings_bg.png");
 
         super.init();
     }

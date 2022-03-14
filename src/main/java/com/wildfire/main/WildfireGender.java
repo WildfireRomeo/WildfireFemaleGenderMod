@@ -43,7 +43,7 @@ import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
-@Mod("wildfire_gender")
+@Mod(WildfireGender.MODID)
 public class WildfireGender {
 	public static final String VERSION = "2.8";
   	public static final String MODID = "wildfire_gender";
@@ -52,8 +52,8 @@ public class WildfireGender {
   	public static final boolean SYNCING_ENABLED = false;
 
 	private static final String PROTOCOL_VERSION = "2";
-	//public static SimpleChannel NETWORK = NetworkRegistry.newSimpleChannel(new ResourceLocation("wildfire_gender", "main_channel"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
-	public static SimpleChannel NETWORK = NetworkRegistry.ChannelBuilder.named(new ResourceLocation("wildfire_gender", "main_channel"))
+	//public static SimpleChannel NETWORK = NetworkRegistry.newSimpleChannel(new ResourceLocation(WildfireGender.MODID, "main_channel"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
+	public static SimpleChannel NETWORK = NetworkRegistry.ChannelBuilder.named(new ResourceLocation(WildfireGender.MODID, "main_channel"))
 			.clientAcceptedVersions(v -> v.equals(NetworkRegistry.ABSENT) || v.equals(NetworkRegistry.ACCEPTVANILLA) || v.equals(PROTOCOL_VERSION))
 			.serverAcceptedVersions(v -> v.equals(NetworkRegistry.ACCEPTVANILLA) || v.equals(PROTOCOL_VERSION))
 			.networkProtocolVersion(() -> PROTOCOL_VERSION).simpleChannel();
