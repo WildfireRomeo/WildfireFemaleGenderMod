@@ -37,9 +37,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 
 public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.Entry>
 {
@@ -95,7 +92,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
         }
         return loadingPlayers;
     }
-    @OnlyIn(Dist.CLIENT)
+
     public class Entry extends ObjectSelectionList.Entry<WildfirePlayerList.Entry> {
 
         private final String name;
@@ -107,7 +104,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
             this.nInfo = nInfo;
             this.name = nInfo.getProfile().getName();
             this.gender = gender;
-            btnOpenGUI = new WildfireButton(0, 0, 112, 20, new TextComponent(""), button -> {
+            btnOpenGUI = new WildfireButton(0, 0, 112, 20, TextComponent.EMPTY, button -> {
                 GenderPlayer aPlr = WildfireGender.getPlayerByName(nInfo.getProfile().getId().toString());
                 if(aPlr == null) return;
 
@@ -128,7 +125,6 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
         @Override
         public void render(@Nonnull PoseStack m, int entryIdx, int top, int left, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean p_194999_5_, float partialTicks) {
             Font font = minecraft.font;
-            String tooltip = "";
 
             Player playerentity = minecraft.level.getPlayerByUUID(nInfo.getProfile().getId());
             GenderPlayer aPlr = WildfireGender.getPlayerByName(nInfo.getProfile().getId().toString());
@@ -149,17 +145,17 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
 
                 switch (aPlr.gender) {
                     //female
-                    case 0 -> font.draw(m, (ChatFormatting.LIGHT_PURPLE + new TranslatableComponent("wildfire_gender.label.female").getString()), left + 23, top + 11, 0xFFFFFF);
+                    case 0 -> font.draw(m, new TranslatableComponent("wildfire_gender.label.female").withStyle(ChatFormatting.LIGHT_PURPLE), left + 23, top + 11, 0xFFFFFF);
                     //male
-                    case 1 -> font.draw(m, (ChatFormatting.BLUE + new TranslatableComponent("wildfire_gender.label.male").getString()), left + 23, top + 11, 0xFFFFFF);
+                    case 1 -> font.draw(m, new TranslatableComponent("wildfire_gender.label.male").withStyle(ChatFormatting.BLUE), left + 23, top + 11, 0xFFFFFF);
                     //other
-                    case 2 -> font.draw(m, (ChatFormatting.GREEN + new TranslatableComponent("wildfire_gender.label.other").getString()), left + 23, top + 11, 0xFFFFFF);
+                    case 2 -> font.draw(m, new TranslatableComponent("wildfire_gender.label.other").withStyle(ChatFormatting.GREEN), left + 23, top + 11, 0xFFFFFF);
                 }
                 if (aPlr.getSyncStatus() == GenderPlayer.SyncStatus.SYNCED) {
                     RenderSystem.setShaderTexture(0, TXTR_SYNC);
                     GuiComponent.blit(m, left + 98, top + 11, 12, 8, 0, 0, 12, 8, 12, 8);
                     if (mouseX > left + 98 - 2 && mouseY > top + 11 - 2 && mouseX < left + 98 + 12 + 2 && mouseY < top + 20) {
-                        parent.setTooltip(new TranslatableComponent("wildfire_gender.player_list.state.synced").getString());
+                        parent.setTooltip(new TranslatableComponent("wildfire_gender.player_list.state.synced"));
                     }
 
                 } else if (aPlr.getSyncStatus() == GenderPlayer.SyncStatus.UNKNOWN) {
@@ -168,7 +164,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
                 }
             } else {
                 btnOpenGUI.active = false;
-                font.draw(m, (ChatFormatting.RED + new TextComponent("Too Far Away").getString()), left + 23, top + 11, 0xFFFFFF);
+                font.draw(m, new TranslatableComponent("wildfire_gender.label.too_far").withStyle(ChatFormatting.RED), left + 23, top + 11, 0xFFFFFF);
             }
             this.btnOpenGUI.x = left;
             this.btnOpenGUI.y = top;

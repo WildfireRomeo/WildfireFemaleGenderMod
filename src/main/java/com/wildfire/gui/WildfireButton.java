@@ -23,75 +23,36 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-
-public class WildfireButton extends AbstractButton {
-   public static final WildfireButton.ITooltip NO_TOOLTIP = (button, matrixStack, mouseX, mouseY) -> {};
+public class WildfireButton extends Button {
+   public static final Button.OnTooltip NO_TOOLTIP = (button, matrixStack, mouseX, mouseY) -> {};
 
    public boolean transparent = false;
-   protected final WildfireButton.IPressable onPress;
-   protected final WildfireButton.ITooltip onTooltip;
 
-   public WildfireButton(int x, int y, int w, int h, Component text, WildfireButton.IPressable onPress, WildfireButton.ITooltip onTooltip) {
-      super(x, y, w, h, text);
-      this.onPress = onPress;
-      this.onTooltip = onTooltip;
+   public WildfireButton(int x, int y, int w, int h, Component text, Button.OnPress onPress, Button.OnTooltip onTooltip) {
+      super(x, y, w, h, text, onPress, onTooltip);
    }
-   public WildfireButton(int x, int y, int w, int h, Component text, WildfireButton.IPressable onPress) {
+   public WildfireButton(int x, int y, int w, int h, Component text, Button.OnPress onPress) {
       this(x, y, w, h, text, onPress, NO_TOOLTIP);
    }
 
    @Override
-   public void render(@Nonnull PoseStack m, int mouseX, int mouseY, float partialTicks) {
+   public void renderButton(@Nonnull PoseStack m, int mouseX, int mouseY, float partialTicks) {
       Minecraft minecraft = Minecraft.getInstance();
       Font font = minecraft.font;
-      if(this.visible) {
-         this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-         if (this.isHoveredOrFocused()) {
-            this.renderToolTip(m, mouseX, mouseY);
-         }
-         int clr = 0x444444 + (84 << 24);
-         if(this.isHoveredOrFocused()) clr = 0x666666 + (84 << 24);
-         if(!this.active)  clr = 0x222222 + (84 << 24);
-         if(!transparent) fill(m, x, y, x + getWidth(), y + height, clr);
+      int clr = 0x444444 + (84 << 24);
+      if(this.isHoveredOrFocused()) clr = 0x666666 + (84 << 24);
+      if(!this.active)  clr = 0x222222 + (84 << 24);
+      if(!transparent) fill(m, x, y, x + getWidth(), y + height, clr);
 
-         font.draw(m, this.getMessage().getString(), x + (this.width / 2) - (font.width(this.getMessage().getString()) / 2) + 1, y + (int) Math.ceil((float) height / 2f) - font.lineHeight / 2, active?0xFFFFFF:0x666666);
-      }
+      font.draw(m, this.getMessage(), x + (this.width / 2) - (font.width(this.getMessage()) / 2) + 1, y + (int) Math.ceil((float) height / 2f) - font.lineHeight / 2, active ? 0xFFFFFF : 0x666666);
       RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
    }
-
-   @Override
-   public void onPress() {
-      if(this.onPress != null) this.onPress.onPress(this);
-   }
-
 
    public WildfireButton setTransparent(boolean b) {
       this.transparent = b;
       return this;
-   }
-   @Override
-   public void renderToolTip(@Nonnull PoseStack matrixStack, int mouseX, int mouseY) {
-      this.onTooltip.onTooltip(this, matrixStack, mouseX, mouseY);
-   }
-
-   @Override
-   public void updateNarration(@Nonnull NarrationElementOutput narrationElementOutput) {
-
-   }
-
-   @OnlyIn(Dist.CLIENT)
-   public interface IPressable {
-      void onPress(WildfireButton p_onPress_1_);
-   }
-
-   @OnlyIn(Dist.CLIENT)
-   public interface ITooltip {
-      void onTooltip(WildfireButton p_onTooltip_1_, PoseStack p_onTooltip_2_, int p_onTooltip_3_, int p_onTooltip_4_);
    }
 }
