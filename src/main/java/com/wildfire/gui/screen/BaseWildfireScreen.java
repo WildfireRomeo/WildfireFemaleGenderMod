@@ -16,19 +16,31 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.wildfire.main.proxy;
+package com.wildfire.gui.screen;
 
-import com.wildfire.main.WildfireCommonEvents;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.MinecraftForge;
+import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.WildfireGender;
+import java.util.UUID;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
-public class GenderServer {
+public abstract class BaseWildfireScreen extends Screen {
 
-	public void playSound(SoundEvent evt, SoundSource cat, float vol, float pitch, Player ent) {}
+    protected final UUID playerUUID;
+    protected final Screen parent;
 
-	public void register() {
-		MinecraftForge.EVENT_BUS.register(new WildfireCommonEvents());
-	}
+    protected BaseWildfireScreen(Component title, Screen parent, UUID uuid) {
+        super(title);
+        this.parent = parent;
+        this.playerUUID = uuid;
+    }
+
+    protected GenderPlayer getPlayer() {
+        return WildfireGender.getPlayerById(this.playerUUID);
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
 }

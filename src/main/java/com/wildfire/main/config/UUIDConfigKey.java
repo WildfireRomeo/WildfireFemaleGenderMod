@@ -21,35 +21,31 @@ package com.wildfire.main.config;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.wildfire.main.GenderPlayer.Gender;
+import java.util.UUID;
 
-public class GenderConfigKey extends ConfigKey<Gender> {
+public class UUIDConfigKey extends ConfigKey<UUID> {
 
-    //Do not modify
-    private static final Gender[] GENDERS = Gender.values();
-
-    public GenderConfigKey(String key) {
-        super(key, Gender.MALE);
+    public UUIDConfigKey(String key, UUID defaultValue) {
+        super(key, defaultValue);
     }
 
     @Override
-    protected Gender read(JsonElement element) {
+    protected UUID read(JsonElement element) {
         if (element.isJsonPrimitive()) {
             JsonPrimitive primitive = element.getAsJsonPrimitive();
-            if (primitive.isNumber()) {
-                int ordinal = primitive.getAsInt();
-                if (ordinal >= 0 && ordinal < GENDERS.length) {
-                    return GENDERS[ordinal];
+            if (primitive.isString()) {
+                try {
+                    return UUID.fromString(primitive.getAsString());
+                } catch (Exception ignored) {
+                    //If we can't parse it then fallback to the default
                 }
-            } else {
-                return primitive.getAsBoolean() ? Gender.MALE : Gender.FEMALE;
             }
         }
         return defaultValue;
     }
 
     @Override
-    public void save(JsonObject object, Gender value) {
-        object.addProperty(key, value.ordinal());
+    public void save(JsonObject object, UUID value) {
+        object.addProperty(key, value.toString());
     }
 }

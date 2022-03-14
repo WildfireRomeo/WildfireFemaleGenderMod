@@ -23,6 +23,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfirePlayerList;
 import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.WildfireGender;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -31,7 +32,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -43,7 +43,7 @@ public class WildfirePlayerListScreen extends Screen {
 
 	private static final UUID CREATOR_UUID = UUID.fromString("33c937ae-6bfc-423e-a38e-3a613e7c1256");
 	private ResourceLocation TXTR_BACKGROUND;
-	private static final ResourceLocation TXTR_RIBBON = new ResourceLocation("wildfire_gender", "textures/bc_ribbon.png");
+	private static final ResourceLocation TXTR_RIBBON = new ResourceLocation(WildfireGender.MODID, "textures/bc_ribbon.png");
 
 	@Nullable
 	private Component tooltip = null;
@@ -84,7 +84,7 @@ public class WildfirePlayerListScreen extends Screen {
 		PLAYER_LIST.setRenderTopAndBottom(false);
 	    this.addRenderableWidget(this.PLAYER_LIST);
 
-	    this.TXTR_BACKGROUND = new ResourceLocation("wildfire_gender", "textures/gui/player_list.png");
+	    this.TXTR_BACKGROUND = new ResourceLocation(WildfireGender.MODID, "textures/gui/player_list.png");
 
 	    super.init();
   	}
@@ -127,22 +127,13 @@ public class WildfirePlayerListScreen extends Screen {
 	    if(HOVER_PLAYER != null) {
 			int dialogX = x + 75;
 			int dialogY = y - 73;
-			Player pEntity = mc.level.getPlayerByUUID(UUID.fromString(HOVER_PLAYER.username));
+			Player pEntity = mc.level.getPlayerByUUID(HOVER_PLAYER.uuid);
 			if(pEntity != null) {
 				this.font.drawShadow(m, pEntity.getDisplayName().copy().withStyle(ChatFormatting.UNDERLINE), dialogX, dialogY - 2, 0xFFFFFF);
 			}
 
-			Component genderString = TextComponent.EMPTY;
-			if (HOVER_PLAYER.gender == 0) {
-				genderString = new TranslatableComponent("wildfire_gender.label.female").withStyle(ChatFormatting.LIGHT_PURPLE);
-			} else if (HOVER_PLAYER.gender == 1) {
-				genderString = new TranslatableComponent("wildfire_gender.label.male").withStyle(ChatFormatting.BLUE);
-			} else if (HOVER_PLAYER.gender == 2) {
-				genderString = new TranslatableComponent("wildfire_gender.label.other").withStyle(ChatFormatting.GREEN);
-			}
-
-			this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.label.gender").append(" ").append(genderString), dialogX, dialogY + 10, 0xBBBBBB);
-			if (HOVER_PLAYER.gender != 1) {
+			this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.label.gender").append(" ").append(HOVER_PLAYER.gender.getDisplayName()), dialogX, dialogY + 10, 0xBBBBBB);
+			if (HOVER_PLAYER.gender.canHaveBreasts()) {
 				this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.wardrobe.slider.breast_size", Math.round(HOVER_PLAYER.getBustSize() * 100)), dialogX, dialogY + 20, 0xBBBBBB);
 				this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.char_settings.physics", new TranslatableComponent(HOVER_PLAYER.breast_physics ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 40, 0xBBBBBB);
 				this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.player_list.bounce_multiplier", HOVER_PLAYER.getBounceMultiplier()), dialogX + 6, dialogY + 50, 0xBBBBBB);

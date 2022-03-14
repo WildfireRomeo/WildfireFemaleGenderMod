@@ -22,17 +22,26 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.*;
+import com.wildfire.main.Breasts;
+import com.wildfire.physics.BreastPhysics;
+import com.wildfire.render.WildfireModelRenderer.BreastModelBox;
+import com.wildfire.render.WildfireModelRenderer.OverlayModelBox;
+import com.wildfire.render.WildfireModelRenderer.PositionTextureVertex;
 import java.util.Locale;
+import java.util.UUID;
+import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import com.wildfire.main.GenderPlayer;
@@ -48,30 +57,25 @@ import net.minecraftforge.client.ForgeHooksClient;
 
 public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
-	private WildfireModelRenderer.BreastModelBox lBreast;
-	private WildfireModelRenderer.OverlayModelBox lBreastWear;
-	private WildfireModelRenderer.BreastModelBox rBreast;
-	private WildfireModelRenderer.OverlayModelBox rBreastWear;
-
-	private WildfireModelRenderer.ModelBox sBox;
-	private WildfireModelRenderer.BreastModelBox rBoobArmor, lBoobArmor;
+	private BreastModelBox lBreast, rBreast;
+	private OverlayModelBox lBreastWear, rBreastWear;
+	private BreastModelBox lBoobArmor, rBoobArmor;
 
 	private float preBreastSize = 0f;
 
 	public GenderLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> player) {
 		super(player);
 
-		lBreast = new WildfireModelRenderer.BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, 4, 0.0F, false);
-		rBreast = new WildfireModelRenderer.BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, 4, 0.0F, false);
-		lBreastWear = new WildfireModelRenderer.OverlayModelBox(true,64, 64, 17, 34, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
-		rBreastWear = new WildfireModelRenderer.OverlayModelBox(false,64, 64, 21, 34, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+		lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, 4, 0.0F, false);
+		rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, 4, 0.0F, false);
+		lBreastWear = new OverlayModelBox(true,64, 64, 17, 34, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+		rBreastWear = new OverlayModelBox(false,64, 64, 21, 34, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 
-		lBoobArmor = new WildfireModelRenderer.BreastModelBox(64, 32, 16, 19, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
-		rBoobArmor = new WildfireModelRenderer.BreastModelBox(64, 32, 20, 19, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+		lBoobArmor = new BreastModelBox(64, 32, 16, 19, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+		rBoobArmor = new BreastModelBox(64, 32, 20, 19, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 		//chest = new SteinModelRenderer.ModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 8, 5, 4, 0.0F, false);
 		//chestwear = new SteinModelRenderer.ModelBox(64, 64, 17, 34, -4F, 0.0F, 0F, 8, 5, 3, 0.0F, false);
-		sBox = new WildfireModelRenderer.ModelBox(64, 32, 17, 19, -4F, 0.0F, 0F, 8, 5, 3, 0.0F, false);
-
+		//sBox = new ModelBox(64, 32, 17, 19, -4F, 0.0F, 0F, 8, 5, 3, 0.0F, false);
 	}
 
 	private static final Map<String, ResourceLocation> ARMOR_LOCATION_CACHE = new HashMap<>();
@@ -100,39 +104,44 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 	}
 
 	@Override
-	public void render(PoseStack matrixStack, MultiBufferSource vertexConsumers, int packedLightIn, AbstractClientPlayer ent, float limbAngle, float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
+	public void render(@Nonnull PoseStack matrixStack, @Nonnull MultiBufferSource bufferSource, int packedLightIn, @Nonnull AbstractClientPlayer ent, float limbAngle,
+		float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
+		if (ent.isInvisibleTo(Minecraft.getInstance().player)) {
+			//Exit early if the entity shouldn't actually be seen
+			return;
+		}
 		//Surround with a try/catch to fix for essential mod.
-		if(ent == null) return;
-		int pushCount = 0;
 		try {
 			//0.5 or 0
-			String playerName = ent.getStringUUID();
-			//System.out.println(ent.getUuid().toString());
-			GenderPlayer plr = WildfireGender.getPlayerByName(playerName);
+			UUID playerUUID = ent.getUUID();
+			//System.out.println(playerUUID);
+			GenderPlayer plr = WildfireGender.getPlayerById(playerUUID);
 			if(plr == null) return;
 
 			PlayerRenderer rend = (PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(ent);
 			PlayerModel<AbstractClientPlayer> model = rend.getModel();
 
-			float breastOffsetX = Math.round((Math.round(plr.getBreasts().xOffset * 100f) / 100f) * 10) / 10f;
-			float breastOffsetY = -Math.round((Math.round(plr.getBreasts().yOffset * 100f) / 100f) * 10) / 10f;
-			float breastOffsetZ = -Math.round((Math.round(plr.getBreasts().zOffset * 100f) / 100f) * 10) / 10f;
+			Breasts breasts = plr.getBreasts();
+			float breastOffsetX = Math.round((Math.round(breasts.xOffset * 100f) / 100f) * 10) / 10f;
+			float breastOffsetY = -Math.round((Math.round(breasts.yOffset * 100f) / 100f) * 10) / 10f;
+			float breastOffsetZ = -Math.round((Math.round(breasts.zOffset * 100f) / 100f) * 10) / 10f;
 
-			final float bSize = plr.getLeftBreastPhysics().getBreastSize(partialTicks);
-			float outwardAngle = (Math.round(plr.getBreasts().cleavage * 100f) / 100f) * 100f;
+			BreastPhysics leftBreastPhysics = plr.getLeftBreastPhysics();
+			final float bSize = leftBreastPhysics.getBreastSize(partialTicks);
+			float outwardAngle = (Math.round(breasts.cleavage * 100f) / 100f) * 100f;
 			outwardAngle = Math.min(outwardAngle, 10);
-			boolean uniboob = plr.getBreasts().isUniboob;
+			boolean uniboob = breasts.isUniboob;
 
 
 			float reducer = 0;
 			if (bSize < 0.84f) reducer++;
 			if (bSize < 0.72f) reducer++;
 
-			if(preBreastSize != bSize) {
-				lBreast = new WildfireModelRenderer.BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
-				rBreast = new WildfireModelRenderer.BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
-				lBoobArmor = new WildfireModelRenderer.BreastModelBox(64, 32, 16, 17, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
-				rBoobArmor = new WildfireModelRenderer.BreastModelBox(64, 32, 20, 17, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+			if (preBreastSize != bSize) {
+				lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
+				rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
+				lBoobArmor = new BreastModelBox(64, 32, 16, 17, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+				rBoobArmor = new BreastModelBox(64, 32, 20, 17, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 				preBreastSize = bSize;
 			}
 
@@ -140,20 +149,26 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			float overlayRed = 1;
 			float overlayGreen = 1;
 			float overlayBlue = 1;
-			float overlayAlpha = getTransparency(ent);
+			//Note: We only render if the entity is not visible to the player, so we can assume it is visible to the player
+			float overlayAlpha = ent.isInvisible() ? 0.15F : 1;
 
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
-			float lTotal = Mth.lerp(partialTicks, plr.getLeftBreastPhysics().getPreBounceY(), plr.getLeftBreastPhysics().getBounceY());
-			float lTotalX = Mth.lerp(partialTicks, plr.getLeftBreastPhysics().getPreBounceX(), plr.getLeftBreastPhysics().getBounceX());
-			float leftBounceRotation = Mth.lerp(partialTicks, plr.getLeftBreastPhysics().getPreBounceRotation(), plr.getLeftBreastPhysics().getBounceRotation());
-			float rTotal = Mth.lerp(partialTicks, plr.getRightBreastPhysics().getPreBounceY(), plr.getRightBreastPhysics().getBounceY());
-			float rTotalX = Mth.lerp(partialTicks, plr.getRightBreastPhysics().getPreBounceX(), plr.getRightBreastPhysics().getBounceX());
-			float rightBounceRotation = Mth.lerp(partialTicks, plr.getRightBreastPhysics().getPreBounceRotation(), plr.getRightBreastPhysics().getBounceRotation());
+			float lTotal = Mth.lerp(partialTicks, leftBreastPhysics.getPreBounceY(), leftBreastPhysics.getBounceY());
+			float lTotalX = Mth.lerp(partialTicks, leftBreastPhysics.getPreBounceX(), leftBreastPhysics.getBounceX());
+			float leftBounceRotation = Mth.lerp(partialTicks, leftBreastPhysics.getPreBounceRotation(), leftBreastPhysics.getBounceRotation());
+			float rTotal;
+			float rTotalX;
+			float rightBounceRotation;
 			if (uniboob) {
 				rTotal = lTotal;
 				rTotalX = lTotalX;
 				rightBounceRotation = leftBounceRotation;
+			} else {
+				BreastPhysics rightBreastPhysics = plr.getRightBreastPhysics();
+				rTotal = Mth.lerp(partialTicks, rightBreastPhysics.getPreBounceY(), rightBreastPhysics.getBounceY());
+				rTotalX = Mth.lerp(partialTicks, rightBreastPhysics.getPreBounceX(), rightBreastPhysics.getBounceX());
+				rightBounceRotation = Mth.lerp(partialTicks, rightBreastPhysics.getPreBounceRotation(), rightBreastPhysics.getBounceRotation());
 			}
 			float breastSize = bSize * 1.5f;
 			if (breastSize > 0.7f) breastSize = 0.7f;
@@ -173,219 +188,173 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			//matrixStack.translate(0, 0, zOff);
 			//System.out.println(bounceRotation);
 
-			boolean teamSeeFriendly = false;
-			if (ent.getTeam() != null)
-				teamSeeFriendly = ent.getTeam().canSeeFriendlyInvisibles();
-
 			boolean breathingAnimation = true;
-			float rotationMultiplier = 0;
-			boolean bounceEnabled = (plr.breast_physics && !isChestplateOccupied) || (plr.breast_physics && plr.breast_physics_armor && isChestplateOccupied); //oh, you found this?
+			boolean bounceEnabled = plr.breast_physics && (!isChestplateOccupied || plr.breast_physics_armor); //oh, you found this?
 
-			pushCount += pushMatrix(matrixStack, rend.getModel().body, 0);
+			int combineTex = LivingEntityRenderer.getOverlayCoords(ent, 0);
+			RenderType type = RenderType.entityTranslucent(rend.getTextureLocation(ent));
+			VertexConsumer vertexConsumer = bufferSource.getBuffer(type);
+			renderBreastWithTransforms(ent, model.body, armorStack, matrixStack, bufferSource, vertexConsumer, packedLightIn, combineTex, overlayRed, overlayGreen,
+				overlayBlue, overlayAlpha, bounceEnabled, lTotalX, lTotal, leftBounceRotation, breastSize, breastOffsetX, breastOffsetY, breastOffsetZ, zOff,
+				outwardAngle, uniboob, isChestplateOccupied, breathingAnimation, true);
+			renderBreastWithTransforms(ent, model.body, armorStack, matrixStack, bufferSource, vertexConsumer, packedLightIn, combineTex, overlayRed, overlayGreen,
+				overlayBlue, overlayAlpha, bounceEnabled, rTotalX, rTotal, rightBounceRotation, breastSize, -breastOffsetX, breastOffsetY, breastOffsetZ, zOff,
+				-outwardAngle, uniboob, isChestplateOccupied, breathingAnimation, false);
+			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private float calculateRotation(float breastSize, float rotationMultiplier, boolean bounceEnabled) {
+		float totalRotation = breastSize + rotationMultiplier;
+		if (!bounceEnabled) {
+			totalRotation = breastSize;
+		}
+		if (totalRotation > breastSize + 0.2F) {
+			totalRotation = breastSize + 0.2F;
+		}
+		if (totalRotation > 1) {
+			return 1; //hard limit for MAX
+		}
+		return totalRotation;
+	}
+
+	private static int pushMatrix(PoseStack m, ModelPart mdl) {
+		m.pushPose();
+		m.translate(mdl.x * 0.0625f, mdl.y * 0.0625f, mdl.z * 0.0625f);
+		if (mdl.zRot != 0.0F) {
+			m.mulPose(new Quaternion(0f, 0f, mdl.zRot, false));
+		}
+		if (mdl.yRot != 0.0F) {
+			m.mulPose(new Quaternion(0f, mdl.yRot, 0f, false));
+		}
+		if (mdl.xRot != 0.0F) {
+			m.mulPose(new Quaternion(mdl.xRot, 0f, 0f, false));
+		}
+		return 1;
+	}
+
+	private void renderBreastWithTransforms(AbstractClientPlayer entity, ModelPart body, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource,
+		VertexConsumer vertexConsumer, int packedLightIn, int combineTex, float red, float green, float blue, float alpha, boolean bounceEnabled, float totalX, float total,
+		float bounceRotation, float breastSize, float breastOffsetX, float breastOffsetY, float breastOffsetZ, float zOff, float outwardAngle, boolean uniboob,
+		boolean isChestplateOccupied, boolean breathingAnimation, boolean left) {
+		matrixStack.pushPose();
+		//Surround with a try/catch to fix for essential mod.
+		try {
+			matrixStack.translate(body.x * 0.0625f, body.y * 0.0625f, body.z * 0.0625f);
+			if (body.zRot != 0.0F) {
+				matrixStack.mulPose(new Quaternion(0f, 0f, body.zRot, false));
+			}
+			if (body.yRot != 0.0F) {
+				matrixStack.mulPose(new Quaternion(0f, body.yRot, 0f, false));
+			}
+			if (body.xRot != 0.0F) {
+				matrixStack.mulPose(new Quaternion(body.xRot, 0f, 0f, false));
+			}
+
 			//right breast
 			if (bounceEnabled) {
-				matrixStack.translate(lTotalX / 32f, 0, 0);
-				matrixStack.translate(0, lTotal / 32f, 0);
+				matrixStack.translate(totalX / 32f, 0, 0);
+				matrixStack.translate(0, total / 32f, 0);
 			}
 
 			matrixStack.translate(breastOffsetX * 0.0625f, 0.05625f + (breastOffsetY * 0.0625f), zOff - 0.0625f * 2f + (breastOffsetZ * 0.0625f)); //shift down to correct position
 
-			if (!plr.getBreasts().isUniboob) matrixStack.translate(-0.0625f * 2, 0, 0);
-			if (bounceEnabled) matrixStack.mulPose(new Quaternion(0, leftBounceRotation, 0, true));
-			if (!plr.getBreasts().isUniboob) matrixStack.translate(0.0625f * 2, 0, 0);
+			if (!uniboob) {
+				matrixStack.translate(-0.0625f * 2 * (left ? 1 : -1), 0, 0);
+			}
+			if (bounceEnabled) {
+				matrixStack.mulPose(new Quaternion(0, bounceRotation, 0, true));
+			}
+			if (!uniboob) {
+				matrixStack.translate(0.0625f * 2 * (left ? 1 : -1), 0, 0);
+			}
 
+			float rotationMultiplier = 0;
 			if (bounceEnabled) {
 				matrixStack.translate(0, -0.035f * breastSize, 0); //shift down to correct position
-				rotationMultiplier = -lTotal / 12f;
+				rotationMultiplier = -total / 12f;
 			}
-			float totalRotation = breastSize + rotationMultiplier;
-			if (!bounceEnabled) {
-				totalRotation = breastSize;
-			}
-			if (totalRotation > breastSize + 0.2f) totalRotation = breastSize + 0.2f;
-			if (totalRotation > 1) totalRotation = 1; //hard limit for MAX
+			float totalRotation = calculateRotation(breastSize, rotationMultiplier, bounceEnabled);
 
-			if (isChestplateOccupied) matrixStack.translate(0, 0, 0.01f);
+			if (isChestplateOccupied) {
+				matrixStack.translate(0, 0, 0.01f);
+			}
 
 			matrixStack.mulPose(new Quaternion(0, outwardAngle, 0, true));
 			matrixStack.mulPose(new Quaternion(-35f * totalRotation, 0, 0, true));
 
 			if (!isChestplateOccupied && breathingAnimation) {
-				float f5 = -Mth.cos(ent.tickCount * 0.09F) * 0.45F + 0.45F;
+				float f5 = -Mth.cos(entity.tickCount * 0.09F) * 0.45F + 0.45F;
 				matrixStack.mulPose(new Quaternion(f5, 0, 0, true));
 			}
 
 			matrixStack.scale(0.9995f, 1f, 1f); //z-fighting FIXXX
 
-			int combineTex = LivingEntityRenderer.getOverlayCoords(ent, 0);
-			RenderType type = RenderType.entityTranslucent(ent.getSkinTextureLocation());
-			VertexConsumer ivertexbuilder = vertexConsumers.getBuffer(type);
-
-			if ((teamSeeFriendly && ent.isInvisible()) || !ent.isInvisible()) {
-				renderBox(lBreast.quads, matrixStack, ivertexbuilder, packedLightIn, combineTex, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
-				if (ent.isModelPartShown(PlayerModelPart.JACKET)) {
-					matrixStack.translate(0, 0, -0.015f);
-					matrixStack.scale(1.05f, 1.05f, 1.05f);
-					renderBox(lBreastWear.quads, matrixStack, ivertexbuilder, packedLightIn, combineTex, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
-				}
-
-
-				//RIGHT BOOB ARMOR
-				renderBreastArmor(ent, armorStack, matrixStack, vertexConsumers, packedLightIn, true);
-			}
-
-			matrixStack.popPose();
-			pushCount--;
-
-			pushCount += pushMatrix(matrixStack, rend.getModel().body, 0);
-			//left breast
-			if (bounceEnabled) {
-				matrixStack.translate(rTotalX / 32f, 0, 0);
-				matrixStack.translate(0, rTotal / 32f, 0);
-			}
-
-			matrixStack.translate(-breastOffsetX * 0.0625f, 0.05625f + (breastOffsetY * 0.0625f), zOff - 0.0625f * 2f + (breastOffsetZ * 0.0625f)); //shift down to correct position
-			if (!plr.getBreasts().isUniboob) matrixStack.translate(0.0625f * 2, 0, 0);
-			if (bounceEnabled) matrixStack.mulPose(new Quaternion(0, rightBounceRotation, 0, true));
-			if (!plr.getBreasts().isUniboob) matrixStack.translate(-0.0625f * 2, 0, 0);
-
-			if (bounceEnabled) {
-				matrixStack.translate(0, -0.035f * breastSize, 0); //shift down to correct position
-				rotationMultiplier = -rTotal / 12f;
-			}
-			float totalRotation2 = breastSize + rotationMultiplier;
-			if (!bounceEnabled) {
-				totalRotation2 = breastSize;
-			}
-			if (totalRotation2 > breastSize + 0.2f) totalRotation2 = breastSize + 0.2f;
-			if (totalRotation2 > 1) totalRotation2 = 1; //hard limit for MAX
-
-			if (isChestplateOccupied) matrixStack.translate(0, 0, 0.01f);
-
-			matrixStack.mulPose(new Quaternion(0, -outwardAngle, 0, true));
-			matrixStack.mulPose(new Quaternion(-35f * totalRotation2, 0, 0, true));
-
-			if (!isChestplateOccupied && breathingAnimation) {
-				float f5 = -Mth.cos(ent.tickCount * 0.09F) * 0.45F + 0.45F;
-				matrixStack.mulPose(new Quaternion(f5, 0, 0, true));
-			}
-
-			matrixStack.scale(0.9995f, 1f, 1f); //z-fighting FIXXX
-
-			int combineTexR = LivingEntityRenderer.getOverlayCoords(ent, 0);
-			RenderType typeR = RenderType.entityTranslucent(rend.getTextureLocation(ent));
-			VertexConsumer ivertexbuilderR = vertexConsumers.getBuffer(typeR);
-
-			if ((teamSeeFriendly && ent.isInvisible()) || !ent.isInvisible()) {
-				renderBox(rBreast.quads, matrixStack, ivertexbuilderR, packedLightIn, combineTexR, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
-				if (ent.isModelPartShown(PlayerModelPart.JACKET)) {
-					matrixStack.translate(0, 0, -0.015f);
-					matrixStack.scale(1.05f, 1.05f, 1.05f);
-					renderBox(rBreastWear.quads, matrixStack, ivertexbuilderR, packedLightIn, combineTexR, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
-				}
-
-
-				//LEFT? BOOB ARMOR
-				renderBreastArmor(ent, armorStack, matrixStack, vertexConsumers, packedLightIn, false);
-			}
-
-			matrixStack.popPose(); //pop right breast
-			pushCount--;
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			renderBreast(entity, armorStack, matrixStack, bufferSource, vertexConsumer, packedLightIn, combineTex, red, green, blue, alpha, left);
 		} catch(Exception e) {
 			e.printStackTrace();
-			while (pushCount > 0) {
-				//Reset any changes to the pose stack depth to avoid a mismatch and crashes later on
-				matrixStack.popPose();
-				pushCount--;
-			}
 		}
+		matrixStack.popPose();
 	}
 
-	public static int pushMatrix(PoseStack m, ModelPart mdl, float f7) {
-
-		float rPointX = mdl.x;
-		float rPointY = mdl.y;
-		float rPointZ = mdl.z;
-		float rAngleX = mdl.xRot;
-		float rAngleY = mdl.yRot;
-		float rAngleZ = mdl.zRot;
-
-		m.pushPose();
-
-		m.translate(rPointX * 0.0625f, rPointY * 0.0625f, rPointZ * 0.0625f);
-		if (rAngleZ != 0.0F) {
-			m.mulPose(new Quaternion(0f, 0f, rAngleZ, false));
+	private void renderBreast(AbstractClientPlayer entity, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource, VertexConsumer vertexConsumer,
+		int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, boolean left) {
+		renderBox(left ? lBreast : rBreast, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+		if (entity.isModelPartShown(PlayerModelPart.JACKET)) {
+			matrixStack.translate(0, 0, -0.015f);
+			matrixStack.scale(1.05f, 1.05f, 1.05f);
+			renderBox(left ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 		}
-
-		if (rAngleY != 0.0F) {
-			m.mulPose(new Quaternion(0f, rAngleY, 0f, false));
-		}
-
-		if (rAngleX != 0.0F) {
-			m.mulPose(new Quaternion(rAngleX, 0f, 0f, false));
-		}
-		return 1;
-	}
-
-	public float getTransparency(AbstractClientPlayer ent) {
-		float alphaChannel = 1f;
-		boolean flag1 = ent.isInvisible() && !ent.isInvisibleTo(Minecraft.getInstance().player);
-		if(flag1) alphaChannel = 0.15f; else if(ent.isInvisible()) alphaChannel = 0;
-		return alphaChannel;
-	}
-
-	private void renderBreastArmor(AbstractClientPlayer entity, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource vertexConsumers, int packedLightIn,
-		boolean left) {
+		//Render Breast Armor
 		if (!armorStack.isEmpty() && !(armorStack.getItem() instanceof ElytraItem) && armorStack.getItem() instanceof ArmorItem armorItem) {
-			ResourceLocation ARMOR_TXTR = getArmorResource(entity, armorStack, EquipmentSlot.CHEST, null);
+			ResourceLocation armorTexture = getArmorResource(entity, armorStack, EquipmentSlot.CHEST, null);
+			ResourceLocation overlayTexture = null;
 			float armorR = 1f;
 			float armorG = 1f;
 			float armorB = 1f;
-			if (armorItem instanceof DyeableArmorItem dyeableArmorItem) {
-				int i = dyeableArmorItem.getColor(armorStack);
-				armorR = (float) (i >> 16 & 255) / 255.0F;
-				armorG = (float) (i >> 8 & 255) / 255.0F;
-				armorB = (float) (i & 255) / 255.0F;
-
+			if (armorItem instanceof DyeableLeatherItem dyeableItem) {
+				overlayTexture = getArmorResource(entity, armorStack, EquipmentSlot.CHEST, "overlay");
+				int color = dyeableItem.getColor(armorStack);
+				armorR = (float) (color >> 16 & 255) / 255.0F;
+				armorG = (float) (color >> 8 & 255) / 255.0F;
+				armorB = (float) (color & 255) / 255.0F;
 			}
 			matrixStack.pushPose();
 			matrixStack.translate(left ? 0.001f : -0.001f, 0.015f, -0.015f);
 			matrixStack.scale(1.05f, 1, 1);
-			RenderType type2 = RenderType.armorCutoutNoCull(ARMOR_TXTR);
-			VertexConsumer ivertexbuilder2 = vertexConsumers.getBuffer(type2);
-
 			WildfireModelRenderer.BreastModelBox armor = left ? lBoobArmor : rBoobArmor;
-			float transparency = left ? 1 : getTransparency(entity);
-			renderBox(armor.quads, matrixStack, ivertexbuilder2, packedLightIn, 0xFFFFFF, armorR, armorG, armorB, transparency);
-
-			if (armorStack.hasFoil()) {
-				RenderType type3 = RenderType.armorEntityGlint();
-				VertexConsumer ivertexbuilder3 = vertexConsumers.getBuffer(type3);
-				renderBox(armor.quads, matrixStack, ivertexbuilder3, packedLightIn, 0xFFFFFF, 1f, 1f, 1f, transparency);
+			RenderType armorType = RenderType.armorCutoutNoCull(armorTexture);
+			VertexConsumer armorVertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferSource, armorType, false, armorStack.hasFoil());
+			renderBox(armor, matrixStack, armorVertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, armorR, armorG, armorB, 1);
+			if (overlayTexture != null) {
+				RenderType overlayType = RenderType.armorCutoutNoCull(overlayTexture);
+				VertexConsumer overlayVertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferSource, overlayType, false, armorStack.hasFoil());
+				renderBox(armor, matrixStack, overlayVertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 			}
 			matrixStack.popPose();
 		}
 	}
 
-	public static void renderBox(WildfireModelRenderer.TexturedQuad[] quads, PoseStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+	private static void renderBox(WildfireModelRenderer.ModelBox model, PoseStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn,
+		float red, float green, float blue, float alpha) {
 		Matrix4f matrix4f = matrixStack.last().pose();
 		Matrix3f matrix3f =	matrixStack.last().normal();
-		for (WildfireModelRenderer.TexturedQuad quad : quads) {
+		for (WildfireModelRenderer.TexturedQuad quad : model.quads) {
 			Vector3f vector3f = new Vector3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
 			vector3f.transform(matrix3f);
-			float f = vector3f.x();
-			float g = vector3f.y();
-			float h = vector3f.z();
-
-			for (int i = 0; i < 4; ++i) {
-				WildfireModelRenderer.PositionTextureVertex vertex = quad.vertexPositions[i];
-				float j = vertex.vector3D.x() / 16.0F;
-				float k = vertex.vector3D.y() / 16.0F;
-				float l = vertex.vector3D.z() / 16.0F;
-				Vector4f vector4f = new Vector4f(j, k, l, 1.0F);
-				vector4f.transform(matrix4f);
-				bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.texturePositionX, vertex.texturePositionY, packedOverlayIn, packedLightIn, f, g, h);
+			float normalX = vector3f.x();
+			float normalY = vector3f.y();
+			float normalZ = vector3f.z();
+			for (PositionTextureVertex vertex : quad.vertexPositions) {
+				bufferIn.vertex(matrix4f, vertex.x() / 16.0F, vertex.y() / 16.0F, vertex.z() / 16.0F)
+					.color(red, green, blue, alpha)
+					.uv(vertex.texturePositionX(), vertex.texturePositionY())
+					.overlayCoords(packedOverlayIn)
+					.uv2(packedLightIn)
+					.normal(normalX, normalY, normalZ)
+					.endVertex();
 			}
 		}
 	}

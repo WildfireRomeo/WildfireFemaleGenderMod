@@ -18,6 +18,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.gui.screen;
 
+import com.wildfire.main.GenderPlayer.Gender;
+import com.wildfire.main.WildfireGender;
 import java.util.UUID;
 
 import com.mojang.blaze3d.platform.Lighting;
@@ -25,16 +27,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import com.wildfire.gui.WildfireButton;
-import com.wildfire.main.WildfireGender;
 import com.wildfire.main.GenderPlayer;
 import javax.annotation.Nonnull;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -42,62 +42,28 @@ import net.minecraft.world.entity.player.Player;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
-public class WardrobeBrowserScreen extends Screen {
-	
+public class WardrobeBrowserScreen extends BaseWildfireScreen {
 
 	private ResourceLocation BACKGROUND;
 	public static float modelRotation = 0.5F;
 
-	private UUID playerUUID;
-	private Screen parent;
-
 	public WardrobeBrowserScreen(Screen parent, UUID uuid) {
-		super(new TranslatableComponent("wildfire_gender.wardrobe.title"));
-		this.playerUUID = uuid;
-		this.parent = parent;
+		super(new TranslatableComponent("wildfire_gender.wardrobe.title"), parent, uuid);
 	}
-  
-
-	@Override
-	public boolean isPauseScreen() { return false; }
 
 	@Override
   	public void init() {
-	  	Minecraft m = Minecraft.getInstance();
 	    int j = this.height / 2;
 
-	    
-	    GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
+		GenderPlayer plr = getPlayer();
 
-	    MutableComponent genderString = new TranslatableComponent("wildfire_gender.label.gender").append(" - ");
-
-	    if(plr.gender == 0) {
-	    	genderString.append(new TranslatableComponent("wildfire_gender.label.female").withStyle(ChatFormatting.LIGHT_PURPLE));
-		} else if(plr.gender == 1) {
-			genderString.append(new TranslatableComponent("wildfire_gender.label.male").withStyle(ChatFormatting.BLUE));
-		} else if(plr.gender == 2) {
-			genderString.append(new TranslatableComponent("wildfire_gender.label.other").withStyle(ChatFormatting.GREEN));
-		}
-		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 52, 158, 20, genderString, button -> {
-			if(plr.gender == 0) {
-				plr.gender = 2;
-			} else if(plr.gender == 1) {
-				plr.gender = 0;
-			} else {
-				plr.gender = 1;
-			}
-
-			MutableComponent btnString = new TranslatableComponent("wildfire_gender.label.gender").append(" - ");
-
-			if(plr.gender == 0) {
-				btnString.append(new TranslatableComponent("wildfire_gender.label.female").withStyle(ChatFormatting.LIGHT_PURPLE));
-			} else if(plr.gender == 1) {
-				btnString.append(new TranslatableComponent("wildfire_gender.label.male").withStyle(ChatFormatting.BLUE));
-			} else if(plr.gender == 2) {
-				btnString.append(new TranslatableComponent("wildfire_gender.label.other").withStyle(ChatFormatting.GREEN));
-			}
-
-			button.setMessage(btnString);
+		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 52, 158, 20, getGenderLabel(plr.gender), button -> {
+			plr.gender = switch (plr.gender) {
+				case MALE -> Gender.FEMALE;
+				case FEMALE -> Gender.OTHER;
+				case OTHER -> Gender.MALE;
+			};
+			button.setMessage(getGenderLabel(plr.gender));
 			GenderPlayer.saveGenderInfo(plr);
 		}));
 
@@ -112,15 +78,19 @@ public class WardrobeBrowserScreen extends Screen {
 	    
 	    modelRotation = 0.6F;
 
-	    this.BACKGROUND = new ResourceLocation("wildfire_gender", "textures/gui/wardrobe_bg.png");
+	    this.BACKGROUND = new ResourceLocation(WildfireGender.MODID, "textures/gui/wardrobe_bg.png");
     
 	    super.init();
   	}
 
+	private Component getGenderLabel(Gender gender) {
+		return new TranslatableComponent("wildfire_gender.label.gender").append(" - ").append(gender.getDisplayName());
+	}
+
   	@Override
 	public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
 		Minecraft minecraft = Minecraft.getInstance();
-	    GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
+		GenderPlayer plr = getPlayer();
 	    super.renderBackground(m);
 	    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -159,13 +129,6 @@ public class WardrobeBrowserScreen extends Screen {
 		}
 	    super.render(m, f1, f2, f3);
 	}
-
-	@Override
-  	public boolean mouseReleased(double mouseX, double mouseY, int state) {
-	    GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
-	  
-	    return super.mouseReleased(mouseX, mouseY, state);
-  	}
 
 	public static void drawEntityOnScreen(int p_98851_, int p_98852_, int p_98853_, float p_98854_, float p_98855_, LivingEntity p_98856_) {
 		float var6 = (float)Math.atan(p_98854_ / 40.0F);

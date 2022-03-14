@@ -21,11 +21,16 @@ package com.wildfire.main;
 import com.google.gson.JsonObject;
 import com.wildfire.main.config.Configuration;
 import com.wildfire.physics.BreastPhysics;
+import java.util.UUID;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public class GenderPlayer {
 
-	public String username;
-	public int gender;
+	public boolean needsSync;
+	public final UUID uuid;
+	public Gender gender;
 	public float pBustSize = Configuration.BUST_SIZE.getDefault();
 
 	public boolean hurtSounds = Configuration.HURT_SOUNDS.getDefault();
@@ -47,18 +52,18 @@ public class GenderPlayer {
 	private final BreastPhysics lBreastPhysics, rBreastPhysics;
 	private final Breasts breasts;
 
-	
-	public GenderPlayer(String username) {
-		this(username, Configuration.GENDER.getDefault());
+	public GenderPlayer(UUID uuid) {
+		this(uuid, Configuration.GENDER.getDefault());
 	}
-	public GenderPlayer(String username, int gender) {
+
+	public GenderPlayer(UUID uuid, Gender gender) {
 		lBreastPhysics = new BreastPhysics(this);
 		rBreastPhysics = new BreastPhysics(this);
 		breasts = new Breasts();
-		this.username = username;
+		this.uuid = uuid;
 		this.gender = gender;
-		this.cfg = new Configuration("WildfireGender", this.username);
-		this.cfg.set(Configuration.USERNAME, this.username);
+		this.cfg = new Configuration("WildfireGender", this.uuid.toString());
+		this.cfg.set(Configuration.USERNAME, this.uuid);
 		this.cfg.setDefault(Configuration.GENDER);
 		this.cfg.setDefault(Configuration.BUST_SIZE);
 		this.cfg.setDefault(Configuration.CAPE_URL);
@@ -113,7 +118,7 @@ public class GenderPlayer {
 
 	public static JsonObject toJsonObject(GenderPlayer plr) {
 		JsonObject obj = new JsonObject();
-		Configuration.USERNAME.save(obj, plr.username);
+		Configuration.USERNAME.save(obj, plr.uuid);
 		Configuration.GENDER.save(obj, plr.gender);
 		Configuration.BUST_SIZE.save(obj, plr.pBustSize);
 		Configuration.HURT_SOUNDS.save(obj, plr.hurtSounds);
@@ -155,8 +160,8 @@ public class GenderPlayer {
 	}
 
 
-	public static GenderPlayer loadCachedPlayer(String uuid) {
-		GenderPlayer plr = WildfireGender.getPlayerByName(uuid);
+	public static GenderPlayer loadCachedPlayer(UUID uuid, boolean markForSync) {
+		GenderPlayer plr = WildfireGender.getPlayerById(uuid);
 		if (plr != null) {
 			plr.lockSettings = false;
 			plr.syncStatus = SyncStatus.CACHED;
@@ -177,7 +182,9 @@ public class GenderPlayer {
 			plr.getBreasts().zOffset = config.get(Configuration.BREASTS_OFFSET_Z);
 			plr.getBreasts().isUniboob = config.get(Configuration.BREASTS_UNIBOOB);
 			plr.getBreasts().cleavage = config.get(Configuration.BREASTS_CLEAVAGE);
-
+			if (markForSync) {
+				plr.needsSync = true;
+			}
 			return plr;
 		}
 		return null;
@@ -185,7 +192,7 @@ public class GenderPlayer {
 	
 	public static void saveGenderInfo(GenderPlayer plr) {
 		Configuration config = plr.getConfig();
-		config.set(Configuration.USERNAME, plr.username);
+		config.set(Configuration.USERNAME, plr.uuid);
 		config.set(Configuration.GENDER, plr.gender);
 		config.set(Configuration.BUST_SIZE, plr.getBustSize());
 		config.set(Configuration.HURT_SOUNDS, plr.hurtSounds);
@@ -204,6 +211,7 @@ public class GenderPlayer {
 		config.set(Configuration.BREASTS_CLEAVAGE, plr.getBreasts().cleavage);
 
 		config.save();
+		plr.needsSync = true;
 	}
 
 	public Breasts getBreasts() {
@@ -219,5 +227,29 @@ public class GenderPlayer {
 
 	public enum SyncStatus {
 		CACHED, SYNCED, UNKNOWN
+	}
+
+	public enum Gender {
+		FEMALE(new TranslatableComponent("wildfire_gender.label.female").withStyle(ChatFormatting.LIGHT_PURPLE)),
+		MALE(new TranslatableComponent("wildfire_gender.label.male").withStyle(ChatFormatting.BLUE)),
+		OTHER(new TranslatableComponent("wildfire_gender.label.other").withStyle(ChatFormatting.GREEN));
+
+		private final Component name;
+
+		Gender(Component name) {
+			this.name = name;
+		}
+
+		public Component getDisplayName() {
+			return name;
+		}
+
+		public boolean hasFemaleHurtSounds() {
+			return this == FEMALE;
+		}
+
+		public boolean canHaveBreasts() {
+			return this != MALE;
+		}
 	}
 }

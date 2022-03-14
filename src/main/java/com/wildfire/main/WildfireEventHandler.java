@@ -20,30 +20,39 @@ package com.wildfire.main;
 
 import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.main.networking.PacketSendGenderInfo;
-import com.wildfire.main.proxy.GenderClient;
 import com.wildfire.render.GenderLayer;
+import java.util.Set;
+import java.util.UUID;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.network.NetworkHooks;
+import org.lwjgl.glfw.GLFW;
 
 public class WildfireEventHandler {
-	
-	public WildfireEventHandler() {
-		
-	}
 
-	@Mod.EventBusSubscriber(value= Dist.CLIENT, bus= Mod.EventBusSubscriber.Bus.MOD)
-	private static class EntityRenderEventsTestClientModStuff {
+	public static final KeyMapping toggleEditGUI = new KeyMapping("wildfire_gender.key.gui", GLFW.GLFW_KEY_G, "key.categories.wildfire_gender");
+
+	@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD, modid = WildfireGender.MODID)
+	private static class ClientModEventBusListeners {
 		@SubscribeEvent
 		public static void entityLayers(EntityRenderersEvent.AddLayers event) {
 			for (String skinName : event.getSkins()) {
@@ -53,12 +62,18 @@ public class WildfireEventHandler {
 				}
 			}
 		}
+
+		@SubscribeEvent
+		public static void setupClient(FMLClientSetupEvent event) {
+			ClientRegistry.registerKeyBinding(toggleEditGUI);
+			MinecraftForge.EVENT_BUS.register(new WildfireEventHandler());
+		}
 	}
 
  	@SubscribeEvent
 	public void onGUI(TickEvent.ClientTickEvent evt) {
- 		if(Minecraft.getInstance().level == null && WildfireGender.CLOTHING_PLAYER.size() > 0) {
-			WildfireGender.CLOTHING_PLAYER.clear();
+ 		if (Minecraft.getInstance().level == null) {
+			WildfireGender.CLOTHING_PLAYERS.clear();
 		}
 
 		boolean isVanillaServer = true;
@@ -73,8 +88,11 @@ public class WildfireEventHandler {
 			if (timer >= 5) {
 				//System.out.println("sync");
 				try {
-					GenderPlayer aPlr = WildfireGender.getPlayerByName(Minecraft.getInstance().player.getStringUUID());
-					if(aPlr == null) return;
+					GenderPlayer aPlr = WildfireGender.getPlayerById(Minecraft.getInstance().player.getUUID());
+					//Only sync it if it has changed
+					if (aPlr == null || !aPlr.needsSync) {
+						return;
+					}
 					PacketSendGenderInfo.send(aPlr);
 				} catch (Exception e) {
 					//e.printStackTrace();
@@ -88,7 +106,7 @@ public class WildfireEventHandler {
  	@SubscribeEvent
 	public void onPlayerTick(PlayerTickEvent evt) {
 		if(evt.phase == TickEvent.Phase.END && evt.side.isClient()) {
-			GenderPlayer aPlr = WildfireGender.getPlayerByName(evt.player.getStringUUID());
+			GenderPlayer aPlr = WildfireGender.getPlayerById(evt.player.getUUID());
 			if(aPlr == null) return;
 			aPlr.getLeftBreastPhysics().update(evt.player);
 			aPlr.getRightBreastPhysics().update(evt.player);
@@ -96,9 +114,9 @@ public class WildfireEventHandler {
  	}
  	@SubscribeEvent
 	public void onKeyInput(InputEvent.KeyInputEvent evt) {
-		if(GenderClient.toggleEditGUI.isDown()) {
+		if (toggleEditGUI.isDown()) {
 
-			String playerUUID = Minecraft.getInstance().player.getGameProfile().getId().toString();
+			//String playerUUID = Minecraft.getInstance().player.getGameProfile().getId().toString();
 			//if(KittGender.modEnabled) Minecraft.getInstance().displayGuiScreen(new WardrobeBrowserScreen(playerUUID));
 
 			if(WildfireGender.modEnabled) {
@@ -111,23 +129,51 @@ public class WildfireEventHandler {
 
 	@SubscribeEvent
 	public void onPlayerJoin(EntityJoinWorldEvent evt) {
-		if(!evt.getWorld().isClientSide) return;
-
-		if(evt.getEntity() instanceof AbstractClientPlayer plr) {
-
-			String playerName = plr.getGameProfile().getId().toString();
-			GenderPlayer aPlr = WildfireGender.getPlayerByName(plr.getStringUUID());
-			if(aPlr == null) {
-				aPlr = new GenderPlayer(plr.getStringUUID());
-				WildfireGender.CLOTHING_PLAYER.add(aPlr);
-				WildfireGender.loadGenderInfoAsync(plr.getStringUUID());
+		if (evt.getWorld().isClientSide && evt.getEntity() instanceof AbstractClientPlayer plr) {
+			UUID uuid = plr.getUUID();
+			GenderPlayer aPlr = WildfireGender.getPlayerById(uuid);
+			if (aPlr == null) {
+				aPlr = new GenderPlayer(uuid);
+				WildfireGender.CLOTHING_PLAYERS.put(uuid, aPlr);
+				//Mark the player as needing sync if it is the client's own player
+				WildfireGender.loadGenderInfoAsync(uuid, uuid.equals(Minecraft.getInstance().player.getUUID()));
 
 				WildfireGender.refreshAllGenders();
-
-				return;
 			}
 		} 
 	}
-	public boolean addedLayer = false;
-  
+
+	//TODO: Eventually we may want to replace this with a map or something and replace things like drowning sounds with other drowning sounds
+	private final Set<SoundEvent> playerHurtSounds = Set.of(SoundEvents.PLAYER_HURT,
+		SoundEvents.PLAYER_HURT_DROWN,
+		SoundEvents.PLAYER_HURT_FREEZE,
+		SoundEvents.PLAYER_HURT_ON_FIRE,
+		SoundEvents.PLAYER_HURT_SWEET_BERRY_BUSH
+	);
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onPlaySound(PlaySoundAtEntityEvent event) {
+		if (playerHurtSounds.contains(event.getSound()) && event.getEntity() instanceof Player p && p.level.isClientSide) {
+			//Cancel as we handle all hurt sounds manually so that we can
+			event.setCanceled(true);
+			SoundEvent soundEvent = event.getSound();
+			if (p.hurtTime == p.hurtDuration && p.hurtTime > 0) {
+				//Note: We check hurtTime == hurtDuration and hurtTime > 0 or otherwise when the server sends a hurt sound to the client
+				// and the client will check itself instead of the player who was damaged.
+				GenderPlayer plr = WildfireGender.getPlayerById(p.getUUID());
+				if (plr != null && plr.hurtSounds && plr.gender.hasFemaleHurtSounds()) {
+					//If the player who produced the hurt sound is a female sound replace it
+					soundEvent = Math.random() > 0.5f ? WildfireSounds.FEMALE_HURT1 : WildfireSounds.FEMALE_HURT2;
+				}
+			} else if (p.getUUID().equals(Minecraft.getInstance().player.getUUID())) {
+				//Skip playing remote hurt sounds. Note: sounds played via /playsound will not be intercepted
+				// as they are played directly
+				//Note: This might behave slightly strangely if a mod is manually firing a player damage sound
+				// only on the server and not also on the client
+				//TODO: Ideally we would fix that edge case but I find it highly unlikely it will ever actually occur
+				return;
+			}
+			p.level.playLocalSound(p.getX(), p.getY(), p.getZ(), soundEvent, event.getCategory(), event.getVolume(), event.getPitch(), false);
+		}
+	}
 }

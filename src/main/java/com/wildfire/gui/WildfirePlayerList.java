@@ -42,9 +42,9 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
 {
     private static String stripControlCodes(String value) { return net.minecraft.util.StringUtil.stripColor(value); }
 
-    private static final ResourceLocation TXTR_SYNC = new ResourceLocation("wildfire_gender", "textures/sync.png");
-    private static final ResourceLocation TXTR_CACHED = new ResourceLocation("wildfire_gender", "textures/cached.png");
-    private static final ResourceLocation TXTR_UNKNOWN = new ResourceLocation("wildfire_gender", "textures/unknown.png");
+    private static final ResourceLocation TXTR_SYNC = new ResourceLocation(WildfireGender.MODID, "textures/sync.png");
+    private static final ResourceLocation TXTR_CACHED = new ResourceLocation(WildfireGender.MODID, "textures/cached.png");
+    private static final ResourceLocation TXTR_UNKNOWN = new ResourceLocation(WildfireGender.MODID, "textures/unknown.png");
 
     private final int listWidth;
 
@@ -75,7 +75,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
         PlayerInfo[] playersC = this.minecraft.getConnection().getOnlinePlayers().toArray(new PlayerInfo[0]);
 
         for (PlayerInfo loadedPlayer : playersC) {
-            this.addEntry(new Entry(loadedPlayer, false));
+            this.addEntry(new Entry(loadedPlayer));
         }
     }
 
@@ -84,9 +84,9 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
 
     public boolean isLoadingPlayers() {
         boolean loadingPlayers = false;
-        for(int i = 0; i < this.children().size(); i++) {
-            GenderPlayer aPlr = WildfireGender.getPlayerByName(this.children().get(i).nInfo.getProfile().getId().toString());
-            if(aPlr == null) {
+        for (Entry child : this.children()) {
+            GenderPlayer aPlr = WildfireGender.getPlayerById(child.nInfo.getProfile().getId());
+            if (aPlr == null) {
                 loadingPlayers = true;
             }
         }
@@ -96,23 +96,21 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
     public class Entry extends ObjectSelectionList.Entry<WildfirePlayerList.Entry> {
 
         private final String name;
-        private final boolean gender;
         public final PlayerInfo nInfo;
         private final WildfireButton btnOpenGUI;
 
-        private Entry(final PlayerInfo nInfo, final boolean gender) {
+        private Entry(final PlayerInfo nInfo) {
             this.nInfo = nInfo;
             this.name = nInfo.getProfile().getName();
-            this.gender = gender;
             btnOpenGUI = new WildfireButton(0, 0, 112, 20, TextComponent.EMPTY, button -> {
-                GenderPlayer aPlr = WildfireGender.getPlayerByName(nInfo.getProfile().getId().toString());
+                GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
                 if(aPlr == null) return;
 
                 try {
                     Minecraft.getInstance().setScreen(new WardrobeBrowserScreen(parent, nInfo.getProfile().getId()));
                 } catch(Exception ignored) {}
             });
-            GenderPlayer aPlr = WildfireGender.getPlayerByName(nInfo.getProfile().getId().toString());
+            GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
             if(aPlr != null) {
                 btnOpenGUI.active = !aPlr.lockSettings;
             }
@@ -127,7 +125,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
             Font font = minecraft.font;
 
             Player playerentity = minecraft.level.getPlayerByUUID(nInfo.getProfile().getId());
-            GenderPlayer aPlr = WildfireGender.getPlayerByName(nInfo.getProfile().getId().toString());
+            GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
             boolean flag1 = false;
             RenderSystem.setShaderTexture(0, nInfo.getSkinLocation());
             int i3 = 8 + (flag1 ? 8 : 0);
@@ -143,14 +141,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
             if(aPlr != null) {
                 btnOpenGUI.active = !aPlr.lockSettings;
 
-                switch (aPlr.gender) {
-                    //female
-                    case 0 -> font.draw(m, new TranslatableComponent("wildfire_gender.label.female").withStyle(ChatFormatting.LIGHT_PURPLE), left + 23, top + 11, 0xFFFFFF);
-                    //male
-                    case 1 -> font.draw(m, new TranslatableComponent("wildfire_gender.label.male").withStyle(ChatFormatting.BLUE), left + 23, top + 11, 0xFFFFFF);
-                    //other
-                    case 2 -> font.draw(m, new TranslatableComponent("wildfire_gender.label.other").withStyle(ChatFormatting.GREEN), left + 23, top + 11, 0xFFFFFF);
-                }
+                font.draw(m, aPlr.gender.getDisplayName(), left + 23, top + 11, 0xFFFFFF);
                 if (aPlr.getSyncStatus() == GenderPlayer.SyncStatus.SYNCED) {
                     RenderSystem.setShaderTexture(0, TXTR_SYNC);
                     GuiComponent.blit(m, left + 98, top + 11, 12, 8, 0, 0, 12, 8, 12, 8);

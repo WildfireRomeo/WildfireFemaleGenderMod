@@ -20,33 +20,34 @@ package com.wildfire.main;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.wildfire.main.networking.PacketHurt;
 import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.main.networking.PacketSync;
-import com.wildfire.main.proxy.GenderClient;
-import com.wildfire.main.proxy.GenderServer;
+import java.util.UUID;
+import javax.annotation.Nullable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
-@Mod("wildfire_gender")
+@Mod(WildfireGender.MODID)
 public class WildfireGender {
 	public static final String VERSION = "2.8";
   	public static final String MODID = "wildfire_gender";
@@ -54,17 +55,14 @@ public class WildfireGender {
   	public static boolean modEnabled = true;
   	public static final boolean SYNCING_ENABLED = false;
 
-	private static final String PROTOCOL_VERSION = "1";
-	//public static SimpleChannel NETWORK = NetworkRegistry.newSimpleChannel(new ResourceLocation("wildfire_gender", "main_channel"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
-	public static SimpleChannel NETWORK = NetworkRegistry.ChannelBuilder.named(new ResourceLocation("wildfire_gender", "main_channel"))
+	private static final String PROTOCOL_VERSION = "2";
+	//public static SimpleChannel NETWORK = NetworkRegistry.newSimpleChannel(new ResourceLocation(WildfireGender.MODID, "main_channel"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
+	public static SimpleChannel NETWORK = NetworkRegistry.ChannelBuilder.named(new ResourceLocation(WildfireGender.MODID, "main_channel"))
 			.clientAcceptedVersions(v -> v.equals(NetworkRegistry.ABSENT) || v.equals(NetworkRegistry.ACCEPTVANILLA) || v.equals(PROTOCOL_VERSION))
 			.serverAcceptedVersions(v -> v.equals(NetworkRegistry.ACCEPTVANILLA) || v.equals(PROTOCOL_VERSION))
 			.networkProtocolVersion(() -> PROTOCOL_VERSION).simpleChannel();
 
-  	public static ArrayList<GenderPlayer> CLOTHING_PLAYER = new ArrayList<>();
-  	public static ArrayList<GenderPlayer> SERVER_PLAYER = new ArrayList<>();
-
-  	public static final GenderServer PROXY = DistExecutor.safeRunForDist(() -> GenderClient::new, () -> GenderServer::new);
+	public static Map<UUID, GenderPlayer> CLOTHING_PLAYERS = new HashMap<>();
 
   	public WildfireGender() {
 		Path configDir = FMLPaths.GAMEDIR.get().resolve(FMLPaths.CONFIGDIR.get());
@@ -74,38 +72,35 @@ public class WildfireGender {
 		}
 
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup); //common
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient); //client
+		MinecraftForge.EVENT_BUS.addListener(this::onPlayerLoginEvent);
     }
 
-	public static GenderPlayer getPlayerByName(String username) {
-		for (int i = 0; i < CLOTHING_PLAYER.size(); i++) {
-			try {
-				if (username.equalsIgnoreCase(CLOTHING_PLAYER.get(i).username)) {
-					return CLOTHING_PLAYER.get(i);
-				}
-			} catch (Exception e) {
-				GenderPlayer plr = new GenderPlayer(username);
-				CLOTHING_PLAYER.add(plr);
-				return plr;
-			}
-		}
-		return null;
+	@Nullable
+	public static GenderPlayer getPlayerById(UUID id) {
+		  return CLOTHING_PLAYERS.get(id);
+	}
+
+	public static GenderPlayer getOrAddPlayerById(UUID id) {
+		return CLOTHING_PLAYERS.computeIfAbsent(id, GenderPlayer::new);
 	}
 
 	public void setup(FMLCommonSetupEvent event) {
-		MinecraftForge.EVENT_BUS.register(new WildfireCommonEvents());
-
 		NETWORK.registerMessage(1, PacketSync.class, PacketSync::encode, PacketSync::new, PacketSync::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 		NETWORK.registerMessage(2, PacketSendGenderInfo.class, PacketSendGenderInfo::encode, PacketSendGenderInfo::new, PacketSendGenderInfo::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
 		//NETWORK.registerMessage(3, PacketSendCape.class, PacketSendCape::encode, PacketSendCape::new, PacketSendCape::handle);
-		NETWORK.registerMessage(3, PacketHurt.class, PacketHurt::encode, PacketHurt::new, PacketHurt::handle);
 	}
-  	public void setupClient(FMLClientSetupEvent event) {
-  		PROXY.register();
-  	}
+
+	public void onPlayerLoginEvent(PlayerLoggedInEvent event) {
+		Player player = event.getPlayer();
+		if (!player.level.isClientSide() && player instanceof ServerPlayer sp) {
+			//Send all other players to the player who joined. Note: We don't send the player to
+			// other players as that will happen once the player finishes sending themselves to the server
+			PacketSync.sendTo(sp);
+		}
+	}
   	
-  	public static void loadGenderInfoAsync(String uuid) {
-  		Thread thread = new Thread(() -> WildfireGender.loadGenderInfo(uuid));
+  	public static void loadGenderInfoAsync(UUID uuid, boolean markForSync) {
+  		Thread thread = new Thread(() -> WildfireGender.loadGenderInfo(uuid, markForSync));
 		thread.setName("WFGM_GetPlayer-" + uuid);
   		thread.start();
   	}
@@ -130,8 +125,8 @@ public class WildfireGender {
   		thread.start();*/
   	}
 
-	public static GenderPlayer loadGenderInfo(String uuid) {
-		return GenderPlayer.loadCachedPlayer(uuid);
+	public static GenderPlayer loadGenderInfo(UUID uuid, boolean markForSync) {
+		return GenderPlayer.loadCachedPlayer(uuid, markForSync);
 	}
   
 	public static void drawTextLabel(PoseStack m, String txt, int x, int y) {
