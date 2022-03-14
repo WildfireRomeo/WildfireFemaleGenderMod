@@ -40,6 +40,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -150,13 +151,29 @@ public class WildfireEventHandler {
 		SoundEvents.PLAYER_HURT_SWEET_BERRY_BUSH
 	);
 
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onPlaySound(PlaySoundAtEntityEvent event) {
 		if (playerHurtSounds.contains(event.getSound()) && event.getEntity() instanceof Player p && p.level.isClientSide) {
-			GenderPlayer plr = WildfireGender.getPlayerById(p.getUUID());
-			if (plr != null && plr.hurtSounds && plr.gender.hasFemaleHurtSounds()) {
-				event.setSound(Math.random() > 0.5f ? WildfireSounds.FEMALE_HURT1 : WildfireSounds.FEMALE_HURT2);
+			//Cancel as we handle all hurt sounds manually so that we can
+			event.setCanceled(true);
+			SoundEvent soundEvent = event.getSound();
+			if (p.hurtTime == p.hurtDuration && p.hurtTime > 0) {
+				//Note: We check hurtTime == hurtDuration and hurtTime > 0 or otherwise when the server sends a hurt sound to the client
+				// and the client will check itself instead of the player who was damaged.
+				GenderPlayer plr = WildfireGender.getPlayerById(p.getUUID());
+				if (plr != null && plr.hurtSounds && plr.gender.hasFemaleHurtSounds()) {
+					//If the player who produced the hurt sound is a female sound replace it
+					soundEvent = Math.random() > 0.5f ? WildfireSounds.FEMALE_HURT1 : WildfireSounds.FEMALE_HURT2;
+				}
+			} else if (p.getUUID().equals(Minecraft.getInstance().player.getUUID())) {
+				//Skip playing remote hurt sounds. Note: sounds played via /playsound will not be intercepted
+				// as they are played directly
+				//Note: This might behave slightly strangely if a mod is manually firing a player damage sound
+				// only on the server and not also on the client
+				//TODO: Ideally we would fix that edge case but I find it highly unlikely it will ever actually occur
+				return;
 			}
+			p.level.playLocalSound(p.getX(), p.getY(), p.getZ(), soundEvent, event.getCategory(), event.getVolume(), event.getPitch(), false);
 		}
 	}
 }
