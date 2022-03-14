@@ -222,11 +222,11 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			VertexConsumer ivertexbuilder = vertexConsumers.getBuffer(type);
 
 			if ((teamSeeFriendly && ent.isInvisible()) || !ent.isInvisible()) {
-				renderBox(lBreast.quads, matrixStack, ivertexbuilder, packedLightIn, combineTex, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
+				renderBox(lBreast, matrixStack, ivertexbuilder, packedLightIn, combineTex, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
 				if (ent.isModelPartShown(PlayerModelPart.JACKET)) {
 					matrixStack.translate(0, 0, -0.015f);
 					matrixStack.scale(1.05f, 1.05f, 1.05f);
-					renderBox(lBreastWear.quads, matrixStack, ivertexbuilder, packedLightIn, combineTex, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
+					renderBox(lBreastWear, matrixStack, ivertexbuilder, packedLightIn, combineTex, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
 				}
 
 
@@ -277,11 +277,11 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			VertexConsumer ivertexbuilderR = vertexConsumers.getBuffer(typeR);
 
 			if ((teamSeeFriendly && ent.isInvisible()) || !ent.isInvisible()) {
-				renderBox(rBreast.quads, matrixStack, ivertexbuilderR, packedLightIn, combineTexR, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
+				renderBox(rBreast, matrixStack, ivertexbuilderR, packedLightIn, combineTexR, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
 				if (ent.isModelPartShown(PlayerModelPart.JACKET)) {
 					matrixStack.translate(0, 0, -0.015f);
 					matrixStack.scale(1.05f, 1.05f, 1.05f);
-					renderBox(rBreastWear.quads, matrixStack, ivertexbuilderR, packedLightIn, combineTexR, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
+					renderBox(rBreastWear, matrixStack, ivertexbuilderR, packedLightIn, combineTexR, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
 				}
 
 
@@ -357,21 +357,21 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 			WildfireModelRenderer.BreastModelBox armor = left ? lBoobArmor : rBoobArmor;
 			float transparency = left ? 1 : getTransparency(entity);
-			renderBox(armor.quads, matrixStack, ivertexbuilder2, packedLightIn, 0xFFFFFF, armorR, armorG, armorB, transparency);
+			renderBox(armor, matrixStack, ivertexbuilder2, packedLightIn, 0xFFFFFF, armorR, armorG, armorB, transparency);
 
 			if (armorStack.hasFoil()) {
 				RenderType type3 = RenderType.armorEntityGlint();
 				VertexConsumer ivertexbuilder3 = vertexConsumers.getBuffer(type3);
-				renderBox(armor.quads, matrixStack, ivertexbuilder3, packedLightIn, 0xFFFFFF, 1f, 1f, 1f, transparency);
+				renderBox(armor, matrixStack, ivertexbuilder3, packedLightIn, 0xFFFFFF, 1f, 1f, 1f, transparency);
 			}
 			matrixStack.popPose();
 		}
 	}
 
-	public static void renderBox(WildfireModelRenderer.TexturedQuad[] quads, PoseStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+	public static void renderBox(WildfireModelRenderer.ModelBox model, PoseStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
 		Matrix4f matrix4f = matrixStack.last().pose();
 		Matrix3f matrix3f =	matrixStack.last().normal();
-		for (WildfireModelRenderer.TexturedQuad quad : quads) {
+		for (WildfireModelRenderer.TexturedQuad quad : model.quads) {
 			Vector3f vector3f = new Vector3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
 			vector3f.transform(matrix3f);
 			float f = vector3f.x();
@@ -380,12 +380,12 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 			for (int i = 0; i < 4; ++i) {
 				WildfireModelRenderer.PositionTextureVertex vertex = quad.vertexPositions[i];
-				float j = vertex.vector3D.x() / 16.0F;
-				float k = vertex.vector3D.y() / 16.0F;
-				float l = vertex.vector3D.z() / 16.0F;
+				float j = vertex.vector3D().x() / 16.0F;
+				float k = vertex.vector3D().y() / 16.0F;
+				float l = vertex.vector3D().z() / 16.0F;
 				Vector4f vector4f = new Vector4f(j, k, l, 1.0F);
 				vector4f.transform(matrix4f);
-				bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.texturePositionX, vertex.texturePositionY, packedOverlayIn, packedLightIn, f, g, h);
+				bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.texturePositionX(), vertex.texturePositionY(), packedOverlayIn, packedLightIn, f, g, h);
 			}
 		}
 	}
