@@ -31,6 +31,10 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -68,6 +72,7 @@ public class WildfireGender {
 		}
 
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup); //common
+		MinecraftForge.EVENT_BUS.addListener(this::onPlayerLoginEvent);
     }
 
 	@Nullable
@@ -75,7 +80,7 @@ public class WildfireGender {
 		  return CLOTHING_PLAYERS.get(id);
 	}
 
-	public static GenderPlayer getPlayerOrAddById(UUID id) {
+	public static GenderPlayer getOrAddPlayerById(UUID id) {
 		return CLOTHING_PLAYERS.computeIfAbsent(id, GenderPlayer::new);
 	}
 
@@ -84,9 +89,18 @@ public class WildfireGender {
 		NETWORK.registerMessage(2, PacketSendGenderInfo.class, PacketSendGenderInfo::encode, PacketSendGenderInfo::new, PacketSendGenderInfo::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
 		//NETWORK.registerMessage(3, PacketSendCape.class, PacketSendCape::encode, PacketSendCape::new, PacketSendCape::handle);
 	}
+
+	public void onPlayerLoginEvent(PlayerLoggedInEvent event) {
+		Player player = event.getPlayer();
+		if (!player.level.isClientSide() && player instanceof ServerPlayer sp) {
+			//Send all other players to the player who joined. Note: We don't send the player to
+			// other players as that will happen once the player finishes sending themselves to the server
+			PacketSync.sendTo(sp);
+		}
+	}
   	
-  	public static void loadGenderInfoAsync(UUID uuid) {
-  		Thread thread = new Thread(() -> WildfireGender.loadGenderInfo(uuid));
+  	public static void loadGenderInfoAsync(UUID uuid, boolean markForSync) {
+  		Thread thread = new Thread(() -> WildfireGender.loadGenderInfo(uuid, markForSync));
 		thread.setName("WFGM_GetPlayer-" + uuid);
   		thread.start();
   	}
@@ -111,8 +125,8 @@ public class WildfireGender {
   		thread.start();*/
   	}
 
-	public static GenderPlayer loadGenderInfo(UUID uuid) {
-		return GenderPlayer.loadCachedPlayer(uuid);
+	public static GenderPlayer loadGenderInfo(UUID uuid, boolean markForSync) {
+		return GenderPlayer.loadCachedPlayer(uuid, markForSync);
 	}
   
 	public static void drawTextLabel(PoseStack m, String txt, int x, int y) {

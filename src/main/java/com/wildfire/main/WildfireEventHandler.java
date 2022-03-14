@@ -88,7 +88,10 @@ public class WildfireEventHandler {
 				//System.out.println("sync");
 				try {
 					GenderPlayer aPlr = WildfireGender.getPlayerById(Minecraft.getInstance().player.getUUID());
-					if(aPlr == null) return;
+					//Only sync it if it has changed
+					if (aPlr == null || !aPlr.needsSync) {
+						return;
+					}
 					PacketSendGenderInfo.send(aPlr);
 				} catch (Exception e) {
 					//e.printStackTrace();
@@ -112,7 +115,7 @@ public class WildfireEventHandler {
 	public void onKeyInput(InputEvent.KeyInputEvent evt) {
 		if (toggleEditGUI.isDown()) {
 
-			String playerUUID = Minecraft.getInstance().player.getGameProfile().getId().toString();
+			//String playerUUID = Minecraft.getInstance().player.getGameProfile().getId().toString();
 			//if(KittGender.modEnabled) Minecraft.getInstance().displayGuiScreen(new WardrobeBrowserScreen(playerUUID));
 
 			if(WildfireGender.modEnabled) {
@@ -131,7 +134,8 @@ public class WildfireEventHandler {
 			if (aPlr == null) {
 				aPlr = new GenderPlayer(uuid);
 				WildfireGender.CLOTHING_PLAYERS.put(uuid, aPlr);
-				WildfireGender.loadGenderInfoAsync(uuid);
+				//Mark the player as needing sync if it is the client's own player
+				WildfireGender.loadGenderInfoAsync(uuid, uuid.equals(Minecraft.getInstance().player.getUUID()));
 
 				WildfireGender.refreshAllGenders();
 			}

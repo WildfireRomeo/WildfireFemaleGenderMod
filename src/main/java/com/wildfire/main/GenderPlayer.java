@@ -28,6 +28,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 
 public class GenderPlayer {
 
+	public boolean needsSync;
 	public final UUID uuid;
 	public Gender gender;
 	public float pBustSize = Configuration.BUST_SIZE.getDefault();
@@ -159,7 +160,7 @@ public class GenderPlayer {
 	}
 
 
-	public static GenderPlayer loadCachedPlayer(UUID uuid) {
+	public static GenderPlayer loadCachedPlayer(UUID uuid, boolean markForSync) {
 		GenderPlayer plr = WildfireGender.getPlayerById(uuid);
 		if (plr != null) {
 			plr.lockSettings = false;
@@ -181,7 +182,9 @@ public class GenderPlayer {
 			plr.getBreasts().zOffset = config.get(Configuration.BREASTS_OFFSET_Z);
 			plr.getBreasts().isUniboob = config.get(Configuration.BREASTS_UNIBOOB);
 			plr.getBreasts().cleavage = config.get(Configuration.BREASTS_CLEAVAGE);
-
+			if (markForSync) {
+				plr.needsSync = true;
+			}
 			return plr;
 		}
 		return null;
@@ -208,6 +211,7 @@ public class GenderPlayer {
 		config.set(Configuration.BREASTS_CLEAVAGE, plr.getBreasts().cleavage);
 
 		config.save();
+		plr.needsSync = true;
 	}
 
 	public Breasts getBreasts() {
