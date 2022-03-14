@@ -23,6 +23,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.*;
 import java.util.Locale;
+import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -44,6 +45,7 @@ import net.minecraft.world.item.*;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.world.scores.Team;
 import net.minecraftforge.client.ForgeHooksClient;
 
 public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
@@ -100,9 +102,16 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 	}
 
 	@Override
-	public void render(PoseStack matrixStack, MultiBufferSource vertexConsumers, int packedLightIn, AbstractClientPlayer ent, float limbAngle, float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
+	public void render(@Nonnull PoseStack matrixStack, @Nonnull MultiBufferSource bufferSource, int packedLightIn, @Nonnull AbstractClientPlayer ent, float limbAngle,
+		float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
+		if (ent.isInvisible()) {
+			Team team = ent.getTeam();
+			if (team == null || !team.canSeeFriendlyInvisibles()) {
+				//Exit early if the entity shouldn't actually be seen
+				return;
+			}
+		}
 		//Surround with a try/catch to fix for essential mod.
-		if(ent == null) return;
 		int pushCount = 0;
 		try {
 			//0.5 or 0
@@ -173,15 +182,11 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			//matrixStack.translate(0, 0, zOff);
 			//System.out.println(bounceRotation);
 
-			boolean teamSeeFriendly = false;
-			if (ent.getTeam() != null)
-				teamSeeFriendly = ent.getTeam().canSeeFriendlyInvisibles();
-
 			boolean breathingAnimation = true;
 			float rotationMultiplier = 0;
-			boolean bounceEnabled = (plr.breast_physics && !isChestplateOccupied) || (plr.breast_physics && plr.breast_physics_armor && isChestplateOccupied); //oh, you found this?
+			boolean bounceEnabled = plr.breast_physics && (!isChestplateOccupied || plr.breast_physics_armor); //oh, you found this?
 
-			pushCount += pushMatrix(matrixStack, rend.getModel().body, 0);
+			pushCount += pushMatrix(matrixStack, model.body, 0);
 			//right breast
 			if (bounceEnabled) {
 				matrixStack.translate(lTotalX / 32f, 0, 0);
@@ -190,20 +195,15 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 			matrixStack.translate(breastOffsetX * 0.0625f, 0.05625f + (breastOffsetY * 0.0625f), zOff - 0.0625f * 2f + (breastOffsetZ * 0.0625f)); //shift down to correct position
 
-			if (!plr.getBreasts().isUniboob) matrixStack.translate(-0.0625f * 2, 0, 0);
+			if (!uniboob) matrixStack.translate(-0.0625f * 2, 0, 0);
 			if (bounceEnabled) matrixStack.mulPose(new Quaternion(0, leftBounceRotation, 0, true));
-			if (!plr.getBreasts().isUniboob) matrixStack.translate(0.0625f * 2, 0, 0);
+			if (!uniboob) matrixStack.translate(0.0625f * 2, 0, 0);
 
 			if (bounceEnabled) {
 				matrixStack.translate(0, -0.035f * breastSize, 0); //shift down to correct position
 				rotationMultiplier = -lTotal / 12f;
 			}
-			float totalRotation = breastSize + rotationMultiplier;
-			if (!bounceEnabled) {
-				totalRotation = breastSize;
-			}
-			if (totalRotation > breastSize + 0.2f) totalRotation = breastSize + 0.2f;
-			if (totalRotation > 1) totalRotation = 1; //hard limit for MAX
+			float totalRotation = calculateRotation(breastSize, rotationMultiplier, bounceEnabled);
 
 			if (isChestplateOccupied) matrixStack.translate(0, 0, 0.01f);
 
@@ -218,26 +218,14 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			matrixStack.scale(0.9995f, 1f, 1f); //z-fighting FIXXX
 
 			int combineTex = LivingEntityRenderer.getOverlayCoords(ent, 0);
-			RenderType type = RenderType.entityTranslucent(ent.getSkinTextureLocation());
-			VertexConsumer ivertexbuilder = vertexConsumers.getBuffer(type);
-
-			if ((teamSeeFriendly && ent.isInvisible()) || !ent.isInvisible()) {
-				renderBox(lBreast, matrixStack, ivertexbuilder, packedLightIn, combineTex, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
-				if (ent.isModelPartShown(PlayerModelPart.JACKET)) {
-					matrixStack.translate(0, 0, -0.015f);
-					matrixStack.scale(1.05f, 1.05f, 1.05f);
-					renderBox(lBreastWear, matrixStack, ivertexbuilder, packedLightIn, combineTex, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
-				}
-
-
-				//RIGHT BOOB ARMOR
-				renderBreastArmor(ent, armorStack, matrixStack, vertexConsumers, packedLightIn, true);
-			}
+			RenderType type = RenderType.entityTranslucent(rend.getTextureLocation(ent));
+			VertexConsumer vertexConsumer = bufferSource.getBuffer(type);
+			renderBreast(ent, armorStack, matrixStack, bufferSource, vertexConsumer, packedLightIn, combineTex, overlayRed, overlayGreen, overlayBlue, overlayAlpha, true);
 
 			matrixStack.popPose();
 			pushCount--;
 
-			pushCount += pushMatrix(matrixStack, rend.getModel().body, 0);
+			pushCount += pushMatrix(matrixStack, model.body, 0);
 			//left breast
 			if (bounceEnabled) {
 				matrixStack.translate(rTotalX / 32f, 0, 0);
@@ -245,20 +233,15 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			}
 
 			matrixStack.translate(-breastOffsetX * 0.0625f, 0.05625f + (breastOffsetY * 0.0625f), zOff - 0.0625f * 2f + (breastOffsetZ * 0.0625f)); //shift down to correct position
-			if (!plr.getBreasts().isUniboob) matrixStack.translate(0.0625f * 2, 0, 0);
+			if (!uniboob) matrixStack.translate(0.0625f * 2, 0, 0);
 			if (bounceEnabled) matrixStack.mulPose(new Quaternion(0, rightBounceRotation, 0, true));
-			if (!plr.getBreasts().isUniboob) matrixStack.translate(-0.0625f * 2, 0, 0);
+			if (!uniboob) matrixStack.translate(-0.0625f * 2, 0, 0);
 
 			if (bounceEnabled) {
 				matrixStack.translate(0, -0.035f * breastSize, 0); //shift down to correct position
 				rotationMultiplier = -rTotal / 12f;
 			}
-			float totalRotation2 = breastSize + rotationMultiplier;
-			if (!bounceEnabled) {
-				totalRotation2 = breastSize;
-			}
-			if (totalRotation2 > breastSize + 0.2f) totalRotation2 = breastSize + 0.2f;
-			if (totalRotation2 > 1) totalRotation2 = 1; //hard limit for MAX
+			float totalRotation2 = calculateRotation(breastSize, rotationMultiplier, bounceEnabled);
 
 			if (isChestplateOccupied) matrixStack.translate(0, 0, 0.01f);
 
@@ -272,22 +255,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 			matrixStack.scale(0.9995f, 1f, 1f); //z-fighting FIXXX
 
-			int combineTexR = LivingEntityRenderer.getOverlayCoords(ent, 0);
-			RenderType typeR = RenderType.entityTranslucent(rend.getTextureLocation(ent));
-			VertexConsumer ivertexbuilderR = vertexConsumers.getBuffer(typeR);
-
-			if ((teamSeeFriendly && ent.isInvisible()) || !ent.isInvisible()) {
-				renderBox(rBreast, matrixStack, ivertexbuilderR, packedLightIn, combineTexR, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
-				if (ent.isModelPartShown(PlayerModelPart.JACKET)) {
-					matrixStack.translate(0, 0, -0.015f);
-					matrixStack.scale(1.05f, 1.05f, 1.05f);
-					renderBox(rBreastWear, matrixStack, ivertexbuilderR, packedLightIn, combineTexR, overlayRed, overlayGreen, overlayBlue, overlayAlpha);
-				}
-
-
-				//LEFT? BOOB ARMOR
-				renderBreastArmor(ent, armorStack, matrixStack, vertexConsumers, packedLightIn, false);
-			}
+			renderBreast(ent, armorStack, matrixStack, bufferSource, vertexConsumer, packedLightIn, combineTex, overlayRed, overlayGreen, overlayBlue, overlayAlpha, false);
 
 			matrixStack.popPose(); //pop right breast
 			pushCount--;
@@ -300,6 +268,20 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 				pushCount--;
 			}
 		}
+	}
+
+	private float calculateRotation(float breastSize, float rotationMultiplier, boolean bounceEnabled) {
+		float totalRotation = breastSize + rotationMultiplier;
+		if (!bounceEnabled) {
+			totalRotation = breastSize;
+		}
+		if (totalRotation > breastSize + 0.2F) {
+			totalRotation = breastSize + 0.2F;
+		}
+		if (totalRotation > 1) {
+			return 1; //hard limit for MAX
+		}
+		return totalRotation;
 	}
 
 	public static int pushMatrix(PoseStack m, ModelPart mdl, float f7) {
@@ -335,8 +317,15 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		return alphaChannel;
 	}
 
-	private void renderBreastArmor(AbstractClientPlayer entity, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource vertexConsumers, int packedLightIn,
-		boolean left) {
+	private void renderBreast(AbstractClientPlayer entity, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource, VertexConsumer vertexConsumer,
+		int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, boolean left) {
+		renderBox(left ? lBreast : rBreast, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+		if (entity.isModelPartShown(PlayerModelPart.JACKET)) {
+			matrixStack.translate(0, 0, -0.015f);
+			matrixStack.scale(1.05f, 1.05f, 1.05f);
+			renderBox(left ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+		}
+		//Render Breast Armor
 		if (!armorStack.isEmpty() && !(armorStack.getItem() instanceof ElytraItem) && armorStack.getItem() instanceof ArmorItem armorItem) {
 			ResourceLocation ARMOR_TXTR = getArmorResource(entity, armorStack, EquipmentSlot.CHEST, null);
 			float armorR = 1f;
@@ -353,7 +342,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			matrixStack.translate(left ? 0.001f : -0.001f, 0.015f, -0.015f);
 			matrixStack.scale(1.05f, 1, 1);
 			RenderType type2 = RenderType.armorCutoutNoCull(ARMOR_TXTR);
-			VertexConsumer ivertexbuilder2 = vertexConsumers.getBuffer(type2);
+			VertexConsumer ivertexbuilder2 = bufferSource.getBuffer(type2);
 
 			WildfireModelRenderer.BreastModelBox armor = left ? lBoobArmor : rBoobArmor;
 			float transparency = left ? 1 : getTransparency(entity);
@@ -361,7 +350,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 			if (armorStack.hasFoil()) {
 				RenderType type3 = RenderType.armorEntityGlint();
-				VertexConsumer ivertexbuilder3 = vertexConsumers.getBuffer(type3);
+				VertexConsumer ivertexbuilder3 = bufferSource.getBuffer(type3);
 				renderBox(armor, matrixStack, ivertexbuilder3, packedLightIn, 0xFFFFFF, 1f, 1f, 1f, transparency);
 			}
 			matrixStack.popPose();
