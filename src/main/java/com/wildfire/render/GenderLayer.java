@@ -22,6 +22,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.*;
+import com.wildfire.render.WildfireModelRenderer.BreastModelBox;
+import com.wildfire.render.WildfireModelRenderer.OverlayModelBox;
+import com.wildfire.render.WildfireModelRenderer.PositionTextureVertex;
 import java.util.Locale;
 import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
@@ -51,30 +54,25 @@ import net.minecraftforge.client.ForgeHooksClient;
 
 public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
-	private WildfireModelRenderer.BreastModelBox lBreast;
-	private WildfireModelRenderer.OverlayModelBox lBreastWear;
-	private WildfireModelRenderer.BreastModelBox rBreast;
-	private WildfireModelRenderer.OverlayModelBox rBreastWear;
-
-	private WildfireModelRenderer.ModelBox sBox;
-	private WildfireModelRenderer.BreastModelBox rBoobArmor, lBoobArmor;
+	private BreastModelBox lBreast, rBreast;
+	private OverlayModelBox lBreastWear, rBreastWear;
+	private BreastModelBox lBoobArmor, rBoobArmor;
 
 	private float preBreastSize = 0f;
 
 	public GenderLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> player) {
 		super(player);
 
-		lBreast = new WildfireModelRenderer.BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, 4, 0.0F, false);
-		rBreast = new WildfireModelRenderer.BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, 4, 0.0F, false);
-		lBreastWear = new WildfireModelRenderer.OverlayModelBox(true,64, 64, 17, 34, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
-		rBreastWear = new WildfireModelRenderer.OverlayModelBox(false,64, 64, 21, 34, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+		lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, 4, 0.0F, false);
+		rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, 4, 0.0F, false);
+		lBreastWear = new OverlayModelBox(true,64, 64, 17, 34, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+		rBreastWear = new OverlayModelBox(false,64, 64, 21, 34, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 
-		lBoobArmor = new WildfireModelRenderer.BreastModelBox(64, 32, 16, 19, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
-		rBoobArmor = new WildfireModelRenderer.BreastModelBox(64, 32, 20, 19, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+		lBoobArmor = new BreastModelBox(64, 32, 16, 19, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+		rBoobArmor = new BreastModelBox(64, 32, 20, 19, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 		//chest = new SteinModelRenderer.ModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 8, 5, 4, 0.0F, false);
 		//chestwear = new SteinModelRenderer.ModelBox(64, 64, 17, 34, -4F, 0.0F, 0F, 8, 5, 3, 0.0F, false);
-		sBox = new WildfireModelRenderer.ModelBox(64, 32, 17, 19, -4F, 0.0F, 0F, 8, 5, 3, 0.0F, false);
-
+		//sBox = new ModelBox(64, 32, 17, 19, -4F, 0.0F, 0F, 8, 5, 3, 0.0F, false);
 	}
 
 	private static final Map<String, ResourceLocation> ARMOR_LOCATION_CACHE = new HashMap<>();
@@ -135,11 +133,11 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			if (bSize < 0.84f) reducer++;
 			if (bSize < 0.72f) reducer++;
 
-			if(preBreastSize != bSize) {
-				lBreast = new WildfireModelRenderer.BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
-				rBreast = new WildfireModelRenderer.BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
-				lBoobArmor = new WildfireModelRenderer.BreastModelBox(64, 32, 16, 17, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
-				rBoobArmor = new WildfireModelRenderer.BreastModelBox(64, 32, 20, 17, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+			if (preBreastSize != bSize) {
+				lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
+				rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
+				lBoobArmor = new BreastModelBox(64, 32, 16, 17, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+				rBoobArmor = new BreastModelBox(64, 32, 20, 17, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 				preBreastSize = bSize;
 			}
 
@@ -185,7 +183,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			float rotationMultiplier = 0;
 			boolean bounceEnabled = plr.breast_physics && (!isChestplateOccupied || plr.breast_physics_armor); //oh, you found this?
 
-			pushCount += pushMatrix(matrixStack, model.body, 0);
+			pushCount += pushMatrix(matrixStack, model.body);
 			//right breast
 			if (bounceEnabled) {
 				matrixStack.translate(lTotalX / 32f, 0, 0);
@@ -224,7 +222,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			matrixStack.popPose();
 			pushCount--;
 
-			pushCount += pushMatrix(matrixStack, model.body, 0);
+			pushCount += pushMatrix(matrixStack, model.body);
 			//left breast
 			if (bounceEnabled) {
 				matrixStack.translate(rTotalX / 32f, 0, 0);
@@ -283,28 +281,17 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		return totalRotation;
 	}
 
-	public static int pushMatrix(PoseStack m, ModelPart mdl, float f7) {
-
-		float rPointX = mdl.x;
-		float rPointY = mdl.y;
-		float rPointZ = mdl.z;
-		float rAngleX = mdl.xRot;
-		float rAngleY = mdl.yRot;
-		float rAngleZ = mdl.zRot;
-
+	private static int pushMatrix(PoseStack m, ModelPart mdl) {
 		m.pushPose();
-
-		m.translate(rPointX * 0.0625f, rPointY * 0.0625f, rPointZ * 0.0625f);
-		if (rAngleZ != 0.0F) {
-			m.mulPose(new Quaternion(0f, 0f, rAngleZ, false));
+		m.translate(mdl.x * 0.0625f, mdl.y * 0.0625f, mdl.z * 0.0625f);
+		if (mdl.zRot != 0.0F) {
+			m.mulPose(new Quaternion(0f, 0f, mdl.zRot, false));
 		}
-
-		if (rAngleY != 0.0F) {
-			m.mulPose(new Quaternion(0f, rAngleY, 0f, false));
+		if (mdl.yRot != 0.0F) {
+			m.mulPose(new Quaternion(0f, mdl.yRot, 0f, false));
 		}
-
-		if (rAngleX != 0.0F) {
-			m.mulPose(new Quaternion(rAngleX, 0f, 0f, false));
+		if (mdl.xRot != 0.0F) {
+			m.mulPose(new Quaternion(mdl.xRot, 0f, 0f, false));
 		}
 		return 1;
 	}
@@ -347,24 +334,24 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		}
 	}
 
-	public static void renderBox(WildfireModelRenderer.ModelBox model, PoseStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+	private static void renderBox(WildfireModelRenderer.ModelBox model, PoseStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn,
+		float red, float green, float blue, float alpha) {
 		Matrix4f matrix4f = matrixStack.last().pose();
 		Matrix3f matrix3f =	matrixStack.last().normal();
 		for (WildfireModelRenderer.TexturedQuad quad : model.quads) {
 			Vector3f vector3f = new Vector3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
 			vector3f.transform(matrix3f);
-			float f = vector3f.x();
-			float g = vector3f.y();
-			float h = vector3f.z();
-
-			for (int i = 0; i < 4; ++i) {
-				WildfireModelRenderer.PositionTextureVertex vertex = quad.vertexPositions[i];
-				float j = vertex.vector3D().x() / 16.0F;
-				float k = vertex.vector3D().y() / 16.0F;
-				float l = vertex.vector3D().z() / 16.0F;
-				Vector4f vector4f = new Vector4f(j, k, l, 1.0F);
-				vector4f.transform(matrix4f);
-				bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.texturePositionX(), vertex.texturePositionY(), packedOverlayIn, packedLightIn, f, g, h);
+			float normalX = vector3f.x();
+			float normalY = vector3f.y();
+			float normalZ = vector3f.z();
+			for (PositionTextureVertex vertex : quad.vertexPositions) {
+				bufferIn.vertex(matrix4f, vertex.x() / 16.0F, vertex.y() / 16.0F, vertex.z() / 16.0F)
+					.color(red, green, blue, alpha)
+					.uv(vertex.texturePositionX(), vertex.texturePositionY())
+					.overlayCoords(packedOverlayIn)
+					.uv2(packedLightIn)
+					.normal(normalX, normalY, normalZ)
+					.endVertex();
 			}
 		}
 	}

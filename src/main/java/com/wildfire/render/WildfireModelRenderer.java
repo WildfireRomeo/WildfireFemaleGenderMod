@@ -18,7 +18,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.render;
 
-import com.mojang.math.Vector3f;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 
@@ -234,14 +233,10 @@ public class WildfireModelRenderer {
 	      }
 	   }
 
-   public record PositionTextureVertex(Vector3f vector3D, float texturePositionX, float texturePositionY) {
+   public record PositionTextureVertex(float x, float y, float z, float texturePositionX, float texturePositionY) {
 
-      public PositionTextureVertex(float x, float y, float z, float texU, float texV) {
-         this(new Vector3f(x, y, z), texU, texV);
-      }
-
-      public PositionTextureVertex setTexturePosition(float texU, float texV) {
-         return new PositionTextureVertex(this.vector3D, texU, texV);
+      public PositionTextureVertex withTexturePosition(float texU, float texV) {
+         return new PositionTextureVertex(x, y, z, texU, texV);
       }
    }
 
@@ -250,13 +245,16 @@ public class WildfireModelRenderer {
       public final Vec3i normal;
 
       public TexturedQuad(float u1, float v1, float u2, float v2, float texWidth, float texHeight, boolean mirrorIn, Direction directionIn, PositionTextureVertex... positionsIn) {
+		 if (positionsIn.length != 4) {
+			 throw new IllegalArgumentException("Wrong number of vertex's. Expected: 4, Received: " + positionsIn.length);
+		 }
          this.vertexPositions = positionsIn;
          float f = 0.0F / texWidth;
          float f1 = 0.0F / texHeight;
-         positionsIn[0] = positionsIn[0].setTexturePosition(u2 / texWidth - f, v1 / texHeight + f1);
-         positionsIn[1] = positionsIn[1].setTexturePosition(u1 / texWidth + f, v1 / texHeight + f1);
-         positionsIn[2] = positionsIn[2].setTexturePosition(u1 / texWidth + f, v2 / texHeight - f1);
-         positionsIn[3] = positionsIn[3].setTexturePosition(u2 / texWidth - f, v2 / texHeight - f1);
+         positionsIn[0] = positionsIn[0].withTexturePosition(u2 / texWidth - f, v1 / texHeight + f1);
+         positionsIn[1] = positionsIn[1].withTexturePosition(u1 / texWidth + f, v1 / texHeight + f1);
+         positionsIn[2] = positionsIn[2].withTexturePosition(u1 / texWidth + f, v2 / texHeight - f1);
+         positionsIn[3] = positionsIn[3].withTexturePosition(u2 / texWidth - f, v2 / texHeight - f1);
          if (mirrorIn) {
             int i = positionsIn.length;
 
