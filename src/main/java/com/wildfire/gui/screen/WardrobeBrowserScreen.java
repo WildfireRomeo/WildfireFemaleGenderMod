@@ -166,11 +166,11 @@ public class WardrobeBrowserScreen extends Screen {
   	}
 
 	public static void drawEntity(int x, int y, int size, float mouseX, float mouseY, LivingEntity entity) {
-		float f = (float)Math.atan((double)(mouseX / 40.0F));
-		float g = (float)Math.atan((double)(mouseY / 40.0F));
+		float f = (float)Math.atan((mouseX / 40.0F));
+		float g = (float)Math.atan((mouseY / 40.0F));
 		MatrixStack matrixStack = RenderSystem.getModelViewStack();
 		matrixStack.push();
-		matrixStack.translate((double)x, (double)y, 1050.0D);
+		matrixStack.translate(x, y, 1050.0D);
 		matrixStack.scale(1.0F, 1.0F, -1.0F);
 		RenderSystem.applyModelViewMatrix();
 		MatrixStack matrixStack2 = new MatrixStack();

@@ -132,8 +132,8 @@ public class BreastPhysics {
 				int rowTime = (int) boat.interpolatePaddlePhase(0, plr.limbAngle);
 				int rowTime2 = (int) boat.interpolatePaddlePhase(1, plr.limbAngle);
 
-				float rotationL = (float)MathHelper.clampedLerp((double)(-(float)Math.PI / 3F), (double)-0.2617994F, (double)((MathHelper.sin(-rowTime2) + 1.0F) / 2.0F));
-				float rotationR = (float)MathHelper.clampedLerp((double)(-(float)Math.PI / 4F), (double)((float)Math.PI / 4F), (double)((MathHelper.sin(-rowTime + 1.0F) + 1.0F) / 2.0F));
+				float rotationL = (float) MathHelper.clampedLerp(-(float) Math.PI / 3F, -0.2617994F, (double) ((MathHelper.sin(-rowTime2) + 1.0F) / 2.0F));
+				float rotationR = (float) MathHelper.clampedLerp((double)(-(float)Math.PI / 4F), (float) Math.PI / 4F,(double) ((MathHelper.sin(-rowTime + 1.0F) + 1.0F) / 2.0F));
 				//System.out.println(rotationL + ", " + rotationR);
 				if(rotationL < -1 || rotationR < -0.6f) {
 					this.targetBounce = bounceIntensity / 3.25f;
@@ -201,7 +201,7 @@ public class BreastPhysics {
 		float percent =  genderPlayer.getFloppiness();
 		float bounceAmount = 0.45f * (1f - percent) + 0.15f; //0.6f * percent - 0.15f;
 		bounceAmount = MathHelper.clamp(bounceAmount, 0.15f, 0.6f);
-		float delta = 2.25f - (1f * bounceAmount);
+		float delta = 2.25f - bounceAmount;
 		//if(plr.isInWater()) delta = 0.75f - (1f * bounceAmount); //water resistance
 
 		float distanceFromMin = Math.abs(bounceVel + 0.5f) * 0.5f;

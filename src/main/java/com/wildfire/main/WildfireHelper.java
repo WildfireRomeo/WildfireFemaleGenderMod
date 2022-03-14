@@ -102,6 +102,6 @@ public class WildfireHelper {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
     public static float randFloat(float min, float max) {
-        return (float) ThreadLocalRandom.current().nextDouble((double) min, (double) max + 1);
+        return (float) ThreadLocalRandom.current().nextDouble(min, (double) max + 1);
     }
 }

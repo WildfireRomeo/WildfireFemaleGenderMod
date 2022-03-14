@@ -225,7 +225,7 @@ public class WildfireGender implements ClientModInitializer {
 	public static GenderPlayer getPlayerByName(String username) {
 		for (int i = 0; i < CLOTHING_PLAYER.size(); i++) {
 			try {
-				if (username.toLowerCase().equals(CLOTHING_PLAYER.get(i).username.toLowerCase())) {
+				if (username.equalsIgnoreCase(CLOTHING_PLAYER.get(i).username)) {
 					return CLOTHING_PLAYER.get(i);
 				}
 			} catch (Exception e) {
@@ -248,8 +248,7 @@ public class WildfireGender implements ClientModInitializer {
   	}
 
 	public static GenderPlayer loadGenderInfo(String uuid) {
-		GenderPlayer plr = GenderPlayer.loadCachedPlayer(uuid);
-		return plr;
+		return GenderPlayer.loadCachedPlayer(uuid);
 	}
 
 	public static void drawTextLabel(MatrixStack m, String txt, int x, int y) {
@@ -259,6 +258,6 @@ public class WildfireGender implements ClientModInitializer {
 	}
 
 	public interface WildfireCB {
-		public void onExecute(boolean success, Object data);
+		void onExecute(boolean success, Object data);
 	}
 }
