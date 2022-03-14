@@ -30,10 +30,12 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import com.wildfire.main.GenderPlayer;
@@ -45,7 +47,6 @@ import net.minecraft.world.item.*;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
-import net.minecraft.world.scores.Team;
 import net.minecraftforge.client.ForgeHooksClient;
 
 public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
@@ -104,12 +105,9 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 	@Override
 	public void render(@Nonnull PoseStack matrixStack, @Nonnull MultiBufferSource bufferSource, int packedLightIn, @Nonnull AbstractClientPlayer ent, float limbAngle,
 		float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
-		if (ent.isInvisible()) {
-			Team team = ent.getTeam();
-			if (team == null || !team.canSeeFriendlyInvisibles()) {
-				//Exit early if the entity shouldn't actually be seen
-				return;
-			}
+		if (ent.isInvisibleTo(Minecraft.getInstance().player)) {
+			//Exit early if the entity shouldn't actually be seen
+			return;
 		}
 		//Surround with a try/catch to fix for essential mod.
 		int pushCount = 0;
@@ -149,7 +147,8 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			float overlayRed = 1;
 			float overlayGreen = 1;
 			float overlayBlue = 1;
-			float overlayAlpha = getTransparency(ent);
+			//Note: We only render if the entity is not visible to the player, so we can assume it is visible to the player
+			float overlayAlpha = ent.isInvisible() ? 0.15F : 1;
 
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
@@ -310,13 +309,6 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		return 1;
 	}
 
-	public float getTransparency(AbstractClientPlayer ent) {
-		float alphaChannel = 1f;
-		boolean flag1 = ent.isInvisible() && !ent.isInvisibleTo(Minecraft.getInstance().player);
-		if(flag1) alphaChannel = 0.15f; else if(ent.isInvisible()) alphaChannel = 0;
-		return alphaChannel;
-	}
-
 	private void renderBreast(AbstractClientPlayer entity, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource, VertexConsumer vertexConsumer,
 		int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, boolean left) {
 		renderBox(left ? lBreast : rBreast, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, red, green, blue, alpha);
@@ -327,31 +319,29 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		}
 		//Render Breast Armor
 		if (!armorStack.isEmpty() && !(armorStack.getItem() instanceof ElytraItem) && armorStack.getItem() instanceof ArmorItem armorItem) {
-			ResourceLocation ARMOR_TXTR = getArmorResource(entity, armorStack, EquipmentSlot.CHEST, null);
+			ResourceLocation armorTexture = getArmorResource(entity, armorStack, EquipmentSlot.CHEST, null);
+			ResourceLocation overlayTexture = null;
 			float armorR = 1f;
 			float armorG = 1f;
 			float armorB = 1f;
-			if (armorItem instanceof DyeableArmorItem dyeableArmorItem) {
-				int i = dyeableArmorItem.getColor(armorStack);
-				armorR = (float) (i >> 16 & 255) / 255.0F;
-				armorG = (float) (i >> 8 & 255) / 255.0F;
-				armorB = (float) (i & 255) / 255.0F;
-
+			if (armorItem instanceof DyeableLeatherItem dyeableItem) {
+				overlayTexture = getArmorResource(entity, armorStack, EquipmentSlot.CHEST, "overlay");
+				int color = dyeableItem.getColor(armorStack);
+				armorR = (float) (color >> 16 & 255) / 255.0F;
+				armorG = (float) (color >> 8 & 255) / 255.0F;
+				armorB = (float) (color & 255) / 255.0F;
 			}
 			matrixStack.pushPose();
 			matrixStack.translate(left ? 0.001f : -0.001f, 0.015f, -0.015f);
 			matrixStack.scale(1.05f, 1, 1);
-			RenderType type2 = RenderType.armorCutoutNoCull(ARMOR_TXTR);
-			VertexConsumer ivertexbuilder2 = bufferSource.getBuffer(type2);
-
 			WildfireModelRenderer.BreastModelBox armor = left ? lBoobArmor : rBoobArmor;
-			float transparency = left ? 1 : getTransparency(entity);
-			renderBox(armor, matrixStack, ivertexbuilder2, packedLightIn, 0xFFFFFF, armorR, armorG, armorB, transparency);
-
-			if (armorStack.hasFoil()) {
-				RenderType type3 = RenderType.armorEntityGlint();
-				VertexConsumer ivertexbuilder3 = bufferSource.getBuffer(type3);
-				renderBox(armor, matrixStack, ivertexbuilder3, packedLightIn, 0xFFFFFF, 1f, 1f, 1f, transparency);
+			RenderType armorType = RenderType.armorCutoutNoCull(armorTexture);
+			VertexConsumer armorVertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferSource, armorType, false, armorStack.hasFoil());
+			renderBox(armor, matrixStack, armorVertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, armorR, armorG, armorB, 1);
+			if (overlayTexture != null) {
+				RenderType overlayType = RenderType.armorCutoutNoCull(overlayTexture);
+				VertexConsumer overlayVertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferSource, overlayType, false, armorStack.hasFoil());
+				renderBox(armor, matrixStack, overlayVertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 			}
 			matrixStack.popPose();
 		}
