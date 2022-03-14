@@ -25,7 +25,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import com.wildfire.gui.WildfireButton;
-import com.wildfire.main.WildfireGender;
 import com.wildfire.main.GenderPlayer;
 import javax.annotation.Nonnull;
 import net.minecraft.ChatFormatting;
@@ -42,32 +41,20 @@ import net.minecraft.world.entity.player.Player;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
-public class WardrobeBrowserScreen extends Screen {
-	
+public class WardrobeBrowserScreen extends BaseWildfireScreen {
 
 	private ResourceLocation BACKGROUND;
 	public static float modelRotation = 0.5F;
 
-	private final UUID playerUUID;
-	private final Screen parent;
-
 	public WardrobeBrowserScreen(Screen parent, UUID uuid) {
-		super(new TranslatableComponent("wildfire_gender.wardrobe.title"));
-		this.playerUUID = uuid;
-		this.parent = parent;
+		super(new TranslatableComponent("wildfire_gender.wardrobe.title"), parent, uuid);
 	}
-  
-
-	@Override
-	public boolean isPauseScreen() { return false; }
 
 	@Override
   	public void init() {
-	  	Minecraft m = Minecraft.getInstance();
 	    int j = this.height / 2;
 
-	    
-	    GenderPlayer plr = WildfireGender.getPlayerById(this.playerUUID);
+		GenderPlayer plr = getPlayer();
 
 	    MutableComponent genderString = new TranslatableComponent("wildfire_gender.label.gender").append(" - ");
 
@@ -120,7 +107,7 @@ public class WardrobeBrowserScreen extends Screen {
   	@Override
 	public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
 		Minecraft minecraft = Minecraft.getInstance();
-	    GenderPlayer plr = WildfireGender.getPlayerById(this.playerUUID);
+		GenderPlayer plr = getPlayer();
 	    super.renderBackground(m);
 	    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 

@@ -25,7 +25,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.GenderPlayer;
-import com.wildfire.main.WildfireGender;
 import javax.annotation.Nonnull;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -37,7 +36,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
-public class WildfireCharacterSettingsScreen extends Screen {
+public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
     private static final Component ENABLED = new TranslatableComponent("wildfire_gender.label.enabled").withStyle(ChatFormatting.GREEN);
     private static final Component DISABLED = new TranslatableComponent("wildfire_gender.label.disabled").withStyle(ChatFormatting.RED);
@@ -47,29 +46,17 @@ public class WildfireCharacterSettingsScreen extends Screen {
     private float preBounceMult = 0f;
     private float preFloppyMult = 0f;
     private boolean changedSlider = false, changedFloppySlider = false;
-
-    private final Screen parent;
-    private final UUID playerUUID;
+    private int yPos = 0;
+    private boolean enablePhysics, enablePhysicsArmor, enableHurtSounds, enableShowInArmor;
+    private float bounceMult, floppyMult;
 
     protected WildfireCharacterSettingsScreen(Screen parent, UUID uuid) {
-        super(new TranslatableComponent("wildfire_gender.char_settings.title"));
-        this.parent = parent;
-        this.playerUUID = uuid;
+        super(new TranslatableComponent("wildfire_gender.char_settings.title"), parent, uuid);
     }
-
-
-    @Override
-    public boolean isPauseScreen() { return false; }
-
-    private int yPos = 0;
-
-    boolean enablePhysics, enablePhysicsArmor, enableHurtSounds, enableShowInArmor;
-    float bounceMult, floppyMult;
 
     @Override
     public void init() {
-        Minecraft m = Minecraft.getInstance();
-        GenderPlayer aPlr = WildfireGender.getPlayerById(this.playerUUID);
+        GenderPlayer aPlr = getPlayer();
 
         int x = this.width / 2;
         int y = this.height / 2;
@@ -193,7 +180,7 @@ public class WildfireCharacterSettingsScreen extends Screen {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int state) {
-        GenderPlayer aPlr = WildfireGender.getPlayerById(this.playerUUID);
+        GenderPlayer aPlr = getPlayer();
 
         if(changedSlider) {
             bounceMult = (float) this.bounceSlider.getValue();
