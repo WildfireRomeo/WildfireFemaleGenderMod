@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.wildfire.main.networking;
 
 import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.GenderPlayer.Gender;
 import com.wildfire.main.WildfireGender;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
@@ -31,7 +32,7 @@ import java.util.function.Supplier;
 
 public class PacketSync {
     private final UUID uuid;
-    private final int gender;
+    private final Gender gender;
     private final float bust_size;
 
     //physics variables
@@ -70,7 +71,7 @@ public class PacketSync {
 
     public PacketSync(FriendlyByteBuf buffer) {
         this.uuid = buffer.readUUID();
-        this.gender = buffer.readVarInt();
+        this.gender = buffer.readEnum(Gender.class);
         this.bust_size = buffer.readFloat();
         this.hurtSounds = buffer.readBoolean();
 
@@ -90,7 +91,7 @@ public class PacketSync {
 
     public void encode(FriendlyByteBuf buffer) {
         buffer.writeUUID(this.uuid);
-        buffer.writeVarInt(this.gender);
+        buffer.writeEnum(this.gender);
         buffer.writeFloat(this.bust_size);
         buffer.writeBoolean(this.hurtSounds);
 

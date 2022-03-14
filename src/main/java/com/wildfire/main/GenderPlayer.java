@@ -22,11 +22,14 @@ import com.google.gson.JsonObject;
 import com.wildfire.main.config.Configuration;
 import com.wildfire.physics.BreastPhysics;
 import java.util.UUID;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public class GenderPlayer {
 
 	public final UUID uuid;
-	public int gender;
+	public Gender gender;
 	public float pBustSize = Configuration.BUST_SIZE.getDefault();
 
 	public boolean hurtSounds = Configuration.HURT_SOUNDS.getDefault();
@@ -52,7 +55,7 @@ public class GenderPlayer {
 		this(uuid, Configuration.GENDER.getDefault());
 	}
 
-	public GenderPlayer(UUID uuid, int gender) {
+	public GenderPlayer(UUID uuid, Gender gender) {
 		lBreastPhysics = new BreastPhysics(this);
 		rBreastPhysics = new BreastPhysics(this);
 		breasts = new Breasts();
@@ -220,5 +223,29 @@ public class GenderPlayer {
 
 	public enum SyncStatus {
 		CACHED, SYNCED, UNKNOWN
+	}
+
+	public enum Gender {
+		FEMALE(new TranslatableComponent("wildfire_gender.label.female").withStyle(ChatFormatting.LIGHT_PURPLE)),
+		MALE(new TranslatableComponent("wildfire_gender.label.male").withStyle(ChatFormatting.BLUE)),
+		OTHER(new TranslatableComponent("wildfire_gender.label.other").withStyle(ChatFormatting.GREEN));
+
+		private final Component name;
+
+		Gender(Component name) {
+			this.name = name;
+		}
+
+		public Component getDisplayName() {
+			return name;
+		}
+
+		public boolean hasFemaleHurtSounds() {
+			return this == FEMALE;
+		}
+
+		public boolean canHaveBreasts() {
+			return this != MALE;
+		}
 	}
 }

@@ -143,14 +143,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
             if(aPlr != null) {
                 btnOpenGUI.active = !aPlr.lockSettings;
 
-                switch (aPlr.gender) {
-                    //female
-                    case 0 -> font.draw(m, new TranslatableComponent("wildfire_gender.label.female").withStyle(ChatFormatting.LIGHT_PURPLE), left + 23, top + 11, 0xFFFFFF);
-                    //male
-                    case 1 -> font.draw(m, new TranslatableComponent("wildfire_gender.label.male").withStyle(ChatFormatting.BLUE), left + 23, top + 11, 0xFFFFFF);
-                    //other
-                    case 2 -> font.draw(m, new TranslatableComponent("wildfire_gender.label.other").withStyle(ChatFormatting.GREEN), left + 23, top + 11, 0xFFFFFF);
-                }
+                font.draw(m, aPlr.gender.getDisplayName(), left + 23, top + 11, 0xFFFFFF);
                 if (aPlr.getSyncStatus() == GenderPlayer.SyncStatus.SYNCED) {
                     RenderSystem.setShaderTexture(0, TXTR_SYNC);
                     GuiComponent.blit(m, left + 98, top + 11, 12, 8, 0, 0, 12, 8, 12, 8);

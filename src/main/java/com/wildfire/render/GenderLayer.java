@@ -22,6 +22,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.*;
+import com.wildfire.physics.BreastPhysics;
 import com.wildfire.render.WildfireModelRenderer.BreastModelBox;
 import com.wildfire.render.WildfireModelRenderer.OverlayModelBox;
 import com.wildfire.render.WildfireModelRenderer.PositionTextureVertex;
@@ -124,7 +125,8 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			float breastOffsetY = -Math.round((Math.round(plr.getBreasts().yOffset * 100f) / 100f) * 10) / 10f;
 			float breastOffsetZ = -Math.round((Math.round(plr.getBreasts().zOffset * 100f) / 100f) * 10) / 10f;
 
-			final float bSize = plr.getLeftBreastPhysics().getBreastSize(partialTicks);
+			BreastPhysics leftBreastPhysics = plr.getLeftBreastPhysics();
+			final float bSize = leftBreastPhysics.getBreastSize(partialTicks);
 			float outwardAngle = (Math.round(plr.getBreasts().cleavage * 100f) / 100f) * 100f;
 			outwardAngle = Math.min(outwardAngle, 10);
 			boolean uniboob = plr.getBreasts().isUniboob;
@@ -151,16 +153,21 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
-			float lTotal = Mth.lerp(partialTicks, plr.getLeftBreastPhysics().getPreBounceY(), plr.getLeftBreastPhysics().getBounceY());
-			float lTotalX = Mth.lerp(partialTicks, plr.getLeftBreastPhysics().getPreBounceX(), plr.getLeftBreastPhysics().getBounceX());
-			float leftBounceRotation = Mth.lerp(partialTicks, plr.getLeftBreastPhysics().getPreBounceRotation(), plr.getLeftBreastPhysics().getBounceRotation());
-			float rTotal = Mth.lerp(partialTicks, plr.getRightBreastPhysics().getPreBounceY(), plr.getRightBreastPhysics().getBounceY());
-			float rTotalX = Mth.lerp(partialTicks, plr.getRightBreastPhysics().getPreBounceX(), plr.getRightBreastPhysics().getBounceX());
-			float rightBounceRotation = Mth.lerp(partialTicks, plr.getRightBreastPhysics().getPreBounceRotation(), plr.getRightBreastPhysics().getBounceRotation());
+			float lTotal = Mth.lerp(partialTicks, leftBreastPhysics.getPreBounceY(), leftBreastPhysics.getBounceY());
+			float lTotalX = Mth.lerp(partialTicks, leftBreastPhysics.getPreBounceX(), leftBreastPhysics.getBounceX());
+			float leftBounceRotation = Mth.lerp(partialTicks, leftBreastPhysics.getPreBounceRotation(), leftBreastPhysics.getBounceRotation());
+			float rTotal;
+			float rTotalX;
+			float rightBounceRotation;
 			if (uniboob) {
 				rTotal = lTotal;
 				rTotalX = lTotalX;
 				rightBounceRotation = leftBounceRotation;
+			} else {
+				BreastPhysics rightBreastPhysics = plr.getRightBreastPhysics();
+				rTotal = Mth.lerp(partialTicks, rightBreastPhysics.getPreBounceY(), rightBreastPhysics.getBounceY());
+				rTotalX = Mth.lerp(partialTicks, rightBreastPhysics.getPreBounceX(), rightBreastPhysics.getBounceX());
+				rightBounceRotation = Mth.lerp(partialTicks, rightBreastPhysics.getPreBounceRotation(), rightBreastPhysics.getBounceRotation());
 			}
 			float breastSize = bSize * 1.5f;
 			if (breastSize > 0.7f) breastSize = 0.7f;

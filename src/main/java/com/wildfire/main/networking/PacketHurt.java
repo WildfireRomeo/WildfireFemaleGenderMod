@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.wildfire.main.networking;
 
 import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.GenderPlayer.Gender;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.WildfireSounds;
 import net.minecraft.client.Minecraft;
@@ -37,7 +38,7 @@ import java.util.function.Supplier;
 public class PacketHurt {
     private final UUID uuid;
     private final boolean hurtSounds;
-    private final int gender;
+    private final Gender gender;
     private final Vec3 pos;
 
     public PacketHurt(Vec3 pos, GenderPlayer plr) {
@@ -49,14 +50,14 @@ public class PacketHurt {
 
     public PacketHurt(FriendlyByteBuf buffer) {
         this.uuid = buffer.readUUID();
-        this.gender = buffer.readVarInt();
+        this.gender = buffer.readEnum(Gender.class);
         this.pos = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
         this.hurtSounds = buffer.readBoolean();
     }
 
     public void encode(FriendlyByteBuf buffer) {
         buffer.writeUUID(this.uuid);
-        buffer.writeVarInt(this.gender);
+        buffer.writeEnum(this.gender);
         buffer.writeDouble(this.pos.x);
         buffer.writeDouble(this.pos.y);
         buffer.writeDouble(this.pos.z);
@@ -69,15 +70,10 @@ public class PacketHurt {
             if(plr == null) return;
             if(context.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT) {
                 //play the sound
-
-                SoundEvent hurtSound = null;
-                if(packet.gender == 0) {
-                    hurtSound = Math.random() > 0.5f ? WildfireSounds.FEMALE_HURT1 : WildfireSounds.FEMALE_HURT2;
-                }
-                if(hurtSound == null) return;
-                if(packet.hurtSounds) {
+                if(packet.hurtSounds && packet.gender.hasFemaleHurtSounds()) {
                     Player ent = Minecraft.getInstance().level.getPlayerByUUID(packet.uuid);
                     if (ent != null) {
+                        SoundEvent hurtSound = Math.random() > 0.5f ? WildfireSounds.FEMALE_HURT1 : WildfireSounds.FEMALE_HURT2;
                         WildfireGender.PROXY.playSound(hurtSound, SoundSource.PLAYERS, 1f, 1f, ent);
                     }
                 }

@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.gui.screen;
 
+import com.wildfire.main.GenderPlayer.Gender;
 import java.util.UUID;
 
 import com.mojang.blaze3d.platform.Lighting;
@@ -33,7 +34,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -56,35 +57,13 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 
 		GenderPlayer plr = getPlayer();
 
-	    MutableComponent genderString = new TranslatableComponent("wildfire_gender.label.gender").append(" - ");
-
-	    if(plr.gender == 0) {
-	    	genderString.append(new TranslatableComponent("wildfire_gender.label.female").withStyle(ChatFormatting.LIGHT_PURPLE));
-		} else if(plr.gender == 1) {
-			genderString.append(new TranslatableComponent("wildfire_gender.label.male").withStyle(ChatFormatting.BLUE));
-		} else if(plr.gender == 2) {
-			genderString.append(new TranslatableComponent("wildfire_gender.label.other").withStyle(ChatFormatting.GREEN));
-		}
-		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 52, 158, 20, genderString, button -> {
-			if(plr.gender == 0) {
-				plr.gender = 2;
-			} else if(plr.gender == 1) {
-				plr.gender = 0;
-			} else {
-				plr.gender = 1;
-			}
-
-			MutableComponent btnString = new TranslatableComponent("wildfire_gender.label.gender").append(" - ");
-
-			if(plr.gender == 0) {
-				btnString.append(new TranslatableComponent("wildfire_gender.label.female").withStyle(ChatFormatting.LIGHT_PURPLE));
-			} else if(plr.gender == 1) {
-				btnString.append(new TranslatableComponent("wildfire_gender.label.male").withStyle(ChatFormatting.BLUE));
-			} else if(plr.gender == 2) {
-				btnString.append(new TranslatableComponent("wildfire_gender.label.other").withStyle(ChatFormatting.GREEN));
-			}
-
-			button.setMessage(btnString);
+		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 52, 158, 20, getGenderLabel(plr.gender), button -> {
+			plr.gender = switch (plr.gender) {
+				case MALE -> Gender.FEMALE;
+				case FEMALE -> Gender.OTHER;
+				case OTHER -> Gender.MALE;
+			};
+			button.setMessage(getGenderLabel(plr.gender));
 			GenderPlayer.saveGenderInfo(plr);
 		}));
 
@@ -103,6 +82,10 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
     
 	    super.init();
   	}
+
+	private Component getGenderLabel(Gender gender) {
+		return new TranslatableComponent("wildfire_gender.label.gender").append(" - ").append(gender.getDisplayName());
+	}
 
   	@Override
 	public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {

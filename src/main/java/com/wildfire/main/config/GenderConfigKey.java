@@ -21,28 +21,35 @@ package com.wildfire.main.config;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.wildfire.main.GenderPlayer.Gender;
 
-//TODO: At some point it may be worth considering moving gender to an enum from an integer
-public class GenderConfigKey extends ConfigKey<Integer> {
+public class GenderConfigKey extends ConfigKey<Gender> {
+
+    //Do not modify
+    private static final Gender[] GENDERS = Gender.values();
 
     public GenderConfigKey(String key) {
-        super(key, 1);
+        super(key, Gender.MALE);
     }
 
     @Override
-    protected Integer read(JsonElement element) {
+    protected Gender read(JsonElement element) {
         if (element.isJsonPrimitive()) {
             JsonPrimitive primitive = element.getAsJsonPrimitive();
             if (primitive.isNumber()) {
-                return primitive.getAsInt();
+                int ordinal = primitive.getAsInt();
+                if (ordinal >= 0 && ordinal < GENDERS.length) {
+                    return GENDERS[ordinal];
+                }
+            } else {
+                return primitive.getAsBoolean() ? Gender.MALE : Gender.FEMALE;
             }
-            return primitive.getAsBoolean() ? 1 : 0;
         }
         return defaultValue;
     }
 
     @Override
-    public void save(JsonObject object, Integer value) {
-        object.addProperty(key, value);
+    public void save(JsonObject object, Gender value) {
+        object.addProperty(key, value.ordinal());
     }
 }

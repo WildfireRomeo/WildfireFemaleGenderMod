@@ -132,17 +132,8 @@ public class WildfirePlayerListScreen extends Screen {
 				this.font.drawShadow(m, pEntity.getDisplayName().copy().withStyle(ChatFormatting.UNDERLINE), dialogX, dialogY - 2, 0xFFFFFF);
 			}
 
-			Component genderString = TextComponent.EMPTY;
-			if (HOVER_PLAYER.gender == 0) {
-				genderString = new TranslatableComponent("wildfire_gender.label.female").withStyle(ChatFormatting.LIGHT_PURPLE);
-			} else if (HOVER_PLAYER.gender == 1) {
-				genderString = new TranslatableComponent("wildfire_gender.label.male").withStyle(ChatFormatting.BLUE);
-			} else if (HOVER_PLAYER.gender == 2) {
-				genderString = new TranslatableComponent("wildfire_gender.label.other").withStyle(ChatFormatting.GREEN);
-			}
-
-			this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.label.gender").append(" ").append(genderString), dialogX, dialogY + 10, 0xBBBBBB);
-			if (HOVER_PLAYER.gender != 1) {
+			this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.label.gender").append(" ").append(HOVER_PLAYER.gender.getDisplayName()), dialogX, dialogY + 10, 0xBBBBBB);
+			if (HOVER_PLAYER.gender.canHaveBreasts()) {
 				this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.wardrobe.slider.breast_size", Math.round(HOVER_PLAYER.getBustSize() * 100)), dialogX, dialogY + 20, 0xBBBBBB);
 				this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.char_settings.physics", new TranslatableComponent(HOVER_PLAYER.breast_physics ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 40, 0xBBBBBB);
 				this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.player_list.bounce_multiplier", HOVER_PLAYER.getBounceMultiplier()), dialogX + 6, dialogY + 50, 0xBBBBBB);
