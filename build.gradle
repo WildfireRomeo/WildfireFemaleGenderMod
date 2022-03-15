@@ -51,6 +51,7 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	modCompileOnly('com.minelittlepony:hdskins:6.5.2')
+	modCompileOnly('com.tr9zw:3dskinlayers:1.4.2')
 	modCompileOnly('com.github.emilyploszaj:trinkets:3.1.0')
 	
 }
