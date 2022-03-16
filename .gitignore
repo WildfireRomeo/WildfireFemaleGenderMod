@@ -5,10 +5,6 @@ build/
 out/
 classes/
 
-# eclipse
-
-*.launch
-
 # idea
 
 .idea/
@@ -24,10 +20,12 @@ bin/
 .classpath
 .project
 
-# macos
-
-*.DS_Store
-
 # fabric
 
 run/
+
+# macOS
+
+.DS_Store
+.AppleDouble
+.LSOverride
