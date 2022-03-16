@@ -45,6 +45,6 @@
   },
   "suggests": {
     "mermod": ">=1.9",
-    "trinkets": ">=3.3.0
+    "trinkets": ">=3.3.0"
   }
 }
