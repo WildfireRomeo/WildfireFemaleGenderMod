@@ -20,4 +20,6 @@ jobs:
         distribution: 'temurin'
         java-version: 17
     - name: Attempt to compile using Gradle
-      run: ./gradlew build
+      run: |
+       chmod +x gradlew
+       ./gradlew build
