@@ -37,8 +37,8 @@ public class GenderPlayer {
 
 
 	//physics variables
-	public boolean breast_physics = Configuration.BREAST_PHYSICS.getDefault();
-	public boolean breast_physics_armor = Configuration.BREAST_PHYSICS_ARMOR.getDefault();
+	public boolean hasBreastPhysics = Configuration.BREAST_PHYSICS.getDefault();
+	public boolean hasArmorBreastPhysics = Configuration.BREAST_PHYSICS_ARMOR.getDefault();
 	public float bounceMultiplier = Configuration.BOUNCE_MULTIPLIER.getDefault();
 	public float floppyMultiplier = Configuration.FLOPPY_MULTIPLIER.getDefault();
 
@@ -46,7 +46,7 @@ public class GenderPlayer {
 	public boolean lockSettings = false;
 
 	public SyncStatus syncStatus = SyncStatus.UNKNOWN;
-	public boolean show_in_armor = Configuration.SHOW_IN_ARMOR.getDefault();
+	public boolean showBreastsInArmor = Configuration.SHOW_IN_ARMOR.getDefault();
 
 	private final Configuration cfg;
 	private final BreastPhysics lBreastPhysics, rBreastPhysics;
@@ -123,9 +123,9 @@ public class GenderPlayer {
 		Configuration.BUST_SIZE.save(obj, plr.pBustSize);
 		Configuration.HURT_SOUNDS.save(obj, plr.hurtSounds);
 
-		Configuration.BREAST_PHYSICS.save(obj, plr.breast_physics);
-		Configuration.BREAST_PHYSICS_ARMOR.save(obj, plr.breast_physics_armor);
-		Configuration.SHOW_IN_ARMOR.save(obj, plr.show_in_armor);
+		Configuration.BREAST_PHYSICS.save(obj, plr.hasBreastPhysics);
+		Configuration.BREAST_PHYSICS_ARMOR.save(obj, plr.hasArmorBreastPhysics);
+		Configuration.SHOW_IN_ARMOR.save(obj, plr.showBreastsInArmor);
 		Configuration.BOUNCE_MULTIPLIER.save(obj, plr.bounceMultiplier);
 		Configuration.FLOPPY_MULTIPLIER.save(obj, plr.floppyMultiplier);
 
@@ -144,9 +144,9 @@ public class GenderPlayer {
 		plr.hurtSounds = Configuration.HURT_SOUNDS.read(obj);
 
 		//physics
-		plr.breast_physics = Configuration.BREAST_PHYSICS.read(obj);
-		plr.breast_physics_armor = Configuration.BREAST_PHYSICS_ARMOR.read(obj);
-		plr.show_in_armor = Configuration.SHOW_IN_ARMOR.read(obj);
+		plr.hasBreastPhysics = Configuration.BREAST_PHYSICS.read(obj);
+		plr.hasArmorBreastPhysics = Configuration.BREAST_PHYSICS_ARMOR.read(obj);
+		plr.showBreastsInArmor = Configuration.SHOW_IN_ARMOR.read(obj);
 		plr.bounceMultiplier = Configuration.BOUNCE_MULTIPLIER.read(obj);
 		plr.floppyMultiplier = Configuration.FLOPPY_MULTIPLIER.read(obj);
 
@@ -171,9 +171,9 @@ public class GenderPlayer {
 			plr.hurtSounds = config.get(Configuration.HURT_SOUNDS);
 
 			//physics
-			plr.breast_physics = config.get(Configuration.BREAST_PHYSICS);
-			plr.breast_physics_armor = config.get(Configuration.BREAST_PHYSICS_ARMOR);
-			plr.show_in_armor = config.get(Configuration.SHOW_IN_ARMOR);
+			plr.hasBreastPhysics = config.get(Configuration.BREAST_PHYSICS);
+			plr.hasArmorBreastPhysics = config.get(Configuration.BREAST_PHYSICS_ARMOR);
+			plr.showBreastsInArmor = config.get(Configuration.SHOW_IN_ARMOR);
 			plr.bounceMultiplier = config.get(Configuration.BOUNCE_MULTIPLIER);
 			plr.floppyMultiplier = config.get(Configuration.FLOPPY_MULTIPLIER);
 
@@ -198,9 +198,9 @@ public class GenderPlayer {
 		config.set(Configuration.HURT_SOUNDS, plr.hurtSounds);
 
 		//physics
-		config.set(Configuration.BREAST_PHYSICS, plr.breast_physics);
-		config.set(Configuration.BREAST_PHYSICS_ARMOR, plr.breast_physics_armor);
-		config.set(Configuration.SHOW_IN_ARMOR, plr.show_in_armor);
+		config.set(Configuration.BREAST_PHYSICS, plr.hasBreastPhysics);
+		config.set(Configuration.BREAST_PHYSICS_ARMOR, plr.hasArmorBreastPhysics);
+		config.set(Configuration.SHOW_IN_ARMOR, plr.showBreastsInArmor);
 		config.set(Configuration.BOUNCE_MULTIPLIER, plr.bounceMultiplier);
 		config.set(Configuration.FLOPPY_MULTIPLIER, plr.floppyMultiplier);
 

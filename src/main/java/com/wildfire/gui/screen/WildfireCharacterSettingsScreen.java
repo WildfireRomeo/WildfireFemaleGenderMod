@@ -63,9 +63,9 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
         int y = this.height / 2;
 
         yPos = y - 47;
-        enablePhysics = aPlr.breast_physics;
-        enablePhysicsArmor = aPlr.breast_physics_armor;
-        enableShowInArmor = aPlr.show_in_armor;
+        enablePhysics = aPlr.hasBreastPhysics;
+        enablePhysicsArmor = aPlr.hasArmorBreastPhysics;
+        enableShowInArmor = aPlr.showBreastsInArmor;
         enableHurtSounds = aPlr.hurtSounds;
         bounceMult = aPlr.bounceMultiplier;
         floppyMult = aPlr.floppyMultiplier;
@@ -74,7 +74,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
               new TranslatableComponent("wildfire_gender.char_settings.physics", enablePhysics ? ENABLED : DISABLED), button -> {
             enablePhysics ^= true;
             button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.physics", enablePhysics ? ENABLED : DISABLED));
-            aPlr.breast_physics = enablePhysics;
+            aPlr.hasBreastPhysics = enablePhysics;
             GenderPlayer.saveGenderInfo(aPlr);
         }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.breast_physics"), mouseX, mouseY)));
 
@@ -82,7 +82,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
               new TranslatableComponent("wildfire_gender.char_settings.armor_physics", enablePhysicsArmor ? ENABLED : DISABLED), button -> {
             enablePhysicsArmor ^= true;
             button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.armor_physics", enablePhysicsArmor ? ENABLED : DISABLED));
-            aPlr.breast_physics_armor = enablePhysicsArmor;
+            aPlr.hasArmorBreastPhysics = enablePhysicsArmor;
             GenderPlayer.saveGenderInfo(aPlr);
         }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.armor_physics"), mouseX, mouseY)));
 
@@ -90,7 +90,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
               new TranslatableComponent("wildfire_gender.char_settings.hide_in_armor", enableShowInArmor ? DISABLED : ENABLED), button -> {
             enableShowInArmor ^= true;
             button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.hide_in_armor", enableShowInArmor ? DISABLED : ENABLED));
-            aPlr.show_in_armor = enableShowInArmor;
+            aPlr.showBreastsInArmor = enableShowInArmor;
             GenderPlayer.saveGenderInfo(aPlr);
         }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.hide_in_armor"), mouseX, mouseY)));
 

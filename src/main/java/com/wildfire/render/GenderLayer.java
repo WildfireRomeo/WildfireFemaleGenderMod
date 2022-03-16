@@ -46,6 +46,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.*;
@@ -73,9 +74,6 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 		lBoobArmor = new BreastModelBox(64, 32, 16, 19, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 		rBoobArmor = new BreastModelBox(64, 32, 20, 19, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
-		//chest = new SteinModelRenderer.ModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 8, 5, 4, 0.0F, false);
-		//chestwear = new SteinModelRenderer.ModelBox(64, 64, 17, 34, -4F, 0.0F, 0F, 8, 5, 3, 0.0F, false);
-		//sBox = new ModelBox(64, 32, 17, 19, -4F, 0.0F, 0F, 8, 5, 3, 0.0F, false);
 	}
 
 	private static final Map<String, ResourceLocation> ARMOR_LOCATION_CACHE = new HashMap<>();
@@ -180,7 +178,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 			boolean isChestplateOccupied = !armorStack.isEmpty() && !(armorStack.getItem() instanceof ElytraItem);
 
-			if (breastSize < 0.02f || (!plr.show_in_armor && isChestplateOccupied)) return;
+			if (breastSize < 0.02f || (!plr.showBreastsInArmor && isChestplateOccupied)) return;
 
 			float zOff = 0.0625f - (bSize * 0.0625f);
 			breastSize = bSize + 0.5f * Math.abs(bSize - 0.7f) * 2f;
@@ -188,8 +186,11 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			//matrixStack.translate(0, 0, zOff);
 			//System.out.println(bounceRotation);
 
-			boolean breathingAnimation = true;
-			boolean bounceEnabled = plr.breast_physics && (!isChestplateOccupied || plr.breast_physics_armor); //oh, you found this?
+			boolean breathingAnimation = !ent.isUnderWater() ||
+					((ent.hasEffect(MobEffects.WATER_BREATHING) && ent.isUnderWater()) ||
+					ent.hasEffect(MobEffects.CONDUIT_POWER) && ent.isUnderWater());
+
+			boolean bounceEnabled = plr.hasBreastPhysics && (!isChestplateOccupied || plr.hasArmorBreastPhysics); //oh, you found this?
 
 			int combineTex = LivingEntityRenderer.getOverlayCoords(ent, 0);
 			RenderType type = RenderType.entityTranslucent(rend.getTextureLocation(ent));

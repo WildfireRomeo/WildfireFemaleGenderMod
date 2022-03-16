@@ -48,9 +48,9 @@ public abstract class PacketGenderInfo {
         this.hurtSounds = plr.hurtSounds;
 
         //physics variables
-        this.breast_physics = plr.breast_physics;
-        this.breast_physics_armor = plr.breast_physics_armor;
-        this.show_in_armor = plr.show_in_armor;
+        this.breast_physics = plr.hasBreastPhysics;
+        this.breast_physics_armor = plr.hasArmorBreastPhysics;
+        this.show_in_armor = plr.showBreastsInArmor;
         this.bounceMultiplier = plr.bounceMultiplier;
         this.floppyMultiplier = plr.floppyMultiplier;
 
@@ -107,9 +107,9 @@ public abstract class PacketGenderInfo {
         plr.hurtSounds = hurtSounds;
 
         //physics
-        plr.breast_physics = breast_physics;
-        plr.breast_physics_armor = breast_physics_armor;
-        plr.show_in_armor = show_in_armor;
+        plr.hasBreastPhysics = breast_physics;
+        plr.hasArmorBreastPhysics = breast_physics_armor;
+        plr.showBreastsInArmor = show_in_armor;
         plr.bounceMultiplier = bounceMultiplier;
         plr.floppyMultiplier = floppyMultiplier;
         //System.out.println(plr.username + " - " + plr.gender);
