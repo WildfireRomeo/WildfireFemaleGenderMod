@@ -42,7 +42,6 @@ public class GenderPlayer {
 	public float bounceMultiplier = Configuration.BOUNCE_MULTIPLIER.getDefault();
 	public float floppyMultiplier = Configuration.FLOPPY_MULTIPLIER.getDefault();
 
-	public String preCapeURL = Configuration.CAPE_URL.getDefault();
 	public boolean lockSettings = false;
 
 	public SyncStatus syncStatus = SyncStatus.UNKNOWN;
@@ -66,7 +65,6 @@ public class GenderPlayer {
 		this.cfg.set(Configuration.USERNAME, this.uuid);
 		this.cfg.setDefault(Configuration.GENDER);
 		this.cfg.setDefault(Configuration.BUST_SIZE);
-		this.cfg.setDefault(Configuration.CAPE_URL);
 		this.cfg.setDefault(Configuration.SHOW_ELYTRA);
 		this.cfg.setDefault(Configuration.HURT_SOUNDS);
 

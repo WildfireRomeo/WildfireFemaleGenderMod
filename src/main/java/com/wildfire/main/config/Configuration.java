@@ -38,7 +38,6 @@ import net.minecraftforge.fml.loading.FMLPaths;
 public class Configuration {
 
 	public static final ConfigKey<UUID> USERNAME = new UUIDConfigKey("username", UUID.nameUUIDFromBytes("UNKNOWN".getBytes(StandardCharsets.UTF_8)));
-	public static final ConfigKey<String> CAPE_URL = new StringConfigKey("cape_url", "");
 	public static final ConfigKey<Gender> GENDER = new GenderConfigKey("gender");
 	public static final ConfigKey<Float> BUST_SIZE = new FloatConfigKey("bust_size", 0.6F);
 	public static final ConfigKey<Boolean> SHOW_ELYTRA = new BooleanConfigKey("show_elytra", true);
@@ -134,7 +133,6 @@ public class Configuration {
 			for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
 				String key = entry.getKey();
 				SAVE_VALUES.add(key, entry.getValue());
-				//System.out.println(key + " - " + entry.getValue());
 			}
 		    //System.out.println("[Configuration] Loaded!\n\n");
 		} catch(Exception e) {
@@ -142,13 +140,4 @@ public class Configuration {
 		    e.printStackTrace();
 		}
 	}
-	
-	//from an old game my friend and I worked on
-	
-	/*public void apply(PandoraAPI pandora) {
-		//apply configuration to game values
-		pandora.user = WIDTH;
-		pandora.HEIGHT = HEIGHT;
-		pandora.display = fullscreenDisplay;
-	}*/
 }
