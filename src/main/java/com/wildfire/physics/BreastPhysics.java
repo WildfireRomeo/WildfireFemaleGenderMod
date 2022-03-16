@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.physics;
 
+import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireHelper;
 import net.minecraft.util.Mth;
@@ -49,7 +50,7 @@ public class BreastPhysics {
 
 	private int randomB = 1;
 	private boolean alreadyFalling = false;
-	public void update(Player plr) {
+	public void update(Player plr, IGenderArmor armor) {
 		this.wfg_preBounce = this.wfg_femaleBreast;
 		this.wfg_preBounceX = this.wfg_femaleBreastX;
 		this.wfg_preBounceRotation = this.wfg_bounceRotation;
@@ -67,6 +68,9 @@ public class BreastPhysics {
 		if(!genderPlayer.gender.canHaveBreasts()) {
 			targetBreastSize = 0;
 		}
+		//TODO: Do we want to allow a way for gender armor to make the target size be lowered by defining a concept of "tightness"
+		// And if we do, then do we want to make that also reduce the momentum/act as if there is higher resistance?
+		// Additionally, should the lower target size be done here or in GenderLayer (I believe it makes more sense to do here)
 
 		if(breastSize < targetBreastSize) {
 			breastSize += Math.abs(breastSize - targetBreastSize) / 2f;
@@ -80,12 +84,18 @@ public class BreastPhysics {
 		//System.out.println(motion);
 
 		float bounceIntensity = (genderPlayer.getBustSize() * 3f) * genderPlayer.getBounceMultiplier();
+		//Clamp armor resistance between zero and one
+		float resistance = Math.min(1, Math.max(0, armor.physicsResistance()));
+		//Adjust bounce intensity by physics resistance of the worn armor
+		bounceIntensity *= 1 - resistance;
+		//TODO: Test that this works properly, especially when resistance = 1
+		// Also decide if we want to also check in GenderLayer when the resistance == 1 and just disable bounce there
 
 		if(!genderPlayer.getBreasts().isUniboob) {
 			bounceIntensity = bounceIntensity * WildfireHelper.randFloat(0.5f, 1.5f);
 		}
 		if(plr.fallDistance > 0 && !alreadyFalling) {
-			randomB = WildfireHelper.randInt(0, 1) == 1 ? -1 : 1;
+			randomB = plr.level.random.nextBoolean() ? -1 : 1;
 			alreadyFalling = true;
 		}
 		if(plr.fallDistance == 0) alreadyFalling = false;
