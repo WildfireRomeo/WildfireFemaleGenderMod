@@ -156,8 +156,8 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
         }, new ButtonWidget.TooltipSupplier() {
             public void onTooltip(ButtonWidget button, MatrixStack matrices, int mouseX, int mouseY) {
                 /*List<Text> list = new ArrayList<Text>();
-                list.add(new LiteralText("Enables Custom Hurt Sounds."));
-                list.add(new LiteralText(Formatting.RED + "Mod Needed On Server To Work!"));
+                list.add(new TranslatableText("wildfire_gender.tooltip.hurt_sounds"));
+                list.add(new TranslatableText(Formatting.RED + "wildfire_gender.tooltip.need_on_server"));
                 RenderSystem.disableDepthTest();
                 renderTooltip(matrices, list, mouseX, mouseY);
                 RenderSystem.enableDepthTest();*/
