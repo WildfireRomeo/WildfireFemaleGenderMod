@@ -157,7 +157,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             public void onTooltip(ButtonWidget button, MatrixStack matrices, int mouseX, int mouseY) {
                 List<Text> list = new ArrayList<Text>();
                 list.add(new TranslatableText("wildfire_gender.tooltip.hurt_sounds"));
-                list.add(new TranslatableText("wildfire_gender.tooltip.need_on_server"));
+                list.add(new TranslatableText("wildfire_gender.tooltip.need_on_server").formatted(Formatting.RED));
                 renderTooltip(matrices, list, mouseX, mouseY);
             }
         }));
