@@ -5,12 +5,14 @@
   "name": "Wildfire's Female Gender Mod",
   "description": "Allows players to choose what gender they want to be.",
   "authors": [
-    "WildfireRomeo",
-    "Kichura",
-    "pupnewfster",
-    "arcti_cc",
+    "WildfireRomeo"
+  ],
+  "contributors": [
     "Archl",
-    "Powerless001"
+    "Arcti_cc",
+    "Kichura",
+    "Powerless001",
+    "pupnewfster"
   ],
   "contact": {
     "homepage": "https://www.curseforge.com/minecraft/mc-mods/female-gender-fabric",
@@ -40,5 +42,8 @@
   "conflicts": {
     "skinlayers": "*",
     "gender": "*"
+  },
+  "suggests": {
+    "mermod": ">=1.9"
   }
 }
