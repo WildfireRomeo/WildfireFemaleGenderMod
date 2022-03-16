@@ -51,6 +51,8 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	modCompileOnly('com.minelittlepony:hdskins:6.5.2')
+	//
+	// to-do: be able to fetch a maven url for 3d skin layers or just get rid of this.
 	// modCompileOnly('com.tr9zw:3dskinlayers:1.4.2')
 	modCompileOnly('com.github.emilyploszaj:trinkets:3.1.0')
 	
