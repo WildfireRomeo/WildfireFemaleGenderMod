@@ -83,14 +83,13 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
         ClientPlayNetworkHandler clientPlayNetworkHandler = this.client.player.networkHandler;
         List<PlayerListEntry> list = ENTRY_ORDERING.sortedCopy(clientPlayNetworkHandler.getPlayerList());
 
-
         Iterator var9 = list.iterator();
         int index = 0;
         while(var9.hasNext()) {
             PlayerListEntry playerListEntry = (PlayerListEntry)var9.next();
             PlayerEntity playerentity = MinecraftClient.getInstance().world.getPlayerByUuid(playerListEntry.getProfile().getId());
             if(playerentity != null) {
-                addEntry(new WildfirePlayerList.Entry(index, playerListEntry, false));
+                addEntry(new WildfirePlayerList.Entry(playerListEntry));
                 index++;
             }
         }
@@ -105,7 +104,7 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
         boolean loadingPlayers = false;
         for(int i = 0; i < this.children().size(); i++) {
 
-            GenderPlayer aPlr = WildfireGender.getPlayerByName(this.children().get(i).nInfo.getProfile().getId().toString());
+            GenderPlayer aPlr = WildfireGender.getPlayerById(this.children().get(i).nInfo.getProfile().getId());
             if(aPlr == null) {
                 loadingPlayers = true;
             }
@@ -122,24 +121,21 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
     public static class Entry extends EntryListWidget.Entry<WildfirePlayerList.Entry> {
 
         private final String name;
-        private final boolean gender;
         private final PlayerListEntry nInfo;
         private final WildfireButton btnOpenGUI;
-        private final int index;
-        private Entry(final int index, final PlayerListEntry nInfo, final boolean gender) {
+
+        private Entry(final PlayerListEntry nInfo) {
             this.nInfo = nInfo;
             this.name = nInfo.getProfile().getName();
-            this.gender = gender;
-            this.index = index;
             btnOpenGUI = new WildfireButton(0, 0, 112, 20, new TranslatableText(""), button -> {
-                GenderPlayer aPlr = WildfireGender.getPlayerByName(nInfo.getProfile().getId().toString());
+                GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
                 if(aPlr == null) return;
 
                 try {
                     MinecraftClient.getInstance().setScreen(new WardrobeBrowserScreen(parent, nInfo.getProfile().getId()));
                 } catch(Exception e) {}
             });
-            GenderPlayer aPlr = WildfireGender.getPlayerByName(nInfo.getProfile().getId().toString());
+            GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
             if(aPlr != null) {
                 btnOpenGUI.active = !aPlr.lockSettings;
                 //lock changing client-side if player has gender settings synced.
@@ -149,63 +145,36 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
         public void render(MatrixStack m, int entryIdx, int top, int left, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean p_194999_5_, float partialTicks) {
             TextRenderer font = MinecraftClient.getInstance().textRenderer;
             PlayerEntity playerentity = MinecraftClient.getInstance().world.getPlayerByUuid(nInfo.getProfile().getId());
-            //System.out.println(playerentity);
-            if(playerentity == null) return;
-            GenderPlayer aPlr = WildfireGender.getPlayerByName(playerentity.getUuidAsString());
+            GenderPlayer aPlr = WildfireGender.getPlayerById(playerentity.getUuid());
+            boolean flag1 = false;
+            RenderSystem.setShaderTexture(0, nInfo.getSkinTexture());
+            int i3 = 8 + (flag1 ? 8 : 0);
+            int j3 = 8 * (flag1 ? -1 : 1);
+            Screen.drawTexture(m, left+2, top+2, 16, 16, 8.0F, (float)i3, 8, j3, 64, 64);
+            if (playerentity != null && playerentity.isPartVisible(PlayerModelPart.HAT)) {
+                int k3 = 8 + (flag1 ? 8 : 0);
+                int l3 = 8 * (flag1 ? -1 : 1);
+                Screen.drawTexture(m, left+1, top+1, 18, 18, 40.0F, (float)k3, 8, l3, 64, 64);
+            }
 
             font.draw(m, name, left + 23, top + 2, 0xFFFFFF);
             if(aPlr != null) {
                 btnOpenGUI.active = !aPlr.lockSettings;
 
-                //font.draw(m, !aPlr.gender?"Has Breasts":"", left + 23, top + 11, 0xFFFFFF);
-                switch(aPlr.gender) {
-                    case 0: //female
-                        font.draw(m, (Formatting.LIGHT_PURPLE + new TranslatableText("wildfire_gender.label.female").getString()), left + 23, top + 11, 0xFFFFFF);
-                        break;
-
-                    case 1: //male
-                        font.draw(m, (Formatting.BLUE + new TranslatableText("wildfire_gender.label.male").getString()), left + 23, top + 11, 0xFFFFFF);
-                        break;
-
-                    case 2: //other
-                        font.draw(m, (Formatting.GREEN + new TranslatableText("wildfire_gender.label.other").getString()), left + 23, top + 11, 0xFFFFFF);
-                        break;
-                }
-
-                //font.draw(m, new TranslatableText(Math.round(aPlr.getBustSize() * 100) + "%").formatted(Formatting.GOLD), left + 96 - font.getWidth(Math.round(aPlr.getBustSize() * 100) + "%"), top + 11, 0xFFFFFF);
+                font.draw(m, aPlr.gender.getDisplayName(), left + 23, top + 11, 0xFFFFFF);
                 if(aPlr.getSyncStatus() == GenderPlayer.SyncStatus.SYNCED) {
-                    RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                     RenderSystem.setShaderTexture(0, TXTR_SYNC);
                     Screen.drawTexture(m, left + 98, top + 11, 12, 8, 0, 0, 12, 8, 12, 8);
                     if(mouseX > left + 98-2 && mouseY > top + 11-2 && mouseX < left + 98 + 12+2 && mouseY < top + 20) {
-                        parent.setTooltip(new TranslatableText("wildfire_gender.player_list.state.synced").getString());
+                        parent.setTooltip(new TranslatableText("wildfire_gender.player_list.state.synced"));
                     }
                 } else if(aPlr.getSyncStatus() == GenderPlayer.SyncStatus.UNKNOWN) {
-                    RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                     RenderSystem.setShaderTexture(0, TXTR_UNKNOWN);
                     Screen.drawTexture(m, left + 98, top + 11, 12, 8, 0, 0, 12, 8, 12, 8);
                 }
             } else {
                 btnOpenGUI.active = false;
                 font.draw(m, (Formatting.RED + new LiteralText("Too Far Away").getString()), left + 23, top + 11, 0xFFFFFF);
-            }
-
-            boolean flag1 = false;
-            //RenderSystem..setShader(GameRenderer::method_34542);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShaderTexture(0, nInfo.getSkinTexture());
-            int i3 = 8 + (flag1 ? 8 : 0);
-            int j3 = 8 * (flag1 ? -1 : 1);
-
-            Screen.drawTexture(m, left+2, top+2, 16, 16, 8.0F, (float)i3, 8, j3, 64, 64);
-            if (playerentity != null && playerentity.isPartVisible(PlayerModelPart.HAT)) {
-                int k3 = 8 + (flag1 ? 8 : 0);
-                int l3 = 8 * (flag1 ? -1 : 1);
-                Screen.drawTexture(m, left+1, top+1, 18, 18, 40.0F, (float)k3, 8, l3, 64, 64);
             }
 
             this.btnOpenGUI.x = left;

@@ -64,7 +64,7 @@ public class BreastPhysics {
 
 		float targetBreastSize = genderPlayer.getBustSize();
 
-		if(genderPlayer.gender == 1) {
+		if(genderPlayer.gender == GenderPlayer.Gender.MALE) {
 			targetBreastSize = 0;
 		}
 

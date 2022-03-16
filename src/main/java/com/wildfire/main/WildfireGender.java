@@ -22,9 +22,7 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import net.fabricmc.api.ClientModInitializer;
@@ -56,6 +54,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.lwjgl.glfw.GLFW;
 
+import javax.annotation.Nullable;
+
 public class WildfireGender implements ClientModInitializer {
 	public static final String VERSION = "2.8.1";
   	public static final String MODID = "wildfire_gender";
@@ -63,7 +63,7 @@ public class WildfireGender implements ClientModInitializer {
 
   	public static final boolean SYNCING_ENABLED = false;
 
-	public static ArrayList<GenderPlayer> CLOTHING_PLAYER = new ArrayList<GenderPlayer>();
+	public static Map<UUID, GenderPlayer> CLOTHING_PLAYERS = new HashMap<>();
 
 	public static int BREAST_CANCER_BANNER = 1;
 
@@ -94,20 +94,20 @@ public class WildfireGender implements ClientModInitializer {
 		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
 			if(!world.isClient) return;
 
-			if(entity instanceof AbstractClientPlayerEntity) {
-				AbstractClientPlayerEntity plr = (AbstractClientPlayerEntity) entity;
-				GenderPlayer aPlr = WildfireGender.getPlayerByName(plr.getUuidAsString());
+			if(entity instanceof AbstractClientPlayerEntity plr) {
+				UUID uuid = plr.getUuid();
+				GenderPlayer aPlr = WildfireGender.getPlayerById(plr.getUuid());
 				if(aPlr == null) {
-					aPlr = new GenderPlayer(plr.getUuidAsString());
-					WildfireGender.CLOTHING_PLAYER.add(aPlr);
-					WildfireGender.loadGenderInfoAsync(plr.getUuidAsString());
+					aPlr = new GenderPlayer(uuid);
+					WildfireGender.CLOTHING_PLAYERS.put(uuid, aPlr);
+					WildfireGender.loadGenderInfoAsync(uuid, uuid.equals(MinecraftClient.getInstance().player.getUuid()));
 					return;
 				}
 			}
 		});
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			if(client.world == null && CLOTHING_PLAYER.size() > 0) CLOTHING_PLAYER.clear();
+			if(client.world == null) CLOTHING_PLAYERS.clear();
 
 			boolean isVanillaServer = !ClientPlayNetworking.canSend(new Identifier("wildfire_gender", "send_gender_info"));
 
@@ -118,16 +118,15 @@ public class WildfireGender implements ClientModInitializer {
 				if (timer >= 5) {
 					//System.out.println("sync");
 					try {
-						GenderPlayer aPlr = WildfireGender.getPlayerByName(MinecraftClient.getInstance().player.getUuidAsString());
+						GenderPlayer aPlr = WildfireGender.getPlayerById(MinecraftClient.getInstance().player.getUuid());
 						if(aPlr == null) return;
 						PacketByteBuf buf = PacketByteBufs.create();
-						buf.writeString(aPlr.username);
-						buf.writeInt(aPlr.gender);
+						buf.writeEnumConstant(aPlr.gender);
 						buf.writeFloat(aPlr.getLeftBreastPhysics().getBreastSize(client.getTickDelta()));
 						buf.writeBoolean(aPlr.hurtSounds);
-						buf.writeBoolean(aPlr.breast_physics);
-						buf.writeBoolean(aPlr.breast_physics_armor);
-						buf.writeBoolean(aPlr.show_in_armor);
+						buf.writeBoolean(aPlr.hasBreastPhysics);
+						buf.writeBoolean(aPlr.hasArmorBreastPhysics);
+						buf.writeBoolean(aPlr.showBreastsInArmor);
 
 						buf.writeFloat(aPlr.getBreasts().xOffset);
 						buf.writeFloat(aPlr.getBreasts().yOffset);
@@ -178,8 +177,8 @@ public class WildfireGender implements ClientModInitializer {
 
 		ClientPlayNetworking.registerGlobalReceiver(new Identifier("wildfire_gender", "sync"),
 			(client, handler, buf, responseSender) -> {
-				String uuid = buf.readString(36);
-				int gender = buf.readInt();
+				UUID uuid = client.player.getUuid();
+				GenderPlayer.Gender gender = buf.readEnumConstant(GenderPlayer.Gender.class);
 				float bust_size = buf.readFloat();
 				boolean hurtSounds = buf.readBoolean();
 				boolean breastPhysics = buf.readBoolean();
@@ -194,15 +193,15 @@ public class WildfireGender implements ClientModInitializer {
 
 				float bounceMultiplier = buf.readFloat();
 				float floppyMultiplier = buf.readFloat();
-				if(!uuid.equals(MinecraftClient.getInstance().player.getUuidAsString())) {
-					GenderPlayer plr = WildfireGender.getPlayerByName(uuid);
+				if(!uuid.equals(MinecraftClient.getInstance().player.getUuid())) {
+					GenderPlayer plr = WildfireGender.getPlayerById(uuid);
 					if(plr == null) return;
 					plr.gender = gender;
 					plr.updateBustSize(bust_size);
 					plr.hurtSounds = hurtSounds;
-					plr.breast_physics = breastPhysics;
-					plr.breast_physics_armor = breastPhysicsArmor;
-					plr.show_in_armor = showInArmor;
+					plr.hasBreastPhysics = breastPhysics;
+					plr.hasArmorBreastPhysics = breastPhysicsArmor;
+					plr.showBreastsInArmor = showInArmor;
 
 					plr.getBreasts().xOffset = xOffset;
 					plr.getBreasts().yOffset = yOffset;
@@ -221,34 +220,19 @@ public class WildfireGender implements ClientModInitializer {
 				}
 			});
     }
-
-	public static GenderPlayer getPlayerByName(String username) {
-		for (int i = 0; i < CLOTHING_PLAYER.size(); i++) {
-			try {
-				if (username.equalsIgnoreCase(CLOTHING_PLAYER.get(i).username)) {
-					return CLOTHING_PLAYER.get(i);
-				}
-			} catch (Exception e) {
-				GenderPlayer plr = new GenderPlayer(username);
-				CLOTHING_PLAYER.add(plr);
-				return plr;
-			}
-		}
-		return null;
+	@Nullable
+	public static GenderPlayer getPlayerById(UUID id) {
+		return CLOTHING_PLAYERS.get(id);
 	}
 
-  	public static void loadGenderInfoAsync(String uuid) {
-  		Thread thread = new Thread(new Runnable() {
-  			public void run() {
-  				WildfireGender.loadGenderInfo(uuid);
-  			}
-  		});
+  	public static void loadGenderInfoAsync(UUID uuid, boolean markForSync) {
+		Thread thread = new Thread(() -> WildfireGender.loadGenderInfo(uuid, markForSync));
 		thread.setName("WFGM_GetPlayer-" + uuid);
-  		thread.start();
+		thread.start();
   	}
 
-	public static GenderPlayer loadGenderInfo(String uuid) {
-		return GenderPlayer.loadCachedPlayer(uuid);
+	public static GenderPlayer loadGenderInfo(UUID uuid, boolean markForSync) {
+		return GenderPlayer.loadCachedPlayer(uuid, markForSync);
 	}
 
 	public static void drawTextLabel(MatrixStack m, String txt, int x, int y) {

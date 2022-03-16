@@ -28,6 +28,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -40,75 +41,39 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 
-public class WardrobeBrowserScreen extends Screen {
+public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	
 
 	private Identifier BACKGROUND;
 	public static float modelRotation = 0.5F;
 
-	private UUID playerUUID;
-	private Screen parent;
-
 	public WardrobeBrowserScreen(Screen parent, UUID uuid) {
-		super(new TranslatableText("wildfire_gender.settings.title"));
-		this.playerUUID = uuid;
-		this.parent = parent;
+		super(new TranslatableText("wildfire_gender.wardrobe.title"), parent, uuid);
 	}
-  
- 
-	public boolean shouldPause() { return false; }
 
-  
   	public void init() {
 	  	MinecraftClient m = MinecraftClient.getInstance();
 	    int j = this.height / 2;
 
 	    
-	    GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
+	    GenderPlayer plr = getPlayer();
 
-	    LiteralText genderString = new LiteralText(new TranslatableText("wildfire_gender.label.gender").getString() + " - ");
-
-	    if(plr.gender == 0) {
-	    	genderString.append(Formatting.LIGHT_PURPLE + new TranslatableText("wildfire_gender.label.female").getString());
-		} else if(plr.gender == 1) {
-			genderString.append(Formatting.BLUE + new TranslatableText("wildfire_gender.label.male").getString());
-		} else if(plr.gender == 2) {
-			genderString.append(Formatting.GREEN + new TranslatableText("wildfire_gender.label.other").getString());
-		}
-		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 52, 158, 20, genderString, button -> {
-			if(plr.gender == 0) {
-				plr.gender = 2;
-			} else if(plr.gender == 1) {
-				plr.gender = 0;
-			} else {
-				plr.gender = 1;
-			}
-
-			LiteralText btnString = new LiteralText(new TranslatableText("wildfire_gender.label.gender").getString() + " - ");
-
-			if(plr.gender == 0) {
-				btnString.append(Formatting.LIGHT_PURPLE +  new TranslatableText("wildfire_gender.label.female").getString());
-			} else if(plr.gender == 1) {
-				btnString.append(Formatting.BLUE + new TranslatableText("wildfire_gender.label.male").getString());
-			} else if(plr.gender == 2) {
-				btnString.append(Formatting.GREEN + new TranslatableText("wildfire_gender.label.other").getString());
-			}
-
-			button.setMessage(btnString);
+		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 52, 158, 20, getGenderLabel(plr.gender), button -> {
+			plr.gender = switch (plr.gender) {
+				case MALE -> GenderPlayer.Gender.FEMALE;
+				case FEMALE -> GenderPlayer.Gender.OTHER;
+				case OTHER -> GenderPlayer.Gender.MALE;
+			};
+			button.setMessage(getGenderLabel(plr.gender));
 			GenderPlayer.saveGenderInfo(plr);
 		}));
 
-		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, new LiteralText("Appearance Settings..."), button -> {
-			MinecraftClient.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID));
-		}));
+		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, new LiteralText("Appearance Settings..."), button ->
+			MinecraftClient.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 
-		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 12, 158, 20, new LiteralText("Character Settings..."), button -> {
-			MinecraftClient.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID));
-		}));
+		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 12, 158, 20, new LiteralText("Character Settings..."), button -> MinecraftClient.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 
-		this.addDrawableChild(new WildfireButton(this.width / 2 + 111, j - 63, 9, 9, new LiteralText("X"), button -> {
-			MinecraftClient.getInstance().setScreen(parent);
-		}));
+		this.addDrawableChild(new WildfireButton(this.width / 2 + 111, j - 63, 9, 9, new LiteralText("X"), button -> MinecraftClient.getInstance().setScreen(parent)));
 	    
 	    modelRotation = 0.6F;
 
@@ -117,9 +82,13 @@ public class WardrobeBrowserScreen extends Screen {
 	    super.init();
   	}
 
+	private Text getGenderLabel(GenderPlayer.Gender gender) {
+		return new TranslatableText("wildfire_gender.label.gender").append(" - ").append(gender.getDisplayName());
+	}
+
   	public void render(MatrixStack m, int f1, int f2, float f3) {
 		MinecraftClient minecraft = MinecraftClient.getInstance();
-	    GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
+	    GenderPlayer plr = getPlayer();
 	    super.renderBackground(m);
 	    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -133,11 +102,10 @@ public class WardrobeBrowserScreen extends Screen {
 
 	    if(plr == null) return;
 
-
 		int x = this.width / 2;
 	    int y = this.height / 2;
 	    
-	    this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.title"), x - 42, y - 62, 4473924);
+	    this.textRenderer.draw(m, title, x - 42, y - 62, 4473924);
 
 	    modelRotation = 0.6f;
 
@@ -158,12 +126,6 @@ public class WardrobeBrowserScreen extends Screen {
 		}
 	    super.render(m, f1, f2, f3);
 	}
-  	
-  	public boolean mouseReleased(double mouseX, double mouseY, int state) {
-	    GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
-	  
-	    return super.mouseReleased(mouseX, mouseY, state);
-  	}
 
 	public static void drawEntity(int x, int y, int size, float mouseX, float mouseY, LivingEntity entity) {
 		float f = (float)Math.atan((mouseX / 40.0F));

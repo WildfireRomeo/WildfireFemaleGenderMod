@@ -62,7 +62,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 
 	public void tickWildfire() {
 		if(!this.world.isClient()) return;
-		GenderPlayer aPlr = WildfireGender.getPlayerByName(this.getUuid().toString());
+		GenderPlayer aPlr = WildfireGender.getPlayerById(this.getUuid());
 		if(aPlr == null) return;
 		PlayerEntity plr = (PlayerEntity) (Object) this;
 		aPlr.getLeftBreastPhysics().update(plr);

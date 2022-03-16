@@ -48,6 +48,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> {
 
@@ -91,8 +92,8 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 
 		try {
 			//0.5 or 0
-			String playerName = ent.getUuid().toString();
-			GenderPlayer plr = WildfireGender.getPlayerByName(playerName);
+			UUID uuid = ent.getUuid();
+			GenderPlayer plr = WildfireGender.getPlayerById(uuid);
 			if(plr == null) return;
 
 			PlayerEntityRenderer rend = (PlayerEntityRenderer) MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(ent);
@@ -184,7 +185,7 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 				boolean isChestplateOccupied = !(ent.getInventory().getArmorStack(2).isEmpty()) &&
 					!(ent.getInventory().getArmorStack(2).getItem() instanceof ElytraItem);
 
-				if (breastSize < 0.02f || (!plr.show_in_armor && isChestplateOccupied)) return;
+				if (breastSize < 0.02f || (!plr.showBreastsInArmor && isChestplateOccupied)) return;
 
 				float zOff = 0.0625f - (bSize * 0.0625f);
 				breastSize = bSize + 0.5f * Math.abs(bSize - 0.7f) * 2f;
@@ -195,7 +196,7 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 
 				boolean breathingAnimation = true;
 				float rotationMultiplier = 0;
-				boolean bounceEnabled = (plr.breast_physics && !isChestplateOccupied) || (plr.breast_physics && plr.breast_physics_armor && isChestplateOccupied); //oh, you found this?
+				boolean bounceEnabled = (plr.hasBreastPhysics && !isChestplateOccupied) || (plr.hasBreastPhysics && plr.hasArmorBreastPhysics && isChestplateOccupied); //oh, you found this?
 
 				pushCount += pushMatrix(matrixStack, rend.getModel().body, 0);
 				//right breast

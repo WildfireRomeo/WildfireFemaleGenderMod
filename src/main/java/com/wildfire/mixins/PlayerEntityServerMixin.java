@@ -59,13 +59,12 @@ public abstract class PlayerEntityServerMixin extends LivingEntity {
 
             if(amount != 0.0f) {
                 //send to client hurt sound?
-                GenderPlayer plr = WildfireGenderServer.getPlayerByName(self.getUuidAsString());
+                GenderPlayer plr = WildfireGenderServer.getPlayerById(self.getUuid());
                 if (plr != null) {
                     PacketByteBuf buf = PacketByteBufs.create();
-                    buf.writeString(plr.username);
-                    buf.writeInt(plr.gender);
+                    buf.writeEnumConstant(plr.gender);
                     buf.writeBoolean(plr.hurtSounds);
-                    for (ServerPlayerEntity player : PlayerLookup.tracking((ServerWorld) world, world.getPlayerByUuid(UUID.fromString(plr.username)).getBlockPos())) {
+                    for (ServerPlayerEntity player : PlayerLookup.tracking((ServerWorld) world, world.getPlayerByUuid(plr.uuid).getBlockPos())) {
                         if (ServerPlayNetworking.canSend(player, new Identifier("wildfire_gender", "hurt"))) {
                             ServerPlayNetworking.send(player, new Identifier("wildfire_gender", "hurt"), buf);
                         }

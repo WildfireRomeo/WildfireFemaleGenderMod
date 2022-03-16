@@ -38,7 +38,7 @@ import net.minecraft.util.math.Vec3f;
 
 import java.util.UUID;
 
-public class WildfireBreastCustomizationScreen extends Screen {
+public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
     private WildfireSlider breastSlider, xOffsetBoobSlider, yOffsetBoobSlider, zOffsetBoobSlider; //rotateSlider
     private WildfireSlider cleavageSlider;
@@ -50,25 +50,15 @@ public class WildfireBreastCustomizationScreen extends Screen {
     private float preCleavage;
     private boolean changedCleavageSlider;
 
-    private UUID playerUUID;
-    private Screen parent;
-
     public WildfireBreastCustomizationScreen(Screen parent, UUID uuid) {
-        super(new TranslatableText("wildfire_gender.settings.title"));
-        this.playerUUID = uuid;
-        this.parent = parent;
+        super(new TranslatableText("wildfire_gender.settings.title"), parent, uuid);
     }
-
-
-    public boolean shouldPause() { return false; }
-
 
     public void init() {
         MinecraftClient m = MinecraftClient.getInstance();
         int j = this.height / 2;
 
-
-        GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
+        GenderPlayer plr = getPlayer();
 
         preBreastSize = plr.getBustSize();
         preXOff = plr.getBreasts().xOffset;
@@ -77,7 +67,7 @@ public class WildfireBreastCustomizationScreen extends Screen {
         preCleavage = plr.getBreasts().cleavage;
 
 
-        this.addDrawableChild(new WildfireButton(this.width / 2 + 178, j - 61, 9, 9, new LiteralText("X"), button -> {
+        this.addDrawableChild(new WildfireButton(this.width / 2 + 178, j - 61, 9, 9, new TranslatableText("wildfire_gender.label.exit"), button -> {
             MinecraftClient.getInstance().setScreen(parent);
         }));
 
@@ -88,36 +78,32 @@ public class WildfireBreastCustomizationScreen extends Screen {
             public void appendNarrations(NarrationMessageBuilder builder) {}
 
             @Override
-                    protected void updateMessage() {
-                        // TODO Auto-generated method stub
+            protected void updateMessage() {
+                // TODO Auto-generated method stub
 
-                    }
+            }
 
-                    @Override
-                    protected void applyValue() {
-                        //GenderPlayer.saveGenderInfo(plr);
-                    }
-                }
-        );
+            @Override
+            protected void applyValue() {
+                //GenderPlayer.saveGenderInfo(plr);
+            }
+        });
 
         //Customization
         this.addDrawableChild(this.xOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 27, 158, 20, title, -1.0D, 1.0D, plr.getBreasts().xOffset) {
+            @Override
+            public void appendNarrations(NarrationMessageBuilder builder) {}
 
-                @Override
-                public void appendNarrations(NarrationMessageBuilder builder) {}
+            @Override
+            protected void updateMessage() {
 
-                @Override
-                    protected void updateMessage() {
-                        // TODO Auto-generated method stub
+            }
 
-                    }
-
-                    @Override
-                    protected void applyValue() {
-                        //GenderPlayer.saveGenderInfo(plr);
-                    }
-                }
-        );
+            @Override
+            protected void applyValue() {
+                //GenderPlayer.saveGenderInfo(plr);
+            }
+        });
         this.addDrawableChild(this.yOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 6, 158, 20, title, -1.0D, 1.0D, plr.getBreasts().yOffset) {
             @Override
             public void appendNarrations(NarrationMessageBuilder builder) {}
@@ -132,8 +118,7 @@ public class WildfireBreastCustomizationScreen extends Screen {
             protected void applyValue() {
                 //GenderPlayer.saveGenderInfo(plr);
             }
-        }
-        );
+        });
         this.addDrawableChild(this.zOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j + 15, 158, 20, title, -1.0D, 0.0D, plr.getBreasts().zOffset) {
 
             @Override
@@ -149,8 +134,7 @@ public class WildfireBreastCustomizationScreen extends Screen {
             protected void applyValue() {
                 //GenderPlayer.saveGenderInfo(plr);
             }
-        }
-        );
+        });
 
         if(plr.getBreasts().cleavage > 0.1f) plr.getBreasts().cleavage = 0.1f;
 
@@ -171,11 +155,10 @@ public class WildfireBreastCustomizationScreen extends Screen {
             }
         );
 
-        this.addDrawableChild(new WildfireButton(this.width / 2 + 30, j + 57, 158, 20, new LiteralText("Dual-Physics: " + (plr.getBreasts().isUniboob?"No":"Yes")), button -> {
+        this.addDrawableChild(new WildfireButton(this.width / 2 + 30, j + 57, 158, 20, new TranslatableText("wildfire_gender.breast_customization.dual_physics", new TranslatableText(plr.getBreasts().isUniboob ? "wildfire_gender.label.no" : "wildfire_gender.label.yes")), button -> {
             plr.getBreasts().isUniboob ^= true;
-            button.setMessage(new LiteralText("Dual-Physics: " + (plr.getBreasts().isUniboob?"No":"Yes")));
+            button.setMessage(new TranslatableText("wildfire_gender.breast_customization.dual_physics", new TranslatableText(plr.getBreasts().isUniboob ? "wildfire_gender.label.no" : "wildfire_gender.label.yes")));
             GenderPlayer.saveGenderInfo(plr);
-
         }));
 
         super.init();
@@ -183,7 +166,7 @@ public class WildfireBreastCustomizationScreen extends Screen {
 
     public void render(MatrixStack m, int f1, int f2, float f3) {
         MinecraftClient minecraft = MinecraftClient.getInstance();
-        GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
+        GenderPlayer plr = getPlayer();
         super.renderBackground(m);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -205,18 +188,18 @@ public class WildfireBreastCustomizationScreen extends Screen {
             minecraft.setScreen(new WildfirePlayerListScreen(minecraft));
         }
 
-        breastSlider.visible = plr.gender != 1;
+        breastSlider.visible = plr.gender.canHaveBreasts();
 
-        xOffsetBoobSlider.visible = plr.gender != 1;
-        yOffsetBoobSlider.visible = plr.gender != 1;
-        zOffsetBoobSlider.visible = plr.gender != 1;
-        cleavageSlider.visible = plr.gender != 1;
+        xOffsetBoobSlider.visible = plr.gender.canHaveBreasts();
+        yOffsetBoobSlider.visible = plr.gender.canHaveBreasts();
+        zOffsetBoobSlider.visible = plr.gender.canHaveBreasts();
+        cleavageSlider.visible = plr.gender.canHaveBreasts();
 
         int x = this.width / 2;
         int y = this.height / 2;
         fill(m, x + 28, y - 64, x + 190, y + 79, 0x55000000);
         fill(m, x + 29, y - 63, x + 189, y - 50, 0x55000000);
-        this.textRenderer.draw(m, new LiteralText("Appearance Settings"), x + 32, y - 60, 0xFFFFFF);
+        this.textRenderer.draw(m, title, x + 32, y - 60, 0xFFFFFF);
 
 
         if(preBreastSize != (float) this.breastSlider.getValue()) {
@@ -247,14 +230,14 @@ public class WildfireBreastCustomizationScreen extends Screen {
         super.render(m, f1, f2, f3);
 
         if(breastSlider.visible) this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.slider.breast_size").getString() + ": " + Math.round(plr.getBustSize() * 100) + "%", x + 36, y - 42, (this.breastSlider.isMouseOver(f1,  f2) || changedBreastSlider) ? 0xFFFF55: 0xFFFFFF);
-        if(xOffsetBoobSlider.visible) this.textRenderer.draw(m, "Separation: " + Math.round((Math.round(plr.getBreasts().xOffset * 100f) / 100f) * 10) + "", x + 36, y - 21, (this.xOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderX) ? 0xFFFF55: 0xFFFFFF);
-        if(yOffsetBoobSlider.visible) this.textRenderer.draw(m, "Height: " + Math.round((Math.round(plr.getBreasts().yOffset * 100f) / 100f) * 10) + "", x + 36, y, (this.yOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderY) ? 0xFFFF55: 0xFFFFFF);
-        if(zOffsetBoobSlider.visible) this.textRenderer.draw(m, "Depth: " + Math.round((Math.round(plr.getBreasts().zOffset * 100f) / 100f) * 10) + "", x + 36, y + 21, (this.zOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderZ) ? 0xFFFF55: 0xFFFFFF);
-        if(cleavageSlider.visible) this.textRenderer.draw(m, "Rotation: " + Math.round((Math.round(plr.getBreasts().cleavage * 100f) / 100f) * 100) + " degrees", x + 36, y + 42, (this.cleavageSlider.isMouseOver(f1,  f2) || changedCleavageSlider) ? 0xFFFF55: 0xFFFFFF);
+        if(xOffsetBoobSlider.visible) this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.slider.separation", Math.round((Math.round(plr.getBreasts().xOffset * 100f) / 100f) * 10)), x + 36, y - 21, (this.xOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderX) ? 0xFFFF55: 0xFFFFFF);
+        if(yOffsetBoobSlider.visible) this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.slider.height", Math.round((Math.round(plr.getBreasts().yOffset * 100f) / 100f) * 10)), x + 36, y, (this.yOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderY) ? 0xFFFF55: 0xFFFFFF);
+        if(zOffsetBoobSlider.visible) this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.slider.depth", Math.round((Math.round(plr.getBreasts().zOffset * 100f) / 100f) * 10)), x + 36, y + 21, (this.zOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderZ) ? 0xFFFF55: 0xFFFFFF);
+        if(cleavageSlider.visible) this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.slider.rotation", Math.round((Math.round(plr.getBreasts().cleavage * 100f) / 100f) * 100)), x + 36, y + 42, (this.cleavageSlider.isMouseOver(f1,  f2) || changedCleavageSlider) ? 0xFFFF55: 0xFFFFFF);
     }
 
     public boolean mouseReleased(double mouseX, double mouseY, int state) {
-        GenderPlayer plr = WildfireGender.getPlayerByName(this.playerUUID.toString());
+        GenderPlayer plr = getPlayer();
         if(changedBreastSlider) {
             plr.updateBustSize((float) this.breastSlider.getValue());
             changedBreastSlider = false;

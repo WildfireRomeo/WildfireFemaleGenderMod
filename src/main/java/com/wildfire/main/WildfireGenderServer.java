@@ -26,6 +26,7 @@ import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class WildfireGenderServer implements ModInitializer {
 
@@ -37,8 +38,8 @@ public class WildfireGenderServer implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(new Identifier("wildfire_gender", "send_gender_info"),
         (server, playerEntity, handler, buf, responseSender) -> {
 
-            String uuid = buf.readString(36);
-            int gender = buf.readInt();
+            UUID uuid = playerEntity.getUuid();
+            GenderPlayer.Gender gender = buf.readEnumConstant(GenderPlayer.Gender.class);
             float bust_size = buf.readFloat();
             boolean hurtSounds = buf.readBoolean();
             boolean breastPhysics = buf.readBoolean();
@@ -58,7 +59,7 @@ public class WildfireGenderServer implements ModInitializer {
             ServerPlayerEntity player = playerEntity;
             if(!player.getUuidAsString().equals(uuid)) return;
 
-            GenderPlayer plr = getPlayerByName(uuid);
+            GenderPlayer plr = WildfireGender.getPlayerById(uuid);
             if(plr == null) {
                 plr = new GenderPlayer(uuid);
                 CLOTHING_PLAYER.add(plr);
@@ -67,9 +68,9 @@ public class WildfireGenderServer implements ModInitializer {
             plr.updateBustSize(bust_size);
             plr.hurtSounds = hurtSounds;
 
-            plr.breast_physics = breastPhysics;
-            plr.breast_physics_armor = breastPhysicsArmor;
-            plr.show_in_armor = showInArmor;
+            plr.hasBreastPhysics = breastPhysics;
+            plr.hasArmorBreastPhysics = breastPhysicsArmor;
+            plr.showBreastsInArmor = showInArmor;
 
             plr.getBreasts().xOffset = breastOffsetX;
             plr.getBreasts().yOffset = breastOffsetY;
@@ -83,17 +84,16 @@ public class WildfireGenderServer implements ModInitializer {
             try {
                 List<ServerPlayerEntity> PLAYERS = player.getServer().getPlayerManager().getPlayerList();
                 for(ServerPlayerEntity sPlayer : PLAYERS) {
-                    GenderPlayer aPlr = getPlayerByName(sPlayer.getUuidAsString());
+                    GenderPlayer aPlr = getPlayerById(sPlayer.getUuid());
                     if(aPlr == null) return;
                     PacketByteBuf sBuf = PacketByteBufs.create();
-                    sBuf.writeString(aPlr.username);
-                    sBuf.writeInt(aPlr.gender);
+                    sBuf.writeEnumConstant(aPlr.gender);
                     sBuf.writeFloat(aPlr.getBustSize());
                     sBuf.writeBoolean(aPlr.hurtSounds);
 
-                    sBuf.writeBoolean(aPlr.breast_physics);
-                    sBuf.writeBoolean(aPlr.breast_physics_armor);
-                    sBuf.writeBoolean(aPlr.show_in_armor);
+                    sBuf.writeBoolean(aPlr.hasBreastPhysics);
+                    sBuf.writeBoolean(aPlr.hasArmorBreastPhysics);
+                    sBuf.writeBoolean(aPlr.showBreastsInArmor);
                     sBuf.writeFloat(aPlr.getBreasts().xOffset);
                     sBuf.writeFloat(aPlr.getBreasts().yOffset);
                     sBuf.writeFloat(aPlr.getBreasts().zOffset);
@@ -103,7 +103,7 @@ public class WildfireGenderServer implements ModInitializer {
 
                     sBuf.writeFloat(aPlr.bounceMultiplier);
                     sBuf.writeFloat(aPlr.floppyMultiplier);
-                    if (!player.getUuidAsString().equals(aPlr.username)) {
+                    if (!player.getUuid().equals(aPlr.uuid)) {
                         if (aPlr == null) return;
                         if (ServerPlayNetworking.canSend(player, new Identifier("wildfire_gender", "sync"))) {
                             ServerPlayNetworking.send(player, new Identifier("wildfire_gender", "sync"), sBuf);
@@ -117,14 +117,14 @@ public class WildfireGenderServer implements ModInitializer {
         });
     }
 
-    public static GenderPlayer getPlayerByName(String username) {
+    public static GenderPlayer getPlayerById(UUID uuid) {
         for (int i = 0; i < CLOTHING_PLAYER.size(); i++) {
             try {
-                if (username.toLowerCase().equals(((GenderPlayer)CLOTHING_PLAYER.get(i)).username.toLowerCase())) {
-                    return (GenderPlayer)CLOTHING_PLAYER.get(i);
+                if (uuid.equals(CLOTHING_PLAYER.get(i).uuid)) {
+                    return CLOTHING_PLAYER.get(i);
                 }
             } catch (Exception e) {
-                GenderPlayer plr = new GenderPlayer(username);
+                GenderPlayer plr = new GenderPlayer(uuid);
                 CLOTHING_PLAYER.add(plr);
                 return plr;
             }

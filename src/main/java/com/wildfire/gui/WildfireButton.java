@@ -43,12 +43,10 @@ public class WildfireButton extends ButtonWidget {
          this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 
          int clr = 0x444444 + (84 << 24);
-         if(this.isHovered()) {
-            clr = 0x666666 + (84 << 24);
-         }
+         if(this.isHovered()) clr = 0x666666 + (84 << 24);
          if(!this.active)  clr = 0x222222 + (84 << 24);
          if(!transparent) fill(m, x, y, x + getWidth(), y + height, clr);
-         font.draw(m, this.getMessage().getString(), x + (this.width / 2) - (font.getWidth(this.getMessage().getString()) / 2) + 1, y + (int) Math.ceil((float) height / 2f) - font.fontHeight / 2, active?0xFFFFFF:0x666666);
+         font.draw(m, this.getMessage(), x + (this.width / 2) - (font.getWidth(this.getMessage().getString()) / 2) + 1, y + (int) Math.ceil((float) height / 2f) - font.fontHeight / 2, active?0xFFFFFF:0x666666);
       }
       if(this.isHovered())
          this.renderTooltip(m, mouseX, mouseY);
