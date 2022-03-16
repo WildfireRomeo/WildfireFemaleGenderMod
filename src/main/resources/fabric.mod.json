@@ -1,8 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "wildfire_gender",
-  "version": "2.8.2",
-
+  "version": "2.8.3-pre",
   "name": "Wildfire's Female Gender Mod",
   "description": "Allows players to choose what gender they want to be.",
   "authors": [
@@ -20,7 +19,6 @@
   },
   "license": "GPL-3.0",
   "icon": "assets/wildfire_gender/icon.png",
-  
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -33,7 +31,6 @@
   "mixins": [
     "wildfire_gender.mixins.json"
   ],
-
   "depends": {
     "fabricloader": ">=0.13.3",
     "fabric": ">=0.47.9",
