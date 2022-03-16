@@ -155,12 +155,12 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             GenderPlayer.saveGenderInfo(aPlr);
         }, new ButtonWidget.TooltipSupplier() {
             public void onTooltip(ButtonWidget button, MatrixStack matrices, int mouseX, int mouseY) {
-                /*List<Text> list = new ArrayList<Text>();
+                List<Text> list = new ArrayList<Text>();
                 list.add(new TranslatableText("wildfire_gender.tooltip.hurt_sounds"));
-                list.add(new TranslatableText(Formatting.RED + "wildfire_gender.tooltip.need_on_server"));
+                list.add(new TranslatableText("wildfire_gender.tooltip.need_on_server"));
                 RenderSystem.disableDepthTest();
                 renderTooltip(matrices, list, mouseX, mouseY);
-                RenderSystem.enableDepthTest();*/
+                RenderSystem.enableDepthTest();
             }
         }));
 
