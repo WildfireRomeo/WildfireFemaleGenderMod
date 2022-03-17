@@ -20,6 +20,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfirePlayerList;
 import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.WildfireGender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -48,7 +49,7 @@ public class WildfirePlayerListScreen extends Screen {
 
 	private static final UUID CREATOR_UUID = UUID.fromString("33c937ae-6bfc-423e-a38e-3a613e7c1256");
 	private Identifier TXTR_BACKGROUND;
-	private static final Identifier TXTR_RIBBON = new Identifier("wildfire_gender", "textures/bc_ribbon.png");
+	private static final Identifier TXTR_RIBBON = new Identifier(WildfireGender.MODID, "textures/bc_ribbon.png");
 
 	@Nullable
 	private Text tooltip = null;

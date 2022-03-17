@@ -109,7 +109,7 @@ public class WildfireGender implements ClientModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if(client.world == null) CLOTHING_PLAYERS.clear();
 
-			boolean isVanillaServer = !ClientPlayNetworking.canSend(new Identifier("wildfire_gender", "send_gender_info"));
+			boolean isVanillaServer = !ClientPlayNetworking.canSend(new Identifier(WildfireGender.MODID, "send_gender_info"));
 
 			if(!isVanillaServer) {
 				//20 ticks per second / 5 = 4 times per second
@@ -137,7 +137,7 @@ public class WildfireGender implements ClientModInitializer {
 						buf.writeFloat(aPlr.bounceMultiplier);
 						buf.writeFloat(aPlr.floppyMultiplier);
 
-						ClientPlayNetworking.send(new Identifier("wildfire_gender", "send_gender_info"), buf);
+						ClientPlayNetworking.send(new Identifier(WildfireGender.MODID, "send_gender_info"), buf);
 						//PacketSendGenderInfo.send(aPlr);
 					} catch (Exception e) {
 						//e.printStackTrace();
@@ -148,7 +148,7 @@ public class WildfireGender implements ClientModInitializer {
 
 			//Receive hurt
 
-			ClientPlayNetworking.registerGlobalReceiver(new Identifier("wildfire_gender", "hurt"),
+			ClientPlayNetworking.registerGlobalReceiver(new Identifier(WildfireGender.MODID, "hurt"),
 			(client2, handler, buf, responseSender) -> {
 				String uuid = buf.readString(36);
 				int gender = buf.readInt();
@@ -175,7 +175,7 @@ public class WildfireGender implements ClientModInitializer {
 			}
 		});
 
-		ClientPlayNetworking.registerGlobalReceiver(new Identifier("wildfire_gender", "sync"),
+		ClientPlayNetworking.registerGlobalReceiver(new Identifier(WildfireGender.MODID, "sync"),
 			(client, handler, buf, responseSender) -> {
 				UUID uuid = client.player.getUuid();
 				GenderPlayer.Gender gender = buf.readEnumConstant(GenderPlayer.Gender.class);

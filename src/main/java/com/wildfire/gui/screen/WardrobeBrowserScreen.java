@@ -77,7 +77,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 
 	    modelRotation = 0.6F;
 
-	    this.BACKGROUND = new Identifier("wildfire_gender", "textures/gui/wardrobe_bg.png");
+	    this.BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg.png");
 
 	    super.init();
   	}

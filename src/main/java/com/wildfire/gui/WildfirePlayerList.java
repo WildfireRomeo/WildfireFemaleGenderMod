@@ -52,9 +52,9 @@ import net.minecraft.world.GameMode;
 public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry> {
     private static final Ordering<PlayerListEntry> ENTRY_ORDERING = Ordering.from(new WildfirePlayerList.EntryOrderComparator());
 
-    private static final Identifier TXTR_SYNC = new Identifier("wildfire_gender", "textures/sync.png");
-    private static final Identifier TXTR_UNKNOWN = new Identifier("wildfire_gender", "textures/unknown.png");
-    private static final Identifier TXTR_CACHED = new Identifier("wildfire_gender", "textures/cached.png");
+    private static final Identifier TXTR_SYNC = new Identifier(WildfireGender.MODID, "textures/sync.png");
+    private static final Identifier TXTR_UNKNOWN = new Identifier(WildfireGender.MODID, "textures/unknown.png");
+    private static final Identifier TXTR_CACHED = new Identifier(WildfireGender.MODID, "textures/cached.png");
 
     private final int listWidth;
     private boolean loadingPlayers = true;
