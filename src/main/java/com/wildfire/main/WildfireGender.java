@@ -61,8 +61,6 @@ public class WildfireGender implements ClientModInitializer {
   	public static final String MODID = "wildfire_gender";
 	private static KeyBinding keyBinding;
 
-  	public static final boolean SYNCING_ENABLED = false;
-
 	public static Map<UUID, GenderPlayer> CLOTHING_PLAYERS = new HashMap<>();
 
 	public static int BREAST_CANCER_BANNER = 1;
@@ -70,12 +68,6 @@ public class WildfireGender implements ClientModInitializer {
 	private int timer =0;
 	@Override
 	public void onInitializeClient() {
-		/*try {
-			String val = WildfireHelper.post("https://raw.githubusercontent.com/WildfireRomeo/WFGM/main/global.json", null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
-
 		Registry.register(Registry.SOUND_EVENT, WildfireSounds.SND1, WildfireSounds.FEMALE_HURT1);
 		Registry.register(Registry.SOUND_EVENT, WildfireSounds.SND2, WildfireSounds.FEMALE_HURT2);
 
