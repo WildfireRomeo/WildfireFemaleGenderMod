@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.main;
 
+import com.wildfire.api.IGenderArmor;
 import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.render.GenderLayer;
@@ -30,6 +31,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ClientRegistry;
@@ -108,8 +110,9 @@ public class WildfireEventHandler {
 		if(evt.phase == TickEvent.Phase.END && evt.side.isClient()) {
 			GenderPlayer aPlr = WildfireGender.getPlayerById(evt.player.getUUID());
 			if(aPlr == null) return;
-			aPlr.getLeftBreastPhysics().update(evt.player);
-			aPlr.getRightBreastPhysics().update(evt.player);
+			IGenderArmor armor = WildfireHelper.getArmorConfig(evt.player.getItemBySlot(EquipmentSlot.CHEST));
+			aPlr.getLeftBreastPhysics().update(evt.player, armor);
+			aPlr.getRightBreastPhysics().update(evt.player, armor);
 		}
  	}
  	@SubscribeEvent
