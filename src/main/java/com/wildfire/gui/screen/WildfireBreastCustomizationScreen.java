@@ -1,7 +1,6 @@
-package com.wildfire.gui.screen;
 /*
 Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
-Copyright (C) 2022  WildfireRomeo
+Copyright (C) 2022 WildfireRomeo
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,6 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+package com.wildfire.gui.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfireSlider;
@@ -51,7 +51,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
     private boolean changedCleavageSlider;
 
     public WildfireBreastCustomizationScreen(Screen parent, UUID uuid) {
-        super(new TranslatableText("wildfire_gender.settings.title"), parent, uuid);
+        super(new TranslatableText("wildfire_gender.appearance_settings.title"), parent, uuid);
     }
 
     public void init() {
@@ -229,7 +229,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         }
         super.render(m, f1, f2, f3);
 
-        if(breastSlider.visible) this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.slider.breast_size").getString() + ": " + Math.round(plr.getBustSize() * 100) + "%", x + 36, y - 42, (this.breastSlider.isMouseOver(f1,  f2) || changedBreastSlider) ? 0xFFFF55: 0xFFFFFF);
+        if(breastSlider.visible) this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.slider.breast_size").getString() + Math.round(plr.getBustSize() * 100) + "%", x + 36, y - 42, (this.breastSlider.isMouseOver(f1,  f2) || changedBreastSlider) ? 0xFFFF55: 0xFFFFFF);
         if(xOffsetBoobSlider.visible) this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.slider.separation", Math.round((Math.round(plr.getBreasts().xOffset * 100f) / 100f) * 10)), x + 36, y - 21, (this.xOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderX) ? 0xFFFF55: 0xFFFFFF);
         if(yOffsetBoobSlider.visible) this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.slider.height", Math.round((Math.round(plr.getBreasts().yOffset * 100f) / 100f) * 10)), x + 36, y, (this.yOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderY) ? 0xFFFF55: 0xFFFFFF);
         if(zOffsetBoobSlider.visible) this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.slider.depth", Math.round((Math.round(plr.getBreasts().zOffset * 100f) / 100f) * 10)), x + 36, y + 21, (this.zOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderZ) ? 0xFFFF55: 0xFFFFFF);

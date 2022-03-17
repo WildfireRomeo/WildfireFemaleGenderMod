@@ -51,7 +51,9 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	modCompileOnly('com.minelittlepony:hdskins:6.5.2')
-	modCompileOnly('com.tr9zw:3dskinlayers:1.4.2')
+	//
+	// to-do: be able to fetch a maven url for 3d skin layers or just get rid of this.
+	// modCompileOnly('com.tr9zw:3dskinlayers:1.4.2')
 	modCompileOnly('com.github.emilyploszaj:trinkets:3.1.0')
 	
 }
@@ -67,13 +69,6 @@ processResources {
 tasks.withType(JavaCompile).configureEach {
 	// Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
 	it.options.release = 17
-}
-
-java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
-	withSourcesJar()
 }
 
 jar {
