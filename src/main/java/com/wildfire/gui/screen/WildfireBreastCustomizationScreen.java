@@ -229,7 +229,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         }
         super.render(m, f1, f2, f3);
 
-        if(breastSlider.visible) this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.slider.breast_size").getString() + Math.round(plr.getBustSize() * 100) + "%", x + 36, y - 42, (this.breastSlider.isMouseOver(f1,  f2) || changedBreastSlider) ? 0xFFFF55: 0xFFFFFF);
+        if(breastSlider.visible) this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.slider.breast_size", Math.round(plr.getBustSize() * 100)), x + 36, y - 42, (this.breastSlider.isMouseOver(f1,  f2) || changedBreastSlider) ? 0xFFFF55: 0xFFFFFF);
         if(xOffsetBoobSlider.visible) this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.slider.separation", Math.round((Math.round(plr.getBreasts().xOffset * 100f) / 100f) * 10)), x + 36, y - 21, (this.xOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderX) ? 0xFFFF55: 0xFFFFFF);
         if(yOffsetBoobSlider.visible) this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.slider.height", Math.round((Math.round(plr.getBreasts().yOffset * 100f) / 100f) * 10)), x + 36, y, (this.yOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderY) ? 0xFFFF55: 0xFFFFFF);
         if(zOffsetBoobSlider.visible) this.textRenderer.draw(m, new TranslatableText("wildfire_gender.wardrobe.slider.depth", Math.round((Math.round(plr.getBreasts().zOffset * 100f) / 100f) * 10)), x + 36, y + 21, (this.zOffsetBoobSlider.isMouseOver(f1,  f2) || changedSliderZ) ? 0xFFFF55: 0xFFFFFF);
