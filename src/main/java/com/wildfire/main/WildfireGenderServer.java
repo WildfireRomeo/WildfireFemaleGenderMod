@@ -35,7 +35,7 @@ public class WildfireGenderServer implements ModInitializer {
     @Override
     public void onInitialize() {
 
-        ServerPlayNetworking.registerGlobalReceiver(new Identifier("wildfire_gender", "send_gender_info"),
+        ServerPlayNetworking.registerGlobalReceiver(new Identifier(WildfireGender.MODID, "send_gender_info"),
         (server, playerEntity, handler, buf, responseSender) -> {
 
             UUID uuid = playerEntity.getUuid();
@@ -105,8 +105,8 @@ public class WildfireGenderServer implements ModInitializer {
                     sBuf.writeFloat(aPlr.floppyMultiplier);
                     if (!player.getUuid().equals(aPlr.uuid)) {
                         if (aPlr == null) return;
-                        if (ServerPlayNetworking.canSend(player, new Identifier("wildfire_gender", "sync"))) {
-                            ServerPlayNetworking.send(player, new Identifier("wildfire_gender", "sync"), sBuf);
+                        if (ServerPlayNetworking.canSend(player, new Identifier(WildfireGender.MODID, "sync"))) {
+                            ServerPlayNetworking.send(player, new Identifier(WildfireGender.MODID, "sync"), sBuf);
                         }
                     }
                     //send(player, WildfireGender.getPlayerByName(sPlayer.getUuidAsString());
