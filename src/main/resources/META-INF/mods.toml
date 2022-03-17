@@ -29,9 +29,9 @@ displayURL="https://www.curseforge.com/minecraft/mc-mods/female-gender-forge" #o
 # A file name (in the root of the mod JAR) containing a logo for display
 logoFile="icon.png" #optional
 # A text field displayed in the mod UI
-# credits="" #optional
+credits="Kichura, pupnewfster, arcti_cc, Archl, Powerless001" #optional
 # A text field displayed in the mod UI
-authors="WildfireRomeo, Kichura, pupnewfster, arcti_cc, Archl, Powerless001" #optional
+authors="WildfireRomeo" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
 Allows players to choose what gender they want to be.
