@@ -56,13 +56,12 @@ public class BreastPhysics {
 		this.wfg_preBounceRotation = this.wfg_bounceRotation;
 		this.preBreastSize = this.breastSize;
 
-		float breastWeight = genderPlayer.getBustSize() * 1.25f;
-
 		if(this.prePos == null) {
 			this.prePos = plr.position();
 			return;
 		}
 
+		float breastWeight = genderPlayer.getBustSize() * 1.25f;
 		float targetBreastSize = genderPlayer.getBustSize();
 
 		if(!genderPlayer.gender.canHaveBreasts()) {
@@ -84,12 +83,9 @@ public class BreastPhysics {
 		//System.out.println(motion);
 
 		float bounceIntensity = (genderPlayer.getBustSize() * 3f) * genderPlayer.getBounceMultiplier();
-		//Clamp armor resistance between zero and one
-		float resistance = Math.min(1, Math.max(0, armor.physicsResistance()));
+		float resistance = Mth.clamp(armor.physicsResistance(), 0, 1);
 		//Adjust bounce intensity by physics resistance of the worn armor
 		bounceIntensity *= 1 - resistance;
-		//TODO: Test that this works properly, especially when resistance = 1
-		// Also decide if we want to also check in GenderLayer when the resistance == 1 and just disable bounce there
 
 		if(!genderPlayer.getBreasts().isUniboob) {
 			bounceIntensity = bounceIntensity * WildfireHelper.randFloat(0.5f, 1.5f);

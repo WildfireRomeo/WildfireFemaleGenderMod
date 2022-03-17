@@ -195,22 +195,20 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			//matrixStack.translate(0, 0, zOff);
 			//System.out.println(bounceRotation);
 
-			//TODO: Instead of just always disabling the breathing animation if the chestplate is occupied,
-			// we may want to make it only disable it if the armor's physics resistance is above a certain threshold
-			//Note: We only check if the breathing animation should be enabled if the chestplate is not occupied
-			// as otherwise we don't render it so there is no reason to do the extra calculations
-			boolean breathingAnimation = !isChestplateOccupied &&
+			float resistance = Mth.clamp(genderArmor.physicsResistance(), 0, 1);
+			//Note: We only check if the breathing animation should be enabled if the chestplate's physics resistance
+			// is less than or equal to 0.5 so that if we won't be rendering it we can avoid doing extra calculations
+			boolean breathingAnimation = resistance <= 0.5F &&
 										 (!ent.isUnderWater() || MobEffectUtil.hasWaterBreathing(ent) ||
 										  ent.level.getBlockState(new BlockPos(ent.getX(), ent.getEyeY(), ent.getZ())).is(Blocks.BUBBLE_COLUMN));
-			boolean bounceEnabled = plr.hasBreastPhysics && (!isChestplateOccupied || plr.hasArmorBreastPhysics); //oh, you found this?
+			boolean bounceEnabled = plr.hasBreastPhysics && (!isChestplateOccupied || plr.hasArmorBreastPhysics && resistance < 1); //oh, you found this?
 
 			int combineTex = LivingEntityRenderer.getOverlayCoords(ent, 0);
 			RenderType type = RenderType.entityTranslucent(rend.getTextureLocation(ent));
-			VertexConsumer vertexConsumer = bufferSource.getBuffer(type);
-			renderBreastWithTransforms(ent, model.body, armorStack, matrixStack, bufferSource, vertexConsumer, packedLightIn, combineTex, overlayRed, overlayGreen,
+			renderBreastWithTransforms(ent, model.body, armorStack, matrixStack, bufferSource, type, packedLightIn, combineTex, overlayRed, overlayGreen,
 				overlayBlue, overlayAlpha, bounceEnabled, lTotalX, lTotal, leftBounceRotation, breastSize, breastOffsetX, breastOffsetY, breastOffsetZ, zOff,
 				outwardAngle, breasts.isUniboob, isChestplateOccupied, breathingAnimation, true);
-			renderBreastWithTransforms(ent, model.body, armorStack, matrixStack, bufferSource, vertexConsumer, packedLightIn, combineTex, overlayRed, overlayGreen,
+			renderBreastWithTransforms(ent, model.body, armorStack, matrixStack, bufferSource, type, packedLightIn, combineTex, overlayRed, overlayGreen,
 				overlayBlue, overlayAlpha, bounceEnabled, rTotalX, rTotal, rightBounceRotation, breastSize, -breastOffsetX, breastOffsetY, breastOffsetZ, zOff,
 				-outwardAngle, breasts.isUniboob, isChestplateOccupied, breathingAnimation, false);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -220,7 +218,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 	}
 
 	private void renderBreastWithTransforms(AbstractClientPlayer entity, ModelPart body, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource,
-		VertexConsumer vertexConsumer, int packedLightIn, int combineTex, float red, float green, float blue, float alpha, boolean bounceEnabled, float totalX, float total,
+		RenderType breastRenderType, int packedLightIn, int combineTex, float red, float green, float blue, float alpha, boolean bounceEnabled, float totalX, float total,
 		float bounceRotation, float breastSize, float breastOffsetX, float breastOffsetY, float breastOffsetZ, float zOff, float outwardAngle, boolean uniboob,
 		boolean isChestplateOccupied, boolean breathingAnimation, boolean left) {
 		matrixStack.pushPose();
@@ -282,15 +280,16 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 			matrixStack.scale(0.9995f, 1f, 1f); //z-fighting FIXXX
 
-			renderBreast(entity, armorStack, matrixStack, bufferSource, vertexConsumer, packedLightIn, combineTex, red, green, blue, alpha, left);
+			renderBreast(entity, armorStack, matrixStack, bufferSource, breastRenderType, packedLightIn, combineTex, red, green, blue, alpha, left);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		matrixStack.popPose();
 	}
 
-	private void renderBreast(AbstractClientPlayer entity, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource, VertexConsumer vertexConsumer,
+	private void renderBreast(AbstractClientPlayer entity, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource, RenderType breastRenderType,
 		int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, boolean left) {
+		VertexConsumer vertexConsumer = bufferSource.getBuffer(breastRenderType);
 		renderBox(left ? lBreast : rBreast, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 		if (entity.isModelPartShown(PlayerModelPart.JACKET)) {
 			matrixStack.translate(0, 0, -0.015f);

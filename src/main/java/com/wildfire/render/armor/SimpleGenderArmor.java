@@ -25,13 +25,11 @@ import com.wildfire.api.IGenderArmor;
  */
 public record SimpleGenderArmor(float physicsResistance) implements IGenderArmor {
 
-    //TODO: Decide on default values for vanilla's armors
-    // also do we want to start this maybe at like 0.5 or something for the fallback
-    public static final SimpleGenderArmor FALLBACK = new SimpleGenderArmor(0);
-    public static final SimpleGenderArmor LEATHER = new SimpleGenderArmor(0);
-    public static final SimpleGenderArmor CHAIN_MAIL = new SimpleGenderArmor(0);
-    public static final SimpleGenderArmor GOLD = new SimpleGenderArmor(0);
-    public static final SimpleGenderArmor IRON = new SimpleGenderArmor(0);
-    public static final SimpleGenderArmor DIAMOND = new SimpleGenderArmor(0);
-    public static final SimpleGenderArmor NETHERITE = new SimpleGenderArmor(0);
+    public static final SimpleGenderArmor FALLBACK = new SimpleGenderArmor(0.5F);
+    public static final SimpleGenderArmor LEATHER = new SimpleGenderArmor(0.3F);
+    public static final SimpleGenderArmor CHAIN_MAIL = new SimpleGenderArmor(0.5F);
+    public static final SimpleGenderArmor GOLD = new SimpleGenderArmor(0.85F);
+    public static final SimpleGenderArmor IRON = new SimpleGenderArmor(1);
+    public static final SimpleGenderArmor DIAMOND = new SimpleGenderArmor(1);
+    public static final SimpleGenderArmor NETHERITE = new SimpleGenderArmor(1);
 }
