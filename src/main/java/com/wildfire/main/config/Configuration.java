@@ -70,7 +70,7 @@ public class Configuration {
 			}
 		}
 		//.getOrCreateGameRelativePath(FMLPaths.CONFIGDIR.get().resolve(saveLoc), saveLoc);
-		CFG_FILE = saveDir.resolve(cfgName + ".json").toFile();
+		CFG_FILE = saveDir.resolve(saveLoc).resolve(cfgName + ".json").toFile();
 
 	}
 
