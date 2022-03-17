@@ -64,12 +64,13 @@ public class BreastPhysics {
 		float breastWeight = genderPlayer.getBustSize() * 1.25f;
 		float targetBreastSize = genderPlayer.getBustSize();
 
-		if(!genderPlayer.gender.canHaveBreasts()) {
+		if (!genderPlayer.gender.canHaveBreasts()) {
 			targetBreastSize = 0;
+		} else {
+			float tightness = Mth.clamp(armor.tightness(), 0, 1);
+			//Scale breast size by how tight the armor is, clamping at a max adjustment of shrinking by 0.15
+			targetBreastSize *= 1 - 0.15F * tightness;
 		}
-		//TODO: Do we want to allow a way for gender armor to make the target size be lowered by defining a concept of "tightness"
-		// And if we do, then do we want to make that also reduce the momentum/act as if there is higher resistance?
-		// Additionally, should the lower target size be done here or in GenderLayer (I believe it makes more sense to do here)
 
 		if(breastSize < targetBreastSize) {
 			breastSize += Math.abs(breastSize - targetBreastSize) / 2f;
@@ -82,7 +83,7 @@ public class BreastPhysics {
 		this.prePos = plr.position();
 		//System.out.println(motion);
 
-		float bounceIntensity = (genderPlayer.getBustSize() * 3f) * genderPlayer.getBounceMultiplier();
+		float bounceIntensity = (targetBreastSize * 3f) * genderPlayer.getBounceMultiplier();
 		float resistance = Mth.clamp(armor.physicsResistance(), 0, 1);
 		//Adjust bounce intensity by physics resistance of the worn armor
 		bounceIntensity *= 1 - resistance;

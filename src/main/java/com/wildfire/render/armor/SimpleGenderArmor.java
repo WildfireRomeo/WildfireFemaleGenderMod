@@ -21,15 +21,19 @@ package com.wildfire.render.armor;
 import com.wildfire.api.IGenderArmor;
 
 /**
- * Basic class to help define default implementations of {@link IGenderArmor}.
+ * Base class to help define default implementations of {@link IGenderArmor}.
  */
-public record SimpleGenderArmor(float physicsResistance) implements IGenderArmor {
+public record SimpleGenderArmor(float physicsResistance, float tightness) implements IGenderArmor {
 
     public static final SimpleGenderArmor FALLBACK = new SimpleGenderArmor(0.5F);
-    public static final SimpleGenderArmor LEATHER = new SimpleGenderArmor(0.3F);
-    public static final SimpleGenderArmor CHAIN_MAIL = new SimpleGenderArmor(0.5F);
+    public static final SimpleGenderArmor LEATHER = new SimpleGenderArmor(0.3F, 0.5F);
+    public static final SimpleGenderArmor CHAIN_MAIL = new SimpleGenderArmor(0.5F, 0.2F);
     public static final SimpleGenderArmor GOLD = new SimpleGenderArmor(0.85F);
     public static final SimpleGenderArmor IRON = new SimpleGenderArmor(1);
     public static final SimpleGenderArmor DIAMOND = new SimpleGenderArmor(1);
     public static final SimpleGenderArmor NETHERITE = new SimpleGenderArmor(1);
+
+    public SimpleGenderArmor(float physicsResistance) {
+        this(physicsResistance, 0);
+    }
 }
