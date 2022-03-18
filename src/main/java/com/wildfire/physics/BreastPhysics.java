@@ -64,7 +64,7 @@ public class BreastPhysics {
 		float breastWeight = genderPlayer.getBustSize() * 1.25f;
 		float targetBreastSize = genderPlayer.getBustSize();
 
-		if (!genderPlayer.gender.canHaveBreasts()) {
+		if (!genderPlayer.getGender().canHaveBreasts()) {
 			targetBreastSize = 0;
 		} else {
 			float tightness = Mth.clamp(armor.tightness(), 0, 1);
@@ -88,7 +88,7 @@ public class BreastPhysics {
 		//Adjust bounce intensity by physics resistance of the worn armor
 		bounceIntensity *= 1 - resistance;
 
-		if(!genderPlayer.getBreasts().isUniboob) {
+		if(!genderPlayer.getBreasts().isUniboob()) {
 			bounceIntensity = bounceIntensity * WildfireHelper.randFloat(0.5f, 1.5f);
 		}
 		if(plr.fallDistance > 0 && !alreadyFalling) {

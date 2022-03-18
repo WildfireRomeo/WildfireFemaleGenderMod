@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.main.networking;
 
+import com.wildfire.main.Breasts;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.GenderPlayer.Gender;
 import java.util.UUID;
@@ -43,23 +44,24 @@ public abstract class PacketGenderInfo {
 
     protected PacketGenderInfo(GenderPlayer plr) {
         this.uuid = plr.uuid;
-        this.gender = plr.gender;
+        this.gender = plr.getGender();
         this.bust_size = plr.getBustSize();
-        this.hurtSounds = plr.hurtSounds;
+        this.hurtSounds = plr.hasHurtSounds();
 
         //physics variables
-        this.breast_physics = plr.hasBreastPhysics;
-        this.breast_physics_armor = plr.hasArmorBreastPhysics;
-        this.show_in_armor = plr.showBreastsInArmor;
-        this.bounceMultiplier = plr.bounceMultiplier;
-        this.floppyMultiplier = plr.floppyMultiplier;
+        this.breast_physics = plr.hasBreastPhysics();
+        this.breast_physics_armor = plr.hasArmorBreastPhysics();
+        this.show_in_armor = plr.showBreastsInArmor();
+        this.bounceMultiplier = plr.getBounceMultiplierRaw();
+        this.floppyMultiplier = plr.getFloppiness();
 
-        this.xOffset = plr.getBreasts().xOffset;
-        this.yOffset = plr.getBreasts().yOffset;
-        this.zOffset = plr.getBreasts().zOffset;
+        Breasts breasts = plr.getBreasts();
+        this.xOffset = breasts.getXOffset();
+        this.yOffset = breasts.getYOffset();
+        this.zOffset = breasts.getZOffset();
 
-        this.uniboob = plr.getBreasts().isUniboob;
-        this.cleavage = plr.getBreasts().cleavage;
+        this.uniboob = breasts.isUniboob();
+        this.cleavage = breasts.getCleavage();
     }
 
     protected PacketGenderInfo(FriendlyByteBuf buffer) {
@@ -101,23 +103,23 @@ public abstract class PacketGenderInfo {
     }
 
     protected void updatePlayerFromPacket(GenderPlayer plr) {
-        plr.gender = gender;
+        plr.updateGender(gender);
         plr.updateBustSize(bust_size);
-        //plr.capeURL = capeURL;
-        plr.hurtSounds = hurtSounds;
+        plr.updateHurtSounds(hurtSounds);
 
         //physics
-        plr.hasBreastPhysics = breast_physics;
-        plr.hasArmorBreastPhysics = breast_physics_armor;
-        plr.showBreastsInArmor = show_in_armor;
-        plr.bounceMultiplier = bounceMultiplier;
-        plr.floppyMultiplier = floppyMultiplier;
+        plr.updateBreastPhysics(breast_physics);
+        plr.updateArmorBreastPhysics(breast_physics_armor);
+        plr.updateShowBreastsInArmor(show_in_armor);
+        plr.updateBounceMultiplier(bounceMultiplier);
+        plr.updateFloppiness(floppyMultiplier);
         //System.out.println(plr.username + " - " + plr.gender);
 
-        plr.getBreasts().xOffset = xOffset;
-        plr.getBreasts().yOffset = yOffset;
-        plr.getBreasts().zOffset = zOffset;
-        plr.getBreasts().isUniboob = uniboob;
-        plr.getBreasts().cleavage = cleavage;
+        Breasts breasts = plr.getBreasts();
+        breasts.updateXOffset(xOffset);
+        breasts.updateYOffset(yOffset);
+        breasts.updateZOffset(zOffset);
+        breasts.updateUniboob(uniboob);
+        breasts.updateCleavage(cleavage);
     }
 }
