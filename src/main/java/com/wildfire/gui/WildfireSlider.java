@@ -74,7 +74,7 @@ public class WildfireSlider extends AbstractSliderButton {
 		}
 	}
 
-	private void save() {
+	public void save() {
 		if (changed) {
 			onSave.accept(lastValue);
 			changed = false;

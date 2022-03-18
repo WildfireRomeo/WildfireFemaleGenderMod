@@ -122,4 +122,15 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         this.font.draw(m, title, x + 32, y - 60, 0xFFFFFF);
         super.render(m, f1, f2, f3);
     }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int state) {
+        //Ensure all sliders are saved
+        breastSlider.save();
+        xOffsetBoobSlider.save();
+        yOffsetBoobSlider.save();
+        zOffsetBoobSlider.save();
+        cleavageSlider.save();
+        return super.mouseReleased(mouseX, mouseY, state);
+    }
 }

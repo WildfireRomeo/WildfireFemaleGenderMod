@@ -42,6 +42,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
     private static final Component ENABLED = new TranslatableComponent("wildfire_gender.label.enabled").withStyle(ChatFormatting.GREEN);
     private static final Component DISABLED = new TranslatableComponent("wildfire_gender.label.disabled").withStyle(ChatFormatting.RED);
 
+    private WildfireSlider bounceSlider, floppySlider;
     private ResourceLocation BACKGROUND;
     private int yPos = 0;
     private boolean bounceWarning;
@@ -87,7 +88,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             }
         }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.hide_in_armor"), mouseX, mouseY)));
 
-        this.addRenderableWidget(new WildfireSlider(xPos, yPos + 60, 158, 22, Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplierRaw(), value -> {
+        this.addRenderableWidget(this.bounceSlider = new WildfireSlider(xPos, yPos + 60, 158, 22, Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplierRaw(), value -> {
         }, value -> {
             float bounceText = 3 * value;
             float v = Math.round(bounceText * 10) / 10f;
@@ -104,7 +105,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             }
         }));
 
-        this.addRenderableWidget(new WildfireSlider(xPos, yPos + 80, 158, 22, Configuration.FLOPPY_MULTIPLIER, aPlr.getFloppiness(), value -> {
+        this.addRenderableWidget(this.floppySlider = new WildfireSlider(xPos, yPos + 80, 158, 22, Configuration.FLOPPY_MULTIPLIER, aPlr.getFloppiness(), value -> {
         }, value -> new TranslatableComponent("wildfire_gender.slider.floppy", Math.round(value * 100)), value -> {
             if (aPlr.updateFloppiness(value)) {
                 GenderPlayer.saveGenderInfo(aPlr);
@@ -164,5 +165,13 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
         if(bounceWarning) {
             Screen.drawCenteredString(m, font, new TranslatableComponent("wildfire_gender.tooltip.bounce_warning").withStyle(ChatFormatting.ITALIC), x, y+90, 0xFF6666);
         }
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int state) {
+        //Ensure all sliders are saved
+        bounceSlider.save();
+        floppySlider.save();
+        return super.mouseReleased(mouseX, mouseY, state);
     }
 }
