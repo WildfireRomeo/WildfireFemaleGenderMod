@@ -18,13 +18,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.gui.screen;
 
+import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.WildfireGender;
+import com.wildfire.main.config.Configuration;
 import java.util.UUID;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.gui.WildfireButton;
-import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.GenderPlayer;
 import javax.annotation.Nonnull;
 import net.minecraft.ChatFormatting;
@@ -32,7 +33,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -44,12 +44,8 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
     private WildfireSlider bounceSlider, floppySlider;
     private ResourceLocation BACKGROUND;
-    private float preBounceMult = 0f;
-    private float preFloppyMult = 0f;
-    private boolean changedSlider = false, changedFloppySlider = false;
     private int yPos = 0;
-    private boolean enablePhysics, enablePhysicsArmor, enableHurtSounds, enableShowInArmor;
-    private float bounceMult, floppyMult;
+    private boolean bounceWarning;
 
     protected WildfireCharacterSettingsScreen(Screen parent, UUID uuid) {
         super(new TranslatableComponent("wildfire_gender.char_settings.title"), parent, uuid);
@@ -63,52 +59,66 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
         int y = this.height / 2;
 
         yPos = y - 47;
-        enablePhysics = aPlr.hasBreastPhysics;
-        enablePhysicsArmor = aPlr.hasArmorBreastPhysics;
-        enableShowInArmor = aPlr.showBreastsInArmor;
-        enableHurtSounds = aPlr.hurtSounds;
-        bounceMult = aPlr.bounceMultiplier;
-        floppyMult = aPlr.floppyMultiplier;
+        int xPos = x - 156 / 2 - 1;
 
-        this.addRenderableWidget(new WildfireButton(this.width / 2 - 156/2-1, yPos, 157, 20,
-              new TranslatableComponent("wildfire_gender.char_settings.physics", enablePhysics ? ENABLED : DISABLED), button -> {
-            enablePhysics ^= true;
-            button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.physics", enablePhysics ? ENABLED : DISABLED));
-            aPlr.hasBreastPhysics = enablePhysics;
-            GenderPlayer.saveGenderInfo(aPlr);
+        this.addRenderableWidget(new WildfireButton(xPos, yPos, 157, 20,
+              new TranslatableComponent("wildfire_gender.char_settings.physics", aPlr.hasBreastPhysics() ? ENABLED : DISABLED), button -> {
+            boolean enablePhysics = !aPlr.hasBreastPhysics();
+            if (aPlr.updateBreastPhysics(enablePhysics)) {
+                button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.physics", enablePhysics ? ENABLED : DISABLED));
+                GenderPlayer.saveGenderInfo(aPlr);
+            }
         }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.breast_physics"), mouseX, mouseY)));
 
-        this.addRenderableWidget(new WildfireButton(this.width / 2 - 156/2-1, yPos + 20, 157, 20,
-              new TranslatableComponent("wildfire_gender.char_settings.armor_physics", enablePhysicsArmor ? ENABLED : DISABLED), button -> {
-            enablePhysicsArmor ^= true;
-            button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.armor_physics", enablePhysicsArmor ? ENABLED : DISABLED));
-            aPlr.hasArmorBreastPhysics = enablePhysicsArmor;
-            GenderPlayer.saveGenderInfo(aPlr);
+        this.addRenderableWidget(new WildfireButton(xPos, yPos + 20, 157, 20,
+              new TranslatableComponent("wildfire_gender.char_settings.armor_physics", aPlr.hasArmorBreastPhysics() ? ENABLED : DISABLED), button -> {
+            boolean enablePhysicsArmor = !aPlr.hasArmorBreastPhysics();
+            if (aPlr.updateArmorBreastPhysics(enablePhysicsArmor)) {
+                button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.armor_physics", enablePhysicsArmor ? ENABLED : DISABLED));
+                GenderPlayer.saveGenderInfo(aPlr);
+            }
         }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.armor_physics"), mouseX, mouseY)));
 
-        this.addRenderableWidget(new WildfireButton(this.width / 2 - 156/2-1, yPos + 40, 157, 20,
-              new TranslatableComponent("wildfire_gender.char_settings.hide_in_armor", enableShowInArmor ? DISABLED : ENABLED), button -> {
-            enableShowInArmor ^= true;
-            button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.hide_in_armor", enableShowInArmor ? DISABLED : ENABLED));
-            aPlr.showBreastsInArmor = enableShowInArmor;
-            GenderPlayer.saveGenderInfo(aPlr);
+        this.addRenderableWidget(new WildfireButton(xPos, yPos + 40, 157, 20,
+              new TranslatableComponent("wildfire_gender.char_settings.hide_in_armor", aPlr.showBreastsInArmor() ? DISABLED : ENABLED), button -> {
+            boolean enableShowInArmor = !aPlr.showBreastsInArmor();
+            if (aPlr.updateShowBreastsInArmor(enableShowInArmor)) {
+                button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.hide_in_armor", enableShowInArmor ? DISABLED : ENABLED));
+                GenderPlayer.saveGenderInfo(aPlr);
+            }
         }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.hide_in_armor"), mouseX, mouseY)));
 
-        this.addRenderableWidget(this.bounceSlider = new WildfireSlider(this.width / 2 - 160/2-1, yPos + 60, 160, 22, TextComponent.EMPTY, title, 0.0D, 1.0D, bounceMult, false,  false, button -> {
-        }, slider -> {
+        this.addRenderableWidget(this.bounceSlider = new WildfireSlider(xPos, yPos + 60, 158, 22, Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplierRaw(), value -> {
+        }, value -> {
+            float bounceText = 3 * value;
+            float v = Math.round(bounceText * 10) / 10f;
+            bounceWarning = v > 1;
+            if (v == 3) {
+                return new TranslatableComponent("wildfire_gender.slider.max_bounce");
+            } else if (Math.round(bounceText * 100) / 100f == 0) {
+                return new TranslatableComponent("wildfire_gender.slider.min_bounce");
+            }
+            return new TranslatableComponent("wildfire_gender.slider.bounce", v);
+        }, value -> {
+            if (aPlr.updateBounceMultiplier(value)) {
+                GenderPlayer.saveGenderInfo(aPlr);
+            }
         }));
 
-        this.addRenderableWidget(this.floppySlider = new WildfireSlider(this.width / 2 - 160/2-1, yPos + 80, 160, 22, TextComponent.EMPTY, title, 0.0D, 1.0D, floppyMult, false,  false, button -> {
-        }, slider -> {
+        this.addRenderableWidget(this.floppySlider = new WildfireSlider(xPos, yPos + 80, 158, 22, Configuration.FLOPPY_MULTIPLIER, aPlr.getFloppiness(), value -> {
+        }, value -> new TranslatableComponent("wildfire_gender.slider.floppy", Math.round(value * 100)), value -> {
+            if (aPlr.updateFloppiness(value)) {
+                GenderPlayer.saveGenderInfo(aPlr);
+            }
         }));
 
-
-        this.addRenderableWidget((new WildfireButton(this.width / 2 - 156/2-1, yPos + 100, 157, 20,
-              new TranslatableComponent("wildfire_gender.char_settings.hurt_sounds", enableHurtSounds ? ENABLED : DISABLED), button -> {
-            enableHurtSounds ^= true;
-            button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.hurt_sounds", enableHurtSounds ? ENABLED : DISABLED));
-            aPlr.hurtSounds = enableHurtSounds;
-            GenderPlayer.saveGenderInfo(aPlr);
+        this.addRenderableWidget(new WildfireButton(xPos, yPos + 100, 157, 20,
+              new TranslatableComponent("wildfire_gender.char_settings.hurt_sounds", aPlr.hasHurtSounds() ? ENABLED : DISABLED), button -> {
+            boolean enableHurtSounds = !aPlr.hasHurtSounds();
+            if (aPlr.updateHurtSounds(enableHurtSounds)) {
+                button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.hurt_sounds", enableHurtSounds ? ENABLED : DISABLED));
+                GenderPlayer.saveGenderInfo(aPlr);
+            }
         }, (button, matrices, mouseX, mouseY) -> {
             //List<TextComponent> list = new ArrayList<>();
             //list.add(new TextComponent("Enables Custom Hurt Sounds."));
@@ -116,7 +126,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             //RenderSystem.disableDepthTest();
             //renderTooltip(matrices, list, mouseX, mouseY);
             //RenderSystem.enableDepthTest();
-        })));
+        }));
 
         this.addRenderableWidget(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, new TranslatableComponent("wildfire_gender.label.exit"),
               button -> Minecraft.getInstance().setScreen(parent)));
@@ -146,58 +156,22 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
         this.font.draw(m, title, x - 79, yPos - 10, 4473924);
 
-        //modelRotation = (float)this.rotateSlider.getValue();
-        if(preBounceMult != (float) this.bounceSlider.getValue()) {
-            bounceMult = (float) this.bounceSlider.getValue();
-            preBounceMult = (float) this.bounceSlider.getValue();
-            changedSlider = true;
-        }
-        if(preFloppyMult != (float) this.floppySlider.getValue()) {
-            floppyMult = (float) this.floppySlider.getValue();
-            preFloppyMult = (float) this.floppySlider.getValue();
-            changedFloppySlider = true;
-        }
-
         super.render(m, f1, f2, f3);
 
         if(plrEntity != null) {
             Screen.drawCenteredString(m, this.font, plrEntity.getDisplayName(), x, yPos - 30, 0xFFFFFF);
         }
 
-        float bounceText = (bounceMult * 3);
-        if (Math.round(bounceText * 10) / 10f == 3) {
-            this.font.draw(m, new TranslatableComponent("wildfire_gender.slider.max_bounce"), x - 72, yPos+67, (this.bounceSlider.isMouseOver(f1,  f2) || changedSlider) ? 0xFFFF55: 0xFFFFFF);
-        } else if (Math.round(bounceText * 100) / 100f == 0) {
-            this.font.draw(m, new TranslatableComponent("wildfire_gender.slider.min_bounce"), x - 72, yPos+67, (this.bounceSlider.isMouseOver(f1,  f2) || changedSlider) ? 0xFFFF55: 0xFFFFFF);
-        } else {
-            this.font.draw(m, new TranslatableComponent("wildfire_gender.slider.bounce", Math.round(bounceText * 10) / 10f), x - 72, yPos+67, (this.bounceSlider.isMouseOver(f1,  f2) || changedSlider) ? 0xFFFF55: 0xFFFFFF);
-        }
-        this.font.draw(m, new TranslatableComponent("wildfire_gender.slider.floppy", Math.round(floppyMult * 100)), x - 72, yPos+87, (this.floppySlider.isMouseOver(f1,  f2) || changedFloppySlider) ? 0xFFFF55: 0xFFFFFF);
-
-        if(Math.round(bounceText * 10) / 10f > 1f) {
+        if(bounceWarning) {
             Screen.drawCenteredString(m, font, new TranslatableComponent("wildfire_gender.tooltip.bounce_warning").withStyle(ChatFormatting.ITALIC), x, y+90, 0xFF6666);
         }
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int state) {
-        GenderPlayer aPlr = getPlayer();
-
-        if(changedSlider) {
-            bounceMult = (float) this.bounceSlider.getValue();
-            aPlr.bounceMultiplier = bounceMult;
-            GenderPlayer.saveGenderInfo(aPlr);
-            changedSlider = false;
-            bounceSlider.dragging = false;
-        }
-        if(changedFloppySlider) {
-            floppyMult = (float) this.floppySlider.getValue();
-            aPlr.floppyMultiplier =  floppyMult;
-            GenderPlayer.saveGenderInfo(aPlr);
-            changedFloppySlider = false;
-            floppySlider.dragging = false;
-        }
+        //Ensure all sliders are saved
+        bounceSlider.save();
+        floppySlider.save();
         return super.mouseReleased(mouseX, mouseY, state);
     }
-
 }

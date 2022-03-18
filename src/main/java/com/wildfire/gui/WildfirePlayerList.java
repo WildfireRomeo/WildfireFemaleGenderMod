@@ -141,7 +141,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
             if(aPlr != null) {
                 btnOpenGUI.active = !aPlr.lockSettings;
 
-                font.draw(m, aPlr.gender.getDisplayName(), left + 23, top + 11, 0xFFFFFF);
+                font.draw(m, aPlr.getGender().getDisplayName(), left + 23, top + 11, 0xFFFFFF);
                 if (aPlr.getSyncStatus() == GenderPlayer.SyncStatus.SYNCED) {
                     RenderSystem.setShaderTexture(0, TXTR_SYNC);
                     GuiComponent.blit(m, left + 98, top + 11, 12, 8, 0, 0, 12, 8, 12, 8);

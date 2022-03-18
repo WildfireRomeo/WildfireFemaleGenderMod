@@ -57,14 +57,16 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 
 		GenderPlayer plr = getPlayer();
 
-		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 52, 158, 20, getGenderLabel(plr.gender), button -> {
-			plr.gender = switch (plr.gender) {
+		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 52, 158, 20, getGenderLabel(plr.getGender()), button -> {
+			Gender gender = switch (plr.getGender()) {
 				case MALE -> Gender.FEMALE;
 				case FEMALE -> Gender.OTHER;
 				case OTHER -> Gender.MALE;
 			};
-			button.setMessage(getGenderLabel(plr.gender));
-			GenderPlayer.saveGenderInfo(plr);
+			if (plr.updateGender(gender)) {
+				button.setMessage(getGenderLabel(gender));
+				GenderPlayer.saveGenderInfo(plr);
+			}
 		}));
 
 		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, new TranslatableComponent("wildfire_gender.appearance_settings.title").append("..."),

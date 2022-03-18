@@ -37,10 +37,21 @@ public abstract class ConfigKey<TYPE> {
 
     public final TYPE read(JsonObject obj) {
         JsonElement element = obj.get(key);
-        return element == null ? defaultValue : read(element);
+        if (element != null) {
+            TYPE value = read(element);
+            if (validate(value)) {
+                //If the value is valid, return it otherwise return the default
+                return value;
+            }
+        }
+        return defaultValue;
     }
 
     protected abstract TYPE read(JsonElement element);
 
     public abstract void save(JsonObject object, TYPE value);
+
+    public boolean validate(TYPE value) {
+        return value != null;
+    }
 }

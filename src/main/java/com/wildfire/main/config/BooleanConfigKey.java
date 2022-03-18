@@ -23,7 +23,7 @@ import com.google.gson.JsonObject;
 
 public class BooleanConfigKey extends ConfigKey<Boolean> {
 
-    public BooleanConfigKey(String key, Boolean defaultValue) {
+    public BooleanConfigKey(String key, boolean defaultValue) {
         super(key, defaultValue);
     }
 
