@@ -17,11 +17,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 package com.wildfire.mixins;
 import com.mojang.authlib.GameProfile;
+import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
+import com.wildfire.main.WildfireHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -65,8 +68,10 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 		GenderPlayer aPlr = WildfireGender.getPlayerById(this.getUuid());
 		if(aPlr == null) return;
 		PlayerEntity plr = (PlayerEntity) (Object) this;
-		aPlr.getLeftBreastPhysics().update(plr);
-		aPlr.getRightBreastPhysics().update(plr);
+		IGenderArmor armor = WildfireHelper.getArmorConfig(plr.getEquippedStack(EquipmentSlot.CHEST));
+
+		aPlr.getLeftBreastPhysics().update(plr, armor);
+		aPlr.getRightBreastPhysics().update(plr, armor);
 
 
 	}
