@@ -18,9 +18,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.main.networking;
 
-import com.wildfire.main.Breasts;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.GenderPlayer.Gender;
+import com.wildfire.main.config.Configuration;
 import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
 
@@ -45,23 +45,21 @@ public abstract class PacketGenderInfo {
     protected PacketGenderInfo(GenderPlayer plr) {
         this.uuid = plr.uuid;
         this.gender = plr.getGender();
-        this.bust_size = plr.getBustSize();
-        this.hurtSounds = plr.hasHurtSounds();
+        this.bust_size = plr.get(Configuration.BUST_SIZE);
+        this.hurtSounds = plr.get(Configuration.HURT_SOUNDS);
 
         //physics variables
-        this.breast_physics = plr.hasBreastPhysics();
-        this.breast_physics_armor = plr.hasArmorBreastPhysics();
-        this.show_in_armor = plr.showBreastsInArmor();
-        this.bounceMultiplier = plr.getBounceMultiplierRaw();
-        this.floppyMultiplier = plr.getFloppiness();
+        this.breast_physics = plr.get(Configuration.BREAST_PHYSICS);
+        this.breast_physics_armor = plr.get(Configuration.BREAST_PHYSICS_ARMOR);
+        this.show_in_armor = plr.get(Configuration.SHOW_IN_ARMOR);
+        this.bounceMultiplier = plr.get(Configuration.BOUNCE_MULTIPLIER);
+        this.floppyMultiplier = plr.get(Configuration.FLOPPY_MULTIPLIER);
 
-        Breasts breasts = plr.getBreasts();
-        this.xOffset = breasts.getXOffset();
-        this.yOffset = breasts.getYOffset();
-        this.zOffset = breasts.getZOffset();
-
-        this.uniboob = breasts.isUniboob();
-        this.cleavage = breasts.getCleavage();
+        this.xOffset = plr.get(Configuration.BREASTS_OFFSET_X);
+        this.yOffset = plr.get(Configuration.BREASTS_OFFSET_Y);
+        this.zOffset = plr.get(Configuration.BREASTS_OFFSET_Z);
+        this.uniboob = plr.get(Configuration.BREASTS_UNIBOOB);
+        this.cleavage = plr.get(Configuration.BREASTS_CLEAVAGE);
     }
 
     protected PacketGenderInfo(FriendlyByteBuf buffer) {
@@ -103,23 +101,22 @@ public abstract class PacketGenderInfo {
     }
 
     protected void updatePlayerFromPacket(GenderPlayer plr) {
-        plr.updateGender(gender);
-        plr.updateBustSize(bust_size);
-        plr.updateHurtSounds(hurtSounds);
+        plr.update(Configuration.GENDER, gender);
+        plr.update(Configuration.BUST_SIZE, bust_size);
+        plr.update(Configuration.HURT_SOUNDS, hurtSounds);
 
         //physics
-        plr.updateBreastPhysics(breast_physics);
-        plr.updateArmorBreastPhysics(breast_physics_armor);
-        plr.updateShowBreastsInArmor(show_in_armor);
-        plr.updateBounceMultiplier(bounceMultiplier);
-        plr.updateFloppiness(floppyMultiplier);
+        plr.update(Configuration.BREAST_PHYSICS, breast_physics);
+        plr.update(Configuration.BREAST_PHYSICS_ARMOR, breast_physics_armor);
+        plr.update(Configuration.SHOW_IN_ARMOR, show_in_armor);
+        plr.update(Configuration.BOUNCE_MULTIPLIER, bounceMultiplier);
+        plr.update(Configuration.FLOPPY_MULTIPLIER, floppyMultiplier);
         //System.out.println(plr.username + " - " + plr.gender);
 
-        Breasts breasts = plr.getBreasts();
-        breasts.updateXOffset(xOffset);
-        breasts.updateYOffset(yOffset);
-        breasts.updateZOffset(zOffset);
-        breasts.updateUniboob(uniboob);
-        breasts.updateCleavage(cleavage);
+        plr.update(Configuration.BREASTS_OFFSET_X, xOffset);
+        plr.update(Configuration.BREASTS_OFFSET_Y, yOffset);
+        plr.update(Configuration.BREASTS_OFFSET_Z, zOffset);
+        plr.update(Configuration.BREASTS_UNIBOOB, uniboob);
+        plr.update(Configuration.BREASTS_CLEAVAGE, cleavage);
     }
 }

@@ -20,6 +20,7 @@ package com.wildfire.gui.screen;
 
 import com.wildfire.main.GenderPlayer.Gender;
 import com.wildfire.main.WildfireGender;
+import com.wildfire.main.config.Configuration;
 import java.util.UUID;
 
 import com.mojang.blaze3d.platform.Lighting;
@@ -57,16 +58,11 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 
 		GenderPlayer plr = getPlayer();
 
-		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 52, 158, 20, getGenderLabel(plr.getGender()), button -> {
-			Gender gender = switch (plr.getGender()) {
-				case MALE -> Gender.FEMALE;
-				case FEMALE -> Gender.OTHER;
-				case OTHER -> Gender.MALE;
-			};
-			if (plr.updateGender(gender)) {
-				button.setMessage(getGenderLabel(gender));
-				GenderPlayer.saveGenderInfo(plr);
-			}
+		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 52, 158, 20, Configuration.GENDER, plr,
+			gender -> new TranslatableComponent("wildfire_gender.label.gender").append(" - ").append(((Gender) gender).getDisplayName()), gender -> switch (gender) {
+			case MALE -> Gender.FEMALE;
+			case FEMALE -> Gender.OTHER;
+			case OTHER -> Gender.MALE;
 		}));
 
 		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, new TranslatableComponent("wildfire_gender.appearance_settings.title").append("..."),

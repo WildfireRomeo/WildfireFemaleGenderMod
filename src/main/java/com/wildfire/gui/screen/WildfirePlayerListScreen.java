@@ -25,6 +25,7 @@ import com.wildfire.gui.WildfirePlayerList;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.GenderPlayer.Gender;
 import com.wildfire.main.WildfireGender;
+import com.wildfire.main.config.Configuration;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -136,12 +137,12 @@ public class WildfirePlayerListScreen extends Screen {
 			Gender gender = HOVER_PLAYER.getGender();
 			this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.label.gender").append(" ").append(gender.getDisplayName()), dialogX, dialogY + 10, 0xBBBBBB);
 			if (gender.canHaveBreasts()) {
-				this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.wardrobe.slider.breast_size", Math.round(HOVER_PLAYER.getBustSize() * 100)), dialogX, dialogY + 20, 0xBBBBBB);
-				this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.char_settings.physics", new TranslatableComponent(HOVER_PLAYER.hasBreastPhysics() ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 40, 0xBBBBBB);
+				this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.wardrobe.slider.breast_size", Math.round(HOVER_PLAYER.get(Configuration.BUST_SIZE) * 100)), dialogX, dialogY + 20, 0xBBBBBB);
+				this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.char_settings.physics", new TranslatableComponent(HOVER_PLAYER.get(Configuration.BREAST_PHYSICS) ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 40, 0xBBBBBB);
 				this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.player_list.bounce_multiplier", HOVER_PLAYER.getBounceMultiplier()), dialogX + 6, dialogY + 50, 0xBBBBBB);
-				this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.player_list.breast_momentum", Math.round(HOVER_PLAYER.getFloppiness() * 100)), dialogX + 6, dialogY + 60, 0xBBBBBB);
+				this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.player_list.breast_momentum", Math.round(HOVER_PLAYER.get(Configuration.FLOPPY_MULTIPLIER) * 100)), dialogX + 6, dialogY + 60, 0xBBBBBB);
 
-				this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.player_list.female_sounds", new TranslatableComponent(HOVER_PLAYER.hasHurtSounds() ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 80, 0xBBBBBB);
+				this.font.drawShadow(m, new TranslatableComponent("wildfire_gender.player_list.female_sounds", new TranslatableComponent(HOVER_PLAYER.get(Configuration.HURT_SOUNDS) ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 80, 0xBBBBBB);
 			}
 			if(pEntity != null) {
 				WardrobeBrowserScreen.drawEntityOnScreen(x - 110, y + 45, 45, (x - 300), (y - 26 - f2), pEntity);

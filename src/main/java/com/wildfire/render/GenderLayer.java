@@ -23,8 +23,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.*;
 import com.wildfire.api.IGenderArmor;
-import com.wildfire.main.Breasts;
 import com.wildfire.main.WildfireHelper;
+import com.wildfire.main.config.Configuration;
 import com.wildfire.physics.BreastPhysics;
 import com.wildfire.render.WildfireModelRenderer.BreastModelBox;
 import com.wildfire.render.WildfireModelRenderer.OverlayModelBox;
@@ -124,7 +124,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			//Note: When the stack is empty the helper will fall back to an implementation that returns the proper data
 			IGenderArmor genderArmor = WildfireHelper.getArmorConfig(armorStack);
 			boolean isChestplateOccupied = genderArmor.coversBreasts();
-			if (genderArmor.alwaysHidesBreasts() || !plr.showBreastsInArmor() && isChestplateOccupied) {
+			if (genderArmor.alwaysHidesBreasts() || isChestplateOccupied && !plr.get(Configuration.SHOW_IN_ARMOR)) {
 				//If the armor always hides breasts or there is armor and the player configured breasts
 				// to be hidden when wearing armor, we can just exit early rather than doing any calculations
 				return;
@@ -133,14 +133,13 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			PlayerRenderer rend = (PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(ent);
 			PlayerModel<AbstractClientPlayer> model = rend.getModel();
 
-			Breasts breasts = plr.getBreasts();
-			float breastOffsetX = Math.round((Math.round(breasts.getXOffset() * 100f) / 100f) * 10) / 10f;
-			float breastOffsetY = -Math.round((Math.round(breasts.getYOffset() * 100f) / 100f) * 10) / 10f;
-			float breastOffsetZ = -Math.round((Math.round(breasts.getZOffset() * 100f) / 100f) * 10) / 10f;
+			float breastOffsetX = Math.round((Math.round(plr.get(Configuration.BREASTS_OFFSET_X) * 100f) / 100f) * 10) / 10f;
+			float breastOffsetY = -Math.round((Math.round(plr.get(Configuration.BREASTS_OFFSET_Y) * 100f) / 100f) * 10) / 10f;
+			float breastOffsetZ = -Math.round((Math.round(plr.get(Configuration.BREASTS_OFFSET_Z) * 100f) / 100f) * 10) / 10f;
 
 			BreastPhysics leftBreastPhysics = plr.getLeftBreastPhysics();
 			final float bSize = leftBreastPhysics.getBreastSize(partialTicks);
-			float outwardAngle = (Math.round(breasts.getCleavage() * 100f) / 100f) * 100f;
+			float outwardAngle = (Math.round(plr.get(Configuration.BREASTS_CLEAVAGE) * 100f) / 100f) * 100f;
 			outwardAngle = Math.min(outwardAngle, 10);
 
 
@@ -169,7 +168,8 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			float rTotal;
 			float rTotalX;
 			float rightBounceRotation;
-			if (breasts.isUniboob()) {
+			boolean isUniboob = plr.get(Configuration.BREASTS_UNIBOOB);
+			if (isUniboob) {
 				rTotal = lTotal;
 				rTotalX = lTotalX;
 				rightBounceRotation = leftBounceRotation;
@@ -199,16 +199,16 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			boolean breathingAnimation = resistance <= 0.5F &&
 										 (!ent.isUnderWater() || MobEffectUtil.hasWaterBreathing(ent) ||
 										  ent.level.getBlockState(new BlockPos(ent.getX(), ent.getEyeY(), ent.getZ())).is(Blocks.BUBBLE_COLUMN));
-			boolean bounceEnabled = plr.hasBreastPhysics() && (!isChestplateOccupied || plr.hasArmorBreastPhysics() && resistance < 1); //oh, you found this?
+			boolean bounceEnabled = plr.get(Configuration.BREAST_PHYSICS) && (!isChestplateOccupied || plr.get(Configuration.BREAST_PHYSICS_ARMOR) && resistance < 1); //oh, you found this?
 
 			int combineTex = LivingEntityRenderer.getOverlayCoords(ent, 0);
 			RenderType type = RenderType.entityTranslucent(rend.getTextureLocation(ent));
 			renderBreastWithTransforms(ent, model.body, armorStack, matrixStack, bufferSource, type, packedLightIn, combineTex, overlayRed, overlayGreen,
 				overlayBlue, overlayAlpha, bounceEnabled, lTotalX, lTotal, leftBounceRotation, breastSize, breastOffsetX, breastOffsetY, breastOffsetZ, zOff,
-				outwardAngle, breasts.isUniboob(), isChestplateOccupied, breathingAnimation, true);
+				outwardAngle, isUniboob, isChestplateOccupied, breathingAnimation, true);
 			renderBreastWithTransforms(ent, model.body, armorStack, matrixStack, bufferSource, type, packedLightIn, combineTex, overlayRed, overlayGreen,
 				overlayBlue, overlayAlpha, bounceEnabled, rTotalX, rTotal, rightBounceRotation, breastSize, -breastOffsetX, breastOffsetY, breastOffsetZ, zOff,
-				-outwardAngle, breasts.isUniboob(), isChestplateOccupied, breathingAnimation, false);
+				-outwardAngle, isUniboob, isChestplateOccupied, breathingAnimation, false);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		} catch(Exception e) {
 			e.printStackTrace();

@@ -20,6 +20,7 @@ package com.wildfire.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.config.FloatConfigKey;
 import it.unimi.dsi.fastutil.floats.Float2ObjectFunction;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
@@ -42,6 +43,20 @@ public class WildfireSlider extends AbstractSliderButton {
 
 	private float lastValue;
 	private boolean changed;
+
+	public WildfireSlider(int xPos, int yPos, int width, int height, FloatConfigKey config, GenderPlayer plr, Float2ObjectFunction<Component> messageUpdate,
+		FloatConsumer onSave) {
+		this(xPos, yPos, width, height, config, plr.get(config), value -> plr.update(config, value), messageUpdate, onSave);
+	}
+
+	public WildfireSlider(int xPos, int yPos, int width, int height, FloatConfigKey config, GenderPlayer plr, Float2ObjectFunction<Component> messageUpdate) {
+		this(xPos, yPos, width, height, config, plr.get(config), value -> {
+		}, messageUpdate, value -> {
+			if (plr.update(config, value)) {
+				GenderPlayer.saveGenderInfo(plr);
+			}
+		});
+	}
 
 	public WildfireSlider(int xPos, int yPos, int width, int height, FloatConfigKey config, double currentVal, FloatConsumer valueUpdate,
 		Float2ObjectFunction<Component> messageUpdate, FloatConsumer onSave) {

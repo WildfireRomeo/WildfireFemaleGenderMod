@@ -22,7 +22,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfireSlider;
-import com.wildfire.main.Breasts;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.config.Configuration;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
@@ -48,7 +47,6 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         int j = this.height / 2;
 
         GenderPlayer plr = getPlayer();
-        Breasts breasts = plr.getBreasts();
         FloatConsumer onSave = value -> {
             //Just save as we updated the actual value in value change
             GenderPlayer.saveGenderInfo(plr);
@@ -57,28 +55,23 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         this.addRenderableWidget(new WildfireButton(this.width / 2 + 178, j - 61, 9, 9, new TranslatableComponent("wildfire_gender.label.exit"),
               button -> Minecraft.getInstance().setScreen(parent)));
 
-        this.addRenderableWidget(this.breastSlider = new WildfireSlider(this.width / 2 + 30, j - 48, 158, 20, Configuration.BUST_SIZE, plr.getBustSize(),
-              plr::updateBustSize, value -> new TranslatableComponent("wildfire_gender.wardrobe.slider.breast_size", Math.round(value * 100)), onSave));
+        this.addRenderableWidget(this.breastSlider = new WildfireSlider(this.width / 2 + 30, j - 48, 158, 20, Configuration.BUST_SIZE, plr,
+              value -> new TranslatableComponent("wildfire_gender.wardrobe.slider.breast_size", Math.round(value * 100)), onSave));
 
         //Customization
-        this.addRenderableWidget(this.xOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 27, 158, 20, Configuration.BREASTS_OFFSET_X, breasts.getXOffset(),
-              breasts::updateXOffset, value -> new TranslatableComponent("wildfire_gender.wardrobe.slider.separation", Math.round((Math.round(value * 100f) / 100f) * 10)), onSave));
-        this.addRenderableWidget(this.yOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 6, 158, 20, Configuration.BREASTS_OFFSET_Y, breasts.getYOffset(),
-              breasts::updateYOffset, value -> new TranslatableComponent("wildfire_gender.wardrobe.slider.height", Math.round((Math.round(value * 100f) / 100f) * 10)), onSave));
-        this.addRenderableWidget(this.zOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j + 15, 158, 20, Configuration.BREASTS_OFFSET_Z, breasts.getZOffset(),
-              breasts::updateZOffset, value -> new TranslatableComponent("wildfire_gender.wardrobe.slider.depth", Math.round((Math.round(value * 100f) / 100f) * 10)), onSave));
+        this.addRenderableWidget(this.xOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 27, 158, 20, Configuration.BREASTS_OFFSET_X, plr,
+              value -> new TranslatableComponent("wildfire_gender.wardrobe.slider.separation", Math.round((Math.round(value * 100f) / 100f) * 10)), onSave));
+        this.addRenderableWidget(this.yOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 6, 158, 20, Configuration.BREASTS_OFFSET_Y, plr,
+              value -> new TranslatableComponent("wildfire_gender.wardrobe.slider.height", Math.round((Math.round(value * 100f) / 100f) * 10)), onSave));
+        this.addRenderableWidget(this.zOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j + 15, 158, 20, Configuration.BREASTS_OFFSET_Z, plr,
+              value -> new TranslatableComponent("wildfire_gender.wardrobe.slider.depth", Math.round((Math.round(value * 100f) / 100f) * 10)), onSave));
 
-        this.addRenderableWidget(this.cleavageSlider = new WildfireSlider(this.width / 2 + 30, j + 36, 158, 20, Configuration.BREASTS_CLEAVAGE, breasts.getCleavage(),
-              breasts::updateCleavage, value -> new TranslatableComponent("wildfire_gender.wardrobe.slider.rotation", Math.round((Math.round(value * 100f) / 100f) * 100)), onSave));
+        this.addRenderableWidget(this.cleavageSlider = new WildfireSlider(this.width / 2 + 30, j + 36, 158, 20, Configuration.BREASTS_CLEAVAGE, plr,
+              value -> new TranslatableComponent("wildfire_gender.wardrobe.slider.rotation", Math.round((Math.round(value * 100f) / 100f) * 100)), onSave));
 
-        this.addRenderableWidget(new WildfireButton(this.width / 2 + 30, j + 57, 158, 20,
-              new TranslatableComponent("wildfire_gender.breast_customization.dual_physics", new TranslatableComponent(breasts.isUniboob() ? "wildfire_gender.label.no" : "wildfire_gender.label.yes")), button -> {
-            boolean isUniboob = !breasts.isUniboob();
-            if (breasts.updateUniboob(isUniboob)) {
-                button.setMessage(new TranslatableComponent("wildfire_gender.breast_customization.dual_physics", new TranslatableComponent(isUniboob ? "wildfire_gender.label.no" : "wildfire_gender.label.yes")));
-                GenderPlayer.saveGenderInfo(plr);
-            }
-        }));
+        this.addRenderableWidget(new WildfireButton(this.width / 2 + 30, j + 57, 158, 20, Configuration.BREASTS_UNIBOOB, plr,
+              value -> new TranslatableComponent("wildfire_gender.breast_customization.dual_physics",
+                    new TranslatableComponent((Boolean) value ? "wildfire_gender.label.no" : "wildfire_gender.label.yes")), b -> !b));
 
         super.init();
     }

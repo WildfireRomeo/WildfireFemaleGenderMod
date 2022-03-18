@@ -21,6 +21,7 @@ package com.wildfire.physics;
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireHelper;
+import com.wildfire.main.config.Configuration;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Pig;
@@ -61,8 +62,8 @@ public class BreastPhysics {
 			return;
 		}
 
-		float breastWeight = genderPlayer.getBustSize() * 1.25f;
-		float targetBreastSize = genderPlayer.getBustSize();
+		float targetBreastSize = genderPlayer.get(Configuration.BUST_SIZE);
+		float breastWeight = targetBreastSize * 1.25f;
 
 		if (!genderPlayer.getGender().canHaveBreasts()) {
 			targetBreastSize = 0;
@@ -88,7 +89,7 @@ public class BreastPhysics {
 		//Adjust bounce intensity by physics resistance of the worn armor
 		bounceIntensity *= 1 - resistance;
 
-		if(!genderPlayer.getBreasts().isUniboob()) {
+		if (!genderPlayer.get(Configuration.BREASTS_UNIBOOB)) {
 			bounceIntensity = bounceIntensity * WildfireHelper.randFloat(0.5f, 1.5f);
 		}
 		if(plr.fallDistance > 0 && !alreadyFalling) {
@@ -202,7 +203,7 @@ public class BreastPhysics {
 		*/
 
 
-		float percent =  genderPlayer.getFloppiness();
+		float percent =  genderPlayer.get(Configuration.FLOPPY_MULTIPLIER);
 		float bounceAmount = 0.45f * (1f - percent) + 0.15f; //0.6f * percent - 0.15f;
 		bounceAmount = Mth.clamp(bounceAmount, 0.15f, 0.6f);
 		float delta = 2.25f - bounceAmount;
