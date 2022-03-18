@@ -23,7 +23,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonWriter;
-import com.wildfire.main.GenderPlayer.Gender;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;

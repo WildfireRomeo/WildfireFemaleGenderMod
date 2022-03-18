@@ -20,20 +20,49 @@ package com.wildfire.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.config.BooleanConfigKey;
+import com.wildfire.main.config.ConfigKey;
+import it.unimi.dsi.fastutil.Function;
+import java.util.function.UnaryOperator;
 import javax.annotation.Nonnull;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public class WildfireButton extends Button {
    public static final Button.OnTooltip NO_TOOLTIP = (button, matrixStack, mouseX, mouseY) -> {};
+   private static final Component ENABLED = new TranslatableComponent("wildfire_gender.label.enabled").withStyle(ChatFormatting.GREEN);
+   private static final Component DISABLED = new TranslatableComponent("wildfire_gender.label.disabled").withStyle(ChatFormatting.RED);
 
    public boolean transparent = false;
+
+   public <TYPE> WildfireButton(int x, int y, int w, int h, ConfigKey<TYPE> config, GenderPlayer plr, Function<TYPE, Component> text, UnaryOperator<TYPE> transformer) {
+      this(x, y, w, h, config, plr, text, transformer, NO_TOOLTIP);
+   }
+
+   public WildfireButton(int x, int y, int w, int h, BooleanConfigKey config, GenderPlayer plr, String translationKey, Button.OnTooltip onTooltip) {
+      this(x, y, w, h, config, plr, value -> new TranslatableComponent(translationKey, (Boolean) value ? ENABLED : DISABLED), b -> !b, onTooltip);
+   }
+
+   public <TYPE> WildfireButton(int x, int y, int w, int h, ConfigKey<TYPE> config, GenderPlayer plr, Function<TYPE, Component> text, UnaryOperator<TYPE> transformer,
+         Button.OnTooltip onTooltip) {
+      super(x, y, w, h, text.apply(plr.get(config)), button -> {
+         TYPE value = transformer.apply(plr.get(config));
+         if (plr.update(config, value)) {
+            button.setMessage(text.apply(value));
+            GenderPlayer.saveGenderInfo(plr);
+         }
+      }, onTooltip);
+   }
 
    public WildfireButton(int x, int y, int w, int h, Component text, Button.OnPress onPress, Button.OnTooltip onTooltip) {
       super(x, y, w, h, text, onPress, onTooltip);
    }
+
    public WildfireButton(int x, int y, int w, int h, Component text, Button.OnPress onPress) {
       this(x, y, w, h, text, onPress, NO_TOOLTIP);
    }
