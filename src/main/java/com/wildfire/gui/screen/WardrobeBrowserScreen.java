@@ -1,6 +1,6 @@
 /*
 Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
-Copyright (C) 2022  WildfireRomeo
+Copyright (C) 2022 WildfireRomeo
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ import java.util.UUID;
 
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.GenderPlayer;
-import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;

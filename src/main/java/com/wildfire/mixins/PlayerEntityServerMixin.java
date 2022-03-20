@@ -19,7 +19,6 @@ package com.wildfire.mixins;
 import com.mojang.authlib.GameProfile;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
-import com.wildfire.main.WildfireGenderServer;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -37,8 +36,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.UUID;
 
 @Mixin(value = PlayerEntity.class, priority = 900)
 public abstract class PlayerEntityServerMixin extends LivingEntity {

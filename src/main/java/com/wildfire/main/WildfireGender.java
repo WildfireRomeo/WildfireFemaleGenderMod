@@ -19,18 +19,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.wildfire.main;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-
 import java.util.UUID;
 import javax.annotation.Nullable;
-
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
-import com.mojang.blaze3d.platform.GlStateManager;
 
 public class WildfireGender implements ClientModInitializer {
 	public static final String VERSION = "2.9";
