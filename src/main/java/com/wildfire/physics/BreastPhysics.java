@@ -1,6 +1,6 @@
 /*
 Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
-Copyright (C) 2022 WildfireRomeo
+Copyright (C) 2022  WildfireRomeo
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,10 +15,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 package com.wildfire.physics;
+
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.GenderPlayer;
-import com.wildfire.main.WildfireGender;
 import com.wildfire.main.WildfireHelper;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.passive.HorseBaseEntity;
@@ -43,7 +44,6 @@ public class BreastPhysics {
 	private Vec3d motion;
 	private Vec3d prePos;
 	private GenderPlayer genderPlayer;
-
 	public BreastPhysics(GenderPlayer genderPlayer) {
 		this.genderPlayer = genderPlayer;
 	}
@@ -56,17 +56,15 @@ public class BreastPhysics {
 		this.wfg_preBounceRotation = this.wfg_bounceRotation;
 		this.preBreastSize = this.breastSize;
 
-
 		if(this.prePos == null) {
 			this.prePos = plr.getPos();
 			return;
 		}
 
 		float breastWeight = genderPlayer.getBustSize() * 1.25f;
-
 		float targetBreastSize = genderPlayer.getBustSize();
 
-		if(!genderPlayer.gender.canHaveBreasts()) {
+		if (!genderPlayer.getGender().canHaveBreasts()) {
 			targetBreastSize = 0;
 		} else {
 			float tightness = MathHelper.clamp(armor.tightness(), 0, 1);
@@ -90,7 +88,7 @@ public class BreastPhysics {
 		//Adjust bounce intensity by physics resistance of the worn armor
 		bounceIntensity *= 1 - resistance;
 
-		if(!genderPlayer.getBreasts().isUniboob) {
+		if(!genderPlayer.getBreasts().isUniboob()) {
 			bounceIntensity = bounceIntensity * WildfireHelper.randFloat(0.5f, 1.5f);
 		}
 		if(plr.fallDistance > 0 && !alreadyFalling) {
@@ -100,12 +98,12 @@ public class BreastPhysics {
 		if(plr.fallDistance == 0) alreadyFalling = false;
 
 
-		this.targetBounce = (float) motion.getY() * bounceIntensity;
+		this.targetBounce = (float) motion.y * bounceIntensity;
 		this.targetBounce += breastWeight;
-		float horizVel = (float) Math.sqrt(Math.pow(motion.getX(), 2) + Math.pow(motion.getZ(), 2)) * (bounceIntensity);
+		float horizVel = (float) Math.sqrt(Math.pow(motion.x, 2) + Math.pow(motion.z, 2)) * (bounceIntensity);
 		//float horizLocal = -horizVel * ((plr.getRotationYawHead()-plr.renderYawOffset)<0?-1:1);
 		this.targetRotVel = -((plr.bodyYaw - plr.prevBodyYaw) / 15f) * bounceIntensity;
-		this.targetRotVel += (float) motion.getY() * bounceIntensity * randomB;
+
 
 		float f = 1.0F;
 		if (true) {
@@ -121,7 +119,7 @@ public class BreastPhysics {
 		this.targetBounce += MathHelper.cos(plr.limbAngle * 0.6662F + (float)Math.PI) * 0.5F * plr.limbDistance * 0.5F / f;
 		//System.out.println(plr.rotationYaw);
 
-		this.targetRotVel += (float) motion.getY() * bounceIntensity * randomB;
+		this.targetRotVel += (float) motion.y * bounceIntensity * randomB;
 
 
 		if(plr.getPose() == EntityPose.CROUCHING && !this.justSneaking) {
@@ -136,20 +134,19 @@ public class BreastPhysics {
 
 		//button option for extra entities
 		if(plr.getVehicle() != null) {
-			if(plr.getVehicle() instanceof BoatEntity) {
-				BoatEntity boat = (BoatEntity) plr.getVehicle();
+			if(plr.getVehicle() instanceof BoatEntity boat) {
 				int rowTime = (int) boat.interpolatePaddlePhase(0, plr.limbAngle);
 				int rowTime2 = (int) boat.interpolatePaddlePhase(1, plr.limbAngle);
 
-				float rotationL = (float) MathHelper.clampedLerp(-(float) Math.PI / 3F, -0.2617994F, (double) ((MathHelper.sin(-rowTime2) + 1.0F) / 2.0F));
-				float rotationR = (float) MathHelper.clampedLerp((double)(-(float)Math.PI / 4F), (float) Math.PI / 4F,(double) ((MathHelper.sin(-rowTime + 1.0F) + 1.0F) / 2.0F));
+				float rotationL = (float) MathHelper.clampedLerp(-(float)Math.PI / 3F, -0.2617994F, (double) ((MathHelper.sin(-rowTime2) + 1.0F) / 2.0F));
+				float rotationR = (float) MathHelper.clampedLerp(-(float)Math.PI / 4F, (float)Math.PI / 4F, (double) ((MathHelper.sin(-rowTime + 1.0F) + 1.0F) / 2.0F));
 				//System.out.println(rotationL + ", " + rotationR);
 				if(rotationL < -1 || rotationR < -0.6f) {
 					this.targetBounce = bounceIntensity / 3.25f;
 				}
 			}
-			if(plr.getVehicle() instanceof MinecartEntity) {
-				MinecartEntity cart = (MinecartEntity) plr.getVehicle();
+
+			if(plr.getVehicle() instanceof MinecartEntity cart) {
 				float speed = (float) cart.getVelocity().lengthSquared();
 				if(Math.random() * speed < 0.5f && speed > 0.2f) {
 					if(Math.random() > 0.5) {
@@ -158,32 +155,31 @@ public class BreastPhysics {
 						this.targetBounce = bounceIntensity / 6f;
 					}
 				}
+				/*if(rotationL < -1 || rotationR < -1) {
+					aPlr.targetBounce = bounceIntensity / 3.25f;
+				}*/
 			}
-			if(plr.getVehicle() instanceof HorseBaseEntity) {
-				HorseBaseEntity horse = (HorseBaseEntity) plr.getVehicle();
-				float movement = (float) horse.getVelocity().length();
+			if(plr.getVehicle() instanceof HorseBaseEntity horse) {
+				float movement = (float) horse.getVelocity().lengthSquared();
 				if(horse.age % clampMovement(movement) == 5 && movement > 0.1f) {
 					this.targetBounce = bounceIntensity / 4f;
 				}
 				//horse
 			}
-			if(plr.getVehicle() instanceof PigEntity) {
-				PigEntity pig = (PigEntity) plr.getVehicle();
-				float movement = (float) pig.getVelocity().length();
-				System.out.println(movement);
+			if(plr.getVehicle() instanceof PigEntity pig) {
+				float movement = (float) pig.getVelocity().lengthSquared();
+				//System.out.println(movement);
 				if(pig.age % clampMovement(movement) == 5 && movement > 0.08f) {
 					this.targetBounce = bounceIntensity / 4f;
 				}
 				//horse
 			}
-			if(plr.getVehicle() instanceof StriderEntity) {
-				StriderEntity strider = (StriderEntity) plr.getVehicle();
+			if(plr.getVehicle() instanceof StriderEntity strider) {
 				this.targetBounce += ((float) (strider.getMountedHeightOffset()*3f) - 4.5f) * bounceIntensity;
 				//horse
 			}
 			//System.out.println("VEHICLE");
 		}
-
 		if(plr.handSwinging && plr.age % 5 == 0 && plr.getPose() != EntityPose.SLEEPING) {
 			if(Math.random() > 0.5) {
 				this.targetBounce += -0.25f * bounceIntensity;
@@ -191,7 +187,6 @@ public class BreastPhysics {
 				this.targetBounce += 0.25f * bounceIntensity;
 			}
 		}
-
 		if(plr.getPose() == EntityPose.SLEEPING && !this.alreadySleeping) {
 			this.targetBounce = bounceIntensity;
 			this.alreadySleeping = true;

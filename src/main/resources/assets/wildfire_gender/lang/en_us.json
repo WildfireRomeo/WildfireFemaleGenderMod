@@ -2,9 +2,10 @@
 	"category.wildfire_gender.generic": "Wildfire's Female Gender Mod",
 	"key.wildfire_gender.gender_menu": "Female Gender Menu",
 
-	"wildfire_gender.hurt.female": "Female Player Hurts",
+	"wildfire_gender.hurt.female": "Female Player Hurt",
 
 	"wildfire_gender.player_list.title": "Wildfire's Gender Mod",
+	"wildfire_gender.player_list.settings_button": "Settings",
 	"wildfire_gender.player_list.sync_status": "Sync Status",
 	"wildfire_gender.player_list.state.loading": "Loading Data...",
 	"wildfire_gender.player_list.state.synced": "Synced Player",
@@ -19,20 +20,22 @@
 	"wildfire_gender.appearance_settings.title": "Appearance Settings",
 	"wildfire_gender.char_settings.title": "Character Settings",
 	"wildfire_gender.char_settings.physics": "Breast Physics: %s",
-	"wildfire_gender.tooltip.breast_physics": "Enable / Disable breast physics.",
+	"wildfire_gender.tooltip.breast_physics": "Enable / Disable Breast Physics",
 	"wildfire_gender.char_settings.armor_physics": "Armor Physics: %s",
-	"wildfire_gender.tooltip.armor_physics": "Enables breast physics with chestplate armor equipped.",
+	"wildfire_gender.tooltip.armor_physics": "Enables Breast Physics With Armor Equipped",
 	"wildfire_gender.char_settings.hide_in_armor": "Hide In Armor: %s",
-	"wildfire_gender.tooltip.hide_in_armor": "Hides breast model when wearing chestplate armor.",
+	"wildfire_gender.tooltip.hide_in_armor": "Hide Breast Model When Wearing Armors",
 	"wildfire_gender.char_settings.hurt_sounds": "Female Hurt Sounds: %s",
-	"wildfire_gender.tooltip.hurt_sounds": "Enables the female hurt sounds.",
-	"wildfire_gender.tooltip.need_on_server": "(Requires the mod to be present on server aswell!)",
 
 	"wildfire_gender.breast_customization.dual_physics": "Dual-Physics: %s",
 
 	"wildfire_gender.player_list.bounce_multiplier": "Bounce Multiplier: %sx",
 	"wildfire_gender.player_list.breast_momentum": "Breast Momentum: %s%%",
-	"wildfire_gender.player_list.female_sounds": "Female Hurt Sounds: %s",
+	"wildfire_gender.player_list.female_sounds": "Female Sounds: %s",
+
+	"wildfire_gender.settings.title": "Wildfire's Settings Menu",
+
+	"wildfire_gender.acknowledge.confirm": "Okay",
 
 	"wildfire_gender.label.gender": "Gender",
 	"wildfire_gender.label.female": "Female",
@@ -44,7 +47,7 @@
 	"wildfire_gender.label.yes": "Yes",
 	"wildfire_gender.label.no": "No",
 	"wildfire_gender.label.exit": "X",
-	"wildfire_gender.label.too_far": "Player is out of range!",
+	"wildfire_gender.label.too_far": "Too Far Away",
 	"wildfire_gender.label.with_creator": "You are playing on a server with the creator of this mod!",
 
 	"wildfire_gender.slider.bounce": "Bounce Intensity: %sx",

@@ -1,6 +1,6 @@
 /*
 Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
-Copyright (C) 2022 WildfireRomeo
+Copyright (C) 2022  WildfireRomeo
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,9 +15,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 package com.wildfire.main.config;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonWriter;
 import com.wildfire.main.GenderPlayer.Gender;
 import net.fabricmc.loader.api.FabricLoader;
@@ -27,30 +31,28 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 
 public class Configuration {
 
-	public static final ConfigKey<UUID> USERNAME = new UUIDConfigKey("username", UUID.nameUUIDFromBytes("UNKNOWN".getBytes(StandardCharsets.UTF_8)));
-	public static final ConfigKey<Gender> GENDER = new GenderConfigKey("gender");
-	public static final ConfigKey<Float> BUST_SIZE = new FloatConfigKey("bust_size", 0.6F);
-	public static final ConfigKey<Boolean> SHOW_ELYTRA = new BooleanConfigKey("show_elytra", true);
-	public static final ConfigKey<Boolean> HURT_SOUNDS = new BooleanConfigKey("hurt_sounds", true);
+	public static final UUIDConfigKey USERNAME = new UUIDConfigKey("username", UUID.nameUUIDFromBytes("UNKNOWN".getBytes(StandardCharsets.UTF_8)));
+	public static final GenderConfigKey GENDER = new GenderConfigKey("gender");
+	public static final FloatConfigKey BUST_SIZE = new FloatConfigKey("bust_size", 0.6F, 0, 1);
+	public static final BooleanConfigKey HURT_SOUNDS = new BooleanConfigKey("hurt_sounds", true);
 
-	public static final ConfigKey<Float> BREASTS_OFFSET_X = new FloatConfigKey("breasts_xOffset", 0.0F);
-	public static final ConfigKey<Float> BREASTS_OFFSET_Y = new FloatConfigKey("breasts_yOffset", 0.0F);
-	public static final ConfigKey<Float> BREASTS_OFFSET_Z = new FloatConfigKey("breasts_zOffset", 0.0F);
-	public static final ConfigKey<Boolean> BREASTS_UNIBOOB = new BooleanConfigKey("breasts_uniboob", true);
-	public static final ConfigKey<Float> BREASTS_CLEAVAGE = new FloatConfigKey("breasts_cleavage", 0.05F);
+	public static final FloatConfigKey BREASTS_OFFSET_X = new FloatConfigKey("breasts_xOffset", 0.0F, -1, 1);
+	public static final FloatConfigKey BREASTS_OFFSET_Y = new FloatConfigKey("breasts_yOffset", 0.0F, -1, 1);
+	public static final FloatConfigKey BREASTS_OFFSET_Z = new FloatConfigKey("breasts_zOffset", 0.0F, -1, 0);
+	public static final BooleanConfigKey BREASTS_UNIBOOB = new BooleanConfigKey("breasts_uniboob", true);
+	public static final FloatConfigKey BREASTS_CLEAVAGE = new FloatConfigKey("breasts_cleavage", 0.05F, 0, 0.1F);
 
-	public static final ConfigKey<Boolean> BREAST_PHYSICS = new BooleanConfigKey("breast_physics", false);
-	public static final ConfigKey<Boolean> BREAST_PHYSICS_ARMOR = new BooleanConfigKey("breast_physics_armor", false);
-	public static final ConfigKey<Boolean> SHOW_IN_ARMOR = new BooleanConfigKey("show_in_armor", true);
-	public static final ConfigKey<Float> BOUNCE_MULTIPLIER = new FloatConfigKey("bounce_multiplier", 0.34F);
-	public static final ConfigKey<Float> FLOPPY_MULTIPLIER = new FloatConfigKey("floppy_multiplier", 0.95F);
+	public static final BooleanConfigKey BREAST_PHYSICS = new BooleanConfigKey("breast_physics", false);
+	public static final BooleanConfigKey BREAST_PHYSICS_ARMOR = new BooleanConfigKey("breast_physics_armor", false);
+	public static final BooleanConfigKey SHOW_IN_ARMOR = new BooleanConfigKey("show_in_armor", true);
+	public static final FloatConfigKey BOUNCE_MULTIPLIER = new FloatConfigKey("bounce_multiplier", 0.34F, 0, 1);
+	public static final FloatConfigKey FLOPPY_MULTIPLIER = new FloatConfigKey("floppy_multiplier", 0.95F, 0, 1);
 
 	private static final TypeAdapter<JsonObject> ADAPTER = new Gson().getAdapter(JsonObject.class);
 
@@ -59,19 +61,7 @@ public class Configuration {
 
 	public Configuration(String saveLoc, String cfgName) {
 		Path saveDir = FabricLoader.getInstance().getConfigDir();
-		System.out.println("SAVE DIR: " + saveDir.toString());
-
-		System.out.println("SAVE DIR: " + saveDir.resolve(saveLoc).toString());
-		if(!Files.isDirectory(saveDir.resolve(saveLoc))) {
-			try {
-				Files.createDirectory(saveDir.resolve(saveLoc));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		//.getOrCreateGameRelativePath(FMLPaths.CONFIGDIR.get().resolve(saveLoc), saveLoc);
-		CFG_FILE = saveDir.resolve(saveLoc).resolve(cfgName + ".json").toFile();
-
+		CFG_FILE = saveDir.resolve(cfgName + ".json").toFile();
 	}
 
 	public void finish() {
@@ -108,7 +98,7 @@ public class Configuration {
 	public void updateConfig() {
 		JsonObject obj;
 		try (FileReader configurationFile = new FileReader(CFG_FILE)) {
-			obj = new Gson().fromJson(configurationFile, JsonObject.class);
+			obj = new Gson().fromJson(configurationFile, JsonObject.class); //GsonHelper.parse(configurationFile);
 			//Merge with existing values
 			for (Map.Entry<String, JsonElement> entry : SAVE_VALUES.entrySet()) {
 				obj.add(entry.getKey(), entry.getValue());
@@ -148,6 +138,5 @@ public class Configuration {
 		    //System.out.println("[Configuration] Failed!\n\n");
 		    e.printStackTrace();
 		}
-
 	}
 }

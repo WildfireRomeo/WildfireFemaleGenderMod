@@ -1,6 +1,6 @@
 /*
 Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
-Copyright (C) 2022 WildfireRomeo
+Copyright (C) 2022  WildfireRomeo
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,34 +15,32 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 package com.wildfire.main.config;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-public class FloatConfigKey extends ConfigKey<Float> {
+public class FloatConfigKey extends NumberConfigKey<Float> {
 
     public FloatConfigKey(String key, Float defaultValue) {
         super(key, defaultValue);
     }
 
-    @Override
-    protected Float read(JsonElement element) {
-        if (element.isJsonPrimitive()) {
-            JsonPrimitive primitive = element.getAsJsonPrimitive();
-            if (primitive.isNumber() || primitive.isString()) {
-                try {
-                    return primitive.getAsFloat();
-                } catch (NumberFormatException ignored) {
-                }
-            }
-        }
-        return defaultValue;
+    public FloatConfigKey(String key, float defaultValue, float minInclusive, float maxInclusive) {
+        super(key, defaultValue, minInclusive, maxInclusive);
     }
 
     @Override
-    public void save(JsonObject object, Float value) {
-        object.addProperty(key, value);
+    protected Float fromPrimitive(JsonPrimitive primitive) {
+        return primitive.getAsFloat();
+    }
+
+    public float getMinInclusive() {
+        //Note: Float.MIN_VALUE is smallest possible positive float
+        return minInclusive == null ? -Float.MAX_VALUE : minInclusive;
+    }
+
+    public float getMaxInclusive() {
+        return maxInclusive == null ? Float.MAX_VALUE : maxInclusive;
     }
 }

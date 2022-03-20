@@ -1,6 +1,6 @@
 /*
 Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
-Copyright (C) 2022 WildfireRomeo
+Copyright (C) 2022  WildfireRomeo
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,33 +15,30 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 package com.wildfire.gui.screen;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfirePlayerList;
 import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.GenderPlayer.Gender;
 import com.wildfire.main.WildfireGender;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
 
-import net.minecraft.client.gui.screen.Screen;
-
-import javax.annotation.Nullable;
-import java.text.Format;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.UUID;
 
 
@@ -55,8 +52,8 @@ public class WildfirePlayerListScreen extends Screen {
 	private Text tooltip = null;
 
  	public static GenderPlayer HOVER_PLAYER;
-	WildfirePlayerList PLAYER_LIST;
 
+	WildfirePlayerList PLAYER_LIST;
 	private MinecraftClient client;
 	public WildfirePlayerListScreen(MinecraftClient mc) {
 		super(new TranslatableText("wildfire_gender.player_list.title"));
@@ -71,7 +68,9 @@ public class WildfirePlayerListScreen extends Screen {
 	}
 
 	@Override
-	public boolean shouldPause() { return false; }
+	public boolean shouldPause() {
+		return false;
+	}
 
 	@Override
   	public void init() {
@@ -79,21 +78,23 @@ public class WildfirePlayerListScreen extends Screen {
 
 	    int x = this.width / 2;
 	    int y = this.height / 2 - 20;
+		/*this.addButton(new SteinButton(this.width / 2 - 60, y + 75, 66, 15, new TranslationTextComponent("wildfire_gender.player_list.settings_button"), button -> {
+			mc.displayGuiScreen(new WildfireSettingsScreen(SteinPlayerListScreen.this));
+		}));*/
 
-		this.addDrawableChild(new WildfireButton(this.width / 2 + 53, y - 74, 9, 9, new TranslatableText("wildfire_gender.label.exit"), button -> {
-			MinecraftClient.getInstance().setScreen(null);
-		}));
+		this.addDrawableChild(new WildfireButton(this.width / 2 + 53, y - 74, 9, 9, new TranslatableText("wildfire_gender.label.exit"), button -> MinecraftClient.getInstance().setScreen(null)));
 
 	    PLAYER_LIST = new WildfirePlayerList(this, 118, (y - 61), (y + 71));
 		PLAYER_LIST.setRenderBackground(false);
 		PLAYER_LIST.setRenderHorizontalShadows(false);
 	    this.addSelectableChild(this.PLAYER_LIST);
-		
-	    this.TXTR_BACKGROUND = new Identifier("wildfire_gender", "textures/gui/player_list.png");
-    
+
+	    this.TXTR_BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/player_list.png");
+
 	    super.init();
   	}
 
+	@Override
 	public void render(MatrixStack m, int f1, int f2, float f3) {
 		HOVER_PLAYER = null;
 		this.setTooltip(null);
@@ -111,10 +112,10 @@ public class WildfirePlayerListScreen extends Screen {
 	    int i = (this.width - 132) / 2;
 	    int j = (this.height - 156) / 2 - 20;
 	    drawTexture(m, i, j, 0, 0, 192, 174);
-    
+
 	    int x = (this.width / 2);
 	    int y = (this.height / 2) - 20;
-	    
+
 	    super.render(m, f1, f2, f3);
 
         double scale = mc.getWindow().getScaleFactor();
@@ -136,17 +137,18 @@ public class WildfirePlayerListScreen extends Screen {
 				this.textRenderer.drawWithShadow(m, pEntity.getDisplayName().copy().formatted(Formatting.UNDERLINE), dialogX, dialogY - 2, 0xFFFFFF);
 			}
 
-			this.textRenderer.drawWithShadow(m, new TranslatableText("wildfire_gender.label.gender").append(" ").append(HOVER_PLAYER.gender.getDisplayName()), dialogX, dialogY + 10, 0xBBBBBB);
-			if (HOVER_PLAYER.gender.canHaveBreasts()) {
+			Gender gender = HOVER_PLAYER.getGender();
+			this.textRenderer.drawWithShadow(m, new TranslatableText("wildfire_gender.label.gender").append(" ").append(gender.getDisplayName()), dialogX, dialogY + 10, 0xBBBBBB);
+			if (gender.canHaveBreasts()) {
 				this.textRenderer.drawWithShadow(m, new TranslatableText("wildfire_gender.wardrobe.slider.breast_size", Math.round(HOVER_PLAYER.getBustSize() * 100)), dialogX, dialogY + 20, 0xBBBBBB);
-				this.textRenderer.drawWithShadow(m, new TranslatableText("wildfire_gender.char_settings.physics", new TranslatableText(HOVER_PLAYER.hasBreastPhysics ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 40, 0xBBBBBB);
+				this.textRenderer.drawWithShadow(m, new TranslatableText("wildfire_gender.char_settings.physics", new TranslatableText(HOVER_PLAYER.hasBreastPhysics() ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 40, 0xBBBBBB);
 				this.textRenderer.drawWithShadow(m, new TranslatableText("wildfire_gender.player_list.bounce_multiplier", HOVER_PLAYER.getBounceMultiplier()), dialogX + 6, dialogY + 50, 0xBBBBBB);
 				this.textRenderer.drawWithShadow(m, new TranslatableText("wildfire_gender.player_list.breast_momentum", Math.round(HOVER_PLAYER.getFloppiness() * 100)), dialogX + 6, dialogY + 60, 0xBBBBBB);
 
-				this.textRenderer.drawWithShadow(m, new TranslatableText("wildfire_gender.player_list.female_sounds", new TranslatableText(HOVER_PLAYER.hurtSounds ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 80, 0xBBBBBB);
+				this.textRenderer.drawWithShadow(m, new TranslatableText("wildfire_gender.player_list.female_sounds", new TranslatableText(HOVER_PLAYER.hasHurtSounds() ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 80, 0xBBBBBB);
 			}
 			if(pEntity != null) {
-				WardrobeBrowserScreen.drawEntity(x - 110, y + 45, 45, (x - 300), (y - 26 - f2), pEntity);
+				WardrobeBrowserScreen.drawEntityOnScreen(x - 110, y + 45, 45, (x - 300), (y - 26 - f2), pEntity);
 			}
 		}
 
@@ -175,7 +177,7 @@ public class WildfirePlayerListScreen extends Screen {
 		RenderSystem.setShaderTexture(0, this.TXTR_RIBBON);
 			Screen.drawTexture(m, x + 130, y + 109, 26, 26, 0, 0, 20, 20, 20, 20);
 		}*/
-		if(tooltip != null) {
+		if (tooltip != null) {
 			this.renderTooltip(m, tooltip, f1, f2);
 		}
   	}
@@ -200,15 +202,15 @@ public class WildfirePlayerListScreen extends Screen {
   		this.tooltip = tooltip;
 	}
 
-	@Override
+    @Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-  		
+
 		return super.keyPressed(keyCode, scanCode, modifiers);
   	}
 
-	@Override
-  	public boolean mouseReleased(double mouseX, double mouseY, int state) {
-	   
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int state) {
+
 	    return super.mouseReleased(mouseX, mouseY, state);
   	}
 }

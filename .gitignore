@@ -27,6 +27,7 @@ bin/
 # fabric
 
 run/
+runV2/
 
 # macOS
 

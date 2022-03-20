@@ -43,37 +43,37 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 @Mixin(value = PlayerEntity.class, priority = 900)
 public abstract class PlayerEntityMixin extends LivingEntity {
-	
-	public float wfg_femaleBreast;
-	public float wfg_preBounce;
-	
-	float bounceVel = 0;
-	float targetBounce = 0;
-	float preY = 0;
-	
-	boolean justSneaking = false;
-	boolean alreadySleeping = false;
-	
-	public PlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
-		super(EntityType.PLAYER, world);
-	}
 
-	@Inject(at = @At("TAIL"), method = "tick")
-	public void onTick(CallbackInfo info) {
-		tickWildfire();
-	}
+    public float wfg_femaleBreast;
+    public float wfg_preBounce;
 
-	public void tickWildfire() {
-		if(!this.world.isClient()) return;
-		GenderPlayer aPlr = WildfireGender.getPlayerById(this.getUuid());
-		if(aPlr == null) return;
-		PlayerEntity plr = (PlayerEntity) (Object) this;
-		IGenderArmor armor = WildfireHelper.getArmorConfig(plr.getEquippedStack(EquipmentSlot.CHEST));
+    float bounceVel = 0;
+    float targetBounce = 0;
+    float preY = 0;
 
-		aPlr.getLeftBreastPhysics().update(plr, armor);
-		aPlr.getRightBreastPhysics().update(plr, armor);
+    boolean justSneaking = false;
+    boolean alreadySleeping = false;
+
+    public PlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
+        super(EntityType.PLAYER, world);
+    }
+
+    @Inject(at = @At("TAIL"), method = "tick")
+    public void onTick(CallbackInfo info) {
+        tickWildfire();
+    }
+
+    public void tickWildfire() {
+        if(!this.world.isClient()) return;
+        GenderPlayer aPlr = WildfireGender.getPlayerById(this.getUuid());
+        if(aPlr == null) return;
+        PlayerEntity plr = (PlayerEntity) (Object) this;
+        IGenderArmor armor = WildfireHelper.getArmorConfig(plr.getEquippedStack(EquipmentSlot.CHEST));
+
+        aPlr.getLeftBreastPhysics().update(plr, armor);
+        aPlr.getRightBreastPhysics().update(plr, armor);
 
 
-	}
+    }
 
 }

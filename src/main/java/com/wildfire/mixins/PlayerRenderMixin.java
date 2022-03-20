@@ -38,12 +38,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class PlayerRenderMixin extends LivingEntityRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> {
 
 
-	public PlayerRenderMixin(EntityRendererFactory.Context ctx, PlayerEntityModel<AbstractClientPlayerEntity> model, float shadow) {
-		super(ctx, model, shadow);
-	}
+    public PlayerRenderMixin(EntityRendererFactory.Context ctx, PlayerEntityModel<AbstractClientPlayerEntity> model, float shadow) {
+        super(ctx, model, shadow);
+    }
 
-  	@Inject(method = {"<init>"}, at = {@At("RETURN")})
-  	private void initFemaleGender(CallbackInfo ci) {
-		this.addFeature(new GenderLayer(this));
-	}
+    @Inject(method = {"<init>"}, at = {@At("RETURN")})
+    private void initFemaleGender(CallbackInfo ci) {
+        this.addFeature(new GenderLayer(this));
+    }
 }
