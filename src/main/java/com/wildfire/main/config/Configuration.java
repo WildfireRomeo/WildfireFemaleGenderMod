@@ -30,6 +30,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
@@ -59,8 +60,20 @@ public class Configuration {
 	public JsonObject SAVE_VALUES = new JsonObject();
 
 	public Configuration(String saveLoc, String cfgName) {
+
 		Path saveDir = FabricLoader.getInstance().getConfigDir();
-		CFG_FILE = saveDir.resolve(cfgName + ".json").toFile();
+		System.out.println("SAVE DIR: " + saveDir.toString());
+
+		System.out.println("SAVE DIR: " + saveDir.resolve(saveLoc).toString());
+		if(!Files.isDirectory(saveDir.resolve(saveLoc))) {
+			try {
+				Files.createDirectory(saveDir.resolve(saveLoc));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		//.getOrCreateGameRelativePath(FMLPaths.CONFIGDIR.get().resolve(saveLoc), saveLoc);
+		CFG_FILE = saveDir.resolve(saveLoc).resolve(cfgName + ".json").toFile();
 	}
 
 	public void finish() {
