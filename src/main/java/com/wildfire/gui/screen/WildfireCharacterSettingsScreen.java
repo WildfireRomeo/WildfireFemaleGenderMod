@@ -31,6 +31,7 @@ import javax.annotation.Nonnull;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -61,6 +62,10 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
         yPos = y - 47;
         int xPos = x - 156 / 2 - 1;
 
+        //Add 'Close' button at beginning
+        this.addRenderableWidget(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, new TranslatableComponent("wildfire_gender.label.exit"),
+                button -> Minecraft.getInstance().setScreen(parent)));
+
         this.addRenderableWidget(new WildfireButton(xPos, yPos, 157, 20,
               new TranslatableComponent("wildfire_gender.char_settings.physics", aPlr.hasBreastPhysics() ? ENABLED : DISABLED), button -> {
             boolean enablePhysics = !aPlr.hasBreastPhysics();
@@ -68,7 +73,9 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
                 button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.physics", enablePhysics ? ENABLED : DISABLED));
                 GenderPlayer.saveGenderInfo(aPlr);
             }
-        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.breast_physics"), mouseX, mouseY)));
+        }, (button, matrices, mouseX, mouseY) -> this.renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.breast_physics"), mouseX, mouseY)));
+
+
 
         this.addRenderableWidget(new WildfireButton(xPos, yPos + 20, 157, 20,
               new TranslatableComponent("wildfire_gender.char_settings.armor_physics", aPlr.hasArmorBreastPhysics() ? ENABLED : DISABLED), button -> {
@@ -127,9 +134,6 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             //renderTooltip(matrices, list, mouseX, mouseY);
             //RenderSystem.enableDepthTest();
         }));
-
-        this.addRenderableWidget(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, new TranslatableComponent("wildfire_gender.label.exit"),
-              button -> Minecraft.getInstance().setScreen(parent)));
 
         this.BACKGROUND = new ResourceLocation(WildfireGender.MODID, "textures/gui/settings_bg.png");
 
