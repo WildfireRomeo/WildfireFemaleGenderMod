@@ -19,7 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.wildfire.api;
 
 /**
- * Expose this as a capability on your chestplates or items that go in the chest slot to configure how it interacts with breast rendering.
+ * Implement this on a custom class for your chestplates or items that go in the chest slot to configure how it interacts with breast rendering.
  */
 public interface IGenderArmor {
 
