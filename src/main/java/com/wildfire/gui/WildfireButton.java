@@ -48,6 +48,10 @@ public class WildfireButton extends ButtonWidget {
 
       font.draw(m, this.getMessage(), x + (this.width / 2) - (font.getWidth(this.getMessage()) / 2) + 1, y + (int) Math.ceil((float) height / 2f) - font.fontHeight / 2, active ? 0xFFFFFF : 0x666666);
       RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+
+      if(this.isHovered()) {
+         this.renderTooltip(m, mouseX, mouseY);
+      }
    }
 
    public WildfireButton setTransparent(boolean b) {

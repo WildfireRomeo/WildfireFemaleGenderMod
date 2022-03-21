@@ -16,6 +16,10 @@ classes/
 *.ipr
 *.iws
 
+#Minecraft
+run/
+runV2/
+
 # vscode
 
 .settings/
@@ -23,11 +27,6 @@ classes/
 bin/
 .classpath
 .project
-
-# fabric
-
-run/
-runV2/
 
 # macOS
 

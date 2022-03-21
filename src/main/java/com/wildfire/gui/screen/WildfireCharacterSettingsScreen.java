@@ -60,6 +60,9 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
         yPos = y - 47;
         int xPos = x - 156 / 2 - 1;
 
+        this.addDrawableChild(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, new TranslatableText("wildfire_gender.label.exit"),
+                button -> MinecraftClient.getInstance().setScreen(parent)));
+
         this.addDrawableChild(new WildfireButton(xPos, yPos, 157, 20,
               new TranslatableText("wildfire_gender.char_settings.physics", aPlr.hasBreastPhysics() ? ENABLED : DISABLED), button -> {
             boolean enablePhysics = !aPlr.hasBreastPhysics();
@@ -118,17 +121,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
                 button.setMessage(new TranslatableText("wildfire_gender.char_settings.hurt_sounds", enableHurtSounds ? ENABLED : DISABLED));
                 GenderPlayer.saveGenderInfo(aPlr);
             }
-        }, (button, matrices, mouseX, mouseY) -> {
-            //List<TextComponent> list = new ArrayList<>();
-            //list.add(new TextComponent("Enables Custom Hurt Sounds."));
-            //list.add(new TextComponent(ChatFormatting.RED + "Mod Needed On Server To Work!"));
-            //RenderSystem.disableDepthTest();
-            //renderTooltip(matrices, list, mouseX, mouseY);
-            //RenderSystem.enableDepthTest();
-        }));
-
-        this.addDrawableChild(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, new TranslatableText("wildfire_gender.label.exit"),
-              button -> MinecraftClient.getInstance().setScreen(parent)));
+        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TranslatableText("wildfire_gender.tooltip.hurt_sounds"), mouseX, mouseY)));
 
         this.BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/settings_bg.png");
 
