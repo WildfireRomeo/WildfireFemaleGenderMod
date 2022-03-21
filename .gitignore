@@ -16,9 +16,11 @@ classes/
 *.ipr
 *.iws
 
-# vscode
+#Minecraft
+run/
+runV2/
 
-run
+# vscode
 
 .settings/
 .vscode/
