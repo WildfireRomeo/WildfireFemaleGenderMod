@@ -133,12 +133,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
                 button.setMessage(new TranslatableComponent("wildfire_gender.char_settings.hurt_sounds", enableHurtSounds ? ENABLED : DISABLED));
                 GenderPlayer.saveGenderInfo(aPlr);
             }
-        }, (button, matrices, mouseX, mouseY) -> {
-            List<Component> list = new ArrayList<Component>();
-            list.add(new TranslatableComponent("wildfire_gender.tooltip.hurt_sounds"));
-            list.add(new TranslatableComponent("wildfire_gender.tooltip.need_on_server").withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY));
-            renderComponentTooltip(matrices, list, mouseX, mouseY);
-        }));
+        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.hurt_sounds"), mouseX, mouseY)));
 
         this.BACKGROUND = new ResourceLocation(WildfireGender.MODID, "textures/gui/settings_bg.png");
 

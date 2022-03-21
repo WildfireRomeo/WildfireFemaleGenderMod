@@ -51,7 +51,7 @@ import org.lwjgl.glfw.GLFW;
 
 public class WildfireEventHandler {
 
-	public static final KeyMapping toggleEditGUI = new KeyMapping("wildfire_gender.key.gui", GLFW.GLFW_KEY_G, "key.categories.wildfire_gender");
+	public static final KeyMapping toggleEditGUI = new KeyMapping("key.wildfire_gender.gender_menu", GLFW.GLFW_KEY_G, "category.wildfire_gender.generic");
 
 	@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD, modid = WildfireGender.MODID)
 	private static class ClientModEventBusListeners {

@@ -169,6 +169,7 @@ public class WildfirePlayerListScreen extends Screen {
 			fill(m, x - 159, y + 106, x + 159, y + 136, 0x55000000);
 			font.draw(m, ChatFormatting.ITALIC + "Hey, it's Breast Cancer Awareness Month!", this.width / 2 - 155, y + 110, 0xFFFFFF);
 			font.draw(m, "Click here to donate to " + ChatFormatting.LIGHT_PURPLE + "Susan G. Komen Foundation" + ChatFormatting.WHITE + "!", this.width / 2 - 155, y + 124, 0xAAAAAA);
+			font.draw(m, "Click here to donate to " + ChatFormatting.LIGHT_PURPLE + "Susan G. Komen Foundation" + ChatFormatting.WHITE + "!", this.width / 2 - 155, y + 124, 0xAAAAAA);
 			RenderSystem.setShader(GameRenderer::getPositionTexShader);
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			RenderSystem.setShaderTexture(0, this.TXTR_RIBBON);
