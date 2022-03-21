@@ -26,6 +26,8 @@
 	"wildfire_gender.char_settings.hide_in_armor": "Hide In Armor: %s",
 	"wildfire_gender.tooltip.hide_in_armor": "Hide Breast Model When Wearing Armors",
 	"wildfire_gender.char_settings.hurt_sounds": "Female Hurt Sounds: %s",
+	"wildfire_gender.tooltip.hurt_sounds": "Enables the female hurt sounds",
+	"wildfire_gender.tooltip.need_on_server": "Requires the mod to be present on server as well!",
 
 	"wildfire_gender.breast_customization.dual_physics": "Dual-Physics: %s",
 
