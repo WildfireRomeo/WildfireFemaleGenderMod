@@ -98,7 +98,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             int yP = this.height / 2 + 275;
             Player ent = Minecraft.getInstance().level.getPlayerByUUID(this.playerUUID);
             if(ent != null) {
-                WardrobeBrowserScreen.drawEntityOnScreen(xP, yP, 200, (xP), (yP - 76), ent);
+                WardrobeBrowserScreen.drawEntityOnScreen(xP, yP, 200, -20, -20, ent);
             } else {
                 //player left, fallback
                 minecraft.setScreen(new WildfirePlayerListScreen(minecraft));
