@@ -15,11 +15,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 package com.wildfire.main;
+
 import com.wildfire.api.IGenderArmor;
-import com.wildfire.render.armor.EmptyGenderArmor;
 import com.wildfire.render.armor.SimpleGenderArmor;
-import net.fabricmc.loader.api.FabricLoader;
+import com.wildfire.render.armor.EmptyGenderArmor;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.*;
 

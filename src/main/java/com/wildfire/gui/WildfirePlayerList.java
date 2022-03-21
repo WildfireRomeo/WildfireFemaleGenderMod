@@ -15,20 +15,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 package com.wildfire.gui;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
 
 import com.google.common.collect.ComparisonChain;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.gui.screen.WardrobeBrowserScreen;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.GenderPlayer;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -38,7 +35,6 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
@@ -48,6 +44,10 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
+
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry> {
     private static final Ordering<PlayerListEntry> ENTRY_ORDERING = Ordering.from(new WildfirePlayerList.EntryOrderComparator());
@@ -68,7 +68,9 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
         this.refreshList();
     }
 
-    protected int getScrollbarPositionX() {
+    @Override
+    protected int getScrollbarPositionX()
+    {
         return parent.width / 2 + 53;
     }
 
@@ -96,16 +98,13 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
     }
 
     @Override
-    protected void renderBackground(MatrixStack mStack) {
-        //this.parent.renderBackground(mStack);
-    }
+    protected void renderBackground(MatrixStack mStack) {}
 
     public boolean isLoadingPlayers() {
         boolean loadingPlayers = false;
-        for(int i = 0; i < this.children().size(); i++) {
-
-            GenderPlayer aPlr = WildfireGender.getPlayerById(this.children().get(i).nInfo.getProfile().getId());
-            if(aPlr == null) {
+        for (Entry child : this.children()) {
+            GenderPlayer aPlr = WildfireGender.getPlayerById(child.nInfo.getProfile().getId());
+            if (aPlr == null) {
                 loadingPlayers = true;
             }
         }
@@ -118,34 +117,39 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
     }
 
     @Environment(EnvType.CLIENT)
-    public static class Entry extends EntryListWidget.Entry<WildfirePlayerList.Entry> {
+    public class Entry extends EntryListWidget.Entry<WildfirePlayerList.Entry> {
 
         private final String name;
-        private final PlayerListEntry nInfo;
+        public final PlayerListEntry nInfo;
         private final WildfireButton btnOpenGUI;
 
         private Entry(final PlayerListEntry nInfo) {
             this.nInfo = nInfo;
             this.name = nInfo.getProfile().getName();
-            btnOpenGUI = new WildfireButton(0, 0, 112, 20, new TranslatableText(""), button -> {
+            btnOpenGUI = new WildfireButton(0, 0, 112, 20, new LiteralText(""), button -> {
                 GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
                 if(aPlr == null) return;
 
                 try {
                     MinecraftClient.getInstance().setScreen(new WardrobeBrowserScreen(parent, nInfo.getProfile().getId()));
-                } catch(Exception e) {}
+                } catch(Exception ignored) {}
             });
             GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
             if(aPlr != null) {
                 btnOpenGUI.active = !aPlr.lockSettings;
-                //lock changing client-side if player has gender settings synced.
             }
         }
+
+        public PlayerListEntry getNetworkInfo() {
+            return nInfo;
+        }
+
         @Override
         public void render(MatrixStack m, int entryIdx, int top, int left, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean p_194999_5_, float partialTicks) {
             TextRenderer font = MinecraftClient.getInstance().textRenderer;
+
             PlayerEntity playerentity = MinecraftClient.getInstance().world.getPlayerByUuid(nInfo.getProfile().getId());
-            GenderPlayer aPlr = WildfireGender.getPlayerById(playerentity.getUuid());
+            GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
             boolean flag1 = false;
             RenderSystem.setShaderTexture(0, nInfo.getSkinTexture());
             int i3 = 8 + (flag1 ? 8 : 0);
@@ -161,22 +165,22 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
             if(aPlr != null) {
                 btnOpenGUI.active = !aPlr.lockSettings;
 
-                font.draw(m, aPlr.gender.getDisplayName(), left + 23, top + 11, 0xFFFFFF);
-                if(aPlr.getSyncStatus() == GenderPlayer.SyncStatus.SYNCED) {
+                font.draw(m, aPlr.getGender().getDisplayName(), left + 23, top + 11, 0xFFFFFF);
+                if (aPlr.getSyncStatus() == GenderPlayer.SyncStatus.SYNCED) {
                     RenderSystem.setShaderTexture(0, TXTR_SYNC);
                     Screen.drawTexture(m, left + 98, top + 11, 12, 8, 0, 0, 12, 8, 12, 8);
-                    if(mouseX > left + 98-2 && mouseY > top + 11-2 && mouseX < left + 98 + 12+2 && mouseY < top + 20) {
+                    if (mouseX > left + 98 - 2 && mouseY > top + 11 - 2 && mouseX < left + 98 + 12 + 2 && mouseY < top + 20) {
                         parent.setTooltip(new TranslatableText("wildfire_gender.player_list.state.synced"));
                     }
-                } else if(aPlr.getSyncStatus() == GenderPlayer.SyncStatus.UNKNOWN) {
+
+                } else if (aPlr.getSyncStatus() == GenderPlayer.SyncStatus.UNKNOWN) {
                     RenderSystem.setShaderTexture(0, TXTR_UNKNOWN);
                     Screen.drawTexture(m, left + 98, top + 11, 12, 8, 0, 0, 12, 8, 12, 8);
                 }
             } else {
                 btnOpenGUI.active = false;
-                font.draw(m, (Formatting.RED + new LiteralText("Too Far Away").getString()), left + 23, top + 11, 0xFFFFFF);
+                font.draw(m, new TranslatableText("wildfire_gender.label.too_far").formatted(Formatting.RED), left + 23, top + 11, 0xFFFFFF);
             }
-
             this.btnOpenGUI.x = left;
             this.btnOpenGUI.y = top;
             this.btnOpenGUI.render(m, mouseX, mouseY, partialTicks);
@@ -186,6 +190,8 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
             }
         }
 
+
+        @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if(this.btnOpenGUI.mouseClicked(mouseX, mouseY, button)) {
                 return true;
@@ -193,12 +199,11 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
             return super.mouseClicked(mouseX, mouseY, button);
         }
 
+        @Override
         public boolean mouseReleased(double mouseX, double mouseY, int button) {
             return this.btnOpenGUI.mouseReleased(mouseX, mouseY, button);
-            //return super.mouseReleased(mouseX, mouseY, button);
         }
     }
-
 
     @Environment(EnvType.CLIENT)
     static class EntryOrderComparator implements Comparator<PlayerListEntry> {

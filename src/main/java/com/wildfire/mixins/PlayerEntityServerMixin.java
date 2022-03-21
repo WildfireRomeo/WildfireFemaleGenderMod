@@ -18,7 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.wildfire.mixins;
 import com.mojang.authlib.GameProfile;
 import com.wildfire.main.GenderPlayer;
-import com.wildfire.main.WildfireGenderServer;
+import com.wildfire.main.WildfireGender;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -36,8 +36,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.UUID;
 
 @Mixin(value = PlayerEntity.class, priority = 900)
 public abstract class PlayerEntityServerMixin extends LivingEntity {
@@ -59,11 +57,12 @@ public abstract class PlayerEntityServerMixin extends LivingEntity {
 
             if(amount != 0.0f) {
                 //send to client hurt sound?
-                GenderPlayer plr = WildfireGenderServer.getPlayerById(self.getUuid());
+                GenderPlayer plr = WildfireGender.getPlayerById(self.getUuid());
                 if (plr != null) {
                     PacketByteBuf buf = PacketByteBufs.create();
-                    buf.writeEnumConstant(plr.gender);
-                    buf.writeBoolean(plr.hurtSounds);
+                    buf.writeUuid(plr.uuid);
+                    buf.writeEnumConstant(plr.getGender());
+                    buf.writeBoolean(plr.hasHurtSounds());
                     for (ServerPlayerEntity player : PlayerLookup.tracking((ServerWorld) world, world.getPlayerByUuid(plr.uuid).getBlockPos())) {
                         if (ServerPlayNetworking.canSend(player, new Identifier("wildfire_gender", "hurt"))) {
                             ServerPlayNetworking.send(player, new Identifier("wildfire_gender", "hurt"), buf);
