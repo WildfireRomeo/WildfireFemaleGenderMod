@@ -23,3 +23,9 @@ jobs:
       run: |
        chmod +x gradlew
        ./gradlew build
+    # we do not want -sources and -dev files, also this needs a github account to be downloaded via summary page.
+    - name: Upload compiled mod jars.
+      uses: actions/upload-artifact@v2
+      with:
+        name: WFGM-artifacts-${{ steps.ref.outputs.branch }}
+        path: build/libs/*[0-9].jar
