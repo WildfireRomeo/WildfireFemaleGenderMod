@@ -26,5 +26,5 @@ jobs:
     - name: Upload compiled mod jars.
       uses: actions/upload-artifact@v2
       with:
-        name: WFGM-artifacts-${{ steps.ref.outputs.branch }}
+        name: WFGM-artifacts
         path: build/libs/*[0-9].jar
