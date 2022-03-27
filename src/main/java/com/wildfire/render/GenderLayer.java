@@ -293,8 +293,8 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 				armorB = (float) (color & 255) / 255.0F;
 			}
 			matrixStack.push();
-			matrixStack.translate(left ? 0.001f : -0.001f, 0.015f, -0.015f);
-			matrixStack.scale(1.05f, 1, 1);
+			matrixStack.translate(left ? 0.001f : -0.001f, -0.025f, -0.06f);
+			matrixStack.scale(1.15f, 1.15f, 1.15f);
 			WildfireModelRenderer.BreastModelBox armor = left ? lBoobArmor : rBoobArmor;
 			RenderLayer armorType = RenderLayer.getArmorCutoutNoCull(armorTexture);
 			VertexConsumer armorVertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumerProvider, armorType, false, armorStack.hasGlint());
