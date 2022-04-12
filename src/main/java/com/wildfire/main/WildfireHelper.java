@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.wildfire.main;
 
 import com.wildfire.api.IGenderArmor;
+import com.wildfire.api.WildfireAPI;
 import com.wildfire.render.armor.SimpleGenderArmor;
 import com.wildfire.render.armor.EmptyGenderArmor;
 import net.minecraft.entity.EquipmentSlot;
@@ -37,30 +38,13 @@ public class WildfireHelper {
         return (float) ThreadLocalRandom.current().nextDouble(min, (double) max + 1);
     }
 
-    private static Map<Item, SimpleGenderArmor> GENDER_ARMORS = new HashMap<>();
-
-    public static void addGenderArmor(Item item, float physicsResistance, float tightness) {
-        GENDER_ARMORS.put(item, new SimpleGenderArmor(physicsResistance, tightness));
-    }
-
-    //ARMOR ITEM EXAMPLE CLASS? (I know this won't work if it's uncommented, it's just an example so I don't have to learn how to make my own item in Fabric)
-    /*
-    public TestArmorItem extends Item {
-        public TestArmorItem() {
-            if(FabricLoader.getInstance().isModLoaded("wildfire_gender")) {
-                WildfireHelper.addGenderArmor(this, 0.5f, 0.2f);
-            }
-        }
-    }
-    */
-
     public static IGenderArmor getArmorConfig(ItemStack stack) {
         if (stack.isEmpty()) {
             return EmptyGenderArmor.INSTANCE;
         }
 
-        if (GENDER_ARMORS.get(stack.getItem()) != null) {
-            return GENDER_ARMORS.get(stack.getItem());
+        if (WildfireAPI.getGenderArmors().get(stack.getItem()) != null) {
+            return WildfireAPI.getGenderArmors().get(stack.getItem());
         } else {
             //TODO: Fabric Alternative to Capabilities? Maybe someone can help with this?
             if (stack.getItem() instanceof ArmorItem armorItem && armorItem.getSlotType() == EquipmentSlot.CHEST) {
