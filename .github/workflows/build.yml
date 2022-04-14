@@ -1,8 +1,7 @@
 name: Build mod with Gradle
 on:
   push:
-  # to-do: get "master" branch renamed as fabric or something else.
-    branches: [ master ]
+    branches: [ fabric-1.18.2 ]
 jobs:
   build:
     runs-on: ubuntu-latest
