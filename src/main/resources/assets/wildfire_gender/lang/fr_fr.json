@@ -8,7 +8,7 @@
 	"wildfire_gender.player_list.settings_button": "Paramètres",
 	"wildfire_gender.player_list.sync_status": "Sync Statut",
 	"wildfire_gender.player_list.state.loading": "Chargement des Données...",
-	"wildfire_gender.player_list.state.synced": "Joeur Synchronisé",
+	"wildfire_gender.player_list.state.synced": "Joueur Synchronisé",
 
 	"wildfire_gender.wardrobe.title": "Menu de Personnalisation",
 	"wildfire_gender.wardrobe.slider.breast_size": "Taille de la Poitrine: %s%%",
