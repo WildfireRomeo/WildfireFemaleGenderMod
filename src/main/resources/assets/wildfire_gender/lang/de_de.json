@@ -6,12 +6,12 @@
 
 	"wildfire_gender.player_list.title": "Weiblicher Geschlechts Mod",
 	"wildfire_gender.player_list.settings_button": "Einstellungen",
-	"wildfire_gender.player_list.sync_status": "Sync Status",
+	"wildfire_gender.player_list.sync_status": "Synchronisierungsstatus",
 	"wildfire_gender.player_list.state.loading": "Lade Spieler..",
 	"wildfire_gender.player_list.state.synced": "Spieler geladen!",
 
 	"wildfire_gender.wardrobe.title": "Anpassungsmenu",
-	"wildfire_gender.wardrobe.slider.breast_size": "Brust Grösse: %s%%",
+	"wildfire_gender.wardrobe.slider.breast_size": "Brustgrösse: %s%%",
 	"wildfire_gender.wardrobe.slider.separation": "Separierung: %s",
 	"wildfire_gender.wardrobe.slider.height": "Höhe: %s",
 	"wildfire_gender.wardrobe.slider.depth": "Tiefe: %s",
