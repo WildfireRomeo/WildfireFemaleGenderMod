@@ -1,0 +1,62 @@
+{
+	"category.wildfire_gender.generic": "Wildfire's Female Gender Mod",
+	"key.wildfire_gender.gender_menu": "Menu Genre Féminin",
+
+	"wildfire_gender.hurt.female": "Joueur Féminin Blessé",
+
+	"wildfire_gender.player_list.title": "Female Gender Mod",
+	"wildfire_gender.player_list.settings_button": "Paramètres",
+	"wildfire_gender.player_list.sync_status": "Sync Statut",
+	"wildfire_gender.player_list.state.loading": "Chargement des Données...",
+	"wildfire_gender.player_list.state.synced": "Joueur Synchronisé",
+
+	"wildfire_gender.wardrobe.title": "Menu de Personnalisation",
+	"wildfire_gender.wardrobe.slider.breast_size": "Taille de la Poitrine: %s%%",
+	"wildfire_gender.wardrobe.slider.separation": "Séparation: %s",
+	"wildfire_gender.wardrobe.slider.height": "Hauteur: %s",
+	"wildfire_gender.wardrobe.slider.depth": "Profondeur: %s",
+	"wildfire_gender.wardrobe.slider.rotation": "Rotation: %s degrés",
+
+	"wildfire_gender.appearance_settings.title": "Paramètres d'Apparence",
+	"wildfire_gender.char_settings.title": "Paramètres de Personnage",
+	"wildfire_gender.char_settings.physics": "Physiques de la Poitrine: %s",
+	"wildfire_gender.tooltip.breast_physics": "Activer Physique de la Poitrine",
+	"wildfire_gender.char_settings.armor_physics": "Physique d'Armure: %s",
+	"wildfire_gender.tooltip.armor_physics": "Active la Physique de la Poitrine avec une Armure Équippée",
+	"wildfire_gender.char_settings.hide_in_armor": "Cacher dans l'Armure: %s",
+	"wildfire_gender.tooltip.hide_in_armor": "Cacher la Poitrine avec une Armure Équippée",
+	"wildfire_gender.char_settings.hurt_sounds": "Sons Blessés Féminins: %s",
+	"wildfire_gender.tooltip.hurt_sounds": "Active les Sons Blessés Féminins",
+
+	"wildfire_gender.breast_customization.dual_physics": "Double-Physiques: %s",
+
+	"wildfire_gender.player_list.bounce_multiplier": "Multiplicateur de Rebond: %sx",
+	"wildfire_gender.player_list.breast_momentum": "Élan de la Poitrine: %s%%",
+	"wildfire_gender.player_list.female_sounds": "Sons Féminins: %s",
+
+	"wildfire_gender.settings.title": "Menu de Paramètres de Wildfire",
+
+	"wildfire_gender.acknowledge.confirm": "Ok",
+
+	"wildfire_gender.label.gender": "Genre",
+	"wildfire_gender.label.female": "Féminin",
+	"wildfire_gender.label.male": "Masculin",
+	"wildfire_gender.label.other": "Autre",
+
+	"wildfire_gender.label.enabled": "Activé",
+	"wildfire_gender.label.disabled": "Desactivé",
+	"wildfire_gender.label.yes": "Oui",
+	"wildfire_gender.label.no": "Non",
+	"wildfire_gender.label.exit": "X",
+	"wildfire_gender.label.too_far": "Trop Loin",
+	"wildfire_gender.label.with_creator": "Vous êtes en train de jouer sur un serveur avec la créatrice de ce mod!",
+
+	"wildfire_gender.slider.bounce": "Intensité de Rebond: %sx",
+	"wildfire_gender.slider.floppy": "Élan de la Poitrine: %s%%",
+	"wildfire_gender.slider.min_bounce": "Pourquoi Activer la Physique?",
+	"wildfire_gender.slider.max_bounce": "Anime Breast Physics!!!",
+	"wildfire_gender.tooltip.bounce_warning": "Mettre 'Intensité de Rebond' sur une valeur élevée aura pas l'air naturel!",
+
+	"wildfire_gender.cancer_awareness.title": "Hey, c'est le Mois de la Sensibilisation au Cancer du Sein!",
+	"wildfire_gender.cancer_awareness.description": "Cliquez ici pour faire un don à la §dFondation Susan G. Komen§f!"
+}
