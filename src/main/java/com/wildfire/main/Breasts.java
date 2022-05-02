@@ -18,15 +18,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.main;
 
+import com.wildfire.main.config.ClientConfiguration;
 import com.wildfire.main.config.ConfigKey;
 import com.wildfire.main.config.Configuration;
 import java.util.function.Consumer;
 
 public class Breasts {
 
-    private float xOffset = Configuration.BREASTS_OFFSET_X.getDefault(), yOffset = Configuration.BREASTS_OFFSET_Y.getDefault(), zOffset = Configuration.BREASTS_OFFSET_Z.getDefault();
-    private float cleavage = Configuration.BREASTS_CLEAVAGE.getDefault();
-    private boolean uniboob = Configuration.BREASTS_UNIBOOB.getDefault();
+    private float xOffset = ClientConfiguration.BREASTS_OFFSET_X.getDefault(), yOffset = ClientConfiguration.BREASTS_OFFSET_Y.getDefault(), zOffset = ClientConfiguration.BREASTS_OFFSET_Z.getDefault();
+    private float cleavage = ClientConfiguration.BREASTS_CLEAVAGE.getDefault();
+    private boolean uniboob = ClientConfiguration.BREASTS_UNIBOOB.getDefault();
 
     private <VALUE> boolean updateValue(ConfigKey<VALUE> key, VALUE value, Consumer<VALUE> setter) {
         if (key.validate(value)) {
@@ -41,7 +42,7 @@ public class Breasts {
     }
 
     public boolean updateXOffset(float value) {
-        return updateValue(Configuration.BREASTS_OFFSET_X, value, v -> this.xOffset = v);
+        return updateValue(ClientConfiguration.BREASTS_OFFSET_X, value, v -> this.xOffset = v);
     }
 
     public float getYOffset() {
@@ -49,7 +50,7 @@ public class Breasts {
     }
 
     public boolean updateYOffset(float value) {
-        return updateValue(Configuration.BREASTS_OFFSET_Y, value, v -> this.yOffset = v);
+        return updateValue(ClientConfiguration.BREASTS_OFFSET_Y, value, v -> this.yOffset = v);
     }
 
     public float getZOffset() {
@@ -57,7 +58,7 @@ public class Breasts {
     }
 
     public boolean updateZOffset(float value) {
-        return updateValue(Configuration.BREASTS_OFFSET_Z, value, v -> this.zOffset = v);
+        return updateValue(ClientConfiguration.BREASTS_OFFSET_Z, value, v -> this.zOffset = v);
     }
 
     public float getCleavage() {
@@ -65,7 +66,7 @@ public class Breasts {
     }
 
     public boolean updateCleavage(float value) {
-        return updateValue(Configuration.BREASTS_CLEAVAGE, value, v -> this.cleavage = v);
+        return updateValue(ClientConfiguration.BREASTS_CLEAVAGE, value, v -> this.cleavage = v);
     }
 
     public boolean isUniboob() {
@@ -73,6 +74,6 @@ public class Breasts {
     }
 
     public boolean updateUniboob(boolean value) {
-        return updateValue(Configuration.BREASTS_UNIBOOB, value, v -> this.uniboob = v);
+        return updateValue(ClientConfiguration.BREASTS_UNIBOOB, value, v -> this.uniboob = v);
     }
 }

@@ -20,6 +20,7 @@ package com.wildfire.gui.screen;
 
 import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.WildfireGender;
+import com.wildfire.main.config.ClientConfiguration;
 import com.wildfire.main.config.Configuration;
 
 import java.util.ArrayList;
@@ -102,7 +103,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             }
         }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, new TranslatableComponent("wildfire_gender.tooltip.hide_in_armor"), mouseX, mouseY)));
 
-        this.addRenderableWidget(this.bounceSlider = new WildfireSlider(xPos, yPos + 60, 158, 22, Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplierRaw(), value -> {
+        this.addRenderableWidget(this.bounceSlider = new WildfireSlider(xPos, yPos + 60, 158, 22, ClientConfiguration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplierRaw(), value -> {
         }, value -> {
             float bounceText = 3 * value;
             float v = Math.round(bounceText * 10) / 10f;
@@ -119,7 +120,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             }
         }));
 
-        this.addRenderableWidget(this.floppySlider = new WildfireSlider(xPos, yPos + 80, 158, 22, Configuration.FLOPPY_MULTIPLIER, aPlr.getFloppiness(), value -> {
+        this.addRenderableWidget(this.floppySlider = new WildfireSlider(xPos, yPos + 80, 158, 22, ClientConfiguration.FLOPPY_MULTIPLIER, aPlr.getFloppiness(), value -> {
         }, value -> new TranslatableComponent("wildfire_gender.slider.floppy", Math.round(value * 100)), value -> {
             if (aPlr.updateFloppiness(value)) {
                 GenderPlayer.saveGenderInfo(aPlr);

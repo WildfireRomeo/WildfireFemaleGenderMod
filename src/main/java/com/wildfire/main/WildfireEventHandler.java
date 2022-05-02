@@ -18,19 +18,34 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.main;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.render.GenderLayer;
+
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import net.minecraft.advancements.DisplayInfo;
+import net.minecraft.advancements.FrameType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.toasts.AdvancementToast;
+import net.minecraft.client.gui.components.toasts.Toast;
+import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
@@ -72,12 +87,34 @@ public class WildfireEventHandler {
 		}
 	}
 
+
+	private int toastTick = 0;
+	private boolean showedToast = false;
  	@SubscribeEvent
 	public void onGUI(TickEvent.ClientTickEvent evt) {
  		if (Minecraft.getInstance().level == null) {
 			WildfireGender.CLOTHING_PLAYERS.clear();
-		}
+			toastTick = 0;
+		} else {
+			 toastTick++;
+			 if(toastTick > 100 && !showedToast) {
+				 Minecraft.getInstance().getToasts().addToast(new Toast() {
+					 @Override
+					 public Visibility render(PoseStack stack, ToastComponent component, long p_94898_) {
+						 RenderSystem.setShader(GameRenderer::getPositionTexShader);
+						 RenderSystem.setShaderTexture(0, TEXTURE);
+						 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
+						 component.blit(stack, 0, 0, 0, 0, this.width(), this.height());
+						 component.getMinecraft().font.draw(stack, "Wildfire's Female Gender Mod", 0.0F, 7.0F, -16777216);
+						 component.getMinecraft().font.draw(stack, "Press 'G' to get started!", 0.0F, 18.0F, -1);
+
+						 return Visibility.SHOW;
+					 }
+				 });
+				 showedToast = true;
+			 }
+		}
 		boolean isVanillaServer = true;
 		try {
 			isVanillaServer = NetworkHooks.isVanillaConnection(Minecraft.getInstance().getConnection().getConnection());

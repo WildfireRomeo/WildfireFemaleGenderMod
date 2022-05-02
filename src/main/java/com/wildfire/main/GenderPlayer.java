@@ -20,7 +20,7 @@ package com.wildfire.main;
 
 import com.google.gson.JsonObject;
 import com.wildfire.main.config.ConfigKey;
-import com.wildfire.main.config.Configuration;
+import com.wildfire.main.config.ClientConfiguration;
 import com.wildfire.physics.BreastPhysics;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -33,27 +33,27 @@ public class GenderPlayer {
 	public boolean needsSync;
 	public final UUID uuid;
 	private Gender gender;
-	private float pBustSize = Configuration.BUST_SIZE.getDefault();
+	private float pBustSize = ClientConfiguration.BUST_SIZE.getDefault();
 
-	private boolean hurtSounds = Configuration.HURT_SOUNDS.getDefault();
+	private boolean hurtSounds = ClientConfiguration.HURT_SOUNDS.getDefault();
 
 	//physics variables
-	private boolean breastPhysics = Configuration.BREAST_PHYSICS.getDefault();
-	private boolean armorBreastPhysics = Configuration.BREAST_PHYSICS_ARMOR.getDefault();
-	private float bounceMultiplier = Configuration.BOUNCE_MULTIPLIER.getDefault();
-	private float floppyMultiplier = Configuration.FLOPPY_MULTIPLIER.getDefault();
+	private boolean breastPhysics = ClientConfiguration.BREAST_PHYSICS.getDefault();
+	private boolean armorBreastPhysics = ClientConfiguration.BREAST_PHYSICS_ARMOR.getDefault();
+	private float bounceMultiplier = ClientConfiguration.BOUNCE_MULTIPLIER.getDefault();
+	private float floppyMultiplier = ClientConfiguration.FLOPPY_MULTIPLIER.getDefault();
 
 	public boolean lockSettings = false;
 
 	public SyncStatus syncStatus = SyncStatus.UNKNOWN;
-	private boolean showBreastsInArmor = Configuration.SHOW_IN_ARMOR.getDefault();
+	private boolean showBreastsInArmor = ClientConfiguration.SHOW_IN_ARMOR.getDefault();
 
-	private final Configuration cfg;
+	private final ClientConfiguration cfg;
 	private final BreastPhysics lBreastPhysics, rBreastPhysics;
 	private final Breasts breasts;
 
 	public GenderPlayer(UUID uuid) {
-		this(uuid, Configuration.GENDER.getDefault());
+		this(uuid, ClientConfiguration.GENDER.getDefault());
 	}
 
 	public GenderPlayer(UUID uuid, Gender gender) {
@@ -62,27 +62,27 @@ public class GenderPlayer {
 		breasts = new Breasts();
 		this.uuid = uuid;
 		this.gender = gender;
-		this.cfg = new Configuration("WildfireGender", this.uuid.toString());
-		this.cfg.set(Configuration.USERNAME, this.uuid);
-		this.cfg.setDefault(Configuration.GENDER);
-		this.cfg.setDefault(Configuration.BUST_SIZE);
-		this.cfg.setDefault(Configuration.HURT_SOUNDS);
+		this.cfg = new ClientConfiguration("WildfireGender", this.uuid.toString());
+		this.cfg.set(ClientConfiguration.USERNAME, this.uuid);
+		this.cfg.setDefault(ClientConfiguration.GENDER);
+		this.cfg.setDefault(ClientConfiguration.BUST_SIZE);
+		this.cfg.setDefault(ClientConfiguration.HURT_SOUNDS);
 
-		this.cfg.setDefault(Configuration.BREASTS_OFFSET_X);
-		this.cfg.setDefault(Configuration.BREASTS_OFFSET_Y);
-		this.cfg.setDefault(Configuration.BREASTS_OFFSET_Z);
-		this.cfg.setDefault(Configuration.BREASTS_UNIBOOB);
-		this.cfg.setDefault(Configuration.BREASTS_CLEAVAGE);
+		this.cfg.setDefault(ClientConfiguration.BREASTS_OFFSET_X);
+		this.cfg.setDefault(ClientConfiguration.BREASTS_OFFSET_Y);
+		this.cfg.setDefault(ClientConfiguration.BREASTS_OFFSET_Z);
+		this.cfg.setDefault(ClientConfiguration.BREASTS_UNIBOOB);
+		this.cfg.setDefault(ClientConfiguration.BREASTS_CLEAVAGE);
 
-		this.cfg.setDefault(Configuration.BREAST_PHYSICS);
-		this.cfg.setDefault(Configuration.BREAST_PHYSICS_ARMOR);
-		this.cfg.setDefault(Configuration.SHOW_IN_ARMOR);
-		this.cfg.setDefault(Configuration.BOUNCE_MULTIPLIER);
-		this.cfg.setDefault(Configuration.FLOPPY_MULTIPLIER);
+		this.cfg.setDefault(ClientConfiguration.BREAST_PHYSICS);
+		this.cfg.setDefault(ClientConfiguration.BREAST_PHYSICS_ARMOR);
+		this.cfg.setDefault(ClientConfiguration.SHOW_IN_ARMOR);
+		this.cfg.setDefault(ClientConfiguration.BOUNCE_MULTIPLIER);
+		this.cfg.setDefault(ClientConfiguration.FLOPPY_MULTIPLIER);
 		this.cfg.finish();
 	}
 
-	public Configuration getConfig() {
+	public ClientConfiguration getConfig() {
 		return cfg;
 	}
 
@@ -99,7 +99,7 @@ public class GenderPlayer {
 	}
 
 	public boolean updateGender(Gender value) {
-		return updateValue(Configuration.GENDER, value, v -> this.gender = v);
+		return updateValue(ClientConfiguration.GENDER, value, v -> this.gender = v);
 	}
 
 	public float getBustSize() {
@@ -107,7 +107,7 @@ public class GenderPlayer {
 	}
 
 	public boolean updateBustSize(float value) {
-		return updateValue(Configuration.BUST_SIZE, value, v -> this.pBustSize = v);
+		return updateValue(ClientConfiguration.BUST_SIZE, value, v -> this.pBustSize = v);
 	}
 
 	public boolean hasHurtSounds() {
@@ -115,7 +115,7 @@ public class GenderPlayer {
 	}
 
 	public boolean updateHurtSounds(boolean value) {
-		return updateValue(Configuration.HURT_SOUNDS, value, v -> this.hurtSounds = v);
+		return updateValue(ClientConfiguration.HURT_SOUNDS, value, v -> this.hurtSounds = v);
 	}
 
 	public boolean hasBreastPhysics() {
@@ -123,7 +123,7 @@ public class GenderPlayer {
 	}
 
 	public boolean updateBreastPhysics(boolean value) {
-		return updateValue(Configuration.BREAST_PHYSICS, value, v -> this.breastPhysics = v);
+		return updateValue(ClientConfiguration.BREAST_PHYSICS, value, v -> this.breastPhysics = v);
 	}
 
 	public boolean hasArmorBreastPhysics() {
@@ -131,7 +131,7 @@ public class GenderPlayer {
 	}
 
 	public boolean updateArmorBreastPhysics(boolean value) {
-		return updateValue(Configuration.BREAST_PHYSICS_ARMOR, value, v -> this.armorBreastPhysics = v);
+		return updateValue(ClientConfiguration.BREAST_PHYSICS_ARMOR, value, v -> this.armorBreastPhysics = v);
 	}
 
 	public boolean showBreastsInArmor() {
@@ -139,7 +139,7 @@ public class GenderPlayer {
 	}
 
 	public boolean updateShowBreastsInArmor(boolean value) {
-		return updateValue(Configuration.SHOW_IN_ARMOR, value, v -> this.showBreastsInArmor = v);
+		return updateValue(ClientConfiguration.SHOW_IN_ARMOR, value, v -> this.showBreastsInArmor = v);
 	}
 
 	public float getBounceMultiplier() {
@@ -151,7 +151,7 @@ public class GenderPlayer {
 	}
 
 	public boolean updateBounceMultiplier(float value) {
-		return updateValue(Configuration.BOUNCE_MULTIPLIER, value, v -> this.bounceMultiplier = v);
+		return updateValue(ClientConfiguration.BOUNCE_MULTIPLIER, value, v -> this.bounceMultiplier = v);
 	}
 
 	public float getFloppiness() {
@@ -159,7 +159,7 @@ public class GenderPlayer {
 	}
 
 	public boolean updateFloppiness(float value) {
-		return updateValue(Configuration.FLOPPY_MULTIPLIER, value, v -> this.floppyMultiplier = v);
+		return updateValue(ClientConfiguration.FLOPPY_MULTIPLIER, value, v -> this.floppyMultiplier = v);
 	}
 
 	public SyncStatus getSyncStatus() {
@@ -168,45 +168,45 @@ public class GenderPlayer {
 
 	public static JsonObject toJsonObject(GenderPlayer plr) {
 		JsonObject obj = new JsonObject();
-		Configuration.USERNAME.save(obj, plr.uuid);
-		Configuration.GENDER.save(obj, plr.getGender());
-		Configuration.BUST_SIZE.save(obj, plr.getBustSize());
-		Configuration.HURT_SOUNDS.save(obj, plr.hasHurtSounds());
+		ClientConfiguration.USERNAME.save(obj, plr.uuid);
+		ClientConfiguration.GENDER.save(obj, plr.getGender());
+		ClientConfiguration.BUST_SIZE.save(obj, plr.getBustSize());
+		ClientConfiguration.HURT_SOUNDS.save(obj, plr.hasHurtSounds());
 
-		Configuration.BREAST_PHYSICS.save(obj, plr.hasBreastPhysics());
-		Configuration.BREAST_PHYSICS_ARMOR.save(obj, plr.hasArmorBreastPhysics());
-		Configuration.SHOW_IN_ARMOR.save(obj, plr.showBreastsInArmor());
-		Configuration.BOUNCE_MULTIPLIER.save(obj, plr.getBounceMultiplierRaw());
-		Configuration.FLOPPY_MULTIPLIER.save(obj, plr.getFloppiness());
+		ClientConfiguration.BREAST_PHYSICS.save(obj, plr.hasBreastPhysics());
+		ClientConfiguration.BREAST_PHYSICS_ARMOR.save(obj, plr.hasArmorBreastPhysics());
+		ClientConfiguration.SHOW_IN_ARMOR.save(obj, plr.showBreastsInArmor());
+		ClientConfiguration.BOUNCE_MULTIPLIER.save(obj, plr.getBounceMultiplierRaw());
+		ClientConfiguration.FLOPPY_MULTIPLIER.save(obj, plr.getFloppiness());
 
 		Breasts breasts = plr.getBreasts();
-		Configuration.BREASTS_OFFSET_X.save(obj, breasts.getXOffset());
-		Configuration.BREASTS_OFFSET_Y.save(obj, breasts.getYOffset());
-		Configuration.BREASTS_OFFSET_Z.save(obj, breasts.getZOffset());
-		Configuration.BREASTS_UNIBOOB.save(obj, breasts.isUniboob());
-		Configuration.BREASTS_CLEAVAGE.save(obj, breasts.getCleavage());
+		ClientConfiguration.BREASTS_OFFSET_X.save(obj, breasts.getXOffset());
+		ClientConfiguration.BREASTS_OFFSET_Y.save(obj, breasts.getYOffset());
+		ClientConfiguration.BREASTS_OFFSET_Z.save(obj, breasts.getZOffset());
+		ClientConfiguration.BREASTS_UNIBOOB.save(obj, breasts.isUniboob());
+		ClientConfiguration.BREASTS_CLEAVAGE.save(obj, breasts.getCleavage());
 		return obj;
 	}
 
 	public static GenderPlayer fromJsonObject(JsonObject obj) {
-		GenderPlayer plr = new GenderPlayer(Configuration.USERNAME.read(obj));
-		plr.updateGender(Configuration.GENDER.read(obj));
-		plr.updateBustSize(Configuration.BUST_SIZE.read(obj));
-		plr.updateHurtSounds(Configuration.HURT_SOUNDS.read(obj));
+		GenderPlayer plr = new GenderPlayer(ClientConfiguration.USERNAME.read(obj));
+		plr.updateGender(ClientConfiguration.GENDER.read(obj));
+		plr.updateBustSize(ClientConfiguration.BUST_SIZE.read(obj));
+		plr.updateHurtSounds(ClientConfiguration.HURT_SOUNDS.read(obj));
 
 		//physics
-		plr.updateBreastPhysics(Configuration.BREAST_PHYSICS.read(obj));
-		plr.updateArmorBreastPhysics(Configuration.BREAST_PHYSICS_ARMOR.read(obj));
-		plr.updateShowBreastsInArmor(Configuration.SHOW_IN_ARMOR.read(obj));
-		plr.updateBounceMultiplier(Configuration.BOUNCE_MULTIPLIER.read(obj));
-		plr.updateFloppiness(Configuration.FLOPPY_MULTIPLIER.read(obj));
+		plr.updateBreastPhysics(ClientConfiguration.BREAST_PHYSICS.read(obj));
+		plr.updateArmorBreastPhysics(ClientConfiguration.BREAST_PHYSICS_ARMOR.read(obj));
+		plr.updateShowBreastsInArmor(ClientConfiguration.SHOW_IN_ARMOR.read(obj));
+		plr.updateBounceMultiplier(ClientConfiguration.BOUNCE_MULTIPLIER.read(obj));
+		plr.updateFloppiness(ClientConfiguration.FLOPPY_MULTIPLIER.read(obj));
 
 		Breasts breasts = plr.getBreasts();
-		breasts.updateXOffset(Configuration.BREASTS_OFFSET_X.read(obj));
-		breasts.updateYOffset(Configuration.BREASTS_OFFSET_Y.read(obj));
-		breasts.updateZOffset(Configuration.BREASTS_OFFSET_Z.read(obj));
-		breasts.updateUniboob(Configuration.BREASTS_UNIBOOB.read(obj));
-		breasts.updateCleavage(Configuration.BREASTS_CLEAVAGE.read(obj));
+		breasts.updateXOffset(ClientConfiguration.BREASTS_OFFSET_X.read(obj));
+		breasts.updateYOffset(ClientConfiguration.BREASTS_OFFSET_Y.read(obj));
+		breasts.updateZOffset(ClientConfiguration.BREASTS_OFFSET_Z.read(obj));
+		breasts.updateUniboob(ClientConfiguration.BREASTS_UNIBOOB.read(obj));
+		breasts.updateCleavage(ClientConfiguration.BREASTS_CLEAVAGE.read(obj));
 
 		return plr;
 	}
@@ -217,24 +217,24 @@ public class GenderPlayer {
 		if (plr != null) {
 			plr.lockSettings = false;
 			plr.syncStatus = SyncStatus.CACHED;
-			Configuration config = plr.getConfig();
-			plr.updateGender(config.get(Configuration.GENDER));
-			plr.updateBustSize(config.get(Configuration.BUST_SIZE));
-			plr.updateHurtSounds(config.get(Configuration.HURT_SOUNDS));
+			ClientConfiguration config = plr.getConfig();
+			plr.updateGender(config.get(ClientConfiguration.GENDER));
+			plr.updateBustSize(config.get(ClientConfiguration.BUST_SIZE));
+			plr.updateHurtSounds(config.get(ClientConfiguration.HURT_SOUNDS));
 
 			//physics
-			plr.updateBreastPhysics(config.get(Configuration.BREAST_PHYSICS));
-			plr.updateArmorBreastPhysics(config.get(Configuration.BREAST_PHYSICS_ARMOR));
-			plr.updateShowBreastsInArmor(config.get(Configuration.SHOW_IN_ARMOR));
-			plr.updateBounceMultiplier(config.get(Configuration.BOUNCE_MULTIPLIER));
-			plr.updateFloppiness(config.get(Configuration.FLOPPY_MULTIPLIER));
+			plr.updateBreastPhysics(config.get(ClientConfiguration.BREAST_PHYSICS));
+			plr.updateArmorBreastPhysics(config.get(ClientConfiguration.BREAST_PHYSICS_ARMOR));
+			plr.updateShowBreastsInArmor(config.get(ClientConfiguration.SHOW_IN_ARMOR));
+			plr.updateBounceMultiplier(config.get(ClientConfiguration.BOUNCE_MULTIPLIER));
+			plr.updateFloppiness(config.get(ClientConfiguration.FLOPPY_MULTIPLIER));
 
 			Breasts breasts = plr.getBreasts();
-			breasts.updateXOffset(config.get(Configuration.BREASTS_OFFSET_X));
-			breasts.updateYOffset(config.get(Configuration.BREASTS_OFFSET_Y));
-			breasts.updateZOffset(config.get(Configuration.BREASTS_OFFSET_Z));
-			breasts.updateUniboob(config.get(Configuration.BREASTS_UNIBOOB));
-			breasts.updateCleavage(config.get(Configuration.BREASTS_CLEAVAGE));
+			breasts.updateXOffset(config.get(ClientConfiguration.BREASTS_OFFSET_X));
+			breasts.updateYOffset(config.get(ClientConfiguration.BREASTS_OFFSET_Y));
+			breasts.updateZOffset(config.get(ClientConfiguration.BREASTS_OFFSET_Z));
+			breasts.updateUniboob(config.get(ClientConfiguration.BREASTS_UNIBOOB));
+			breasts.updateCleavage(config.get(ClientConfiguration.BREASTS_CLEAVAGE));
 			if (markForSync) {
 				plr.needsSync = true;
 			}
@@ -244,24 +244,24 @@ public class GenderPlayer {
 	}
 	
 	public static void saveGenderInfo(GenderPlayer plr) {
-		Configuration config = plr.getConfig();
-		config.set(Configuration.USERNAME, plr.uuid);
-		config.set(Configuration.GENDER, plr.getGender());
-		config.set(Configuration.BUST_SIZE, plr.getBustSize());
-		config.set(Configuration.HURT_SOUNDS, plr.hasHurtSounds());
+		ClientConfiguration config = plr.getConfig();
+		config.set(ClientConfiguration.USERNAME, plr.uuid);
+		config.set(ClientConfiguration.GENDER, plr.getGender());
+		config.set(ClientConfiguration.BUST_SIZE, plr.getBustSize());
+		config.set(ClientConfiguration.HURT_SOUNDS, plr.hasHurtSounds());
 
 		//physics
-		config.set(Configuration.BREAST_PHYSICS, plr.hasBreastPhysics());
-		config.set(Configuration.BREAST_PHYSICS_ARMOR, plr.hasArmorBreastPhysics());
-		config.set(Configuration.SHOW_IN_ARMOR, plr.showBreastsInArmor());
-		config.set(Configuration.BOUNCE_MULTIPLIER, plr.getBounceMultiplierRaw());
-		config.set(Configuration.FLOPPY_MULTIPLIER, plr.getFloppiness());
+		config.set(ClientConfiguration.BREAST_PHYSICS, plr.hasBreastPhysics());
+		config.set(ClientConfiguration.BREAST_PHYSICS_ARMOR, plr.hasArmorBreastPhysics());
+		config.set(ClientConfiguration.SHOW_IN_ARMOR, plr.showBreastsInArmor());
+		config.set(ClientConfiguration.BOUNCE_MULTIPLIER, plr.getBounceMultiplierRaw());
+		config.set(ClientConfiguration.FLOPPY_MULTIPLIER, plr.getFloppiness());
 
-		config.set(Configuration.BREASTS_OFFSET_X, plr.getBreasts().getXOffset());
-		config.set(Configuration.BREASTS_OFFSET_Y, plr.getBreasts().getYOffset());
-		config.set(Configuration.BREASTS_OFFSET_Z, plr.getBreasts().getZOffset());
-		config.set(Configuration.BREASTS_UNIBOOB, plr.getBreasts().isUniboob());
-		config.set(Configuration.BREASTS_CLEAVAGE, plr.getBreasts().getCleavage());
+		config.set(ClientConfiguration.BREASTS_OFFSET_X, plr.getBreasts().getXOffset());
+		config.set(ClientConfiguration.BREASTS_OFFSET_Y, plr.getBreasts().getYOffset());
+		config.set(ClientConfiguration.BREASTS_OFFSET_Z, plr.getBreasts().getZOffset());
+		config.set(ClientConfiguration.BREASTS_UNIBOOB, plr.getBreasts().isUniboob());
+		config.set(ClientConfiguration.BREASTS_CLEAVAGE, plr.getBreasts().getCleavage());
 
 		config.save();
 		plr.needsSync = true;
