@@ -96,7 +96,7 @@ public class WildfireEventHandler {
 			WildfireGender.CLOTHING_PLAYERS.clear();
 			toastTick = 0;
 		} else {
-			 toastTick++;
+			 //toastTick++;
 			 if(toastTick > 100 && !showedToast) {
 				 Minecraft.getInstance().getToasts().addToast(new Toast() {
 					 @Override
