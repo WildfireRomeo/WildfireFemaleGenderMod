@@ -1,0 +1,62 @@
+{
+	"category.wildfire_gender.generic": "Wildfire's Wiiblicher Geschlects Mod",
+	"key.wildfire_gender.gender_menu": "Geschlechtsmenu",
+
+	"wildfire_gender.hurt.female": "Spielerin nimmt schade",
+
+	"wildfire_gender.player_list.title": "Wiiblicher Geschlechts Mod",
+	"wildfire_gender.player_list.settings_button": "Iistellige",
+	"wildfire_gender.player_list.sync_status": "Synchronisierigsstatus",
+	"wildfire_gender.player_list.state.loading": "Lade Spieler..",
+	"wildfire_gender.player_list.state.synced": "Spieler glade!",
+
+	"wildfire_gender.wardrobe.title": "Ahpassigsmenu",
+	"wildfire_gender.wardrobe.slider.breast_size": "Brustgrössi: %s%%",
+	"wildfire_gender.wardrobe.slider.separation": "Separierig: %s",
+	"wildfire_gender.wardrobe.slider.height": "Höhi: %s",
+	"wildfire_gender.wardrobe.slider.depth": "Tiefi: %s",
+	"wildfire_gender.wardrobe.slider.rotation": "Drehig: %s degrees",
+
+	"wildfire_gender.appearance_settings.title": "Ussehe",
+	"wildfire_gender.char_settings.title": "Character Iinstellige",
+	"wildfire_gender.char_settings.physics": "Brustphysik: %s",
+	"wildfire_gender.tooltip.breast_physics": "Brustphysik",
+	"wildfire_gender.char_settings.armor_physics": "Rüstigsphysik: %s",
+	"wildfire_gender.tooltip.armor_physics": "Brustphysik mit Rüstige",
+	"wildfire_gender.char_settings.hide_in_armor": "Versteckt mit Rüstig: %s",
+	"wildfire_gender.tooltip.hide_in_armor": "Versteckt das Brustmodel wenn e Rüstung a'zoge isch.",
+	"wildfire_gender.char_settings.hurt_sounds": "Wiibliche Soundeffekte: %s",
+	"wildfire_gender.tooltip.hurt_sounds": "Wiibliche Soundeffekt",
+
+	"wildfire_gender.breast_customization.dual_physics": "Dualphysik: %s",
+
+	"wildfire_gender.player_list.bounce_multiplier": "Wackel Multiplikator: %sx",
+	"wildfire_gender.player_list.breast_momentum": "Brust Schwung: %s%%",
+	"wildfire_gender.player_list.female_sounds": "Wiibliche Soundeffekte: %s",
+
+	"wildfire_gender.settings.title": "Wildfire's Iinstelligsmenü",
+
+	"wildfire_gender.acknowledge.confirm": "Okay",
+
+	"wildfire_gender.label.gender": "Geschlecht",
+	"wildfire_gender.label.female": "Wiiblich",
+	"wildfire_gender.label.male": "Mänlich",
+	"wildfire_gender.label.other": "Anderi",
+
+	"wildfire_gender.label.enabled": "Aktiviert",
+	"wildfire_gender.label.disabled": "Deaktiviert",
+	"wildfire_gender.label.yes": "Ja",
+	"wildfire_gender.label.no": "Nei",
+	"wildfire_gender.label.exit": "X",
+	"wildfire_gender.label.too_far": "Z'Wiit weg.",
+	"wildfire_gender.label.with_creator": "Du spielsch uf nem Server mit dem Programmierer vu dem Mod!",
+
+	"wildfire_gender.slider.bounce": "Wackel Intensität: %sx",
+	"wildfire_gender.slider.floppy": "Brust Schwung: %s%%",
+	"wildfire_gender.slider.min_bounce": "Warum sind Physike aktiviert?",
+	"wildfire_gender.slider.max_bounce": "Anime Brust Physik!",
+	"wildfire_gender.tooltip.bounce_warning": "Wenn 'Wackel Intensität' z'höch iigstellt isch, gsehts unnatürlich uus!",
+
+	"wildfire_gender.cancer_awareness.title": "Hey, s'isch Brustkrebsmonet",
+	"wildfire_gender.cancer_awareness.description": "Klicl da um an z'§dPink Ribbon§f z'spende!"
+}
