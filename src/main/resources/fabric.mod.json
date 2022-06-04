@@ -16,7 +16,7 @@
   ],
   "contact": {
     "homepage": "https://www.curseforge.com/minecraft/mc-mods/female-gender-fabric",
-    "sources": "https://github.com/WildfireRomeo/WildfireFemaleGenderMod/tree/master",
+    "sources": "https://github.com/WildfireRomeo/WildfireFemaleGenderMod/tree/fabric-1.18.2",
     "issues": "https://github.com/WildfireRomeo/WildfireFemaleGenderMod/issues"
   },
   "license": "GPL-3.0",
