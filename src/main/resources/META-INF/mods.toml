@@ -29,7 +29,7 @@ displayURL="https://www.curseforge.com/minecraft/mc-mods/female-gender-forge" #o
 # A file name (in the root of the mod JAR) containing a logo for display
 logoFile="logo.png" #optional
 # A text field displayed in the mod UI
-credits="Kichura, pupnewfster, arcti_cc, Archl, Powerless001" #optional
+credits="Archl, arcti_cc, Kichura, Powerless001, pupnewfster" #optional
 # A text field displayed in the mod UI
 authors="WildfireRomeo" #optional
 # The description text for the mod (multi line!) (#mandatory)
