@@ -53,10 +53,10 @@ import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.PlayLevelSoundEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -184,7 +184,8 @@ public class WildfireEventHandler {
 	}
 
 	//TODO: Eventually we may want to replace this with a map or something and replace things like drowning sounds with other drowning sounds
-	private final Set<SoundEvent> playerHurtSounds = Set.of(SoundEvents.PLAYER_HURT,
+	private final Set<SoundEvent> playerHurtSounds = Set.of(
+		SoundEvents.PLAYER_HURT,
 		SoundEvents.PLAYER_HURT_DROWN,
 		SoundEvents.PLAYER_HURT_FREEZE,
 		SoundEvents.PLAYER_HURT_ON_FIRE,
@@ -192,11 +193,11 @@ public class WildfireEventHandler {
 	);
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void onPlaySound(PlaySoundAtEntityEvent event) {
-		if (event.getSound() != null && playerHurtSounds.contains(event.getSound()) && event.getEntity() instanceof Player p && p.level.isClientSide) {
+	public void onPlaySound(PlayLevelSoundEvent.AtEntity event) {
+		SoundEvent soundEvent = event.getSound();
+		if (soundEvent != null && playerHurtSounds.contains(soundEvent) && event.getEntity() instanceof Player p && p.level.isClientSide) {
 			//Cancel as we handle all hurt sounds manually so that we can
 			event.setCanceled(true);
-			SoundEvent soundEvent = event.getSound();
 			if (p.hurtTime == p.hurtDuration && p.hurtTime > 0) {
 				//Note: We check hurtTime == hurtDuration and hurtTime > 0 or otherwise when the server sends a hurt sound to the client
 				// and the client will check itself instead of the player who was damaged.
@@ -213,7 +214,7 @@ public class WildfireEventHandler {
 				//TODO: Ideally we would fix that edge case but I find it highly unlikely it will ever actually occur
 				return;
 			}
-			p.level.playLocalSound(p.getX(), p.getY(), p.getZ(), soundEvent, event.getCategory(), event.getVolume(), event.getPitch(), false);
+			p.level.playLocalSound(p.getX(), p.getY(), p.getZ(), soundEvent, event.getSource(), event.getNewVolume(), event.getNewPitch(), false);
 		}
 	}
 }
