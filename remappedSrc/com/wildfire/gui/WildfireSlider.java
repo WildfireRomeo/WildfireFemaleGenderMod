@@ -28,8 +28,10 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.glfw.GLFW;
 
@@ -52,7 +54,7 @@ public class WildfireSlider extends ClickableWidget {
 
 	public WildfireSlider(int xPos, int yPos, int width, int height, double minVal, double maxVal, double currentVal, FloatConsumer valueUpdate,
 		Float2ObjectFunction<Text> messageUpdate, FloatConsumer onSave) {
-		super(xPos, yPos, width, height, Text.literal(""));
+		super(xPos, yPos, width, height, new LiteralText(""));
 		this.minValue = minVal;
 		this.maxValue = maxVal;
 		this.valueUpdate = valueUpdate;
@@ -101,7 +103,7 @@ public class WildfireSlider extends ClickableWidget {
 	}
 
 	protected MutableText getNarrationMessage() {
-		return Text.translatable("gui.narrate.slider", new Object[]{this.getMessage()});
+		return new TranslatableText("gui.narrate.slider", new Object[]{this.getMessage()});
 	}
 
 

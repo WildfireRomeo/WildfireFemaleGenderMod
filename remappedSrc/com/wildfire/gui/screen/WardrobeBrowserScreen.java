@@ -35,6 +35,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3f;
@@ -45,7 +46,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	public static float modelRotation = 0.5F;
 
 	public WardrobeBrowserScreen(Screen parent, UUID uuid) {
-		super(Text.translatable("wildfire_gender.wardrobe.title"), parent, uuid);
+		super(new TranslatableText("wildfire_gender.wardrobe.title"), parent, uuid);
 	}
 
 	@Override
@@ -66,13 +67,13 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			}
 		}));
 
-		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, Text.translatable("wildfire_gender.appearance_settings.title").append("..."),
+		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, new TranslatableText("wildfire_gender.appearance_settings.title").append("..."),
 			button -> MinecraftClient.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 
-		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 12, 158, 20, Text.translatable("wildfire_gender.char_settings.title").append("..."),
+		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 12, 158, 20, new TranslatableText("wildfire_gender.char_settings.title").append("..."),
 			button -> MinecraftClient.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 
-		this.addDrawableChild(new WildfireButton(this.width / 2 + 111, j - 63, 9, 9, Text.translatable("wildfire_gender.label.exit"),
+		this.addDrawableChild(new WildfireButton(this.width / 2 + 111, j - 63, 9, 9, new TranslatableText("wildfire_gender.label.exit"),
 			button -> MinecraftClient.getInstance().setScreen(parent)));
 	    
 	    modelRotation = 0.6F;
@@ -83,7 +84,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
   	}
 
 	private Text getGenderLabel(Gender gender) {
-		return Text.translatable("wildfire_gender.label.gender").append(" - ").append(gender.getDisplayName());
+		return new TranslatableText("wildfire_gender.label.gender").append(" - ").append(gender.getDisplayName());
 	}
 
   	@Override

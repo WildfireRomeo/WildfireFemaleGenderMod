@@ -39,7 +39,8 @@ import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.scoreboard.Team;
-import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
@@ -101,7 +102,7 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
 
     public boolean isLoadingPlayers() {
         boolean loadingPlayers = false;
-        for (Entry child : this.children()) {
+        for (com.wildfire.gui.WildfirePlayerList.Entry child : this.children()) {
             GenderPlayer aPlr = WildfireGender.getPlayerById(child.nInfo.getProfile().getId());
             if (aPlr == null) {
                 loadingPlayers = true;
@@ -125,7 +126,7 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
         private Entry(final PlayerListEntry nInfo) {
             this.nInfo = nInfo;
             this.name = nInfo.getProfile().getName();
-            btnOpenGUI = new WildfireButton(0, 0, 112, 20, Text.literal(""), button -> {
+            btnOpenGUI = new WildfireButton(0, 0, 112, 20, new LiteralText(""), button -> {
                 GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
                 if(aPlr == null) return;
 
@@ -169,7 +170,7 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
                     RenderSystem.setShaderTexture(0, TXTR_SYNC);
                     Screen.drawTexture(m, left + 98, top + 11, 12, 8, 0, 0, 12, 8, 12, 8);
                     if (mouseX > left + 98 - 2 && mouseY > top + 11 - 2 && mouseX < left + 98 + 12 + 2 && mouseY < top + 20) {
-                        parent.setTooltip(Text.translatable("wildfire_gender.player_list.state.synced"));
+                        parent.setTooltip(new TranslatableText("wildfire_gender.player_list.state.synced"));
                     }
 
                 } else if (aPlr.getSyncStatus() == GenderPlayer.SyncStatus.UNKNOWN) {
@@ -178,7 +179,7 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
                 }
             } else {
                 btnOpenGUI.active = false;
-                font.draw(m, Text.translatable("wildfire_gender.label.too_far").formatted(Formatting.RED), left + 23, top + 11, 0xFFFFFF);
+                font.draw(m, new TranslatableText("wildfire_gender.label.too_far").formatted(Formatting.RED), left + 23, top + 11, 0xFFFFFF);
             }
             this.btnOpenGUI.x = left;
             this.btnOpenGUI.y = top;

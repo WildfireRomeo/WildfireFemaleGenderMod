@@ -29,8 +29,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
-
+import net.minecraft.text.TranslatableText;
 import java.util.UUID;
 
 public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
@@ -39,7 +38,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
     private WildfireSlider cleavageSlider;
 
     public WildfireBreastCustomizationScreen(Screen parent, UUID uuid) {
-        super(Text.translatable("wildfire_gender.appearance_settings.title"), parent, uuid);
+        super(new TranslatableText("wildfire_gender.appearance_settings.title"), parent, uuid);
     }
 
     @Override
@@ -53,28 +52,28 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             GenderPlayer.saveGenderInfo(plr);
         };
 
-        this.addDrawableChild(new WildfireButton(this.width / 2 + 178, j - 61, 9, 9, Text.translatable("wildfire_gender.label.exit"),
+        this.addDrawableChild(new WildfireButton(this.width / 2 + 178, j - 61, 9, 9, new TranslatableText("wildfire_gender.label.exit"),
               button -> MinecraftClient.getInstance().setScreen(parent)));
 
         this.addDrawableChild(this.breastSlider = new WildfireSlider(this.width / 2 + 30, j - 48, 158, 20, Configuration.BUST_SIZE, plr.getBustSize(),
-              plr::updateBustSize, value -> Text.translatable("wildfire_gender.wardrobe.slider.breast_size", Math.round(value * 100)), onSave));
+              plr::updateBustSize, value -> new TranslatableText("wildfire_gender.wardrobe.slider.breast_size", Math.round(value * 100)), onSave));
 
         //Customization
         this.addDrawableChild(this.xOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 27, 158, 20, Configuration.BREASTS_OFFSET_X, breasts.getXOffset(),
-              breasts::updateXOffset, value -> Text.translatable("wildfire_gender.wardrobe.slider.separation", Math.round((Math.round(value * 100f) / 100f) * 10)), onSave));
+              breasts::updateXOffset, value -> new TranslatableText("wildfire_gender.wardrobe.slider.separation", Math.round((Math.round(value * 100f) / 100f) * 10)), onSave));
         this.addDrawableChild(this.yOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 6, 158, 20, Configuration.BREASTS_OFFSET_Y, breasts.getYOffset(),
-              breasts::updateYOffset, value -> Text.translatable("wildfire_gender.wardrobe.slider.height", Math.round((Math.round(value * 100f) / 100f) * 10)), onSave));
+              breasts::updateYOffset, value -> new TranslatableText("wildfire_gender.wardrobe.slider.height", Math.round((Math.round(value * 100f) / 100f) * 10)), onSave));
         this.addDrawableChild(this.zOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j + 15, 158, 20, Configuration.BREASTS_OFFSET_Z, breasts.getZOffset(),
-              breasts::updateZOffset, value -> Text.translatable("wildfire_gender.wardrobe.slider.depth", Math.round((Math.round(value * 100f) / 100f) * 10)), onSave));
+              breasts::updateZOffset, value -> new TranslatableText("wildfire_gender.wardrobe.slider.depth", Math.round((Math.round(value * 100f) / 100f) * 10)), onSave));
 
         this.addDrawableChild(this.cleavageSlider = new WildfireSlider(this.width / 2 + 30, j + 36, 158, 20, Configuration.BREASTS_CLEAVAGE, breasts.getCleavage(),
-              breasts::updateCleavage, value -> Text.translatable("wildfire_gender.wardrobe.slider.rotation", Math.round((Math.round(value * 100f) / 100f) * 100)), onSave));
+              breasts::updateCleavage, value -> new TranslatableText("wildfire_gender.wardrobe.slider.rotation", Math.round((Math.round(value * 100f) / 100f) * 100)), onSave));
 
         this.addDrawableChild(new WildfireButton(this.width / 2 + 30, j + 57, 158, 20,
-                Text.translatable("wildfire_gender.breast_customization.dual_physics", Text.translatable(breasts.isUniboob() ? "wildfire_gender.label.no" : "wildfire_gender.label.yes")), button -> {
+              new TranslatableText("wildfire_gender.breast_customization.dual_physics", new TranslatableText(breasts.isUniboob() ? "wildfire_gender.label.no" : "wildfire_gender.label.yes")), button -> {
             boolean isUniboob = !breasts.isUniboob();
             if (breasts.updateUniboob(isUniboob)) {
-                button.setMessage(Text.translatable("wildfire_gender.breast_customization.dual_physics", Text.translatable(isUniboob ? "wildfire_gender.label.no" : "wildfire_gender.label.yes")));
+                button.setMessage(new TranslatableText("wildfire_gender.breast_customization.dual_physics", new TranslatableText(isUniboob ? "wildfire_gender.label.no" : "wildfire_gender.label.yes")));
                 GenderPlayer.saveGenderInfo(plr);
             }
         }));
