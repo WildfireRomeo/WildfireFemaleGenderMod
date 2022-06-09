@@ -52,7 +52,7 @@ public class WildfireSlider extends ClickableWidget {
 
 	public WildfireSlider(int xPos, int yPos, int width, int height, double minVal, double maxVal, double currentVal, FloatConsumer valueUpdate,
 		Float2ObjectFunction<Text> messageUpdate, FloatConsumer onSave) {
-		super(xPos, yPos, width, height, Text.literal(""));
+		super(xPos, yPos, width, height, Text.empty());
 		this.minValue = minVal;
 		this.maxValue = maxVal;
 		this.valueUpdate = valueUpdate;

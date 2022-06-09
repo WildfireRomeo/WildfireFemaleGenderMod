@@ -125,7 +125,7 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
         private Entry(final PlayerListEntry nInfo) {
             this.nInfo = nInfo;
             this.name = nInfo.getProfile().getName();
-            btnOpenGUI = new WildfireButton(0, 0, 112, 20, Text.literal(""), button -> {
+            btnOpenGUI = new WildfireButton(0, 0, 112, 20, Text.empty(), button -> {
                 GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
                 if(aPlr == null) return;
 
