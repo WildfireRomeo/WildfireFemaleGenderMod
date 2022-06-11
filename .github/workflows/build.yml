@@ -1,4 +1,4 @@
-name: Build mod with Gradle
+name: Build Fabric
 on:
   push:
     branches: [ fabric-1.19 ]
