@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "wildfire_gender",
-  "version": "2.9.1",
+  "version": "1.19-3.0.0",
   "name": "Wildfire's Female Gender Mod",
   "description": "Allows players to choose what gender they want to be.",
   "authors": [
