@@ -1,7 +1,7 @@
-name: Build mod with Gradle
+name: Build forge mod with Gradle
 on:
   push:
-    branches: [ forge-1.18.2 ]
+    branches: [ forge-1.19.x ]
 jobs:
   build:
     runs-on: ubuntu-22.04
