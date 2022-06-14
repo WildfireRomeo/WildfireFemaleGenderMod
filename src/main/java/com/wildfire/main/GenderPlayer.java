@@ -23,7 +23,6 @@ import com.wildfire.main.config.ConfigKey;
 import com.wildfire.main.config.Configuration;
 import com.wildfire.physics.BreastPhysics;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
 import java.util.UUID;
@@ -284,9 +283,9 @@ public class GenderPlayer {
 	}
 
 	public enum Gender {
-		FEMALE(new TranslatableText("wildfire_gender.label.female").formatted(Formatting.LIGHT_PURPLE)),
-		MALE(new TranslatableText("wildfire_gender.label.male").formatted(Formatting.BLUE)),
-		OTHER(new TranslatableText("wildfire_gender.label.other").formatted(Formatting.GREEN));
+		FEMALE(Text.translatable("wildfire_gender.label.female").formatted(Formatting.LIGHT_PURPLE)),
+		MALE(Text.translatable("wildfire_gender.label.male").formatted(Formatting.BLUE)),
+		OTHER(Text.translatable("wildfire_gender.label.other").formatted(Formatting.GREEN));
 
 		private final Text name;
 
