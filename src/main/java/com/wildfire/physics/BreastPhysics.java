@@ -22,7 +22,7 @@ import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireHelper;
 import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.passive.HorseBaseEntity;
+import net.minecraft.entity.passive.HorseEntity;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.entity.passive.StriderEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -159,7 +159,7 @@ public class BreastPhysics {
 					aPlr.targetBounce = bounceIntensity / 3.25f;
 				}*/
 			}
-			if(plr.getVehicle() instanceof HorseBaseEntity horse) {
+			if(plr.getVehicle() instanceof HorseEntity horse) {
 				float movement = (float) horse.getVelocity().lengthSquared();
 				if(horse.age % clampMovement(movement) == 5 && movement > 0.1f) {
 					this.targetBounce = bounceIntensity / 4f;

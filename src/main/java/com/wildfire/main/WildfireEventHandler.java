@@ -21,6 +21,8 @@ package com.wildfire.main;
 import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.main.networking.PacketSync;
+
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -33,6 +35,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.sound.EntityTrackingSoundInstance;
+import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
@@ -123,7 +127,8 @@ public class WildfireEventHandler {
 						if(hurtSounds) {
 							PlayerEntity ent = MinecraftClient.getInstance().world.getPlayerByUuid(uuid);
 							if (ent != null) {
-								client.getSoundManager().play(new EntityTrackingSoundInstance(hurtSound, SoundCategory.PLAYERS, 1f, 1f, ent));
+								long randomLong = new Random().nextLong(0L,1L);
+								client.getSoundManager().play(new EntityTrackingSoundInstance(hurtSound, SoundCategory.PLAYERS, 1f, 1f, ent.getEventSource(), randomLong));
 							}
 						}
 					});

@@ -51,7 +51,7 @@ public abstract class PlayerEntityServerMixin extends LivingEntity {
             PlayerEntity self = (PlayerEntity) (Object) this;
 
             amount = this.applyArmorToDamage(source, amount);
-            amount = this.applyEnchantmentsToDamage(source, amount);
+            amount = this.modifyAppliedDamage(source, amount);
             float f = amount;
             amount = Math.max(amount - this.getAbsorptionAmount(), 0.0F);
 
