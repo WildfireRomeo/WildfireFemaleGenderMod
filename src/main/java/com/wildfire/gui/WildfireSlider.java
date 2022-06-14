@@ -28,7 +28,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 
@@ -50,7 +49,7 @@ public class WildfireSlider extends AbstractSliderButton {
 
 	public WildfireSlider(int xPos, int yPos, int width, int height, double minVal, double maxVal, double currentVal, FloatConsumer valueUpdate,
 		Float2ObjectFunction<Component> messageUpdate, FloatConsumer onSave) {
-		super(xPos, yPos, width, height, TextComponent.EMPTY, 0);
+		super(xPos, yPos, width, height, Component.empty(), 0);
 		this.minValue = minVal;
 		this.maxValue = maxVal;
 		this.valueUpdate = valueUpdate;

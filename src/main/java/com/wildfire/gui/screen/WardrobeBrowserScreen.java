@@ -35,7 +35,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -48,7 +47,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	public static float modelRotation = 0.5F;
 
 	public WardrobeBrowserScreen(Screen parent, UUID uuid) {
-		super(new TranslatableComponent("wildfire_gender.wardrobe.title"), parent, uuid);
+		super(Component.translatable("wildfire_gender.wardrobe.title"), parent, uuid);
 	}
 
 	@Override
@@ -69,13 +68,13 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			}
 		}));
 
-		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, new TranslatableComponent("wildfire_gender.appearance_settings.title").append("..."),
+		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, Component.translatable("wildfire_gender.appearance_settings.title").append("..."),
 			button -> Minecraft.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 
-		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 12, 158, 20, new TranslatableComponent("wildfire_gender.char_settings.title").append("..."),
+		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 12, 158, 20, Component.translatable("wildfire_gender.char_settings.title").append("..."),
 			button -> Minecraft.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 
-		this.addRenderableWidget(new WildfireButton(this.width / 2 + 111, j - 63, 9, 9, new TranslatableComponent("wildfire_gender.label.exit"),
+		this.addRenderableWidget(new WildfireButton(this.width / 2 + 111, j - 63, 9, 9, Component.translatable("wildfire_gender.label.exit"),
 			button -> Minecraft.getInstance().setScreen(parent)));
 	    
 	    modelRotation = 0.6F;
@@ -86,7 +85,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
   	}
 
 	private Component getGenderLabel(Gender gender) {
-		return new TranslatableComponent("wildfire_gender.label.gender").append(" - ").append(gender.getDisplayName());
+		return Component.translatable("wildfire_gender.label.gender").append(" - ").append(gender.getDisplayName());
 	}
 
   	@Override
