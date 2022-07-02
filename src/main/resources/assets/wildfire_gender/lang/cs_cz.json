@@ -1,0 +1,62 @@
+{
+	"category.wildfire_gender.generic": "Wildfire's Female Gender Mod",
+	"key.wildfire_gender.gender_menu": "Menu ženského pohlaví",
+
+	"wildfire_gender.hurt.female": "Zranění ženského hráče",
+
+	"wildfire_gender.player_list.title": "Female Gender Mod",
+	"wildfire_gender.player_list.settings_button": "Nastavení",
+	"wildfire_gender.player_list.sync_status": "Status synchronizace",
+	"wildfire_gender.player_list.state.loading": "Načítaní dat...",
+	"wildfire_gender.player_list.state.synced": "Hráč synchronizován",
+
+	"wildfire_gender.wardrobe.title": "Menu přizpůsobení",
+	"wildfire_gender.wardrobe.slider.breast_size": "Velikost: %s%%",
+	"wildfire_gender.wardrobe.slider.separation": "Mezera: %s",
+	"wildfire_gender.wardrobe.slider.height": "Výška: %s",
+	"wildfire_gender.wardrobe.slider.depth": "Hloubka: %s",
+	"wildfire_gender.wardrobe.slider.rotation": "Natočení: %s°",
+
+	"wildfire_gender.appearance_settings.title": "Nastavení vzhledu",
+	"wildfire_gender.char_settings.title": "Nastavení charakteru",
+	"wildfire_gender.char_settings.physics": "Fyzika prsou: %s",
+	"wildfire_gender.tooltip.breast_physics": "Zapne/vypne fyziku prsou",
+	"wildfire_gender.char_settings.armor_physics": "Fyzika v brnění: %s",
+	"wildfire_gender.tooltip.armor_physics": "Povolí fyziku prsou, když je oblečeno brnění",
+	"wildfire_gender.char_settings.hide_in_armor": "Schovat v brnění: %s",
+	"wildfire_gender.tooltip.hide_in_armor": "Schová model prsou, když je oblečeno brnění",
+	"wildfire_gender.char_settings.hurt_sounds": "Ženské zvuky zranění: %s",
+	"wildfire_gender.tooltip.hurt_sounds": "Nahradí normální zvuky zranění za ženské",
+
+	"wildfire_gender.breast_customization.dual_physics": "Dvojí fyzika: %s",
+
+	"wildfire_gender.player_list.bounce_multiplier": "Houpání: %sx",
+	"wildfire_gender.player_list.breast_momentum": "Hybnost: %s%%",
+	"wildfire_gender.player_list.female_sounds": "Ženské zvuky: %s",
+
+	"wildfire_gender.settings.title": "Wildfireova nastavení",
+
+	"wildfire_gender.acknowledge.confirm": "Chápu",
+
+	"wildfire_gender.label.gender": "Pohlaví",
+	"wildfire_gender.label.female": "Žena",
+	"wildfire_gender.label.male": "Muž",
+	"wildfire_gender.label.other": "Jiné",
+
+	"wildfire_gender.label.enabled": "Zapnuto",
+	"wildfire_gender.label.disabled": "Vypnuto",
+	"wildfire_gender.label.yes": "Ano",
+	"wildfire_gender.label.no": "Ne",
+	"wildfire_gender.label.exit": "X",
+	"wildfire_gender.label.too_far": "Příliš daleko",
+	"wildfire_gender.label.with_creator": "Hrajete na serveru s tvůrcem tohohle modu!",
+
+	"wildfire_gender.slider.bounce": "Intenzita houpání: %sx",
+	"wildfire_gender.slider.floppy": "Hybnost: %s%%",
+	"wildfire_gender.slider.min_bounce": "Proč mám vůbec zaplou fyziku?",
+	"wildfire_gender.slider.max_bounce": "Anime fyzika!!!",
+	"wildfire_gender.tooltip.bounce_warning": "Vysoké hodnoty 'Intenzity houpání' budou vypadat velmi nepřirozeně!",
+
+	"wildfire_gender.cancer_awareness.title": "Hej, právě probíhá měsíc povědomí o rakovině prsu!",
+	"wildfire_gender.cancer_awareness.description": "Klikni sem pro podpoření §dNadace Susan G. Komen§f!"
+}
