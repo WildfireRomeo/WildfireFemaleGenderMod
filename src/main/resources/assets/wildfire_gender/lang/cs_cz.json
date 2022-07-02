@@ -11,16 +11,16 @@
 	"wildfire_gender.player_list.state.synced": "Hráč synchronizován",
 
 	"wildfire_gender.wardrobe.title": "Menu přizpůsobení",
-	"wildfire_gender.wardrobe.slider.breast_size": "Velikost prsou: %s%%",
+	"wildfire_gender.wardrobe.slider.breast_size": "Velikost: %s%%",
 	"wildfire_gender.wardrobe.slider.separation": "Mezera: %s",
 	"wildfire_gender.wardrobe.slider.height": "Výška: %s",
 	"wildfire_gender.wardrobe.slider.depth": "Hloubka: %s",
-	"wildfire_gender.wardrobe.slider.rotation": "Natočení: %s stupňů",
+	"wildfire_gender.wardrobe.slider.rotation": "Natočení: %s°",
 
 	"wildfire_gender.appearance_settings.title": "Nastavení vzhledu",
 	"wildfire_gender.char_settings.title": "Nastavení charakteru",
 	"wildfire_gender.char_settings.physics": "Fyzika prsou: %s",
-	"wildfire_gender.tooltip.breast_physics": "Zapne fyziku prsou",
+	"wildfire_gender.tooltip.breast_physics": "Zapne/vypne fyziku prsou",
 	"wildfire_gender.char_settings.armor_physics": "Fyzika v brnění: %s",
 	"wildfire_gender.tooltip.armor_physics": "Povolí fyziku prsou, když je oblečeno brnění",
 	"wildfire_gender.char_settings.hide_in_armor": "Schovat v brnění: %s",
@@ -31,7 +31,7 @@
 	"wildfire_gender.breast_customization.dual_physics": "Dvojí fyzika: %s",
 
 	"wildfire_gender.player_list.bounce_multiplier": "Houpání: %sx",
-	"wildfire_gender.player_list.breast_momentum": "Hybnost prsou: %s%%",
+	"wildfire_gender.player_list.breast_momentum": "Hybnost: %s%%",
 	"wildfire_gender.player_list.female_sounds": "Ženské zvuky: %s",
 
 	"wildfire_gender.settings.title": "Wildfireova nastavení",
@@ -52,9 +52,9 @@
 	"wildfire_gender.label.with_creator": "Hrajete na serveru s tvůrcem tohohle modu!",
 
 	"wildfire_gender.slider.bounce": "Intenzita houpání: %sx",
-	"wildfire_gender.slider.floppy": "Hybnost prsou: %s%%",
-	"wildfire_gender.slider.min_bounce": "Proč je vůbec zaplá fyzika?",
-	"wildfire_gender.slider.max_bounce": "Fyzika anime prsou!!!",
+	"wildfire_gender.slider.floppy": "Hybnost: %s%%",
+	"wildfire_gender.slider.min_bounce": "Proč mám vůbec zaplou fyziku?",
+	"wildfire_gender.slider.max_bounce": "Anime fyzika!!!",
 	"wildfire_gender.tooltip.bounce_warning": "Vysoké hodnoty 'Intenzity houpání' budou vypadat velmi nepřirozeně!",
 
 	"wildfire_gender.cancer_awareness.title": "Hej, právě probíhá měsíc povědomí o rakovině prsu!",
