@@ -29,34 +29,27 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import net.minecraft.advancements.DisplayInfo;
-import net.minecraft.advancements.FrameType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.toasts.AdvancementToast;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
-import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.PlayLevelSoundEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -82,8 +75,12 @@ public class WildfireEventHandler {
 
 		@SubscribeEvent
 		public static void setupClient(FMLClientSetupEvent event) {
-			ClientRegistry.registerKeyBinding(toggleEditGUI);
 			MinecraftForge.EVENT_BUS.register(new WildfireEventHandler());
+		}
+
+		@SubscribeEvent
+		public static void registerKeybindings(RegisterKeyMappingsEvent event) {
+			event.register(toggleEditGUI);
 		}
 	}
 
@@ -153,7 +150,7 @@ public class WildfireEventHandler {
 		}
  	}
  	@SubscribeEvent
-	public void onKeyInput(InputEvent.KeyInputEvent evt) {
+	public void onKeyInput(InputEvent.Key evt) {
 		if (toggleEditGUI.isDown()) {
 
 			//String playerUUID = Minecraft.getInstance().player.getGameProfile().getId().toString();
@@ -168,8 +165,8 @@ public class WildfireEventHandler {
 	}
 
 	@SubscribeEvent
-	public void onPlayerJoin(EntityJoinWorldEvent evt) {
-		if (evt.getWorld().isClientSide && evt.getEntity() instanceof AbstractClientPlayer plr) {
+	public void onPlayerJoin(EntityJoinLevelEvent evt) {
+		if (evt.getLevel().isClientSide && evt.getEntity() instanceof AbstractClientPlayer plr) {
 			UUID uuid = plr.getUUID();
 			GenderPlayer aPlr = WildfireGender.getPlayerById(uuid);
 			if (aPlr == null) {
