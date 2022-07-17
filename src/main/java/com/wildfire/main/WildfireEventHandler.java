@@ -35,7 +35,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.sound.EntityTrackingSoundInstance;
-import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.player.PlayerEntity;
@@ -60,6 +59,7 @@ public class WildfireEventHandler {
 				PacketSync.sendTo(handler.getPlayer());
 			}
 		});
+
 		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
 			if(!world.isClient) return;
 			if(entity instanceof  AbstractClientPlayerEntity plr) {
@@ -108,33 +108,37 @@ public class WildfireEventHandler {
 				}
 			}
 
-			//Receive hurt
-
-			ClientPlayNetworking.registerGlobalReceiver(new Identifier(WildfireGender.MODID, "hurt"),
-					(client2, handler, buf, responseSender) -> {
-						UUID uuid = buf.readUuid();
-						GenderPlayer.Gender gender = buf.readEnumConstant(GenderPlayer.Gender.class);
-						boolean hurtSounds = buf.readBoolean();
-
-						//Vector3d pos = new Vector3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
-
-						SoundEvent hurtSound = null;
-						if(gender == GenderPlayer.Gender.FEMALE) {
-							hurtSound = Math.random() > 0.5f ? WildfireSounds.FEMALE_HURT1 : WildfireSounds.FEMALE_HURT2;
-						}
-						if(hurtSound == null) return;
-
-						if(hurtSounds) {
-							PlayerEntity ent = MinecraftClient.getInstance().world.getPlayerByUuid(uuid);
-							if (ent != null) {
-								long randomLong = new Random().nextLong(0L,1L);
-								client.getSoundManager().play(new EntityTrackingSoundInstance(hurtSound, SoundCategory.PLAYERS, 1f, 1f, ent.getEventSource(), randomLong));
-							}
-						}
-					});
-
 			while (toggleEditGUI.wasPressed()) {
 				client.setScreen(new WildfirePlayerListScreen(client));
+			}
+		});
+
+		//Receive hurt
+
+		ClientPlayNetworking.registerGlobalReceiver(new Identifier(WildfireGender.MODID, "hurt"),
+		(client, handler, buf, responseSender) -> {
+			UUID uuid = buf.readUuid();
+			GenderPlayer.Gender gender = buf.readEnumConstant(GenderPlayer.Gender.class);
+			boolean hurtSounds = buf.readBoolean();
+
+			//Vector3d pos = new Vector3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
+
+			SoundEvent hurtSound = null;
+			if(gender == GenderPlayer.Gender.FEMALE) {
+				hurtSound = Math.random() > 0.5f ? WildfireSounds.FEMALE_HURT1 : WildfireSounds.FEMALE_HURT2;
+			}
+			if(hurtSound == null) return;
+
+			if(hurtSounds) {
+				PlayerEntity ent = MinecraftClient.getInstance().world.getPlayerByUuid(uuid);
+				if (ent != null) {
+					long randomLong = new Random().nextLong(0L,1L);
+					final SoundEvent hurtSound2 = hurtSound;
+					// ensures it's executed in the main thread
+					client.execute(() -> {
+						client.getSoundManager().play(new EntityTrackingSoundInstance(hurtSound2, SoundCategory.PLAYERS, 1f, 1f, ent.getEventSource(), randomLong));
+					});
+				}
 			}
 		});
 
