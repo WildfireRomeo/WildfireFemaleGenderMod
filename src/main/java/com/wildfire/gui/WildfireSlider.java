@@ -122,11 +122,6 @@ public class WildfireSlider extends AbstractSliderButton {
 		return this.value * (maxValue - minValue) + minValue;
 	}
 
-	public void setValue(double value) {
-		setValueInternal(value);
-		applyValue();
-	}
-
 	private void setValueInternal(double value) {
 		this.value = Mth.clamp((value - this.minValue) / (this.maxValue - this.minValue), 0, 1);
 		this.lastValue = (float) value;
