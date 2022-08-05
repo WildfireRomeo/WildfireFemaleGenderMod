@@ -91,7 +91,7 @@ public class WildfireGender {
 	}
 
 	public void onPlayerLoginEvent(PlayerLoggedInEvent event) {
-		Player player = event.getPlayer();
+		Player player = event.getEntity();
 		if (!player.level.isClientSide() && player instanceof ServerPlayer sp) {
 			//Send all other players to the player who joined. Note: We don't send the player to
 			// other players as that will happen once the player finishes sending themselves to the server
