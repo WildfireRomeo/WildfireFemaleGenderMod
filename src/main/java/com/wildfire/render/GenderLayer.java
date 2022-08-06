@@ -116,22 +116,18 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 			//System.out.println(TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().keySet());
 
 			//Note: When the stack is empty the helper will fall back to an implementation that returns the proper data
-			IGenderArmor genderArmor = WildfireHelper.getArmorConfig(armorStack);
+			IGenderArmor armorConfig = WildfireHelper.getArmorConfig(armorStack);
 
 
 			//Cosmetic armor
 			if(TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic").getStack(0).getItem() != Items.AIR) {
 				armorStack = TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic").getStack(0);
-				genderArmor = WildfireHelper.getArmorConfig(armorStack);
-
-				if(((ArmorItem) armorStack.getItem()).getMaterial() instanceof TransparentArmorMaterial) {
-					genderArmor = EmptyGenderArmor.INSTANCE;
-				}
+				armorConfig = WildfireHelper.getArmorConfig(armorStack);
 
 			}
 
-			boolean isChestplateOccupied = genderArmor.coversBreasts();
-			if (genderArmor.alwaysHidesBreasts() || !plr.showBreastsInArmor() && isChestplateOccupied) {
+			boolean isChestplateOccupied = armorConfig.coversBreasts();
+			if (armorConfig.alwaysHidesBreasts() || !plr.showBreastsInArmor() && isChestplateOccupied) {
 				//If the armor always hides breasts or there is armor and the player configured breasts
 				// to be hidden when wearing armor, we can just exit early rather than doing any calculations
 				return;
@@ -200,7 +196,7 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 			//matrixStack.translate(0, 0, zOff);
 			//System.out.println(bounceRotation);
 
-			float resistance = MathHelper.clamp(genderArmor.physicsResistance(), 0, 1);
+			float resistance = MathHelper.clamp(armorConfig.physicsResistance(), 0, 1);
 			//Note: We only check if the breathing animation should be enabled if the chestplate's physics resistance
 			// is less than or equal to 0.5 so that if we won't be rendering it we can avoid doing extra calculations
 			boolean breathingAnimation = resistance <= 0.5F &&
