@@ -35,6 +35,7 @@ import dev.emi.trinkets.api.SlotGroup;
 import dev.emi.trinkets.api.SlotType;
 import dev.emi.trinkets.api.TrinketsApi;
 import moe.kawaaii.TransparentCosmetics.TransparentArmorMaterial;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
@@ -120,10 +121,11 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 
 
 			//Cosmetic armor
-			if(TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic").getStack(0).getItem() != Items.AIR) {
-				armorStack = TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic").getStack(0);
-				armorConfig = WildfireHelper.getArmorConfig(armorStack);
-
+			if (FabricLoader.getInstance().isModLoaded("trinkets")) {
+				if (TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic").getStack(0).getItem() != Items.AIR) {
+					armorStack = TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic").getStack(0);
+					armorConfig = WildfireHelper.getArmorConfig(armorStack);
+				}
 			}
 
 			boolean isChestplateOccupied = armorConfig.coversBreasts();
