@@ -27,6 +27,7 @@ import dev.emi.trinkets.api.TrinketsApi;
 import moe.kawaaii.TransparentCosmetics.TransparentArmorMaterial;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
@@ -73,23 +74,18 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 
         ItemStack armorStack = plr.getEquippedStack(EquipmentSlot.CHEST);
 
-        IGenderArmor armor = WildfireHelper.getArmorConfig(armorStack);
+        IGenderArmor armorConfig = WildfireHelper.getArmorConfig(armorStack);
 
         //Cosmetic armor
-        if(TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic").getStack(0).getItem() != Items.AIR) {
-            armorStack = TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic").getStack(0);
-            armor = WildfireHelper.getArmorConfig(armorStack);
-
-
-                //Ideally this would be added by the person who made "transparent armor" to their armor in their own mod.
-                if(((ArmorItem) armorStack.getItem()).getMaterial() instanceof TransparentArmorMaterial) {
-                    armor = EmptyGenderArmor.INSTANCE;
-                }
-
+        if(FabricLoader.getInstance().isModLoaded("trinkets")) {
+            if (TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic").getStack(0).getItem() != Items.AIR) {
+                armorStack = TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic").getStack(0);
+                armorConfig = WildfireHelper.getArmorConfig(armorStack);
+            }
         }
 
-        aPlr.getLeftBreastPhysics().update(plr, armor);
-        aPlr.getRightBreastPhysics().update(plr, armor);
+        aPlr.getLeftBreastPhysics().update(plr, armorConfig);
+        aPlr.getRightBreastPhysics().update(plr, armorConfig);
 
 
     }
