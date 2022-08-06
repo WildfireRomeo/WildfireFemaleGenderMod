@@ -30,6 +30,11 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
+import com.wildfire.render.armor.EmptyGenderArmor;
+import dev.emi.trinkets.api.SlotGroup;
+import dev.emi.trinkets.api.SlotType;
+import dev.emi.trinkets.api.TrinketsApi;
+import moe.kawaaii.TransparentCosmetics.TransparentArmorMaterial;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
@@ -51,6 +56,7 @@ import net.minecraft.entity.effect.StatusEffectUtil;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.DyeableArmorItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 
@@ -103,8 +109,27 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 			if(plr == null) return;
 
 			ItemStack armorStack = ent.getEquippedStack(EquipmentSlot.CHEST);
+
+			//for(String val : TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic")) {
+				//System.out.println(TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic").getStack(0));
+			//}
+			//System.out.println(TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().keySet());
+
 			//Note: When the stack is empty the helper will fall back to an implementation that returns the proper data
 			IGenderArmor genderArmor = WildfireHelper.getArmorConfig(armorStack);
+
+
+			//Cosmetic armor
+			if(TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic").getStack(0).getItem() != Items.AIR) {
+				armorStack = TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic").getStack(0);
+				genderArmor = WildfireHelper.getArmorConfig(armorStack);
+
+				if(((ArmorItem) armorStack.getItem()).getMaterial() instanceof TransparentArmorMaterial) {
+					genderArmor = EmptyGenderArmor.INSTANCE;
+				}
+
+			}
+
 			boolean isChestplateOccupied = genderArmor.coversBreasts();
 			if (genderArmor.alwaysHidesBreasts() || !plr.showBreastsInArmor() && isChestplateOccupied) {
 				//If the armor always hides breasts or there is armor and the player configured breasts

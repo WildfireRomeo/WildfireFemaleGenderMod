@@ -37,6 +37,15 @@ repositories {
 	maven {
 		url = 'https://repo.minelittlepony-mod.com/maven/release'
 	}
+
+
+	maven {
+		url "https://cursemaven.com"
+		content {
+			includeGroup "curse.maven"
+		}
+	}
+
 	mavenCentral()
 
 }
@@ -54,8 +63,12 @@ dependencies {
 	//
 	// to-do: be able to fetch a maven url for 3d skin layers or just get rid of this.
 	// modCompileOnly('com.tr9zw:3dskinlayers:1.4.2')
-	modCompileOnly('com.github.emilyploszaj:trinkets:3.1.0')
-	
+
+	modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:4.2.0"
+	modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:4.2.0"
+	modImplementation("curse.maven:trinkets-341284:3786685")
+	modImplementation("curse.maven:transparent-cosmetics-451965:3721687")
+	modImplementation("curse.maven:cosmeticarmor-436659:3771984")
 }
 
 processResources {

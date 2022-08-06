@@ -18,15 +18,23 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.wildfire.mixins;
 import com.mojang.authlib.GameProfile;
 import com.wildfire.api.IGenderArmor;
+import com.wildfire.api.WildfireAPI;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.WildfireHelper;
+import com.wildfire.render.armor.EmptyGenderArmor;
+import dev.emi.trinkets.api.TrinketsApi;
+import moe.kawaaii.TransparentCosmetics.TransparentArmorMaterial;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -62,7 +70,23 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         GenderPlayer aPlr = WildfireGender.getPlayerById(this.getUuid());
         if(aPlr == null) return;
         PlayerEntity plr = (PlayerEntity) (Object) this;
-        IGenderArmor armor = WildfireHelper.getArmorConfig(plr.getEquippedStack(EquipmentSlot.CHEST));
+
+        ItemStack armorStack = plr.getEquippedStack(EquipmentSlot.CHEST);
+
+        IGenderArmor armor = WildfireHelper.getArmorConfig(armorStack);
+
+        //Cosmetic armor
+        if(TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic").getStack(0).getItem() != Items.AIR) {
+            armorStack = TrinketsApi.getTrinketComponent(MinecraftClient.getInstance().player).get().getInventory().get("chest").get("cosmetic").getStack(0);
+            armor = WildfireHelper.getArmorConfig(armorStack);
+
+
+                //Ideally this would be added by the person who made "transparent armor" to their armor in their own mod.
+                if(((ArmorItem) armorStack.getItem()).getMaterial() instanceof TransparentArmorMaterial) {
+                    armor = EmptyGenderArmor.INSTANCE;
+                }
+
+        }
 
         aPlr.getLeftBreastPhysics().update(plr, armor);
         aPlr.getRightBreastPhysics().update(plr, armor);
