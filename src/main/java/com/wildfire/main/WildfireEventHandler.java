@@ -136,7 +136,7 @@ public class WildfireEventHandler {
 					final SoundEvent hurtSound2 = hurtSound;
 					// ensures it's executed in the main thread
 					client.execute(() -> {
-						client.getSoundManager().play(new EntityTrackingSoundInstance(hurtSound2, SoundCategory.PLAYERS, 1f, 1f, ent.getEventSource(), randomLong));
+						client.getSoundManager().play(new EntityTrackingSoundInstance(hurtSound2, SoundCategory.PLAYERS, 1f, 1f, ent, randomLong));
 					});
 				}
 			}
