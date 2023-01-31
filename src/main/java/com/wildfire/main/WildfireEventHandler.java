@@ -108,8 +108,8 @@ public class WildfireEventHandler {
 				}
 			}
 
-			while (toggleEditGUI.wasPressed()) {
-				client.setScreen(new WildfirePlayerListScreen(client));
+			while (toggleEditGUI.wasPressed() && client.currentScreen == null) {
+				client.setScreen(new WildfirePlayerListScreen());
 			}
 		});
 

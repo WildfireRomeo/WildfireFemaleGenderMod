@@ -21,20 +21,28 @@ package com.wildfire.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 public class WildfireButton extends ButtonWidget {
-   public static final ButtonWidget.TooltipSupplier NO_TOOLTIP = (button, matrixStack, mouseX, mouseY) -> {};
-
    public boolean transparent = false;
 
-   public WildfireButton(int x, int y, int w, int h, Text text, ButtonWidget.PressAction onPress, ButtonWidget.TooltipSupplier onTooltip) {
-      super(x, y, w, h, text, onPress, onTooltip);
+   protected WildfireButton(int x, int y, int width, int height, Text message, PressAction onPress, NarrationSupplier narrationSupplier) {
+      super(x, y, width, height, message, onPress, narrationSupplier);
    }
-   public WildfireButton(int x, int y, int w, int h, Text text, ButtonWidget.PressAction onPress) {
-      this(x, y, w, h, text, onPress, NO_TOOLTIP);
+
+   // this is definitely less than ideal, but the alternative is either copying the ButtonWidget.Builder class wholesale
+   // or dealing with this class completely exploding, as casting ButtonWidget to WildfireButton causes the game to crash,
+   // even though IntelliJ doesn't raise any warnings when doing so
+   public WildfireButton(int x, int y, int width, int height, Text message, PressAction onPress) {
+      this(x, y, width, height, message, onPress, DEFAULT_NARRATION_SUPPLIER);
+   }
+
+   public WildfireButton(int x, int y, int width, int height, Text message, PressAction onPress, Tooltip tooltip) {
+      this(x, y, width, height, message, onPress, DEFAULT_NARRATION_SUPPLIER);
+      setTooltip(tooltip);
    }
 
    @Override
@@ -43,15 +51,14 @@ public class WildfireButton extends ButtonWidget {
       TextRenderer font = minecraft.textRenderer;
       int clr = 0x444444 + (84 << 24);
       if(this.isHovered()) clr = 0x666666 + (84 << 24);
-      if(!this.active)  clr = 0x222222 + (84 << 24);
-      if(!transparent) fill(m, x, y, x + getWidth(), y + height, clr);
+      if(!this.active) clr = 0x222222 + (84 << 24);
+      if(!transparent) fill(m, getX(), getY(), getX() + getWidth(), getY() + height, clr);
 
-      font.draw(m, this.getMessage(), x + (this.width / 2) - (font.getWidth(this.getMessage()) / 2) + 1, y + (int) Math.ceil((float) height / 2f) - font.fontHeight / 2, active ? 0xFFFFFF : 0x666666);
+      font.draw(m, this.getMessage(),
+              getX() + (this.width / 2f) - (font.getWidth(this.getMessage()) / 2f) + 1,
+              getY() + (int) Math.ceil((float) height / 2f) - font.fontHeight / 2f,
+              active ? 0xFFFFFF : 0x666666);
       RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-
-      if(this.isHovered()) {
-         this.renderTooltip(m, mouseX, mouseY);
-      }
    }
 
    public WildfireButton setTransparent(boolean b) {

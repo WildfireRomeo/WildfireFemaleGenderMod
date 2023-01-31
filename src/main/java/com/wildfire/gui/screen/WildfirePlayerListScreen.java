@@ -24,11 +24,8 @@ import com.wildfire.gui.WildfirePlayerList;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.GenderPlayer.Gender;
 import com.wildfire.main.WildfireGender;
-import javax.annotation.Nullable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
@@ -36,13 +33,11 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
-import java.util.Collection;
-import java.util.UUID;
+import javax.annotation.Nullable;
 
 
 public class WildfirePlayerListScreen extends Screen {
 
-	private static final UUID CREATOR_UUID = UUID.fromString("33c937ae-6bfc-423e-a38e-3a613e7c1256");
 	private Identifier TXTR_BACKGROUND;
 	private static final Identifier TXTR_RIBBON = new Identifier(WildfireGender.MODID, "textures/bc_ribbon.png");
 
@@ -52,17 +47,8 @@ public class WildfirePlayerListScreen extends Screen {
  	public static GenderPlayer HOVER_PLAYER;
 
 	WildfirePlayerList PLAYER_LIST;
-	private MinecraftClient client;
-	public WildfirePlayerListScreen(MinecraftClient mc) {
+	public WildfirePlayerListScreen() {
 		super(Text.translatable("wildfire_gender.player_list.title"));
-		this.client = mc;
-		MinecraftClient.getInstance().keyboard.setRepeatEvents(true);
-	}
-
-	@Override
-	public void removed() {
-		MinecraftClient.getInstance().keyboard.setRepeatEvents(false);
-		super.removed();
 	}
 
 	@Override
@@ -72,15 +58,15 @@ public class WildfirePlayerListScreen extends Screen {
 
 	@Override
   	public void init() {
-	  	MinecraftClient mc = MinecraftClient.getInstance();
-
 	    int x = this.width / 2;
 	    int y = this.height / 2 - 20;
 		/*this.addButton(new SteinButton(this.width / 2 - 60, y + 75, 66, 15, new TranslationTextComponent("wildfire_gender.player_list.settings_button"), button -> {
 			mc.displayGuiScreen(new WildfireSettingsScreen(SteinPlayerListScreen.this));
 		}));*/
 
-		this.addDrawableChild(new WildfireButton(this.width / 2 + 53, y - 74, 9, 9, Text.translatable("wildfire_gender.label.exit"), button -> MinecraftClient.getInstance().setScreen(null)));
+		this.addDrawableChild(new WildfireButton(this.width / 2 + 53, y - 74, 9, 9,
+				Text.translatable("wildfire_gender.label.exit"),
+				button -> MinecraftClient.getInstance().setScreen(null)));
 
 	    PLAYER_LIST = new WildfirePlayerList(this, 118, (y - 61), (y + 71));
 		PLAYER_LIST.setRenderBackground(false);
@@ -95,15 +81,13 @@ public class WildfirePlayerListScreen extends Screen {
 	@Override
 	public void render(MatrixStack m, int f1, int f2, float f3) {
 		HOVER_PLAYER = null;
-		this.setTooltip(null);
 		PLAYER_LIST.refreshList();
-
 
 	    super.renderBackground(m);
 		MinecraftClient mc = MinecraftClient.getInstance();
 	    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 	    if(this.TXTR_BACKGROUND != null) {
-			RenderSystem.setShader(GameRenderer::getPositionTexShader);
+			RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			RenderSystem.setShaderTexture(0, this.TXTR_BACKGROUND);
 		}
@@ -142,7 +126,6 @@ public class WildfirePlayerListScreen extends Screen {
 				this.textRenderer.drawWithShadow(m, Text.translatable("wildfire_gender.char_settings.physics", Text.translatable(HOVER_PLAYER.hasBreastPhysics() ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 40, 0xBBBBBB);
 				this.textRenderer.drawWithShadow(m, Text.translatable("wildfire_gender.player_list.bounce_multiplier", HOVER_PLAYER.getBounceMultiplier()), dialogX + 6, dialogY + 50, 0xBBBBBB);
 				this.textRenderer.drawWithShadow(m, Text.translatable("wildfire_gender.player_list.breast_momentum", Math.round(HOVER_PLAYER.getFloppiness() * 100)), dialogX + 6, dialogY + 60, 0xBBBBBB);
-
 				this.textRenderer.drawWithShadow(m, Text.translatable("wildfire_gender.player_list.female_sounds", Text.translatable(HOVER_PLAYER.hasHurtSounds() ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 80, 0xBBBBBB);
 			}
 			if(pEntity != null) {
@@ -151,17 +134,7 @@ public class WildfirePlayerListScreen extends Screen {
 		}
 
 	    this.textRenderer.draw(m, Text.translatable("wildfire_gender.player_list.title"), x - 60, y - 73, 4473924);
-
-		boolean withCreator = false;
-		ClientPlayNetworkHandler clientPlayNetworkHandler = this.client.player.networkHandler;
-		Collection<PlayerListEntry> list = clientPlayNetworkHandler.getPlayerList();
-		for(PlayerListEntry plr : list) {
-			if(plr.getProfile().getId().equals(CREATOR_UUID)) {
-				withCreator = true;
-			}
-		}
-
-		if(withCreator) {
+		if(PLAYER_LIST.withCreator) {
 			drawCenteredText(m, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, y + 100, 0xFF00FF);
 		}
 
@@ -202,13 +175,11 @@ public class WildfirePlayerListScreen extends Screen {
 
     @Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-
 		return super.keyPressed(keyCode, scanCode, modifiers);
   	}
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int state) {
-
 	    return super.mouseReleased(mouseX, mouseY, state);
   	}
 }

@@ -21,15 +21,13 @@ package com.wildfire.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.Breasts;
+import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.WildfireGender;
 import com.wildfire.main.WildfireHelper;
 import com.wildfire.physics.BreastPhysics;
 import com.wildfire.render.WildfireModelRenderer.BreastModelBox;
 import com.wildfire.render.WildfireModelRenderer.OverlayModelBox;
 import com.wildfire.render.WildfireModelRenderer.PositionTextureVertex;
-import java.util.UUID;
-import javax.annotation.Nonnull;
-import com.wildfire.main.GenderPlayer;
-import com.wildfire.main.WildfireGender;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
@@ -52,11 +50,16 @@ import net.minecraft.item.ArmorItem;
 import net.minecraft.item.DyeableArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import org.joml.*;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.Math;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> {
 
@@ -66,7 +69,7 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 
 	private float preBreastSize = 0f;
 
-	public GenderLayer(FeatureRendererContext render) {
+	public GenderLayer(FeatureRendererContext<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> render) {
 		super(render);
 
 		lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, 4, 0.0F, false);
@@ -80,11 +83,10 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 
 	private static final Map<String, Identifier> ARMOR_LOCATION_CACHE = new HashMap<>();
 
-	private static final Map<String, Identifier> ARMOR_TEXTURE_CACHE = new HashMap<String, Identifier>();
+	private static final Map<String, Identifier> ARMOR_TEXTURE_CACHE = new HashMap<>();
 	public Identifier getArmorResource(ArmorItem item, boolean legs, @Nullable String overlay) {
-
 		String string = "textures/models/armor/" + item.getMaterial().getName() + "_layer_" + (legs ? 2 : 1) + (overlay == null ? "" : "_" + overlay) + ".png";
-		return (Identifier) ARMOR_TEXTURE_CACHE.computeIfAbsent(string, Identifier::new);
+		return ARMOR_TEXTURE_CACHE.computeIfAbsent(string, Identifier::new);
 	}
 
 	@Override
@@ -163,9 +165,7 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 			}
 			float breastSize = bSize * 1.5f;
 			if (breastSize > 0.7f) breastSize = 0.7f;
-			if (bSize > 0.7f) {
-				breastSize = bSize;
-			}
+			if (bSize > 0.7f) breastSize = bSize;
 
 			if (breastSize < 0.02f) return;
 
@@ -205,15 +205,9 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 		//Surround with a try/catch to fix for essential mod.
 		try {
 			matrixStack.translate(body.pivotX * 0.0625f, body.pivotY * 0.0625f, body.pivotZ * 0.0625f);
-			if (body.roll != 0.0F) {
-				matrixStack.multiply(new Quaternion(0f, 0f, body.roll, false));
-			}
-			if (body.yaw != 0.0F) {
-				matrixStack.multiply(new Quaternion(0f, body.yaw, 0f, false));
-			}
-			if (body.pitch != 0.0F) {
-				matrixStack.multiply(new Quaternion(body.pitch, 0f, 0f, false));
-			}
+			if (body.roll != 0.0F) matrixStack.multiply(new Quaternionf().rotationXYZ(0f, 0f, body.roll));
+			if (body.yaw != 0.0F) matrixStack.multiply(new Quaternionf().rotationXYZ(0f, body.yaw, 0f));
+			if (body.pitch != 0.0F) matrixStack.multiply(new Quaternionf().rotationXYZ(body.pitch, 0f, 0f));
 
 			if (bounceEnabled) {
 				matrixStack.translate(totalX / 32f, 0, 0);
@@ -222,15 +216,9 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 
 			matrixStack.translate(breastOffsetX * 0.0625f, 0.05625f + (breastOffsetY * 0.0625f), zOff - 0.0625f * 2f + (breastOffsetZ * 0.0625f)); //shift down to correct position
 
-			if (!uniboob) {
-				matrixStack.translate(-0.0625f * 2 * (left ? 1 : -1), 0, 0);
-			}
-			if (bounceEnabled) {
-				matrixStack.multiply(new Quaternion(0, bounceRotation, 0, true));
-			}
-			if (!uniboob) {
-				matrixStack.translate(0.0625f * 2 * (left ? 1 : -1), 0, 0);
-			}
+			if (!uniboob) matrixStack.translate(-0.0625f * 2 * (left ? 1 : -1), 0, 0);
+			if (bounceEnabled) matrixStack.multiply(new Quaternionf().rotationXYZ(0, (float)(bounceRotation * (Math.PI / 180f)), 0));
+			if (!uniboob) matrixStack.translate(0.0625f * 2 * (left ? 1 : -1), 0, 0);
 
 			float rotationMultiplier = 0;
 			if (bounceEnabled) {
@@ -238,24 +226,18 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 				rotationMultiplier = -total / 12f;
 			}
 			float totalRotation = breastSize + rotationMultiplier;
-			if (!bounceEnabled) {
-				totalRotation = breastSize;
-			}
-			if (totalRotation > breastSize + 0.2F) {
-				totalRotation = breastSize + 0.2F;
-			}
+			if (!bounceEnabled) totalRotation = breastSize;
+			totalRotation = Math.min(totalRotation, breastSize + 0.2f);
 			totalRotation = Math.min(totalRotation, 1); //hard limit for MAX
 
-			if (isChestplateOccupied) {
-				matrixStack.translate(0, 0, 0.01f);
-			}
+			if (isChestplateOccupied) matrixStack.translate(0, 0, 0.01f);
 
-			matrixStack.multiply(new Quaternion(0, outwardAngle, 0, true));
-			matrixStack.multiply(new Quaternion(-35f * totalRotation, 0, 0, true));
+			matrixStack.multiply(new Quaternionf().rotationXYZ(0, (float)(outwardAngle * (Math.PI / 180f)), 0));
+			matrixStack.multiply(new Quaternionf().rotationXYZ((float)(-35f * totalRotation * (Math.PI / 180f)), 0, 0));
 
 			if (breathingAnimation) {
 				float f5 = -MathHelper.cos(entity.age * 0.09F) * 0.45F + 0.45F;
-				matrixStack.multiply(new Quaternion(f5, 0, 0, true));
+				matrixStack.multiply(new Quaternionf().rotationXYZ((float)(f5 * (Math.PI / 180f)), 0, 0));
 			}
 
 			matrixStack.scale(0.9995f, 1f, 1f); //z-fighting FIXXX
@@ -313,18 +295,18 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 		Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
 		Matrix3f matrix3f =	matrixStack.peek().getNormalMatrix();
 		for (WildfireModelRenderer.TexturedQuad quad : model.quads) {
-			Vec3f vector3f = new Vec3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
-			vector3f.transform(matrix3f);
-			float normalX = vector3f.getX();
-			float normalY = vector3f.getY();
-			float normalZ = vector3f.getZ();
+			Vector3f vector3f = new Vector3f(quad.normal.x, quad.normal.y, quad.normal.z);
+			vector3f.mul(matrix3f);
+			float normalX = vector3f.x;
+			float normalY = vector3f.y;
+			float normalZ = vector3f.z;
 			for (PositionTextureVertex vertex : quad.vertexPositions) {
 				float j = vertex.x() / 16.0F;
 				float k = vertex.y() / 16.0F;
 				float l = vertex.z() / 16.0F;
 				Vector4f vector4f = new Vector4f(j, k, l, 1.0F);
-				vector4f.transform(matrix4f);
-				bufferIn.vertex(vector4f.getX(), vector4f.getY(), vector4f.getZ(), red, green, blue, alpha, vertex.texturePositionX(), vertex.texturePositionY(), packedOverlayIn, packedLightIn, normalX, normalY, normalZ);
+				vector4f.mul(matrix4f);
+				bufferIn.vertex(vector4f.x, vector4f.y, vector4f.z, red, green, blue, alpha, vertex.texturePositionX(), vertex.texturePositionY(), packedOverlayIn, packedLightIn, normalX, normalY, normalZ);
 			}
 		}
 	}

@@ -18,22 +18,23 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.gui.screen;
 
-import com.wildfire.gui.WildfireSlider;
-import com.wildfire.main.WildfireGender;
-import com.wildfire.main.config.Configuration;
-import java.util.UUID;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.gui.WildfireButton;
+import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.WildfireGender;
+import com.wildfire.main.config.Configuration;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+
+import java.util.UUID;
 
 public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
@@ -59,71 +60,86 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
         yPos = y - 47;
         int xPos = x - 156 / 2 - 1;
 
-        this.addDrawableChild(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, Text.translatable("wildfire_gender.label.exit"),
+        //Add 'Close' button at beginning
+        this.addDrawableChild(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9,
+                Text.translatable("wildfire_gender.label.exit"),
                 button -> MinecraftClient.getInstance().setScreen(parent)));
 
         this.addDrawableChild(new WildfireButton(xPos, yPos, 157, 20,
-                Text.translatable("wildfire_gender.char_settings.physics", aPlr.hasBreastPhysics() ? ENABLED : DISABLED), button -> {
-            boolean enablePhysics = !aPlr.hasBreastPhysics();
-            if (aPlr.updateBreastPhysics(enablePhysics)) {
-                button.setMessage(Text.translatable("wildfire_gender.char_settings.physics", enablePhysics ? ENABLED : DISABLED));
-                GenderPlayer.saveGenderInfo(aPlr);
-            }
-        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, Text.translatable("wildfire_gender.tooltip.breast_physics"), mouseX, mouseY)));
+                Text.translatable("wildfire_gender.char_settings.physics", aPlr.hasBreastPhysics() ? ENABLED : DISABLED),
+                button -> {
+                    boolean enablePhysics = !aPlr.hasBreastPhysics();
+                    if (aPlr.updateBreastPhysics(enablePhysics)) {
+                        button.setMessage(Text.translatable("wildfire_gender.char_settings.physics", enablePhysics ? ENABLED : DISABLED));
+                        GenderPlayer.saveGenderInfo(aPlr);
+                    }
+                },
+                Tooltip.of(Text.translatable("wildfire_gender.tooltip.breast_physics"))));
 
         this.addDrawableChild(new WildfireButton(xPos, yPos + 20, 157, 20,
-                Text.translatable("wildfire_gender.char_settings.armor_physics", aPlr.hasArmorBreastPhysics() ? ENABLED : DISABLED), button -> {
-            boolean enablePhysicsArmor = !aPlr.hasArmorBreastPhysics();
-            if (aPlr.updateArmorBreastPhysics(enablePhysicsArmor)) {
-                button.setMessage(Text.translatable("wildfire_gender.char_settings.armor_physics", enablePhysicsArmor ? ENABLED : DISABLED));
-                GenderPlayer.saveGenderInfo(aPlr);
-            }
-        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, Text.translatable("wildfire_gender.tooltip.armor_physics"), mouseX, mouseY)));
+                Text.translatable("wildfire_gender.char_settings.armor_physics", aPlr.hasArmorBreastPhysics() ? ENABLED : DISABLED),
+                button -> {
+                    boolean enablePhysicsArmor = !aPlr.hasArmorBreastPhysics();
+                    if (aPlr.updateArmorBreastPhysics(enablePhysicsArmor)) {
+                        button.setMessage(Text.translatable("wildfire_gender.char_settings.armor_physics", enablePhysicsArmor ? ENABLED : DISABLED));
+                        GenderPlayer.saveGenderInfo(aPlr);
+                    }
+                },
+                Tooltip.of(Text.translatable("wildfire_gender.tooltip.armor_physics"))));
 
         this.addDrawableChild(new WildfireButton(xPos, yPos + 40, 157, 20,
-                Text.translatable("wildfire_gender.char_settings.hide_in_armor", aPlr.showBreastsInArmor() ? DISABLED : ENABLED), button -> {
-            boolean enableShowInArmor = !aPlr.showBreastsInArmor();
-            if (aPlr.updateShowBreastsInArmor(enableShowInArmor)) {
-                button.setMessage(Text.translatable("wildfire_gender.char_settings.hide_in_armor", enableShowInArmor ? DISABLED : ENABLED));
-                GenderPlayer.saveGenderInfo(aPlr);
-            }
-        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, Text.translatable("wildfire_gender.tooltip.hide_in_armor"), mouseX, mouseY)));
+                Text.translatable("wildfire_gender.char_settings.hide_in_armor", aPlr.showBreastsInArmor() ? DISABLED : ENABLED),
+                button -> {
+                    boolean enableShowInArmor = !aPlr.showBreastsInArmor();
+                    if (aPlr.updateShowBreastsInArmor(enableShowInArmor)) {
+                        button.setMessage(Text.translatable("wildfire_gender.char_settings.hide_in_armor", enableShowInArmor ? DISABLED : ENABLED));
+                        GenderPlayer.saveGenderInfo(aPlr);
+                    }
+                },
+                Tooltip.of(Text.translatable("wildfire_gender.tooltip.hide_in_armor"))));
 
-        this.addDrawableChild(this.bounceSlider = new WildfireSlider(xPos, yPos + 60, 158, 22, Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplierRaw(), value -> {
-        }, value -> {
-            float bounceText = 3 * value;
-            float v = Math.round(bounceText * 10) / 10f;
-            bounceWarning = v > 1;
-            if (v == 3) {
-                return Text.translatable("wildfire_gender.slider.max_bounce");
-            } else if (Math.round(bounceText * 100) / 100f == 0) {
-                return Text.translatable("wildfire_gender.slider.min_bounce");
-            }
-            return Text.translatable("wildfire_gender.slider.bounce", v);
-        }, value -> {
-            if (aPlr.updateBounceMultiplier(value)) {
-                GenderPlayer.saveGenderInfo(aPlr);
-            }
-        }));
+        this.addDrawableChild(this.bounceSlider = new WildfireSlider(xPos, yPos + 60, 158, 22,
+                Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplierRaw(),
+                value -> {},
+                value -> {
+                    float bounceText = 3 * value;
+                    float v = Math.round(bounceText * 10) / 10f;
+                    bounceWarning = v > 1;
+                    if (v == 3) {
+                        return Text.translatable("wildfire_gender.slider.max_bounce");
+                    } else if (Math.round(bounceText * 100) / 100f == 0) {
+                        return Text.translatable("wildfire_gender.slider.min_bounce");
+                    }
+                    return Text.translatable("wildfire_gender.slider.bounce", v);
+                },
+                value -> {
+                    if (aPlr.updateBounceMultiplier(value)) {
+                        GenderPlayer.saveGenderInfo(aPlr);
+                    }
+                }));
 
-        this.addDrawableChild(this.floppySlider = new WildfireSlider(xPos, yPos + 80, 158, 22, Configuration.FLOPPY_MULTIPLIER, aPlr.getFloppiness(), value -> {
-        }, value -> Text.translatable("wildfire_gender.slider.floppy", Math.round(value * 100)), value -> {
-            if (aPlr.updateFloppiness(value)) {
-                GenderPlayer.saveGenderInfo(aPlr);
-            }
-        }));
+        this.addDrawableChild(this.floppySlider = new WildfireSlider(xPos, yPos + 80, 158, 22,
+                Configuration.FLOPPY_MULTIPLIER, aPlr.getFloppiness(),
+                value -> {},
+                value -> Text.translatable("wildfire_gender.slider.floppy", Math.round(value * 100)),
+                value -> {
+                    if (aPlr.updateFloppiness(value)) {
+                        GenderPlayer.saveGenderInfo(aPlr);
+                    }
+                }));
 
         this.addDrawableChild(new WildfireButton(xPos, yPos + 100, 157, 20,
-                Text.translatable("wildfire_gender.char_settings.hurt_sounds", aPlr.hasHurtSounds() ? ENABLED : DISABLED), button -> {
-            boolean enableHurtSounds = !aPlr.hasHurtSounds();
-            if (aPlr.updateHurtSounds(enableHurtSounds)) {
-                button.setMessage(Text.translatable("wildfire_gender.char_settings.hurt_sounds", enableHurtSounds ? ENABLED : DISABLED));
-                GenderPlayer.saveGenderInfo(aPlr);
-            }
-        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, Text.translatable("wildfire_gender.tooltip.hurt_sounds"), mouseX, mouseY)));
+                Text.translatable("wildfire_gender.char_settings.hurt_sounds", aPlr.hasHurtSounds() ? ENABLED : DISABLED),
+                button -> {
+                    boolean enableHurtSounds = !aPlr.hasHurtSounds();
+                    if (aPlr.updateHurtSounds(enableHurtSounds)) {
+                        button.setMessage(Text.translatable("wildfire_gender.char_settings.hurt_sounds", enableHurtSounds ? ENABLED : DISABLED));
+                        GenderPlayer.saveGenderInfo(aPlr);
+                    }
+                },
+                Tooltip.of(Text.translatable("wildfire_gender.tooltip.hurt_sounds"))));
 
         this.BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/settings_bg.png");
-
         super.init();
     }
 
@@ -134,7 +150,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         if(this.BACKGROUND != null) {
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShader(GameRenderer::getPositionTexProgram);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.setShaderTexture(0, this.BACKGROUND);
         }
@@ -144,9 +160,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
         int x = this.width / 2;
         int y = this.height / 2;
-
         this.textRenderer.draw(m, getTitle(), x - 79, yPos - 10, 4473924);
-
         super.render(m, f1, f2, f3);
 
         if(plrEntity != null) {

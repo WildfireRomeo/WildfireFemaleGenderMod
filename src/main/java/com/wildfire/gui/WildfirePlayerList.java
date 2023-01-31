@@ -21,11 +21,10 @@ package com.wildfire.gui;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.gui.screen.WardrobeBrowserScreen;
-import com.wildfire.main.WildfireGender;
+import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.main.GenderPlayer;
-
+import com.wildfire.main.WildfireGender;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -45,8 +44,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry> {
     private static final Ordering<PlayerListEntry> ENTRY_ORDERING = Ordering.from(new WildfirePlayerList.EntryOrderComparator());
@@ -58,7 +57,9 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
     private final int listWidth;
     private boolean loadingPlayers = true;
 
-    private static WildfirePlayerListScreen parent;
+    private static final UUID CREATOR_UUID = UUID.fromString("33c937ae-6bfc-423e-a38e-3a613e7c1256");
+    public boolean withCreator = false;
+    private final WildfirePlayerListScreen parent;
 
     public WildfirePlayerList(WildfirePlayerListScreen parent, int listWidth, int top, int bottom) {
         super(MinecraftClient.getInstance(), parent.width-4, parent.height, top-6, bottom, 20);
@@ -81,17 +82,16 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
 
     public void refreshList() {
         this.clearEntries();
+        this.withCreator = false;
+        if(this.client.player == null || this.client.world == null) return;
+
         ClientPlayNetworkHandler clientPlayNetworkHandler = this.client.player.networkHandler;
         List<PlayerListEntry> list = ENTRY_ORDERING.sortedCopy(clientPlayNetworkHandler.getPlayerList());
-
-        Iterator var9 = list.iterator();
-        int index = 0;
-        while(var9.hasNext()) {
-            PlayerListEntry playerListEntry = (PlayerListEntry)var9.next();
-            PlayerEntity playerentity = MinecraftClient.getInstance().world.getPlayerByUuid(playerListEntry.getProfile().getId());
-            if(playerentity != null) {
+        for(PlayerListEntry playerListEntry : list) {
+            PlayerEntity player = this.client.world.getPlayerByUuid(playerListEntry.getProfile().getId());
+            if(player != null) {
+                if(player.getUuid().equals(CREATOR_UUID)) this.withCreator = true;
                 addEntry(new WildfirePlayerList.Entry(playerListEntry));
-                index++;
             }
         }
     }
@@ -111,13 +111,10 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
     }
 
     @Override
-    public void appendNarrations(NarrationMessageBuilder builder) {
-
-    }
+    public void appendNarrations(NarrationMessageBuilder builder) {}
 
     @Environment(EnvType.CLIENT)
     public class Entry extends EntryListWidget.Entry<WildfirePlayerList.Entry> {
-
         private final String name;
         public final PlayerListEntry nInfo;
         private final WildfireButton btnOpenGUI;
@@ -125,14 +122,18 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
         private Entry(final PlayerListEntry nInfo) {
             this.nInfo = nInfo;
             this.name = nInfo.getProfile().getName();
-            btnOpenGUI = new WildfireButton(0, 0, 112, 20, Text.empty(), button -> {
-                GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
-                if(aPlr == null) return;
 
-                try {
-                    MinecraftClient.getInstance().setScreen(new WardrobeBrowserScreen(parent, nInfo.getProfile().getId()));
-                } catch(Exception ignored) {}
-            });
+            btnOpenGUI = new WildfireButton(0, 0, 112, 20,
+                    Text.empty(),
+                    button -> {
+                        GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
+                        if (aPlr == null) return;
+
+                        try {
+                            MinecraftClient.getInstance().setScreen(new WardrobeBrowserScreen(parent, nInfo.getProfile().getId()));
+                        } catch (Exception ignored) {}
+                    });
+
             GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
             if(aPlr != null) {
                 btnOpenGUI.active = !aPlr.lockSettings;
@@ -180,15 +181,14 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
                 btnOpenGUI.active = false;
                 font.draw(m, Text.translatable("wildfire_gender.label.too_far").formatted(Formatting.RED), left + 23, top + 11, 0xFFFFFF);
             }
-            this.btnOpenGUI.x = left;
-            this.btnOpenGUI.y = top;
+            this.btnOpenGUI.setX(left);
+            this.btnOpenGUI.setY(top);
             this.btnOpenGUI.render(m, mouseX, mouseY, partialTicks);
 
             if(this.btnOpenGUI.isHovered()) {
                 WildfirePlayerListScreen.HOVER_PLAYER = aPlr;
             }
         }
-
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
