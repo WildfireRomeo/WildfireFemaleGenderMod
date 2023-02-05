@@ -55,13 +55,6 @@ public class WildfirePlayerListScreen extends Screen {
 	public WildfirePlayerListScreen(Minecraft mc) {
 		super(Component.translatable("wildfire_gender.player_list.title"));
 		this.client = mc;
-		Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
-	}
-
-	@Override
-	public void onClose() {
-		Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(false);
-		super.onClose();
 	}
 
 	@Override

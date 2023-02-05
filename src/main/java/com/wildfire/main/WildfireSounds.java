@@ -23,10 +23,10 @@ import net.minecraft.sounds.SoundEvent;
 
 public class WildfireSounds {
 	private static final ResourceLocation femaleHurt1 = new ResourceLocation(WildfireGender.MODID, "female_hurt1");
-	public static SoundEvent FEMALE_HURT1 = new SoundEvent(femaleHurt1);
+	public static SoundEvent FEMALE_HURT1 = SoundEvent.createVariableRangeEvent(femaleHurt1);
 	
 	private static final ResourceLocation femaleHurt2 = new ResourceLocation(WildfireGender.MODID, "female_hurt2");
-	public static SoundEvent FEMALE_HURT2 = new SoundEvent(femaleHurt2);
+	public static SoundEvent FEMALE_HURT2 = SoundEvent.createVariableRangeEvent(femaleHurt2);
 	
 	/*private static ResourceLocation maleHurt1 = new ResourceLocation(WildfireGender.MODID, "male_hurt1");
 	public static SoundEvent MALE_HURT1 = new SoundEvent(maleHurt1);*/

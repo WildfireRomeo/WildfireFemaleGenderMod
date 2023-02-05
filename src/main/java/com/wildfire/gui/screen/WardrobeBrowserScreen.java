@@ -24,22 +24,24 @@ import java.util.UUID;
 
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.GenderPlayer;
 import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class WardrobeBrowserScreen extends BaseWildfireScreen {
 
@@ -89,7 +91,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	}
 
   	@Override
-	public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
+	public void render(PoseStack m, int f1, int f2, float f3) {
 		Minecraft minecraft = Minecraft.getInstance();
 		GenderPlayer plr = getPlayer();
 	    super.renderBackground(m);
@@ -142,8 +144,8 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 		PoseStack var9 = new PoseStack();
 		var9.translate(0.0D, 0.0D, 1000.0D);
 		var9.scale((float)p_98853_, (float)p_98853_, (float)p_98853_);
-		Quaternion var10 = Vector3f.ZP.rotationDegrees(180.0F);
-		Quaternion var11 = Vector3f.XP.rotationDegrees(var7 * 20.0F);
+		Quaternionf var10 = (new Quaternionf()).rotateZ(180.0F);
+		Quaternionf var11 = (new Quaternionf()).rotateX(var7 * 20.0F);
 		var10.mul(var11);
 		var9.mulPose(var10);
 		float var12 = p_98856_.yBodyRot;
@@ -158,7 +160,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 		p_98856_.yHeadRotO = p_98856_.getYRot();
 		Lighting.setupForEntityInInventory();
 		EntityRenderDispatcher var17 = Minecraft.getInstance().getEntityRenderDispatcher();
-		var11.conj();
+		var11.conjugate();
 		var17.overrideCameraOrientation(var11);
 		var17.setRenderShadow(false);
 		MultiBufferSource.BufferSource var18 = Minecraft.getInstance().renderBuffers().bufferSource();

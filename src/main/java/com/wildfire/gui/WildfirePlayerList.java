@@ -155,8 +155,8 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
                 btnOpenGUI.active = false;
                 font.draw(m, Component.translatable("wildfire_gender.label.too_far").withStyle(ChatFormatting.RED), left + 23, top + 11, 0xFFFFFF);
             }
-            this.btnOpenGUI.x = left;
-            this.btnOpenGUI.y = top;
+            this.btnOpenGUI.setX(left);
+            this.btnOpenGUI.setY(top);
             this.btnOpenGUI.render(m, mouseX, mouseY, partialTicks);
 
             if(this.btnOpenGUI.isHoveredOrFocused()) {

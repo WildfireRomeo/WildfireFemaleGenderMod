@@ -79,6 +79,8 @@ public class GenderPlayer {
 		this.cfg.setDefault(ClientConfiguration.BOUNCE_MULTIPLIER);
 		this.cfg.setDefault(ClientConfiguration.FLOPPY_MULTIPLIER);
 		this.cfg.finish();
+
+		System.out.println("Testing");
 	}
 
 	public ClientConfiguration getConfig() {

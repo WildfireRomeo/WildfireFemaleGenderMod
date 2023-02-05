@@ -191,7 +191,7 @@ public class WildfireEventHandler {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onPlaySound(PlayLevelSoundEvent.AtEntity event) {
-		SoundEvent soundEvent = event.getSound();
+		SoundEvent soundEvent = event.getSound().get();
 		if (soundEvent != null && playerHurtSounds.contains(soundEvent) && event.getEntity() instanceof Player p && p.level.isClientSide) {
 			//Cancel as we handle all hurt sounds manually so that we can
 			event.setCanceled(true);

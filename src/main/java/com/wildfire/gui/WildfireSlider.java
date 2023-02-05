@@ -98,20 +98,20 @@ public class WildfireSlider extends AbstractSliderButton {
 	public void renderButton(@Nonnull PoseStack mStack, int mouseX, int mouseY, float partial) {
 		RenderSystem.disableDepthTest();
 		int clr = 84 << 24;
-		fill(mStack, x, y, x + getWidth(), y + height, clr);
+		fill(mStack, getX(), getY(), getX() + getWidth(), getY() + getHeight(), clr);
 
-		fill(mStack, x + 1, y + 1, x + this.width - 1, y + this.height - 1, 0x222222 + (128 << 24));
+		fill(mStack, getX() + 1, getY() + 1, getX() + getWidth() - 1, getY() + getHeight() - 1, 0x222222 + (128 << 24));
 
 		//Inner Blue Filler
-		int xPos = this.x + 4 + (int) (value * (this.width - 6));
-		fill(mStack, x + 2, y + 2, xPos - 1, y + this.height - 2, 0x222266 + (180 << 24));
+		int xPos = getX() + 4 + (int) (value * (getWidth() - 6));
+		fill(mStack, getX() + 2, getY() + 2, xPos - 1, getY() + getHeight() - 2, 0x222266 + (180 << 24));
 
-		int xPos2 = this.x + 2 + (int) (value * (this.width - 4));
-		fill(mStack,xPos2-2, y + 1, xPos2, y + this.height-1, 0xFFFFFF + (120 << 24));
+		int xPos2 = getX() + 2 + (int) (value * (getWidth() - 4));
+		fill(mStack,xPos2-2, getY() + 1, xPos2, getY() + getHeight()-1, 0xFFFFFF + (120 << 24));
 		RenderSystem.enableDepthTest();
 
 		Font font = Minecraft.getInstance().font;
-		drawCenteredString(mStack, font, getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, isHovered || changed ? 0xFFFF55 : 0xFFFFFF);
+		drawCenteredString(mStack, font, getMessage(), getX() + getWidth() / 2, getY() + (getHeight() - 8) / 2, isHovered || changed ? 0xFFFF55 : 0xFFFFFF);
 	}
 
 	public float getFloatValue() {

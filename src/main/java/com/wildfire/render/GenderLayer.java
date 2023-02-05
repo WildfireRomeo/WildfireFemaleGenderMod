@@ -59,6 +59,10 @@ import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.client.ForgeHooksClient;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
@@ -224,13 +228,13 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		try {
 			matrixStack.translate(body.x * 0.0625f, body.y * 0.0625f, body.z * 0.0625f);
 			if (body.zRot != 0.0F) {
-				matrixStack.mulPose(new Quaternion(0f, 0f, body.zRot, false));
+				matrixStack.mulPose(new Quaternionf().rotationXYZ(0f, 0f, body.zRot));
 			}
 			if (body.yRot != 0.0F) {
-				matrixStack.mulPose(new Quaternion(0f, body.yRot, 0f, false));
+				matrixStack.mulPose(new Quaternionf().rotationXYZ(0f, body.yRot, 0f));
 			}
 			if (body.xRot != 0.0F) {
-				matrixStack.mulPose(new Quaternion(body.xRot, 0f, 0f, false));
+				matrixStack.mulPose(new Quaternionf().rotationXYZ(body.xRot, 0f, 0f));
 			}
 
 			if (bounceEnabled) {
@@ -244,7 +248,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 				matrixStack.translate(-0.0625f * 2 * (left ? 1 : -1), 0, 0);
 			}
 			if (bounceEnabled) {
-				matrixStack.mulPose(new Quaternion(0, bounceRotation, 0, true));
+				matrixStack.mulPose(new Quaternionf().rotationXYZ(0, (float) (bounceRotation * (Math.PI / 180f)), 0));
 			}
 			if (!uniboob) {
 				matrixStack.translate(0.0625f * 2 * (left ? 1 : -1), 0, 0);
@@ -268,12 +272,12 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 				matrixStack.translate(0, 0, 0.01f);
 			}
 
-			matrixStack.mulPose(new Quaternion(0, outwardAngle, 0, true));
-			matrixStack.mulPose(new Quaternion(-35f * totalRotation, 0, 0, true));
+			matrixStack.mulPose(new Quaternionf().rotationXYZ(0, (float) (outwardAngle * (Math.PI / 180f)), 0));
+			matrixStack.mulPose(new Quaternionf().rotationXYZ((float) (-35f * totalRotation * (Math.PI / 180f)), 0, 0));
 
 			if (breathingAnimation) {
 				float f5 = -Mth.cos(entity.tickCount * 0.09F) * 0.45F + 0.45F;
-				matrixStack.mulPose(new Quaternion(f5, 0, 0, true));
+				matrixStack.mulPose(new Quaternionf().rotationXYZ((float) (f5 * (Math.PI / 180f)), 0, 0));
 			}
 
 			matrixStack.scale(0.9995f, 1f, 1f); //z-fighting FIXXX
@@ -332,7 +336,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		Matrix3f matrix3f =	matrixStack.last().normal();
 		for (WildfireModelRenderer.TexturedQuad quad : model.quads) {
 			Vector3f vector3f = new Vector3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
-			vector3f.transform(matrix3f);
+			vector3f.mul(matrix3f);
 			float normalX = vector3f.x();
 			float normalY = vector3f.y();
 			float normalZ = vector3f.z();

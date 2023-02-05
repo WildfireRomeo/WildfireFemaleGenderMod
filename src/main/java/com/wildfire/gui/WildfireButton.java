@@ -24,18 +24,22 @@ import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.narration.NarrationSupplier;
 import net.minecraft.network.chat.Component;
 
 public class WildfireButton extends Button {
-   public static final Button.OnTooltip NO_TOOLTIP = (button, matrixStack, mouseX, mouseY) -> {};
-
    public boolean transparent = false;
 
-   public WildfireButton(int x, int y, int w, int h, Component text, Button.OnPress onPress, Button.OnTooltip onTooltip) {
-      super(x, y, w, h, text, onPress, onTooltip);
+   public WildfireButton(int x, int y, int width, int height, Component text, Button.OnPress onPress, CreateNarration narrationSupplier) {
+      super(x, y, width, height, text, onPress, narrationSupplier);
    }
    public WildfireButton(int x, int y, int w, int h, Component text, Button.OnPress onPress) {
-      this(x, y, w, h, text, onPress, NO_TOOLTIP);
+      this(x, y, w, h, text, onPress, DEFAULT_NARRATION);
+   }
+   public WildfireButton(int x, int y, int width, int height, Component message, Button.OnPress onPress, Tooltip tooltip) {
+      this(x, y, width, height, message, onPress, DEFAULT_NARRATION);
+      setTooltip(tooltip);
    }
 
    @Override
@@ -45,14 +49,10 @@ public class WildfireButton extends Button {
       int clr = 0x444444 + (84 << 24);
       if(this.isHoveredOrFocused()) clr = 0x666666 + (84 << 24);
       if(!this.active)  clr = 0x222222 + (84 << 24);
-      if(!transparent) fill(m, x, y, x + getWidth(), y + height, clr);
+      if(!transparent) fill(m, getX(), getY(), getX() + getWidth(), getY() + getHeight(), clr);
 
-      font.draw(m, this.getMessage(), x + (this.width / 2) - (font.width(this.getMessage()) / 2) + 1, y + (int) Math.ceil((float) height / 2f) - font.lineHeight / 2, active ? 0xFFFFFF : 0x666666);
+      font.draw(m, this.getMessage(),getX() + (this.width / 2f) - (font.width(this.getMessage()) / 2f) + 1, getY() + (int) Math.ceil((float) height / 2f) - font.lineHeight / 2f, active ? 0xFFFFFF : 0x666666);
       RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-
-      if(this.isHoveredOrFocused()) {
-         this.renderToolTip(m, mouseX, mouseY);
-      }
    }
 
    public WildfireButton setTransparent(boolean b) {
