@@ -21,8 +21,6 @@
 	"wildfire_gender.char_settings.title": "Paramètres de Personnage",
 	"wildfire_gender.char_settings.physics": "Physiques de la Poitrine: %s",
 	"wildfire_gender.tooltip.breast_physics": "Activer Physique de la Poitrine",
-	"wildfire_gender.char_settings.armor_physics": "Physique d'Armure: %s",
-	"wildfire_gender.tooltip.armor_physics": "Active la Physique de la Poitrine avec une Armure Équippée",
 	"wildfire_gender.char_settings.hide_in_armor": "Cacher dans l'Armure: %s",
 	"wildfire_gender.tooltip.hide_in_armor": "Cacher la Poitrine avec une Armure Équippée",
 	"wildfire_gender.char_settings.hurt_sounds": "Sons Blessés Féminins: %s",

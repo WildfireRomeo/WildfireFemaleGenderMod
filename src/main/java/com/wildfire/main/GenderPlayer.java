@@ -127,14 +127,6 @@ public class GenderPlayer {
 		return updateValue(ClientConfiguration.BREAST_PHYSICS, value, v -> this.breastPhysics = v);
 	}
 
-	public boolean hasArmorBreastPhysics() {
-		return armorBreastPhysics;
-	}
-
-	public boolean updateArmorBreastPhysics(boolean value) {
-		return updateValue(ClientConfiguration.BREAST_PHYSICS_ARMOR, value, v -> this.armorBreastPhysics = v);
-	}
-
 	public boolean showBreastsInArmor() {
 		return showBreastsInArmor;
 	}
@@ -175,7 +167,6 @@ public class GenderPlayer {
 		ClientConfiguration.HURT_SOUNDS.save(obj, plr.hasHurtSounds());
 
 		ClientConfiguration.BREAST_PHYSICS.save(obj, plr.hasBreastPhysics());
-		ClientConfiguration.BREAST_PHYSICS_ARMOR.save(obj, plr.hasArmorBreastPhysics());
 		ClientConfiguration.SHOW_IN_ARMOR.save(obj, plr.showBreastsInArmor());
 		ClientConfiguration.BOUNCE_MULTIPLIER.save(obj, plr.getBounceMultiplierRaw());
 		ClientConfiguration.FLOPPY_MULTIPLIER.save(obj, plr.getFloppiness());
@@ -197,7 +188,6 @@ public class GenderPlayer {
 
 		//physics
 		plr.updateBreastPhysics(ClientConfiguration.BREAST_PHYSICS.read(obj));
-		plr.updateArmorBreastPhysics(ClientConfiguration.BREAST_PHYSICS_ARMOR.read(obj));
 		plr.updateShowBreastsInArmor(ClientConfiguration.SHOW_IN_ARMOR.read(obj));
 		plr.updateBounceMultiplier(ClientConfiguration.BOUNCE_MULTIPLIER.read(obj));
 		plr.updateFloppiness(ClientConfiguration.FLOPPY_MULTIPLIER.read(obj));
@@ -225,7 +215,6 @@ public class GenderPlayer {
 
 			//physics
 			plr.updateBreastPhysics(config.get(ClientConfiguration.BREAST_PHYSICS));
-			plr.updateArmorBreastPhysics(config.get(ClientConfiguration.BREAST_PHYSICS_ARMOR));
 			plr.updateShowBreastsInArmor(config.get(ClientConfiguration.SHOW_IN_ARMOR));
 			plr.updateBounceMultiplier(config.get(ClientConfiguration.BOUNCE_MULTIPLIER));
 			plr.updateFloppiness(config.get(ClientConfiguration.FLOPPY_MULTIPLIER));
@@ -253,7 +242,6 @@ public class GenderPlayer {
 
 		//physics
 		config.set(ClientConfiguration.BREAST_PHYSICS, plr.hasBreastPhysics());
-		config.set(ClientConfiguration.BREAST_PHYSICS_ARMOR, plr.hasArmorBreastPhysics());
 		config.set(ClientConfiguration.SHOW_IN_ARMOR, plr.showBreastsInArmor());
 		config.set(ClientConfiguration.BOUNCE_MULTIPLIER, plr.getBounceMultiplierRaw());
 		config.set(ClientConfiguration.FLOPPY_MULTIPLIER, plr.getFloppiness());

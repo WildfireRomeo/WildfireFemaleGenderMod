@@ -21,8 +21,6 @@
 	"wildfire_gender.char_settings.title": "Character Iinstellige",
 	"wildfire_gender.char_settings.physics": "Brustphysik: %s",
 	"wildfire_gender.tooltip.breast_physics": "Brustphysik",
-	"wildfire_gender.char_settings.armor_physics": "Rüstigsphysik: %s",
-	"wildfire_gender.tooltip.armor_physics": "Brustphysik mit Rüstige",
 	"wildfire_gender.char_settings.hide_in_armor": "Versteckt mit Rüstig: %s",
 	"wildfire_gender.tooltip.hide_in_armor": "Versteckt das Brustmodel wenn e Rüstung a'zoge isch.",
 	"wildfire_gender.char_settings.hurt_sounds": "Wiibliche Soundeffekte: %s",

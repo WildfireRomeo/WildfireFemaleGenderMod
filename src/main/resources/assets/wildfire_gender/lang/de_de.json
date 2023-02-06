@@ -21,8 +21,6 @@
 	"wildfire_gender.char_settings.title": "Character Einstellungen",
 	"wildfire_gender.char_settings.physics": "Brustphysik: %s",
 	"wildfire_gender.tooltip.breast_physics": "Brustphysik",
-	"wildfire_gender.char_settings.armor_physics": "Rüstungsphysik: %s",
-	"wildfire_gender.tooltip.armor_physics": "Brustphysik mit Rüstungen",
 	"wildfire_gender.char_settings.hide_in_armor": "Versteckt mit Rüstung: %s",
 	"wildfire_gender.tooltip.hide_in_armor": "Versteckt das Brustmodel wenn eine Rüstung angezogen ist.",
 	"wildfire_gender.char_settings.hurt_sounds": "Weibliche Soundeffekte: %s",
