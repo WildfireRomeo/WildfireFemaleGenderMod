@@ -66,10 +66,6 @@ public class WildfireGender {
 
   	public WildfireGender() {
 		Path configDir = FMLPaths.GAMEDIR.get().resolve(FMLPaths.CONFIGDIR.get());
-  		File legacyFolder = configDir.resolve("KittGender").toFile();
-  		if (legacyFolder.exists()) {
-  			boolean legacyConvert = legacyFolder.renameTo(configDir.resolve("WildfireGender").toFile());
-		}
 
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup); //common
 		MinecraftForge.EVENT_BUS.addListener(this::onPlayerLoginEvent);
