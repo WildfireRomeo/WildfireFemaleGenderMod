@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.main;
 
+import com.wildfire.api.IGenderArmor;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -34,7 +35,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -71,7 +74,9 @@ public class WildfireGender {
   			boolean legacyConvert = legacyFolder.renameTo(configDir.resolve("WildfireGender").toFile());
 		}
 
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup); //common
+		IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+		modEventBus.addListener(this::setup); //common
+		modEventBus.addListener(this::registerCapabilities);
 		MinecraftForge.EVENT_BUS.addListener(this::onPlayerLoginEvent);
     }
 
@@ -88,6 +93,10 @@ public class WildfireGender {
 		NETWORK.registerMessage(1, PacketSync.class, PacketSync::encode, PacketSync::new, PacketSync::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 		NETWORK.registerMessage(2, PacketSendGenderInfo.class, PacketSendGenderInfo::encode, PacketSendGenderInfo::new, PacketSendGenderInfo::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
 		//NETWORK.registerMessage(3, PacketSendCape.class, PacketSendCape::encode, PacketSendCape::new, PacketSendCape::handle);
+	}
+
+	private void registerCapabilities(RegisterCapabilitiesEvent event) {
+		  event.register(IGenderArmor.class);
 	}
 
 	public void onPlayerLoginEvent(PlayerLoggedInEvent event) {
