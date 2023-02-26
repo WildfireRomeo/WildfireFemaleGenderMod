@@ -164,14 +164,14 @@ public class WildfirePlayerListScreen extends Screen {
 		}
 
 		//Breast Cancer Awareness Month Notification
-		//if(Calendar.getInstance().get(Calendar.MONTH) == 9) {
+		if(Calendar.getInstance().get(Calendar.MONTH) == 9) {
 			fill(m, x - 159, y + 106, x + 159, y + 136, 0x55000000);
 			textRenderer.draw(m, Formatting.BOLD + "" + Formatting.ITALIC + "Hey, it's Breast Cancer Awareness Month!", this.width / 2 - 148, y + 117, 0xFFFFFF);
 			RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			RenderSystem.setShaderTexture(0, this.TXTR_RIBBON);
 			Screen.drawTexture(m, x + 130, y + 109, 26, 26, 0, 0, 20, 20, 20, 20);
-		//}
+		}
 		if (tooltip != null) {
 			this.renderTooltip(m, tooltip, f1, f2);
 		}
