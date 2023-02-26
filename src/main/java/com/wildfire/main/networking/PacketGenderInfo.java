@@ -32,7 +32,6 @@ public abstract class PacketGenderInfo {
 
     //physics variables
     private final boolean breast_physics;
-    private final boolean breast_physics_armor;
     private final boolean show_in_armor;
     private final float bounceMultiplier;
     private final float floppyMultiplier;
@@ -51,7 +50,6 @@ public abstract class PacketGenderInfo {
 
         //physics variables
         this.breast_physics = plr.hasBreastPhysics();
-        this.breast_physics_armor = plr.hasArmorBreastPhysics();
         this.show_in_armor = plr.showBreastsInArmor();
         this.bounceMultiplier = plr.getBounceMultiplierRaw();
         this.floppyMultiplier = plr.getFloppiness();
@@ -73,7 +71,6 @@ public abstract class PacketGenderInfo {
 
         //physics variables
         this.breast_physics = buffer.readBoolean();
-        this.breast_physics_armor = buffer.readBoolean();
         this.show_in_armor = buffer.readBoolean();
         this.bounceMultiplier = buffer.readFloat();
         this.floppyMultiplier = buffer.readFloat();
@@ -91,7 +88,6 @@ public abstract class PacketGenderInfo {
         buffer.writeFloat(this.bust_size);
         buffer.writeBoolean(this.hurtSounds);
         buffer.writeBoolean(this.breast_physics);
-        buffer.writeBoolean(this.breast_physics_armor);
         buffer.writeBoolean(this.show_in_armor);
         buffer.writeFloat(this.bounceMultiplier);
         buffer.writeFloat(this.floppyMultiplier);
@@ -110,7 +106,6 @@ public abstract class PacketGenderInfo {
 
         //physics
         plr.updateBreastPhysics(breast_physics);
-        plr.updateArmorBreastPhysics(breast_physics_armor);
         plr.updateShowBreastsInArmor(show_in_armor);
         plr.updateBounceMultiplier(bounceMultiplier);
         plr.updateFloppiness(floppyMultiplier);
