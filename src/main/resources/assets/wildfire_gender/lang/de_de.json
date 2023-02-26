@@ -7,26 +7,24 @@
 	"wildfire_gender.player_list.title": "Weiblicher Geschlechts Mod",
 	"wildfire_gender.player_list.settings_button": "Einstellungen",
 	"wildfire_gender.player_list.sync_status": "Synchronisierungsstatus",
-	"wildfire_gender.player_list.state.loading": "Lade Spielerdaten..",
-	"wildfire_gender.player_list.state.synced": "Synchronisierter Spieler",
+	"wildfire_gender.player_list.state.loading": "Lade Spieler..",
+	"wildfire_gender.player_list.state.synced": "Spieler geladen!",
 
 	"wildfire_gender.wardrobe.title": "Anpassungsmenu",
-	"wildfire_gender.wardrobe.slider.breast_size": "Brustgröße: %s%%",
+	"wildfire_gender.wardrobe.slider.breast_size": "Brustgrösse: %s%%",
 	"wildfire_gender.wardrobe.slider.separation": "Separierung: %s",
 	"wildfire_gender.wardrobe.slider.height": "Höhe: %s",
 	"wildfire_gender.wardrobe.slider.depth": "Tiefe: %s",
-	"wildfire_gender.wardrobe.slider.rotation": "Drehung: %s Grad",
+	"wildfire_gender.wardrobe.slider.rotation": "Drehung: %s degrees",
 
 	"wildfire_gender.appearance_settings.title": "Aussehen",
-	"wildfire_gender.char_settings.title": "Charakter-Einstellungen",
+	"wildfire_gender.char_settings.title": "Character Einstellungen",
 	"wildfire_gender.char_settings.physics": "Brustphysik: %s",
-	"wildfire_gender.tooltip.breast_physics": "Schaltet Brustphysik an",
-	"wildfire_gender.char_settings.armor_physics": "Rüstungsphysik: %s",
-	"wildfire_gender.tooltip.armor_physics": "Schaltet Brustphysik mit Rüstungen an",
+	"wildfire_gender.tooltip.breast_physics": "Brustphysik",
 	"wildfire_gender.char_settings.hide_in_armor": "Versteckt mit Rüstung: %s",
-	"wildfire_gender.tooltip.hide_in_armor": "Versteckt das Brustmodel wenn eine Rüstung angezogen ist",
+	"wildfire_gender.tooltip.hide_in_armor": "Versteckt das Brustmodel wenn eine Rüstung angezogen ist.",
 	"wildfire_gender.char_settings.hurt_sounds": "Weibliche Soundeffekte: %s",
-	"wildfire_gender.tooltip.hurt_sounds": "Schaltet die Weiblichen Soundeffekte an",
+	"wildfire_gender.tooltip.hurt_sounds": "Weibliche Soundeffekte",
 
 	"wildfire_gender.breast_customization.dual_physics": "Dualphysik: %s",
 
@@ -34,29 +32,29 @@
 	"wildfire_gender.player_list.breast_momentum": "Brust Schwung: %s%%",
 	"wildfire_gender.player_list.female_sounds": "Weibliche Soundeffekte: %s",
 
-	"wildfire_gender.settings.title": "Wildfire's Einstellungen",
+	"wildfire_gender.settings.title": "Wildfire's Einstellungsmenü",
 
 	"wildfire_gender.acknowledge.confirm": "Okay",
 
-	"wildfire_gender.label.gender": "Geschlecht",
+	"wildfire_gender.label.gender": "Geschlect",
 	"wildfire_gender.label.female": "Weiblich",
-	"wildfire_gender.label.male": "Männlich",
+	"wildfire_gender.label.male": "Mänlich",
 	"wildfire_gender.label.other": "Andere",
 
-	"wildfire_gender.label.enabled": "An",
-	"wildfire_gender.label.disabled": "Aus",
+	"wildfire_gender.label.enabled": "Aktiviert",
+	"wildfire_gender.label.disabled": "Deaktiviert",
 	"wildfire_gender.label.yes": "Ja",
 	"wildfire_gender.label.no": "Nein",
 	"wildfire_gender.label.exit": "X",
-	"wildfire_gender.label.too_far": "Zu weit weg",
+	"wildfire_gender.label.too_far": "Zu weit weg.",
 	"wildfire_gender.label.with_creator": "Du spielst auf einem Server mit dem Programmierer dieser Mod!",
 
 	"wildfire_gender.slider.bounce": "Wackel Intensität: %sx",
 	"wildfire_gender.slider.floppy": "Brust Schwung: %s%%",
-	"wildfire_gender.slider.min_bounce": "Warum sind die Physics überhaupt an?",
-	"wildfire_gender.slider.max_bounce": "Anime Brust Physik!!!",
-	"wildfire_gender.tooltip.bounce_warning": "Wenn Sie die 'Bounce-Intensität' zu hoch einstellen, könnte es sehr unnatürlich aus!",
+	"wildfire_gender.slider.min_bounce": "Warum sind Physik aktiviert?",
+	"wildfire_gender.slider.max_bounce": "Anime Brust Physik!",
+	"wildfire_gender.tooltip.bounce_warning": "Wenn Sie 'Wackel Intensität' zu stark einstellen sieht es nicht mehr natürlich aus!",
 
 	"wildfire_gender.cancer_awareness.title": "Hey, es ist Brustkrebsmonat!",
-	"wildfire_gender.cancer_awareness.description": "Klicken hier um der §dSusan G. Komen Foundation§f zu spenden!"
+	"wildfire_gender.cancer_awareness.description": "Klicke hier um an die §dDeutsche Krebshilfe§f zu spenden!"
 }
