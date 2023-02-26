@@ -38,11 +38,6 @@ public class WildfireGender implements ClientModInitializer {
 
 	@Override
   	public void onInitializeClient() {
-		File f = new File(System.getProperty("user.dir")  + "/config/KittGender/");
-		if(f.exists()) {
-			boolean legacyConvert = f.renameTo(new File(System.getProperty("user.dir")  + "/config/WildfireGender/"));
-		}
-
 		WildfireEventHandler.registerClientEvents();
 		WildfireSounds.register();
     }
