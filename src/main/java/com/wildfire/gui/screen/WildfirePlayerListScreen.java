@@ -56,12 +56,10 @@ public class WildfirePlayerListScreen extends Screen {
 	public WildfirePlayerListScreen(MinecraftClient mc) {
 		super(Text.translatable("wildfire_gender.player_list.title"));
 		this.client = mc;
-		MinecraftClient.getInstance().keyboard.setRepeatEvents(true);
 	}
 
 	@Override
 	public void removed() {
-		MinecraftClient.getInstance().keyboard.setRepeatEvents(false);
 		super.removed();
 	}
 
@@ -95,7 +93,6 @@ public class WildfirePlayerListScreen extends Screen {
 	@Override
 	public void render(MatrixStack m, int f1, int f2, float f3) {
 		HOVER_PLAYER = null;
-		this.setTooltip(null);
 		PLAYER_LIST.refreshList();
 
 
@@ -103,7 +100,7 @@ public class WildfirePlayerListScreen extends Screen {
 		MinecraftClient mc = MinecraftClient.getInstance();
 	    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 	    if(this.TXTR_BACKGROUND != null) {
-			RenderSystem.setShader(GameRenderer::getPositionTexShader);
+			RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			RenderSystem.setShaderTexture(0, this.TXTR_BACKGROUND);
 		}

@@ -180,8 +180,8 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
                 btnOpenGUI.active = false;
                 font.draw(m, Text.translatable("wildfire_gender.label.too_far").formatted(Formatting.RED), left + 23, top + 11, 0xFFFFFF);
             }
-            this.btnOpenGUI.x = left;
-            this.btnOpenGUI.y = top;
+            this.btnOpenGUI.setX(left);
+            this.btnOpenGUI.setY(top);
             this.btnOpenGUI.render(m, mouseX, mouseY, partialTicks);
 
             if(this.btnOpenGUI.isHovered()) {

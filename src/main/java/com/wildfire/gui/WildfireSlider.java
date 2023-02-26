@@ -108,19 +108,19 @@ public class WildfireSlider extends ClickableWidget {
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		if (this.visible) {
 			RenderSystem.disableDepthTest();
-			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+			this.hovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
 			int clr = 84 << 24;
 
-			int xP = x +4;
-			Screen.fill(matrices, xP-2, y+1, x + this.width - 1, y + this.height-1, 0x222222 + (128 << 24));
-			int xPos =  x + 4 + (int) (this.value * (float)(this.width - 6));
-			Screen.fill(matrices, x+3, y+2, xPos-1, y + this.height - 2, 0x222266 + (180 << 24));
+			int xP = getX() +4;
+			Screen.fill(matrices, xP-2, getY()+1, getX() + this.width - 1, getY() + this.height-1, 0x222222 + (128 << 24));
+			int xPos =  getX() + 4 + (int) (this.value * (float)(this.width - 6));
+			Screen.fill(matrices, getX()+3, getY()+2, xPos-1, getY() + this.height - 2, 0x222266 + (180 << 24));
 
-			int xPos2 = this.x + 2 + (int) (this.value * (float)(this.width - 4));
-			Screen.fill(matrices,xPos2-2, y + 1, xPos2, y + this.height-1, 0xFFFFFF + (120 << 24));
+			int xPos2 = this.getX() + 2 + (int) (this.value * (float)(this.width - 4));
+			Screen.fill(matrices,xPos2-2, getY() + 1, xPos2, getY() + this.height-1, 0xFFFFFF + (120 << 24));
 			RenderSystem.enableDepthTest();
 			TextRenderer font = MinecraftClient.getInstance().textRenderer;
-			drawCenteredText(matrices, font, getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, this.hovered || changed ? 0xFFFF55 : 0xFFFFFF);
+			drawCenteredText(matrices, font, getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, this.hovered || changed ? 0xFFFF55 : 0xFFFFFF);
 		}
 	}
 
@@ -150,11 +150,11 @@ public class WildfireSlider extends ClickableWidget {
 	}
 
 	@Override
-	public void appendNarrations(NarrationMessageBuilder builder) {}
+	public void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
 
 	private void setValueFromMouse(double mouseX) {
-		this.value = ((mouseX - (double)(this.x + 4)) / (double)(this.width - 8));
+		this.value = ((mouseX - (double)(this.getX() + 4)) / (double)(this.getWidth() - 8));
 		if (this.value < 0.0F) {
 			this.value = 0.0F;
 		}

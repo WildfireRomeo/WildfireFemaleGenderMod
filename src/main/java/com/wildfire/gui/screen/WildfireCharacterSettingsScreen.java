@@ -28,6 +28,7 @@ import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.GenderPlayer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
@@ -69,7 +70,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
                 button.setMessage(Text.translatable("wildfire_gender.char_settings.physics", enablePhysics ? ENABLED : DISABLED));
                 GenderPlayer.saveGenderInfo(aPlr);
             }
-        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, Text.translatable("wildfire_gender.tooltip.breast_physics"), mouseX, mouseY)));
+        }, Tooltip.of(Text.translatable("wildfire_gender.tooltip.breast_physics"))));
 
         this.addDrawableChild(new WildfireButton(xPos, yPos + 20, 157, 20,
                 Text.translatable("wildfire_gender.char_settings.armor_physics", aPlr.hasArmorBreastPhysics() ? ENABLED : DISABLED), button -> {
@@ -78,7 +79,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
                 button.setMessage(Text.translatable("wildfire_gender.char_settings.armor_physics", enablePhysicsArmor ? ENABLED : DISABLED));
                 GenderPlayer.saveGenderInfo(aPlr);
             }
-        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, Text.translatable("wildfire_gender.tooltip.armor_physics"), mouseX, mouseY)));
+        }, Tooltip.of(Text.translatable("wildfire_gender.tooltip.armor_physics"))));
 
         this.addDrawableChild(new WildfireButton(xPos, yPos + 40, 157, 20,
                 Text.translatable("wildfire_gender.char_settings.hide_in_armor", aPlr.showBreastsInArmor() ? DISABLED : ENABLED), button -> {
@@ -87,7 +88,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
                 button.setMessage(Text.translatable("wildfire_gender.char_settings.hide_in_armor", enableShowInArmor ? DISABLED : ENABLED));
                 GenderPlayer.saveGenderInfo(aPlr);
             }
-        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, Text.translatable("wildfire_gender.tooltip.hide_in_armor"), mouseX, mouseY)));
+        }, Tooltip.of(Text.translatable("wildfire_gender.tooltip.hide_in_armor"))));
 
         this.addDrawableChild(this.bounceSlider = new WildfireSlider(xPos, yPos + 60, 158, 22, Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplierRaw(), value -> {
         }, value -> {
@@ -120,7 +121,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
                 button.setMessage(Text.translatable("wildfire_gender.char_settings.hurt_sounds", enableHurtSounds ? ENABLED : DISABLED));
                 GenderPlayer.saveGenderInfo(aPlr);
             }
-        }, (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, Text.translatable("wildfire_gender.tooltip.hurt_sounds"), mouseX, mouseY)));
+        }, Tooltip.of(Text.translatable("wildfire_gender.tooltip.hurt_sounds"))));
 
         this.BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/settings_bg.png");
 
@@ -134,7 +135,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         if(this.BACKGROUND != null) {
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShader(GameRenderer::getPositionTexProgram);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.setShaderTexture(0, this.BACKGROUND);
         }

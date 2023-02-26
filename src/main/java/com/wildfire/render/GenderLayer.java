@@ -26,6 +26,8 @@ import com.wildfire.physics.BreastPhysics;
 import com.wildfire.render.WildfireModelRenderer.BreastModelBox;
 import com.wildfire.render.WildfireModelRenderer.OverlayModelBox;
 import com.wildfire.render.WildfireModelRenderer.PositionTextureVertex;
+
+import java.lang.Math;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import com.wildfire.main.GenderPlayer;
@@ -53,6 +55,7 @@ import net.minecraft.item.DyeableArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
+import org.joml.*;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -206,13 +209,13 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 		try {
 			matrixStack.translate(body.pivotX * 0.0625f, body.pivotY * 0.0625f, body.pivotZ * 0.0625f);
 			if (body.roll != 0.0F) {
-				matrixStack.multiply(new Quaternion(0f, 0f, body.roll, false));
+				matrixStack.multiply(new Quaternionf().rotationXYZ(0f, 0f, body.roll));
 			}
 			if (body.yaw != 0.0F) {
-				matrixStack.multiply(new Quaternion(0f, body.yaw, 0f, false));
+				matrixStack.multiply(new Quaternionf().rotationXYZ(0f, body.yaw, 0f));
 			}
 			if (body.pitch != 0.0F) {
-				matrixStack.multiply(new Quaternion(body.pitch, 0f, 0f, false));
+				matrixStack.multiply(new Quaternionf().rotationXYZ(body.pitch, 0f, 0f));
 			}
 
 			if (bounceEnabled) {
@@ -226,7 +229,7 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 				matrixStack.translate(-0.0625f * 2 * (left ? 1 : -1), 0, 0);
 			}
 			if (bounceEnabled) {
-				matrixStack.multiply(new Quaternion(0, bounceRotation, 0, true));
+				matrixStack.multiply(new Quaternionf().rotationXYZ(0, (float)(bounceRotation * (Math.PI / 180f)), 0));
 			}
 			if (!uniboob) {
 				matrixStack.translate(0.0625f * 2 * (left ? 1 : -1), 0, 0);
@@ -250,12 +253,12 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 				matrixStack.translate(0, 0, 0.01f);
 			}
 
-			matrixStack.multiply(new Quaternion(0, outwardAngle, 0, true));
-			matrixStack.multiply(new Quaternion(-35f * totalRotation, 0, 0, true));
+			matrixStack.multiply(new Quaternionf().rotationXYZ(0, (float)(outwardAngle * (Math.PI / 180f)), 0));
+			matrixStack.multiply(new Quaternionf().rotationXYZ((float)(-35f * totalRotation * (Math.PI / 180f)), 0, 0));
 
 			if (breathingAnimation) {
 				float f5 = -MathHelper.cos(entity.age * 0.09F) * 0.45F + 0.45F;
-				matrixStack.multiply(new Quaternion(f5, 0, 0, true));
+				matrixStack.multiply(new Quaternionf().rotationXYZ((float)(f5 * (Math.PI / 180f)), 0, 0));
 			}
 
 			matrixStack.scale(0.9995f, 1f, 1f); //z-fighting FIXXX
@@ -313,18 +316,18 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 		Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
 		Matrix3f matrix3f =	matrixStack.peek().getNormalMatrix();
 		for (WildfireModelRenderer.TexturedQuad quad : model.quads) {
-			Vec3f vector3f = new Vec3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
-			vector3f.transform(matrix3f);
-			float normalX = vector3f.getX();
-			float normalY = vector3f.getY();
-			float normalZ = vector3f.getZ();
+			Vector3f vector3f = new Vector3f(quad.normal.x, quad.normal.y, quad.normal.z);
+			vector3f.mul(matrix3f);
+			float normalX = vector3f.x;
+			float normalY = vector3f.y;
+			float normalZ = vector3f.z;
 			for (PositionTextureVertex vertex : quad.vertexPositions) {
 				float j = vertex.x() / 16.0F;
 				float k = vertex.y() / 16.0F;
 				float l = vertex.z() / 16.0F;
 				Vector4f vector4f = new Vector4f(j, k, l, 1.0F);
-				vector4f.transform(matrix4f);
-				bufferIn.vertex(vector4f.getX(), vector4f.getY(), vector4f.getZ(), red, green, blue, alpha, vertex.texturePositionX(), vertex.texturePositionY(), packedOverlayIn, packedLightIn, normalX, normalY, normalZ);
+				vector4f.mul(matrix4f);
+				bufferIn.vertex(vector4f.x, vector4f.y, vector4f.z, red, green, blue, alpha, vertex.texturePositionX(), vertex.texturePositionY(), packedOverlayIn, packedLightIn, normalX, normalY, normalZ);
 			}
 		}
 	}
