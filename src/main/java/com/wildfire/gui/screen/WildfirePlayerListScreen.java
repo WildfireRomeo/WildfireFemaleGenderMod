@@ -36,6 +36,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -159,19 +160,18 @@ public class WildfirePlayerListScreen extends Screen {
 		}
 
 		if(withCreator) {
-			drawCenteredText(m, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, y + 100, 0xFF00FF);
+			drawCenteredText(m, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, y + 89, 0xFF00FF);
 		}
 
-		//Breast Cancer Awareness Month Donation Prompt (I don't know if this is legal for mods, so it's commented...)
-		/*if(Calendar.getInstance().get(Calendar.MONTH) == 9) {
+		//Breast Cancer Awareness Month Notification
+		//if(Calendar.getInstance().get(Calendar.MONTH) == 9) {
 			fill(m, x - 159, y + 106, x + 159, y + 136, 0x55000000);
-			textRenderer.draw(m, Formatting.ITALIC + "Hey, it's Breast Cancer Awareness Month!", this.width / 2 - 155, y + 110, 0xFFFFFF);
-			textRenderer.draw(m, "Click here to donate to " + Formatting.LIGHT_PURPLE + "Susan G. Komen Foundation" + Formatting.WHITE + "!", this.width / 2 - 155, y + 124, 0xAAAAAA);
-			RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		RenderSystem.setShaderTexture(0, this.TXTR_RIBBON);
+			textRenderer.draw(m, Formatting.BOLD + "" + Formatting.ITALIC + "Hey, it's Breast Cancer Awareness Month!", this.width / 2 - 148, y + 117, 0xFFFFFF);
+			RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.setShaderTexture(0, this.TXTR_RIBBON);
 			Screen.drawTexture(m, x + 130, y + 109, 26, 26, 0, 0, 20, 20, 20, 20);
-		}*/
+		//}
 		if (tooltip != null) {
 			this.renderTooltip(m, tooltip, f1, f2);
 		}
