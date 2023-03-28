@@ -61,11 +61,6 @@ public class WildfireSlider extends ClickableWidget {
 		setValueInternal(currentVal);
 	}
 
-	@Override
-	protected int getYImage(boolean hovered) {
-		return 0;
-	}
-
 	protected void updateMessage() {
 		setMessage(messageUpdate.get(lastValue));
 	}
@@ -120,8 +115,13 @@ public class WildfireSlider extends ClickableWidget {
 			Screen.fill(matrices,xPos2-2, getY() + 1, xPos2, getY() + this.height-1, 0xFFFFFF + (120 << 24));
 			RenderSystem.enableDepthTest();
 			TextRenderer font = MinecraftClient.getInstance().textRenderer;
-			drawCenteredText(matrices, font, getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, this.hovered || changed ? 0xFFFF55 : 0xFFFFFF);
+			drawCenteredTextWithShadow(matrices, font, getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, this.hovered || changed ? 0xFFFF55 : 0xFFFFFF);
 		}
+	}
+
+	@Override
+	public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+		render(matrices, mouseX, mouseY, delta);
 	}
 
 	public float getFloatValue() {

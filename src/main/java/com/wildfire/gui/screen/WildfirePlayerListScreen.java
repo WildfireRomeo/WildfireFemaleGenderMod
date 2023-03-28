@@ -160,7 +160,7 @@ public class WildfirePlayerListScreen extends Screen {
 		}
 
 		if(withCreator) {
-			drawCenteredText(m, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, y + 89, 0xFF00FF);
+			drawCenteredTextWithShadow(m, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, y + 89, 0xFF00FF);
 		}
 
 		//Breast Cancer Awareness Month Notification

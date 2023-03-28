@@ -183,7 +183,7 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 			// is less than or equal to 0.5 so that if we won't be rendering it we can avoid doing extra calculations
 			boolean breathingAnimation = resistance <= 0.5F &&
 										 (!ent.isSubmergedInWater() || StatusEffectUtil.hasWaterBreathing(ent) ||
-										  ent.world.getBlockState(new BlockPos(ent.getX(), ent.getEyeY(), ent.getZ())).isOf(Blocks.BUBBLE_COLUMN));
+										  ent.world.getBlockState(new BlockPos((int) ent.getX(), (int) ent.getEyeY(), (int) ent.getZ())).isOf(Blocks.BUBBLE_COLUMN));
 			boolean bounceEnabled = plr.hasBreastPhysics() && (!isChestplateOccupied || resistance < 1); //oh, you found this?
 
 			int combineTex = LivingEntityRenderer.getOverlay(ent, 0);

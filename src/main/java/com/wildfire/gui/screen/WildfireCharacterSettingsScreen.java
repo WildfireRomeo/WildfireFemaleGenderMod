@@ -151,11 +151,11 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
         super.render(m, f1, f2, f3);
 
         if(plrEntity != null) {
-            Screen.drawCenteredText(m, this.textRenderer, plrEntity.getDisplayName(), x, yPos - 30, 0xFFFFFF);
+            Screen.drawCenteredTextWithShadow(m, this.textRenderer, plrEntity.getDisplayName(), x, yPos - 30, 0xFFFFFF);
         }
 
         if(bounceWarning) {
-            Screen.drawCenteredText(m, this.textRenderer, Text.translatable("wildfire_gender.tooltip.bounce_warning").formatted(Formatting.ITALIC), x, y+90, 0xFF6666);
+            Screen.drawCenteredTextWithShadow(m, this.textRenderer, Text.translatable("wildfire_gender.tooltip.bounce_warning").formatted(Formatting.ITALIC), x, y+90, 0xFF6666);
         }
     }
 
