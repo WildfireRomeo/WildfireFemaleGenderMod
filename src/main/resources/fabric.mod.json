@@ -21,7 +21,7 @@
     "sources": "https://github.com/WildfireRomeo/WildfireFemaleGenderMod/tree/master",
     "issues": "https://github.com/WildfireRomeo/WildfireFemaleGenderMod/issues"
   },
-  "license": "GPL-3.0",
+  "license": "LGPL-3.0-only",
   "icon": "assets/wildfire_gender/icon.png",
   "environment": "*",
   "entrypoints": {
