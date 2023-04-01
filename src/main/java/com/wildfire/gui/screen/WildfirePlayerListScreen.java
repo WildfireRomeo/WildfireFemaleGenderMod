@@ -25,6 +25,8 @@ import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.GenderPlayer.Gender;
 import com.wildfire.main.WildfireGender;
 import javax.annotation.Nullable;
+
+import com.wildfire.main.WildfireHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -160,7 +162,7 @@ public class WildfirePlayerListScreen extends Screen {
 		}
 
 		if(withCreator) {
-			drawCenteredTextWithShadow(m, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, y + 89, 0xFF00FF);
+			WildfireHelper.drawCenteredText(m, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, y + 89, 0xFF00FF);
 		}
 
 		//Breast Cancer Awareness Month Notification

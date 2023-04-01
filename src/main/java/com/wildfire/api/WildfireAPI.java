@@ -20,8 +20,12 @@ package com.wildfire.api;
 
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
+import net.minecraft.text.OrderedText;
+import net.minecraft.text.Text;
 
 import java.util.HashMap;
 import java.util.Map;
