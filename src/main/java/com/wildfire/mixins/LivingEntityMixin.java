@@ -71,7 +71,7 @@ public class LivingEntityMixin {
 
 	private void wildfiregender$playHurtSound(PlayerEntity player) {
 		GenderPlayer genderPlayer = WildfireGender.getPlayerById(player.getUuid());
-		if(genderPlayer == null) return;
+		if(genderPlayer == null || !genderPlayer.hasHurtSounds()) return;
 
 		SoundEvent hurtSound = genderPlayer.getGender().getHurtSound();
 		if(hurtSound != null) {
