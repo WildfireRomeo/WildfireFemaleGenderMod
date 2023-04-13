@@ -22,9 +22,11 @@ import com.google.gson.JsonObject;
 import com.wildfire.main.config.ConfigKey;
 import com.wildfire.main.config.Configuration;
 import com.wildfire.physics.BreastPhysics;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
+import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -270,26 +272,30 @@ public class GenderPlayer {
 	}
 
 	public enum Gender {
-		FEMALE(Text.translatable("wildfire_gender.label.female").formatted(Formatting.LIGHT_PURPLE)),
-		MALE(Text.translatable("wildfire_gender.label.male").formatted(Formatting.BLUE)),
-		OTHER(Text.translatable("wildfire_gender.label.other").formatted(Formatting.GREEN));
+		FEMALE(Text.translatable("wildfire_gender.label.female").formatted(Formatting.LIGHT_PURPLE), true, WildfireSounds.FEMALE_HURT),
+		MALE(Text.translatable("wildfire_gender.label.male").formatted(Formatting.BLUE), false, null),
+		OTHER(Text.translatable("wildfire_gender.label.other").formatted(Formatting.GREEN), true, null);
 
 		private final Text name;
+		private final boolean canHaveBreasts;
+		private final @Nullable SoundEvent hurtSound;
 
-		Gender(Text name) {
+		Gender(Text name, boolean canHaveBreasts, @Nullable SoundEvent hurtSound) {
 			this.name = name;
+			this.canHaveBreasts = canHaveBreasts;
+			this.hurtSound = hurtSound;
 		}
 
 		public Text getDisplayName() {
 			return name;
 		}
 
-		public boolean hasFemaleHurtSounds() {
-			return this == FEMALE;
+		public @Nullable SoundEvent getHurtSound() {
+			return hurtSound;
 		}
 
 		public boolean canHaveBreasts() {
-			return this != MALE;
+			return canHaveBreasts;
 		}
 	}
 }
