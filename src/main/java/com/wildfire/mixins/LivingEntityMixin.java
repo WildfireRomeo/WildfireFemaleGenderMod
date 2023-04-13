@@ -47,7 +47,10 @@ public class LivingEntityMixin {
 		if((LivingEntity)(Object)this instanceof PlayerEntity player) {
 			// Only act on the client player; the server will send the hurt sound separately for other players
 			// in the below mixin
-			if(!player.world.isClient() || player != MinecraftClient.getInstance().player) return;
+			MinecraftClient client = MinecraftClient.getInstance();
+			if(!player.world.isClient() || client.player == null || !client.player.getUuid().equals(player.getUuid())) {
+				return;
+			}
 			wildfiregender$playHurtSound(player);
 		}
 	}
