@@ -22,129 +22,108 @@ import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.main.networking.PacketSync;
 
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.sound.EntityTrackingSoundInstance;
-import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
-public class WildfireEventHandler {
-
-	public static final KeyBinding toggleEditGUI = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.wildfire_gender.gender_menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_G, "category.wildfire_gender.generic"));
-
+@Environment(EnvType.CLIENT)
+public class ClientEventHandler {
+	public static final KeyBinding GUI_KEYBIND = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+			"key.wildfire_gender.gender_menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_G, "category.wildfire_gender.generic"));
+	private static final Identifier SEND_SYNC_IDENTIFIER = WildfireGender.id("send_gender_info");
 	private static int timer = 0;
 
 	public static void registerClientEvents() {
+		ClientEntityEvents.ENTITY_LOAD.register(ClientEventHandler::onEntityLoad);
+		ClientTickEvents.END_CLIENT_TICK.register(ClientEventHandler::onTick);
+		ClientPlayNetworking.registerGlobalReceiver(WildfireGender.id("hurt"), ClientEventHandler::hurtPacket);
+		ClientPlayNetworking.registerGlobalReceiver(WildfireGender.id("sync"), PacketSync::handle);
+	}
 
-		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-			if (!handler.getPlayer().world.isClient()) {
-				//Send all other players to the player who joined. Note: We don't send the player to
-				// other players as that will happen once the player finishes sending themselves to the server
-				PacketSync.sendTo(handler.getPlayer());
-			}
-		});
+	private static void onTick(MinecraftClient client) {
+		if(client.world == null) {
+			timer = 0;
+			WildfireGender.CLOTHING_PLAYERS.clear();
+			return;
+		}
+		// the client player realistically shouldn't be null if the world isn't null, but still check anyway
+		// to keep IntelliJ happy
+		if(client.player == null) return;
 
-		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
-			if(!world.isClient) return;
-			if(entity instanceof  AbstractClientPlayerEntity plr) {
-				UUID uuid = plr.getUuid();
-				GenderPlayer aPlr = WildfireGender.getPlayerById(plr.getUuid());
-				if (aPlr == null) {
-					aPlr = new GenderPlayer(uuid);
-					WildfireGender.CLOTHING_PLAYERS.put(uuid, aPlr);
-					WildfireGender.loadGenderInfoAsync(uuid, uuid.equals(MinecraftClient.getInstance().player.getUuid()));
-					return;
+		if(ClientPlayNetworking.canSend(SEND_SYNC_IDENTIFIER)) {
+			// attempt to sync 4 times a second
+			if(++timer % 5 == 0) {
+				try {
+					GenderPlayer aPlr = WildfireGender.getPlayerById(client.player.getUuid());
+					if(aPlr == null) return;
+					PacketSendGenderInfo.sendToServer(aPlr);
+				} catch (Exception e) {
+					//e.printStackTrace();
 				}
 			}
-			/*if(!world.isClient) return;
+		}
 
-			if(entity instanceof AbstractClientPlayerEntity plr) {
-				UUID uuid = plr.getUuid();
-				GenderPlayer aPlr = WildfireGender.getPlayerById(plr.getUuid());
-				if(aPlr == null) {
-					aPlr = new GenderPlayer(uuid);
-					WildfireGender.CLOTHING_PLAYERS.put(uuid, aPlr);
-					WildfireGender.loadGenderInfoAsync(uuid, uuid.equals(MinecraftClient.getInstance().player.getUuid()));
-					return;
-				}
-			}*/
-		});
+		while(GUI_KEYBIND.wasPressed() && client.currentScreen == null) {
+			client.setScreen(new WildfirePlayerListScreen(client));
+		}
+	}
 
-		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			if(client.world == null) WildfireGender.CLOTHING_PLAYERS.clear();
+	private static void onEntityLoad(Entity entity, ClientWorld world) {
+		if(MinecraftClient.getInstance().player == null) return;
 
-			boolean isVanillaServer = !ClientPlayNetworking.canSend(new Identifier(WildfireGender.MODID, "send_gender_info"));
+		if(entity instanceof AbstractClientPlayerEntity plr) {
+			UUID uuid = plr.getUuid();
+			GenderPlayer aPlr = WildfireGender.getPlayerById(plr.getUuid());
+			if(aPlr != null) return;
 
+			aPlr = new GenderPlayer(uuid);
+			WildfireGender.CLOTHING_PLAYERS.put(uuid, aPlr);
+			WildfireGender.loadGenderInfoAsync(uuid, uuid.equals(MinecraftClient.getInstance().player.getUuid()));
+		}
+	}
 
-			if(!isVanillaServer) {
-				//20 ticks per second / 5 = 4 times per second
+	private static void hurtPacket(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender packetSender) {
+		if(client.world == null) {
+			WildfireGender.LOGGER.warn("Received hurt packet while the world was unset; discarding");
+			return;
+		}
 
-				timer++;
-				if (timer >= 5) {
-					try {
-						GenderPlayer aPlr = WildfireGender.getPlayerById(MinecraftClient.getInstance().player.getUuid());
-						if(aPlr == null /*|| !aPlr.needsSync*/) return;
-						PacketSendGenderInfo.send(aPlr);
-					} catch (Exception e) {
-						//e.printStackTrace();
-					}
-					timer = 0;
-				}
-			}
+		PlayerEntity player = client.world.getPlayerByUuid(buf.readUuid());
+		if(player == null) return;
+		GenderPlayer.Gender gender = buf.readEnumConstant(GenderPlayer.Gender.class);
+		if(!buf.readBoolean()) return;
 
-			while (toggleEditGUI.wasPressed()) {
-				client.setScreen(new WildfirePlayerListScreen(client));
-			}
-		});
+		final SoundEvent hurtSound = (gender.hasFemaleHurtSounds()
+				? (Math.random() > 0.5f ? WildfireSounds.FEMALE_HURT1 : WildfireSounds.FEMALE_HURT2)
+				: null);
+		if(hurtSound == null) return;
 
-		//Receive hurt
-
-		ClientPlayNetworking.registerGlobalReceiver(new Identifier(WildfireGender.MODID, "hurt"),
-		(client, handler, buf, responseSender) -> {
-			UUID uuid = buf.readUuid();
-			GenderPlayer.Gender gender = buf.readEnumConstant(GenderPlayer.Gender.class);
-			boolean hurtSounds = buf.readBoolean();
-
-			//Vector3d pos = new Vector3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
-
-			SoundEvent hurtSound = null;
-			if(gender == GenderPlayer.Gender.FEMALE) {
-				hurtSound = Math.random() > 0.5f ? WildfireSounds.FEMALE_HURT1 : WildfireSounds.FEMALE_HURT2;
-			}
-			if(hurtSound == null) return;
-
-			if(hurtSounds) {
-				PlayerEntity ent = MinecraftClient.getInstance().world.getPlayerByUuid(uuid);
-				if (ent != null) {
-					long randomLong = new Random().nextLong(0L,1L);
-					final SoundEvent hurtSound2 = hurtSound;
-					// ensures it's executed in the main thread
-					client.execute(() -> {
-						client.getSoundManager().play(new EntityTrackingSoundInstance(hurtSound2, SoundCategory.PLAYERS, 1f, 1f, ent, randomLong));
-					});
-				}
-			}
-		});
-
-		ClientPlayNetworking.registerGlobalReceiver(new Identifier(WildfireGender.MODID, "sync"),
-		(client, handler, buf, responseSender) -> {
-			PacketSync.handle(client, handler, buf, responseSender);
+		client.execute(() -> {
+			long randomLong = player.getRandom().nextLong();
+			float pitch = (player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.2F + 1.0F;
+			client.getSoundManager().play(new EntityTrackingSoundInstance(hurtSound, SoundCategory.PLAYERS, 1f, pitch, player, randomLong));
 		});
 	}
 

@@ -15,20 +15,14 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-package com.wildfire.main;
-import com.wildfire.main.networking.PacketSendGenderInfo;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.util.Identifier;
 
+package com.wildfire.main;
+
+import net.fabricmc.api.ModInitializer;
 
 public class WildfireGenderServer implements ModInitializer {
-
     @Override
     public void onInitialize() {
-        ServerPlayNetworking.registerGlobalReceiver(new Identifier(WildfireGender.MODID, "send_gender_info"),
-        (server, playerEntity, handler, buf, responseSender) -> {
-            PacketSendGenderInfo.handle(server, playerEntity, handler, buf, responseSender);
-        });
+        ServerEventHandler.registerEvents();
     }
 }

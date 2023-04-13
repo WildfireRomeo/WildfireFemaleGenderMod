@@ -20,6 +20,8 @@ package com.wildfire.main.networking;
 
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
@@ -28,14 +30,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Supplier;
 
 public class PacketSync extends PacketGenderInfo {
-
     public PacketSync(GenderPlayer plr) {
         super(plr);
     }
@@ -44,45 +40,62 @@ public class PacketSync extends PacketGenderInfo {
         super(buffer);
     }
 
+    /**
+     * Method called when the client receives a sync packet for another player from the server
+     */
+    @SuppressWarnings("unused")
+    @Environment(EnvType.CLIENT)
     public static void handle(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+        if(client.player == null) {
+            WildfireGender.LOGGER.warn("Received a sync packet from the server while the client player was unset; discarding");
+            return;
+        }
         PacketSync packet = new PacketSync(buf);
+        if(packet.uuid.equals(client.player.getUuid())) return;
 
-        if (!packet.uuid.equals(MinecraftClient.getInstance().player.getUuid())) {
-            GenderPlayer plr = WildfireGender.getOrAddPlayerById(packet.uuid);
-            packet.updatePlayerFromPacket(plr);
-            plr.syncStatus = GenderPlayer.SyncStatus.SYNCED;
-            plr.lockSettings = true;
-            //System.out.println("Received player data " + plr.uuid);
-        } else {
-            //System.out.println("Ignoring packet, this is yourself.");
-        }
+        GenderPlayer plr = WildfireGender.getOrAddPlayerById(packet.uuid);
+        packet.updatePlayerFromPacket(plr);
+        plr.syncStatus = GenderPlayer.SyncStatus.SYNCED;
+        plr.lockSettings = true;
     }
 
-    // Send Packet
+    /**
+     * <p>Sync a given player's settings to all other players</p>
+     *
+     * <p><b>Note:</b> This will only sync to other players currently within render distance of the given player</p>
+     *
+     * @param    player  The {@link ServerPlayerEntity} to sync
+     * @param    genderPlayer  The {@link GenderPlayer} class for the given {@code player}
+     */
+    public static void syncToOthers(ServerPlayerEntity player, GenderPlayer genderPlayer) {
+        if(genderPlayer == null) return;
 
-    public static void sendToOthers(ServerPlayerEntity player, GenderPlayer genderPlayer) {
-        if (genderPlayer != null && player.getServer() != null) {
-            PacketSync packet = new PacketSync(genderPlayer);
-            PacketByteBuf buffer = PacketByteBufs.create();
-            packet.encode(buffer);
+        PacketSync packet = new PacketSync(genderPlayer);
+        PacketByteBuf buffer = PacketByteBufs.create();
+        packet.encode(buffer);
 
-            for (ServerPlayerEntity serverPlayer : PlayerLookup.all(player.getServer())) {
-                if (!player.getUuid().equals(serverPlayer.getUuid())) {
-                    ServerPlayNetworking.send(serverPlayer, new Identifier(WildfireGender.MODID, "sync"), buffer);
-                }
-            }
-        }
+        PlayerLookup.tracking(player).forEach((sendTo) -> {
+            if(sendTo.getUuid().equals(player.getUuid())) return;
+            syncTo(buffer, sendTo);
+        });
     }
 
-    public static void sendTo(ServerPlayerEntity player) {
-        for (Map.Entry<UUID, GenderPlayer> entry : WildfireGender.CLOTHING_PLAYERS.entrySet()) {
-            UUID uuid = entry.getKey();
-            if (!player.getUuid().equals(uuid)) {
-                PacketSync packet = new PacketSync(entry.getValue());
-                PacketByteBuf buffer = PacketByteBufs.create();
-                packet.encode(buffer);
-                ServerPlayNetworking.send(player, new Identifier(WildfireGender.MODID, "sync"), buffer);
-            }
-        }
+    /**
+     * Sync a player's gender settings to a single player
+     *
+     * @param    toSync  The {@link GenderPlayer} to sync
+     * @param    syncTo  The {@link ServerPlayerEntity} to send the given player's settings to
+     */
+    public static void syncTo(GenderPlayer toSync, ServerPlayerEntity syncTo) {
+        if(toSync.uuid == syncTo.getUuid()) return;
+        PacketSync packet = new PacketSync(toSync);
+        PacketByteBuf buffer = PacketByteBufs.create();
+        packet.encode(buffer);
+        syncTo(buffer, syncTo);
+    }
+
+    private static void syncTo(PacketByteBuf packet, ServerPlayerEntity sendTo) {
+        if(!ServerPlayNetworking.canSend(sendTo, WildfireGender.id("sync"))) return;
+        ServerPlayNetworking.send(sendTo, WildfireGender.id("sync"), packet);
     }
 }

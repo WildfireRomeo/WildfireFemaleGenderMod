@@ -18,17 +18,20 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.main;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.Identifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WildfireGender implements ClientModInitializer {
 	public static final String VERSION = "2.9";
   	public static final String MODID = "wildfire_gender";
+	public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
 
   	public static boolean modEnabled = true;
   	public static final boolean SYNCING_ENABLED = false;
@@ -38,9 +41,13 @@ public class WildfireGender implements ClientModInitializer {
 
 	@Override
   	public void onInitializeClient() {
-		WildfireEventHandler.registerClientEvents();
+		ClientEventHandler.registerClientEvents();
 		WildfireSounds.register();
     }
+
+	public static Identifier id(String id) {
+		return new Identifier(MODID, id);
+	}
 
 	@Nullable
 	public static GenderPlayer getPlayerById(UUID id) {
@@ -51,7 +58,6 @@ public class WildfireGender implements ClientModInitializer {
 		return CLOTHING_PLAYERS.computeIfAbsent(id, GenderPlayer::new);
 	}
 
-  	
   	public static void loadGenderInfoAsync(UUID uuid, boolean markForSync) {
   		Thread thread = new Thread(() -> WildfireGender.loadGenderInfo(uuid, markForSync));
 		thread.setName("WFGM_GetPlayer-" + uuid);

@@ -27,10 +27,8 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
 
 public class PacketSendGenderInfo extends PacketGenderInfo {
-
     public PacketSendGenderInfo(GenderPlayer plr) {
         super(plr);
     }
@@ -39,29 +37,22 @@ public class PacketSendGenderInfo extends PacketGenderInfo {
         super(buffer);
     }
 
+    @SuppressWarnings("unused")
     public static void handle(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         PacketSendGenderInfo packet = new PacketSendGenderInfo(buf);
 
-        if (player == null || !player.getUuid().equals(packet.uuid)) {
-            //Validate the uuid matches the player who sent it
-            return;
-        }
+        if(player == null || !player.getUuid().equals(packet.uuid)) return;
         GenderPlayer plr = WildfireGender.getOrAddPlayerById(packet.uuid);
         packet.updatePlayerFromPacket(plr);
-        //System.out.println("Received data from player " + plr.uuid);
-        //Sync changes to other online players
-        PacketSync.sendToOthers(player, plr);
+        PacketSync.syncToOthers(player, plr);
     }
 
-    // Send Packet
-
-    public static void send(GenderPlayer plr) {
+    public static void sendToServer(GenderPlayer plr) {
         if(plr == null || !plr.needsSync) return;
         PacketSendGenderInfo packet = new PacketSendGenderInfo(plr);
         PacketByteBuf buffer = PacketByteBufs.create();
         packet.encode(buffer);
-        ClientPlayNetworking.send(new Identifier(WildfireGender.MODID, "send_gender_info"), buffer);
-        //WildfireGender.NETWORK.sendToServer(new PacketSendGenderInfo(plr));
+        ClientPlayNetworking.send(WildfireGender.id("send_gender_info"), buffer);
         plr.needsSync = false;
     }
 }

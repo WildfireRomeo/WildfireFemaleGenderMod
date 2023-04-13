@@ -60,11 +60,7 @@ public class Configuration {
 	public JsonObject SAVE_VALUES = new JsonObject();
 
 	public Configuration(String saveLoc, String cfgName) {
-
 		Path saveDir = FabricLoader.getInstance().getConfigDir();
-		System.out.println("SAVE DIR: " + saveDir.toString());
-
-		System.out.println("SAVE DIR: " + saveDir.resolve(saveLoc).toString());
 		if(!Files.isDirectory(saveDir.resolve(saveLoc))) {
 			try {
 				Files.createDirectory(saveDir.resolve(saveLoc));
@@ -80,8 +76,6 @@ public class Configuration {
 		if(CFG_FILE.exists()) {
 			load(); //load file
 			updateConfig();
-		} else {
-			//save(); //save all values to default in new file.
 		}
 	}
 
