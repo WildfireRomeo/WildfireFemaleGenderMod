@@ -1,0 +1,60 @@
+{
+	"category.wildfire_gender.generic": "Wildfire's Female Gender Mod",
+	"key.wildfire_gender.gender_menu": "Хатын җенесе менюсы",
+
+	"wildfire_gender.hurt.female": "Уенчы хатын яраланды",
+
+	"wildfire_gender.player_list.title": "Хатын җенесенең моды",
+	"wildfire_gender.player_list.settings_button": "Көйләүләр",
+	"wildfire_gender.player_list.sync_status": "Синхронлаштыру халәте",
+	"wildfire_gender.player_list.state.loading": "Мәгълүмат йөкләү...",
+	"wildfire_gender.player_list.state.synced": "Синхронлаштырылган уенчы",
+
+	"wildfire_gender.wardrobe.title": "Көйләүләр менюсы",
+	"wildfire_gender.wardrobe.slider.breast_size": "Имчәк зурлыгы: %s%%",
+	"wildfire_gender.wardrobe.slider.separation": "Уем: %s",
+	"wildfire_gender.wardrobe.slider.height": "Биеклек: %s",
+	"wildfire_gender.wardrobe.slider.depth": "Тирәнлек: %s",
+	"wildfire_gender.wardrobe.slider.rotation": "Бору: %s градус",
+
+	"wildfire_gender.appearance_settings.title": "Тышкы кыяфәт көйләүләре",
+	"wildfire_gender.char_settings.title": "Персонаж көйләүләре",
+	"wildfire_gender.char_settings.physics": "Имчәк физикасы: %s",
+	"wildfire_gender.tooltip.breast_physics": "Имчәк физикасын куша.",
+	"wildfire_gender.char_settings.hide_in_armor": "Көбәдә яшерү: %s",
+	"wildfire_gender.tooltip.hide_in_armor": "Көбәне киеп йөргәндә имчәк моделен яшерү.",
+	"wildfire_gender.char_settings.hurt_sounds": "Яралану тавышлары: %s",
+	"wildfire_gender.tooltip.hurt_sounds": "Хатын яралануының тавышларын куша.",
+
+	"wildfire_gender.breast_customization.dual_physics": "Ике-физик: %s",
+
+	"wildfire_gender.player_list.bounce_multiplier": "Сикерү тапкырлаучысы: %s×",
+	"wildfire_gender.player_list.breast_momentum": "Имчәк моменты: %s%%",
+	"wildfire_gender.player_list.female_sounds": "Хатын тавышлары: %s",
+
+	"wildfire_gender.settings.title": "Wildfire-ның көйләүләренең менюсы",
+
+	"wildfire_gender.acknowledge.confirm": "Ярар",
+
+	"wildfire_gender.label.gender": "Җенес",
+	"wildfire_gender.label.female": "Хатын",
+	"wildfire_gender.label.male": "Ир",
+	"wildfire_gender.label.other": "Башка",
+
+	"wildfire_gender.label.enabled": "Кушык",
+	"wildfire_gender.label.disabled": "Сүнек",
+	"wildfire_gender.label.yes": "Әйе",
+	"wildfire_gender.label.no": "Юк",
+	"wildfire_gender.label.exit": "X",
+	"wildfire_gender.label.too_far": "Ерак",
+	"wildfire_gender.label.with_creator": "Сез бу модның ясаучы белән бер серверда уйныйсыз!",
+
+	"wildfire_gender.slider.bounce": "Сикерү интенсивлыгы: %s×",
+	"wildfire_gender.slider.floppy": "Имчәк моменты: %s%%",
+	"wildfire_gender.slider.min_bounce": "Ни өчен физика гомумән кушылды?",
+	"wildfire_gender.slider.max_bounce": "Анимедагы имчәлекнең физикасы!!!",
+	"wildfire_gender.tooltip.bounce_warning": "«%s» югары кыйммәтендә табигый булмаган рәвештә күренәчәк!",
+
+	"wildfire_gender.cancer_awareness.title": "Әй, бу имчәкнең ракы турында хәбәрдарлыкның ае!",
+	"wildfire_gender.cancer_awareness.description": "§dСьюзан Г. Коменның фондында§f иганә итү өчен монда басыгыз!"
+}
