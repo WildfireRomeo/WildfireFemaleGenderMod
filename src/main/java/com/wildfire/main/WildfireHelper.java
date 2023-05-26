@@ -22,14 +22,19 @@ import com.wildfire.api.IGenderArmor;
 import com.wildfire.api.WildfireAPI;
 import com.wildfire.render.armor.SimpleGenderArmor;
 import com.wildfire.render.armor.EmptyGenderArmor;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.*;
+import net.minecraft.text.Text;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class WildfireHelper {
+
+
 
     public static int randInt(int min, int max) {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
@@ -74,5 +79,9 @@ public class WildfireHelper {
             // other wearables
             return EmptyGenderArmor.INSTANCE;
         }
+    }
+
+    public static void drawCenteredText(MatrixStack matrices, TextRenderer textRenderer, Text text, int x, int y, int color) {
+        textRenderer.draw(matrices, text, (float) x - textRenderer.getWidth(text) / 2, (float)y, color);
     }
 }
