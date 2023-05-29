@@ -11,7 +11,7 @@ jobs:
       with:
         clean: false
     - name: Set up JDK 17
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
         java-version: 17
@@ -21,7 +21,7 @@ jobs:
        ./gradlew build
     # we do not want -sources and -dev files, also this needs a github account to be downloaded via summary page.
     - name: Upload compiled mod jars.
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: WFGM-artifacts
         path: build/libs/*[0-9].jar
