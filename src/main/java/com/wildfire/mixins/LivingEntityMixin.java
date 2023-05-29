@@ -37,13 +37,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class LivingEntityMixin {
 	@Environment(EnvType.CLIENT)
 	@Inject(
-		method = "handleStatus",
+		method = "onDamaged",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/entity/LivingEntity;damage(Lnet/minecraft/entity/damage/DamageSource;F)Z"
+			target = "Lnet/minecraft/entity/LivingEntity;playSound(Lnet/minecraft/sound/SoundEvent;FF)V"
 		)
 	)
-	public void wildfiregender$clientGenderHurtSound(byte status, CallbackInfo ci) {
+	public void wildfiregender$clientGenderHurtSound(DamageSource damageSource, CallbackInfo ci) {
 		if((LivingEntity)(Object)this instanceof PlayerEntity player) {
 			// Only act on the client player; the server will send the hurt sound separately for other players
 			// in the below mixin
