@@ -1,19 +1,19 @@
 /*
-Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
-Copyright (C) 2022 WildfireRomeo
+    Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
+    Copyright (C) 2023 WildfireRomeo
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 package com.wildfire.gui;
@@ -61,11 +61,6 @@ public class WildfireSlider extends ClickableWidget {
 		setValueInternal(currentVal);
 	}
 
-	@Override
-	protected int getYImage(boolean hovered) {
-		return 0;
-	}
-
 	protected void updateMessage() {
 		setMessage(messageUpdate.get(lastValue));
 	}
@@ -104,8 +99,8 @@ public class WildfireSlider extends ClickableWidget {
 		return Text.translatable("gui.narrate.slider", new Object[]{this.getMessage()});
 	}
 
-
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	@Override
+	public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		if (this.visible) {
 			RenderSystem.disableDepthTest();
 			this.hovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
@@ -120,7 +115,7 @@ public class WildfireSlider extends ClickableWidget {
 			Screen.fill(matrices,xPos2-2, getY() + 1, xPos2, getY() + this.height-1, 0xFFFFFF + (120 << 24));
 			RenderSystem.enableDepthTest();
 			TextRenderer font = MinecraftClient.getInstance().textRenderer;
-			drawCenteredText(matrices, font, getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, this.hovered || changed ? 0xFFFF55 : 0xFFFFFF);
+			drawCenteredTextWithShadow(matrices, font, getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, this.hovered || changed ? 0xFFFF55 : 0xFFFFFF);
 		}
 	}
 

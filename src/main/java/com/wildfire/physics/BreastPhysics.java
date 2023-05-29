@@ -1,19 +1,19 @@
 /*
-Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
-Copyright (C) 2022 WildfireRomeo
+    Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
+    Copyright (C) 2023 WildfireRomeo
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 package com.wildfire.physics;
@@ -116,7 +116,7 @@ public class BreastPhysics {
 			f = 1.0F;
 		}
 
-		this.targetBounce += MathHelper.cos(plr.limbAngle * 0.6662F + (float)Math.PI) * 0.5F * plr.limbDistance * 0.5F / f;
+		this.targetBounce += MathHelper.cos(plr.limbAnimator.getPos() * 0.6662F + (float)Math.PI) * 0.5F * plr.limbAnimator.getSpeed() * 0.5F / f;
 		//System.out.println(plr.rotationYaw);
 
 		this.targetRotVel += (float) motion.y * bounceIntensity * randomB;
@@ -135,8 +135,8 @@ public class BreastPhysics {
 		//button option for extra entities
 		if(plr.getVehicle() != null) {
 			if(plr.getVehicle() instanceof BoatEntity boat) {
-				int rowTime = (int) boat.interpolatePaddlePhase(0, plr.limbAngle);
-				int rowTime2 = (int) boat.interpolatePaddlePhase(1, plr.limbAngle);
+				int rowTime = (int) boat.interpolatePaddlePhase(0, plr.limbAnimator.getPos());
+				int rowTime2 = (int) boat.interpolatePaddlePhase(1, plr.limbAnimator.getPos());
 
 				float rotationL = (float) MathHelper.clampedLerp(-(float)Math.PI / 3F, -0.2617994F, (double) ((MathHelper.sin(-rowTime2) + 1.0F) / 2.0F));
 				float rotationR = (float) MathHelper.clampedLerp(-(float)Math.PI / 4F, (float)Math.PI / 4F, (double) ((MathHelper.sin(-rowTime + 1.0F) + 1.0F) / 2.0F));

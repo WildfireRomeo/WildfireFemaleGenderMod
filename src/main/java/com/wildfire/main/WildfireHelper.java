@@ -1,19 +1,19 @@
 /*
-Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
-Copyright (C) 2022 WildfireRomeo
+    Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
+    Copyright (C) 2023 WildfireRomeo
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 package com.wildfire.main;
@@ -22,14 +22,19 @@ import com.wildfire.api.IGenderArmor;
 import com.wildfire.api.WildfireAPI;
 import com.wildfire.render.armor.SimpleGenderArmor;
 import com.wildfire.render.armor.EmptyGenderArmor;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.*;
+import net.minecraft.text.Text;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class WildfireHelper {
+
+
 
     public static int randInt(int min, int max) {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
@@ -74,5 +79,9 @@ public class WildfireHelper {
             // other wearables
             return EmptyGenderArmor.INSTANCE;
         }
+    }
+
+    public static void drawCenteredText(MatrixStack matrices, TextRenderer textRenderer, Text text, int x, int y, int color) {
+        textRenderer.draw(matrices, text, (float) x - textRenderer.getWidth(text) / 2, (float)y, color);
     }
 }

@@ -1,25 +1,26 @@
 /*
-Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
-Copyright (C) 2022 WildfireRomeo
+    Wildfire's Female Gender Mod is a female gender mod created for Minecraft.
+    Copyright (C) 2023 WildfireRomeo
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 package com.wildfire.gui.screen;
 
 import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.WildfireGender;
+import com.wildfire.main.WildfireHelper;
 import com.wildfire.main.config.Configuration;
 import java.util.UUID;
 
@@ -151,11 +152,11 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
         super.render(m, f1, f2, f3);
 
         if(plrEntity != null) {
-            Screen.drawCenteredText(m, this.textRenderer, plrEntity.getDisplayName(), x, yPos - 30, 0xFFFFFF);
+            WildfireHelper.drawCenteredText(m, this.textRenderer, plrEntity.getDisplayName(), x, yPos - 30, 0xFFFFFF);
         }
 
         if(bounceWarning) {
-            Screen.drawCenteredText(m, this.textRenderer, Text.translatable("wildfire_gender.tooltip.bounce_warning").formatted(Formatting.ITALIC), x, y+90, 0xFF6666);
+            WildfireHelper.drawCenteredText(m, this.textRenderer, Text.translatable("wildfire_gender.tooltip.bounce_warning").formatted(Formatting.ITALIC), x, y+90, 0xFF6666);
         }
     }
 
