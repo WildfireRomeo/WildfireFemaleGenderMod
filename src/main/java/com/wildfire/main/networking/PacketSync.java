@@ -20,17 +20,17 @@ package com.wildfire.main.networking;
 
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
-import java.util.Map;
-import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
-
-import java.util.function.Supplier;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
+
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Supplier;
 
 public class PacketSync extends PacketGenderInfo {
 

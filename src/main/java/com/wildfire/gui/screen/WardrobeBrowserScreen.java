@@ -18,30 +18,25 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.gui.screen;
 
-import com.wildfire.main.GenderPlayer.Gender;
-import com.wildfire.main.WildfireGender;
-import java.util.UUID;
-
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.GenderPlayer;
-import javax.annotation.Nonnull;
+import com.wildfire.main.GenderPlayer.Gender;
+import com.wildfire.main.WildfireGender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-
-import com.mojang.blaze3d.systems.RenderSystem;
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
+
+import java.util.UUID;
 
 public class WardrobeBrowserScreen extends BaseWildfireScreen {
 

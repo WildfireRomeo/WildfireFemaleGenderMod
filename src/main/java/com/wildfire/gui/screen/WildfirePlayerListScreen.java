@@ -25,8 +25,6 @@ import com.wildfire.gui.WildfirePlayerList;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.GenderPlayer.Gender;
 import com.wildfire.main.WildfireGender;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -36,6 +34,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Calendar;
 import java.util.UUID;
 

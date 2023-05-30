@@ -24,11 +24,6 @@ import com.wildfire.api.IGenderArmor;
 import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.render.GenderLayer;
-
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.Toast;
@@ -56,6 +51,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.network.NetworkHooks;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.Set;
+import java.util.UUID;
 
 public class WildfireEventHandler {
 

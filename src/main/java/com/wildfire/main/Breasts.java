@@ -20,7 +20,7 @@ package com.wildfire.main;
 
 import com.wildfire.main.config.ClientConfiguration;
 import com.wildfire.main.config.ConfigKey;
-import com.wildfire.main.config.Configuration;
+
 import java.util.function.Consumer;
 
 public class Breasts {

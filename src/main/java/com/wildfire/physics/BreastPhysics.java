@@ -23,6 +23,7 @@ import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.WalkAnimationState;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.monster.Strider;
@@ -38,6 +39,7 @@ public class BreastPhysics {
 	private float bounceVelX = 0, targetBounceX = 0, velocityX = 0, wfg_femaleBreastX, wfg_preBounceX;
 
 	private boolean justSneaking = false, alreadySleeping = false;
+	WalkAnimationState animationState = new WalkAnimationState();
 
 	private float breastSize = 0, preBreastSize = 0;
 
@@ -116,8 +118,7 @@ public class BreastPhysics {
 			f = 1.0F;
 		}
 
-		this.targetBounce += Mth.cos(plr.animationPosition * 0.6662F + (float)Math.PI) * 0.5F * plr.animationSpeed * 0.5F / f;
-		//System.out.println(plr.rotationYaw);
+		this.targetBounce += Mth.cos(animationState.position(0.6662F + (float)Math.PI)) * 0.5F * animationState.speed() * 0.5F / f;		//System.out.println(plr.rotationYaw);
 
 		this.targetRotVel += (float) motion.y * bounceIntensity * randomB;
 
@@ -135,8 +136,8 @@ public class BreastPhysics {
 		//button option for extra entities
 		if(plr.getVehicle() != null) {
 			if(plr.getVehicle() instanceof Boat boat) {
-				int rowTime = (int) boat.getRowingTime(0, plr.animationPosition);
-				int rowTime2 = (int) boat.getRowingTime(1, plr.animationPosition);
+				int rowTime = (int) boat.getRowingTime(0, animationState.position());
+				int rowTime2 = (int) boat.getRowingTime(1, animationState.position());
 
 				float rotationL = (float)Mth.clampedLerp(-(float)Math.PI / 3F, -0.2617994F, (double)((Mth.sin(-rowTime2) + 1.0F) / 2.0F));
 				float rotationR = (float)Mth.clampedLerp(-(float)Math.PI / 4F, (float)Math.PI / 4F, (double)((Mth.sin(-rowTime + 1.0F) + 1.0F) / 2.0F));

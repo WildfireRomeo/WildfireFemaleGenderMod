@@ -19,9 +19,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.wildfire.main;
 
 import com.wildfire.api.IGenderArmor;
-import com.wildfire.render.armor.SimpleGenderArmor;
 import com.wildfire.render.armor.EmptyGenderArmor;
-import java.util.concurrent.ThreadLocalRandom;
+import com.wildfire.render.armor.SimpleGenderArmor;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
@@ -30,6 +29,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 public class WildfireHelper {
 
@@ -47,7 +48,7 @@ public class WildfireHelper {
             //While these defaults could be attached to the item stack via the AttachCapabilitiesEvent there is not
             // really a great reason to do so as we would then need to ensure we handle all the lazy optionals properly,
             // so we just include them as part of this fallback
-            if (stack.getItem() instanceof ArmorItem armorItem && armorItem.getSlot() == EquipmentSlot.CHEST) {
+            if (stack.getItem() instanceof ArmorItem armorItem && armorItem.getEquipmentSlot() == EquipmentSlot.CHEST) {
                 //Start by checking if it is a vanilla chestplate as we have custom configurations for those we check against
                 // the armor material instead of the item instance in case any mods define custom armor items using vanilla
                 // materials as then we can make a better guess at what we want the default implementation to be

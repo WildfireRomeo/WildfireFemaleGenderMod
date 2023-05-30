@@ -20,11 +20,10 @@ package com.wildfire.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.gui.screen.WardrobeBrowserScreen;
-import com.wildfire.main.WildfireGender;
+import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.main.GenderPlayer;
-import javax.annotation.Nonnull;
+import com.wildfire.main.WildfireGender;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -35,6 +34,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
+
+import javax.annotation.Nonnull;
 
 public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.Entry>
 {

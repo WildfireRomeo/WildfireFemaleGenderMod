@@ -19,13 +19,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.wildfire.main;
 
 import com.google.gson.JsonObject;
-import com.wildfire.main.config.ConfigKey;
 import com.wildfire.main.config.ClientConfiguration;
+import com.wildfire.main.config.ConfigKey;
 import com.wildfire.physics.BreastPhysics;
-import java.util.UUID;
-import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+
+import java.util.UUID;
+import java.util.function.Consumer;
 
 public class GenderPlayer {
 

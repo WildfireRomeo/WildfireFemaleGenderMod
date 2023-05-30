@@ -20,15 +20,15 @@ package com.wildfire.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.narration.NarrationSupplier;
 import net.minecraft.network.chat.Component;
 
-public class WildfireButton extends Button {
+import javax.annotation.Nonnull;
+
+public class WildfireButton extends Button implements WildfireButton2 {
    public boolean transparent = false;
 
    public WildfireButton(int x, int y, int width, int height, Component text, Button.OnPress onPress, CreateNarration narrationSupplier) {

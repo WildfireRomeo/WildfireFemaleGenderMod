@@ -21,8 +21,9 @@ package com.wildfire.main.networking;
 import com.wildfire.main.Breasts;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.GenderPlayer.Gender;
-import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
+
+import java.util.UUID;
 
 public abstract class PacketGenderInfo {
     protected final UUID uuid;

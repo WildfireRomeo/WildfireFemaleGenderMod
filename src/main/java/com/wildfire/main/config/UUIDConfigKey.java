@@ -21,6 +21,7 @@ package com.wildfire.main.config;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
 import java.util.UUID;
 
 public class UUIDConfigKey extends ConfigKey<UUID> {

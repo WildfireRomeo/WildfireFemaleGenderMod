@@ -21,17 +21,15 @@ package com.wildfire.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.*;
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.Breasts;
+import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.WildfireGender;
 import com.wildfire.main.WildfireHelper;
 import com.wildfire.physics.BreastPhysics;
 import com.wildfire.render.WildfireModelRenderer.BreastModelBox;
 import com.wildfire.render.WildfireModelRenderer.OverlayModelBox;
 import com.wildfire.render.WildfireModelRenderer.PositionTextureVertex;
-import java.util.Locale;
-import java.util.UUID;
-import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -47,22 +45,25 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import com.wildfire.main.GenderPlayer;
-import com.wildfire.main.WildfireGender;
 import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.PlayerModelPart;
-import net.minecraft.world.item.*;
-
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.DyeableLeatherItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.client.ForgeHooksClient;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
@@ -202,7 +203,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			// is less than or equal to 0.5 so that if we won't be rendering it we can avoid doing extra calculations
 			boolean breathingAnimation = resistance <= 0.5F &&
 										 (!ent.isUnderWater() || MobEffectUtil.hasWaterBreathing(ent) ||
-										  ent.level.getBlockState(new BlockPos(ent.getX(), ent.getEyeY(), ent.getZ())).is(Blocks.BUBBLE_COLUMN));
+										  ent.level.getBlockState(new BlockPos((int) ent.getX(), (int) ent.getEyeY(), (int) ent.getZ())).is(Blocks.BUBBLE_COLUMN));
 			boolean bounceEnabled = plr.hasBreastPhysics() && (!isChestplateOccupied || resistance < 1); //oh, you found this?
 
 			int combineTex = LivingEntityRenderer.getOverlayCoords(ent, 0);
