@@ -21,9 +21,9 @@ package com.wildfire.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 public class WildfireButton extends ButtonWidget {
@@ -42,17 +42,19 @@ public class WildfireButton extends ButtonWidget {
    }
 
    @Override
-   public void renderButton(MatrixStack m, int mouseX, int mouseY, float partialTicks) {
+   public void renderButton(DrawContext ctx, int mouseX, int mouseY, float partialTicks) {
       MinecraftClient minecraft = MinecraftClient.getInstance();
       TextRenderer font = minecraft.textRenderer;
       int clr = 0x444444 + (84 << 24);
       if(this.isHovered()) clr = 0x666666 + (84 << 24);
-      if(!this.active)  clr = 0x222222 + (84 << 24);
-      if(!transparent) fill(m, getX(), getY(), getX() + getWidth(), getY() + getHeight(), clr);
+      if(!this.active) clr = 0x222222 + (84 << 24);
+      if(!transparent) ctx.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), clr);
 
-      font.draw(m, this.getMessage(), getX() + (getWidth() / 2) - (font.getWidth(this.getMessage()) / 2) + 1, getY() + (int) Math.ceil((float) getHeight() / 2f) - font.fontHeight / 2, active ? 0xFFFFFF : 0x666666);
+      int x = (int) (getX() + (getWidth() / 2f) - (font.getWidth(this.getMessage()) / 2f) + 1);
+      int y = (int) (getY() + (int) Math.ceil((float) getHeight() / 2f) - font.fontHeight / 2f);
+      int textColor = active ? 0xFFFFFF : 0x666666;
+      ctx.drawTextWithShadow(font, this.getMessage(), x, y, textColor);
       RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-
    }
 
    public WildfireButton setTransparent(boolean b) {

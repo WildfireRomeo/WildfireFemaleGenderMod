@@ -92,7 +92,7 @@ public class BreastPhysics {
 			bounceIntensity = bounceIntensity * WildfireHelper.randFloat(0.5f, 1.5f);
 		}
 		if(plr.fallDistance > 0 && !alreadyFalling) {
-			randomB = plr.world.random.nextBoolean() ? -1 : 1;
+			randomB = plr.getWorld().random.nextBoolean() ? -1 : 1;
 			alreadyFalling = true;
 		}
 		if(plr.fallDistance == 0) alreadyFalling = false;
@@ -104,17 +104,9 @@ public class BreastPhysics {
 		//float horizLocal = -horizVel * ((plr.getRotationYawHead()-plr.renderYawOffset)<0?-1:1);
 		this.targetRotVel = -((plr.bodyYaw - plr.prevBodyYaw) / 15f) * bounceIntensity;
 
-
-		float f = 1.0F;
-		if (true) {
-			f = (float) plr.getVelocity().lengthSquared();
-			f = f / 0.2F;
-			f = f * f * f;
-		}
-
-		if (f < 1.0F) {
-			f = 1.0F;
-		}
+		float f = (float) plr.getVelocity().lengthSquared() / 0.2F;
+		f = f * f * f;
+		if(f < 1.0F) f = 1.0F;
 
 		this.targetBounce += MathHelper.cos(plr.limbAnimator.getPos() * 0.6662F + (float)Math.PI) * 0.5F * plr.limbAnimator.getSpeed() * 0.5F / f;
 		//System.out.println(plr.rotationYaw);
