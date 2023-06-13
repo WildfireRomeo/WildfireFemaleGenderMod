@@ -26,8 +26,8 @@ import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.GenderPlayer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -38,11 +38,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 public class WardrobeBrowserScreen extends BaseWildfireScreen {
-
-	private Identifier BACKGROUND;
+	private static final Identifier BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg.png");
 	public static float modelRotation = 0.5F;
 
 	public WardrobeBrowserScreen(Screen parent, UUID uuid) {
@@ -52,7 +50,6 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	@Override
   	public void init() {
 	    int j = this.height / 2;
-
 		GenderPlayer plr = getPlayer();
 
 		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 52, 158, 20, getGenderLabel(plr.getGender()), button -> {
@@ -78,8 +75,6 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	    
 	    modelRotation = 0.6F;
 
-	    this.BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg.png");
-    
 	    super.init();
   	}
 
@@ -87,38 +82,32 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 		return Text.translatable("wildfire_gender.label.gender").append(" - ").append(gender.getDisplayName());
 	}
 
-  	@Override
-	public void render(MatrixStack m, int f1, int f2, float f3) {
+	@SuppressWarnings("DataFlowIssue")
+	@Override
+	public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
 		MinecraftClient minecraft = MinecraftClient.getInstance();
 		GenderPlayer plr = getPlayer();
-	    super.renderBackground(m);
+	    super.renderBackground(ctx);
 	    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
 		RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		RenderSystem.setShaderTexture(0, this.BACKGROUND);
-
-	    int i = (this.width - 248) / 2;
-	    int j = (this.height - 134) / 2;
-		drawTexture(m, i, j, 0, 0, 248, 156);
+		ctx.drawTexture(BACKGROUND, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156);
 
 	    if(plr == null) return;
 
-
 		int x = this.width / 2;
 	    int y = this.height / 2;
-	    
-	    this.textRenderer.draw(m, title, x - 42, y - 62, 4473924);
+		modelRotation = 0.6f;
 
-	    modelRotation = 0.6f;
-
+		ctx.drawText(textRenderer, title, x - 42, y - 62, 4473924, false);
 		try {
 			RenderSystem.setShaderColor(1f, 1.0F, 1.0F, 1.0F);
 		    int xP = this.width / 2 - 82;
 		    int yP = this.height / 2 + 32;
-		    PlayerEntity ent = MinecraftClient.getInstance().world.getPlayerByUuid(this.playerUUID);
+		    PlayerEntity ent = minecraft.world.getPlayerByUuid(this.playerUUID);
 		    if(ent != null) {
-		    	drawEntityOnScreen(xP, yP, 45, (xP - f1), (yP - 76 - f2), MinecraftClient.getInstance().world.getPlayerByUuid(this.playerUUID));
+		    	drawEntityOnScreen(xP, yP, 45, (xP - mouseX), (yP - 76 - mouseY), minecraft.world.getPlayerByUuid(this.playerUUID));
 		    } else {
 				//player left, fallback
 				minecraft.setScreen(new WildfirePlayerListScreen(minecraft));
@@ -127,12 +116,12 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			//error, fallback
 			minecraft.setScreen(new WildfirePlayerListScreen(minecraft));
 		}
-	    super.render(m, f1, f2, f3);
+	    super.render(ctx, mouseX, mouseY, delta);
 	}
 
 	public static void drawEntityOnScreen(int x, int y, int size, float mouseX, float mouseY, LivingEntity entity) {
-		float f = (float)Math.atan((double)(mouseX / 40.0F));
-		float g = (float)Math.atan((double)(mouseY / 40.0F));
+		float f = (float)Math.atan(mouseX / 40.0F);
+		float g = (float)Math.atan(mouseY / 40.0F);
 		MatrixStack matrixStack = RenderSystem.getModelViewStack();
 		matrixStack.push();
 		matrixStack.translate((float)x, (float)y, 1050.0F);
