@@ -58,8 +58,6 @@ import net.minecraft.util.math.*;
 import org.joml.*;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> {
 
@@ -81,13 +79,8 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 		rBoobArmor = new BreastModelBox(64, 32, 20, 17, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 	}
 
-	private static final Map<String, Identifier> ARMOR_LOCATION_CACHE = new HashMap<>();
-
-	private static final Map<String, Identifier> ARMOR_TEXTURE_CACHE = new HashMap<String, Identifier>();
 	public Identifier getArmorResource(ArmorItem item, boolean legs, @Nullable String overlay) {
-
-		String string = "textures/models/armor/" + item.getMaterial().getName() + "_layer_" + (legs ? 2 : 1) + (overlay == null ? "" : "_" + overlay) + ".png";
-		return (Identifier) ARMOR_TEXTURE_CACHE.computeIfAbsent(string, Identifier::new);
+		return new Identifier("textures/models/armor/" + item.getMaterial().getName() + "_layer_" + (legs ? 2 : 1) + (overlay == null ? "" : "_" + overlay) + ".png");
 	}
 
 	@Override
