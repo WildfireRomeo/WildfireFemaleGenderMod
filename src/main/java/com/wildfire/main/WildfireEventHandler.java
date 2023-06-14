@@ -35,7 +35,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.sound.EntityTrackingSoundInstance;
-import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
@@ -53,7 +52,7 @@ public class WildfireEventHandler {
 	public static void registerClientEvents() {
 
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-			if (!handler.getPlayer().world.isClient()) {
+			if (!handler.getPlayer().getWorld().isClient()) {
 				//Send all other players to the player who joined. Note: We don't send the player to
 				// other players as that will happen once the player finishes sending themselves to the server
 				PacketSync.sendTo(handler.getPlayer());

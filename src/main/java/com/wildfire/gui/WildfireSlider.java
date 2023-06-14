@@ -24,17 +24,15 @@ import it.unimi.dsi.fastutil.floats.Float2ObjectFunction;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.glfw.GLFW;
 
 public class WildfireSlider extends ClickableWidget {
-
 	private double value;
 	private final double minValue;
 	private final double maxValue;
@@ -46,12 +44,12 @@ public class WildfireSlider extends ClickableWidget {
 	private boolean changed;
 
 	public WildfireSlider(int xPos, int yPos, int width, int height, FloatConfigKey config, double currentVal, FloatConsumer valueUpdate,
-		Float2ObjectFunction<Text> messageUpdate, FloatConsumer onSave) {
+	                      Float2ObjectFunction<Text> messageUpdate, FloatConsumer onSave) {
 		this(xPos, yPos, width, height, config.getMinInclusive(), config.getMaxInclusive(), currentVal, valueUpdate, messageUpdate, onSave);
 	}
 
 	public WildfireSlider(int xPos, int yPos, int width, int height, double minVal, double maxVal, double currentVal, FloatConsumer valueUpdate,
-		Float2ObjectFunction<Text> messageUpdate, FloatConsumer onSave) {
+	                      Float2ObjectFunction<Text> messageUpdate, FloatConsumer onSave) {
 		super(xPos, yPos, width, height, Text.empty());
 		this.minValue = minVal;
 		this.maxValue = maxVal;
@@ -96,26 +94,25 @@ public class WildfireSlider extends ClickableWidget {
 	}
 
 	protected MutableText getNarrationMessage() {
-		return Text.translatable("gui.narrate.slider", new Object[]{this.getMessage()});
+		return Text.translatable("gui.narrate.slider", this.getMessage());
 	}
 
 	@Override
-	public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void renderButton(DrawContext ctx, int mouseX, int mouseY, float delta) {
 		if (this.visible) {
 			RenderSystem.disableDepthTest();
 			this.hovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
-			int clr = 84 << 24;
 
 			int xP = getX() +4;
-			Screen.fill(matrices, xP-2, getY()+1, getX() + this.width - 1, getY() + this.height-1, 0x222222 + (128 << 24));
+			ctx.fill(xP - 2, getY() + 1, getX() + this.width - 1, getY() + this.height - 1, 0x222222 + (128 << 24));
 			int xPos =  getX() + 4 + (int) (this.value * (float)(this.width - 6));
-			Screen.fill(matrices, getX()+3, getY()+2, xPos-1, getY() + this.height - 2, 0x222266 + (180 << 24));
+			ctx.fill(getX() + 3, getY() + 2, xPos - 1, getY() + this.height - 2, 0x222266 + (180 << 24));
 
 			int xPos2 = this.getX() + 2 + (int) (this.value * (float)(this.width - 4));
-			Screen.fill(matrices,xPos2-2, getY() + 1, xPos2, getY() + this.height-1, 0xFFFFFF + (120 << 24));
+			ctx.fill(xPos2 - 2, getY() + 1, xPos2, getY() + this.height - 1, 0xFFFFFF + (120 << 24));
 			RenderSystem.enableDepthTest();
 			TextRenderer font = MinecraftClient.getInstance().textRenderer;
-			drawCenteredTextWithShadow(matrices, font, getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, this.hovered || changed ? 0xFFFF55 : 0xFFFFFF);
+			ctx.drawCenteredTextWithShadow(font, getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, this.hovered || changed ? 0xFFFF55 : 0xFFFFFF);
 		}
 	}
 
@@ -146,7 +143,6 @@ public class WildfireSlider extends ClickableWidget {
 
 	@Override
 	public void appendClickableNarrations(NarrationMessageBuilder builder) {}
-
 
 	private void setValueFromMouse(double mouseX) {
 		this.value = ((mouseX - (double)(this.getX() + 4)) / (double)(this.getWidth() - 8));

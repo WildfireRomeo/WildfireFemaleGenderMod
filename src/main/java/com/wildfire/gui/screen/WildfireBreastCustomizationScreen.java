@@ -26,8 +26,8 @@ import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.config.Configuration;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 
@@ -35,8 +35,7 @@ import java.util.UUID;
 
 public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
-    private WildfireSlider breastSlider, xOffsetBoobSlider, yOffsetBoobSlider, zOffsetBoobSlider; //rotateSlider
-    private WildfireSlider cleavageSlider;
+    private WildfireSlider breastSlider, xOffsetBoobSlider, yOffsetBoobSlider, zOffsetBoobSlider, cleavageSlider;
 
     public WildfireBreastCustomizationScreen(Screen parent, UUID uuid) {
         super(Text.translatable("wildfire_gender.appearance_settings.title"), parent, uuid);
@@ -83,10 +82,10 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
     }
 
     @Override
-    public void render(MatrixStack m, int f1, int f2, float f3) {
+    public void render(DrawContext ctx, int f1, int f2, float f3) {
         MinecraftClient minecraft = MinecraftClient.getInstance();
         GenderPlayer plr = getPlayer();
-        super.renderBackground(m);
+        super.renderBackground(ctx);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         if(plr == null) return;
@@ -95,7 +94,8 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             RenderSystem.setShaderColor(1f,1.0F, 1.0F, 1.0F);
             int xP = this.width / 2 - 102;
             int yP = this.height / 2 + 275;
-            PlayerEntity ent = MinecraftClient.getInstance().world.getPlayerByUuid(this.playerUUID);
+            //noinspection DataFlowIssue
+            PlayerEntity ent = minecraft.world.getPlayerByUuid(this.playerUUID);
             if(ent != null) {
                 WardrobeBrowserScreen.drawEntityOnScreen(xP, yP, 200, -20, -20, ent);
             } else {
@@ -116,10 +116,10 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
         int x = this.width / 2;
         int y = this.height / 2;
-        fill(m, x + 28, y - 64, x + 190, y + 79, 0x55000000);
-        fill(m, x + 29, y - 63, x + 189, y - 50, 0x55000000);
-        this.textRenderer.draw(m, getTitle(), x + 32, y - 60, 0xFFFFFF);
-        super.render(m, f1, f2, f3);
+        ctx.fill(x + 28, y - 64, x + 190, y + 79, 0x55000000);
+        ctx.fill(x + 29, y - 63, x + 189, y - 50, 0x55000000);
+        ctx.drawText(textRenderer, getTitle(), x + 32, y - 60, 0xFFFFFF, false);
+        super.render(ctx, f1, f2, f3);
     }
 
     @Override
