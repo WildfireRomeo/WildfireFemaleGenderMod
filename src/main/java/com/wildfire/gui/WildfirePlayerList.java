@@ -18,8 +18,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.gui.screen.WildfirePlayerListScreen;
 import com.wildfire.gui.screen.WardrobeBrowserScreen;
 import com.wildfire.main.WildfireGender;
@@ -28,7 +26,7 @@ import javax.annotation.Nonnull;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
@@ -78,7 +76,7 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
     }
 
     @Override
-    protected void renderBackground(@Nonnull PoseStack mStack) {}
+    protected void renderBackground(@Nonnull GuiGraphics graphics) {}
 
     public boolean isLoadingPlayers() {
         boolean loadingPlayers = false;
@@ -119,45 +117,43 @@ public class WildfirePlayerList extends ObjectSelectionList<WildfirePlayerList.E
         }
 
         @Override
-        public void render(@Nonnull PoseStack m, int entryIdx, int top, int left, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean p_194999_5_, float partialTicks) {
+        public void render(@Nonnull GuiGraphics graphics, int entryIdx, int top, int left, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean p_194999_5_, float partialTicks) {
             Font font = minecraft.font;
 
             Player playerentity = minecraft.level.getPlayerByUUID(nInfo.getProfile().getId());
             GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
             boolean flag1 = false;
-            RenderSystem.setShaderTexture(0, nInfo.getSkinLocation());
+            ResourceLocation skinLocation = nInfo.getSkinLocation();
             int i3 = 8 + (flag1 ? 8 : 0);
             int j3 = 8 * (flag1 ? -1 : 1);
-            GuiComponent.blit(m, left+2, top+2, 16, 16, 8.0F, (float)i3, 8, j3, 64, 64);
+            graphics.blit(skinLocation, left+2, top+2, 16, 16, 8.0F, (float)i3, 8, j3, 64, 64);
             if (playerentity != null && playerentity.isModelPartShown(PlayerModelPart.HAT)) {
                 int k3 = 8 + (flag1 ? 8 : 0);
                 int l3 = 8 * (flag1 ? -1 : 1);
-                GuiComponent.blit(m, left+1, top+1, 18, 18, 40.0F, (float)k3, 8, l3, 64, 64);
+                graphics.blit(skinLocation, left+1, top+1, 18, 18, 40.0F, (float)k3, 8, l3, 64, 64);
             }
 
-            font.draw(m, name, left + 23, top + 2, 0xFFFFFF);
+            graphics.drawString(font, name, left + 23, top + 2, 0xFFFFFF, false);
             if(aPlr != null) {
                 btnOpenGUI.active = !aPlr.lockSettings;
 
-                font.draw(m, aPlr.getGender().getDisplayName(), left + 23, top + 11, 0xFFFFFF);
+                graphics.drawString(font, aPlr.getGender().getDisplayName(), left + 23, top + 11, 0xFFFFFF, false);
                 if (aPlr.getSyncStatus() == GenderPlayer.SyncStatus.SYNCED) {
-                    RenderSystem.setShaderTexture(0, TXTR_SYNC);
-                    GuiComponent.blit(m, left + 98, top + 11, 12, 8, 0, 0, 12, 8, 12, 8);
+                    graphics.blit(TXTR_SYNC, left + 98, top + 11, 12, 8, 0, 0, 12, 8, 12, 8);
                     if (mouseX > left + 98 - 2 && mouseY > top + 11 - 2 && mouseX < left + 98 + 12 + 2 && mouseY < top + 20) {
                         parent.setTooltip(Component.translatable("wildfire_gender.player_list.state.synced"));
                     }
 
                 } else if (aPlr.getSyncStatus() == GenderPlayer.SyncStatus.UNKNOWN) {
-                    RenderSystem.setShaderTexture(0, TXTR_UNKNOWN);
-                    GuiComponent.blit(m, left + 98, top + 11, 12, 8, 0, 0, 12, 8, 12, 8);
+                    graphics.blit(TXTR_UNKNOWN, left + 98, top + 11, 12, 8, 0, 0, 12, 8, 12, 8);
                 }
             } else {
                 btnOpenGUI.active = false;
-                font.draw(m, Component.translatable("wildfire_gender.label.too_far").withStyle(ChatFormatting.RED), left + 23, top + 11, 0xFFFFFF);
+                graphics.drawString(font, Component.translatable("wildfire_gender.label.too_far").withStyle(ChatFormatting.RED), left + 23, top + 11, 0xFFFFFF, false);
             }
             this.btnOpenGUI.setX(left);
             this.btnOpenGUI.setY(top);
-            this.btnOpenGUI.render(m, mouseX, mouseY, partialTicks);
+            this.btnOpenGUI.render(graphics, mouseX, mouseY, partialTicks);
 
             if(this.btnOpenGUI.isHoveredOrFocused()) {
                 WildfirePlayerListScreen.HOVER_PLAYER = aPlr;

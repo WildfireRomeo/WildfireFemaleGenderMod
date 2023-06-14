@@ -23,15 +23,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonWriter;
-import com.wildfire.main.GenderPlayer.Gender;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.UUID;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.fml.loading.FMLPaths;
 
@@ -43,7 +40,7 @@ public class Configuration {
 	public JsonObject SAVE_VALUES = new JsonObject();
 
 	public Configuration(String saveLoc, String cfgName) {
-		Path saveDir = FMLPaths.getOrCreateGameRelativePath(FMLPaths.CONFIGDIR.get().resolve(saveLoc), saveLoc);
+		Path saveDir = FMLPaths.getOrCreateGameRelativePath(FMLPaths.CONFIGDIR.get().resolve(saveLoc));
 		CFG_FILE = saveDir.resolve(cfgName + ".json").toFile();
 	}
 

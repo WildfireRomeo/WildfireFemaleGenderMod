@@ -19,13 +19,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.wildfire.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.main.config.FloatConfigKey;
 import it.unimi.dsi.fastutil.floats.Float2ObjectFunction;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -95,23 +95,23 @@ public class WildfireSlider extends AbstractSliderButton {
 	}
 
 	@Override
-	public void renderButton(@Nonnull PoseStack mStack, int mouseX, int mouseY, float partial) {
+	public void renderWidget(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
 		RenderSystem.disableDepthTest();
 		int clr = 84 << 24;
-		fill(mStack, getX(), getY(), getX() + getWidth(), getY() + getHeight(), clr);
+		graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), clr);
 
-		fill(mStack, getX() + 1, getY() + 1, getX() + getWidth() - 1, getY() + getHeight() - 1, 0x222222 + (128 << 24));
+		graphics.fill(getX() + 1, getY() + 1, getX() + getWidth() - 1, getY() + getHeight() - 1, 0x222222 + (128 << 24));
 
 		//Inner Blue Filler
 		int xPos = getX() + 4 + (int) (value * (getWidth() - 6));
-		fill(mStack, getX() + 2, getY() + 2, xPos - 1, getY() + getHeight() - 2, 0x222266 + (180 << 24));
+		graphics.fill(getX() + 2, getY() + 2, xPos - 1, getY() + getHeight() - 2, 0x222266 + (180 << 24));
 
 		int xPos2 = getX() + 2 + (int) (value * (getWidth() - 4));
-		fill(mStack,xPos2-2, getY() + 1, xPos2, getY() + getHeight()-1, 0xFFFFFF + (120 << 24));
+		graphics.fill(xPos2-2, getY() + 1, xPos2, getY() + getHeight()-1, 0xFFFFFF + (120 << 24));
 		RenderSystem.enableDepthTest();
 
 		Font font = Minecraft.getInstance().font;
-		drawCenteredString(mStack, font, getMessage(), getX() + getWidth() / 2, getY() + (getHeight() - 8) / 2, isHovered || changed ? 0xFFFF55 : 0xFFFFFF);
+		graphics.drawCenteredString(font, getMessage(), getX() + getWidth() / 2, getY() + (getHeight() - 8) / 2, isHovered || changed ? 0xFFFF55 : 0xFFFFFF);
 	}
 
 	public float getFloatValue() {

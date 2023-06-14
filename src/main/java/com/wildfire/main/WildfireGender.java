@@ -18,26 +18,21 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package com.wildfire.main;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.main.networking.PacketSync;
 import java.util.UUID;
 import javax.annotation.Nullable;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-
-import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.Mod;
@@ -88,7 +83,7 @@ public class WildfireGender {
 
 	public void onPlayerLoginEvent(PlayerLoggedInEvent event) {
 		Player player = event.getEntity();
-		if (!player.level.isClientSide() && player instanceof ServerPlayer sp) {
+		if (!player.level().isClientSide() && player instanceof ServerPlayer sp) {
 			//Send all other players to the player who joined. Note: We don't send the player to
 			// other players as that will happen once the player finishes sending themselves to the server
 			PacketSync.sendTo(sp);
@@ -123,27 +118,5 @@ public class WildfireGender {
 
 	public static GenderPlayer loadGenderInfo(UUID uuid, boolean markForSync) {
 		return GenderPlayer.loadCachedPlayer(uuid, markForSync);
-	}
-  
-	public static void drawTextLabel(PoseStack m, String txt, int x, int y) {
-		GlStateManager._disableBlend();
-		Screen.fill(m, x, y, x + (Minecraft.getInstance()).font.width(txt) + 3, y + 11, 1610612736);
-		Minecraft.getInstance().font.draw(m, txt, x + 2, y + 2, 16777215);
-	}
-	public static void drawRightTextLabel(PoseStack m, String txt, int x, int y) {
-		GlStateManager._disableBlend();
-		int w = (Minecraft.getInstance()).font.width(txt) + 3;
-		Screen.fill(m, x - w, y, x, y + 11, 1610612736);
-		Minecraft.getInstance().font.draw(m, txt, x - w + 2, y + 2, 16777215);
-	}
-	public static void drawCenterTextLabel(PoseStack m, String txt, int x, int y) {
-		GlStateManager._disableBlend();
-		int w = (Minecraft.getInstance()).font.width(txt) + 3;
-		Screen.fill(m, x - w / 2, y, x + w / 2 + 1, y + 11, 1610612736);
-		Minecraft.getInstance().font.draw(m, txt, x - w / 2 + 2, y + 2, 16777215);
-	}
-
-	public interface WildfireCB {
-		void onExecute(boolean success, Object data);
 	}
 }

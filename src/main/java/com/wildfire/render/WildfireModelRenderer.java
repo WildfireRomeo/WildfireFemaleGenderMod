@@ -87,14 +87,6 @@ public class WildfireModelRenderer {
 				vertex1, vertex2, vertex6, vertex5);
 			this.quads[4] = new TexturedQuad(texU + dz, texV + dz, texU + dz + dx, texV + dz + dy, tW, tH, mirror, Direction.NORTH,
 				vertex, vertex7, vertex2, vertex1);
-			//this.quads[5] = new TexturedQuad(new PositionTextureVertex[]{vertex3, vertex4, vertex5, vertex6}, texU + dz + dx + dz, texV + dz, texU + dz + dx + dz + dx, texV + dz + dy, tW, tH, mirror, Direction.SOUTH);
-
-			//this.quads[2] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex4, modelrenderer$vertex3, modelrenderer$vertex7, modelrenderer$vertex}, f5, f10, f6, f11, texWidth, texHeight, mirorIn, Direction.DOWN);
-			//this.quads[3] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex1, modelrenderer$vertex2, modelrenderer$vertex6, modelrenderer$vertex5}, f6, f11, f7, f10, texWidth, texHeight, mirorIn, Direction.UP);
-			//this.quads[1] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex7, modelrenderer$vertex3, modelrenderer$vertex6, modelrenderer$vertex2}, f4, f11, f5, f12, texWidth, texHeight, mirorIn, Direction.WEST);
-			//this.quads[4] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex, modelrenderer$vertex7, modelrenderer$vertex2, modelrenderer$vertex1}, f5, f11, f6, f12, texWidth, texHeight, mirorIn, Direction.NORTH);
-			//this.quads[0] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex4, modelrenderer$vertex, modelrenderer$vertex1, modelrenderer$vertex5}, f6, f11, f8, f12, texWidth, texHeight, mirorIn, Direction.EAST);
-			//this.quads[5] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex3, modelrenderer$vertex4, modelrenderer$vertex5, modelrenderer$vertex6}, f8, f11, f9, f12, texWidth, texHeight, mirorIn, Direction.SOUTH);
 		}
 	}
 
@@ -121,14 +113,6 @@ public class WildfireModelRenderer {
 				vertex1, vertex2, vertex6, vertex5);
 			this.quads[3] = new TexturedQuad(texU + dz, texV + dz, texU + dz + dx, texV + dz + dy, tW, tH, mirror, Direction.NORTH,
 				vertex, vertex7, vertex2, vertex1);
-			//this.quads[5] = new TexturedQuad(new PositionTextureVertex[]{vertex3, vertex4, vertex5, vertex6}, texU + dz + dx + dz, texV + dz, texU + dz + dx + dz + dx, texV + dz + dy, tW, tH, mirror, Direction.SOUTH);
-
-			//this.quads[2] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex4, modelrenderer$vertex3, modelrenderer$vertex7, modelrenderer$vertex}, f5, f10, f6, f11, texWidth, texHeight, mirorIn, Direction.DOWN);
-			//this.quads[3] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex1, modelrenderer$vertex2, modelrenderer$vertex6, modelrenderer$vertex5}, f6, f11, f7, f10, texWidth, texHeight, mirorIn, Direction.UP);
-			//this.quads[1] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex7, modelrenderer$vertex3, modelrenderer$vertex6, modelrenderer$vertex2}, f4, f11, f5, f12, texWidth, texHeight, mirorIn, Direction.WEST);
-			//this.quads[4] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex, modelrenderer$vertex7, modelrenderer$vertex2, modelrenderer$vertex1}, f5, f11, f6, f12, texWidth, texHeight, mirorIn, Direction.NORTH);
-			//this.quads[0] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex4, modelrenderer$vertex, modelrenderer$vertex1, modelrenderer$vertex5}, f6, f11, f8, f12, texWidth, texHeight, mirorIn, Direction.EAST);
-			//this.quads[5] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex3, modelrenderer$vertex4, modelrenderer$vertex5, modelrenderer$vertex6}, f8, f11, f9, f12, texWidth, texHeight, mirorIn, Direction.SOUTH);
 		}
 	}
 
@@ -152,14 +136,6 @@ public class WildfireModelRenderer {
 				vertex1, vertex2, vertex6, vertex5);
 			this.quads[4] = new TexturedQuad(texU + 4, texV + 4, texU + 4 + dx, texV + 4 + dy, tW, tH, mirror, Direction.NORTH,
 				vertex, vertex7, vertex2, vertex1);
-			//this.quads[5] = new TexturedQuad(new PositionTextureVertex[]{vertex3, vertex4, vertex5, vertex6}, texU + dz + dx + dz, texV + dz, texU + dz + dx + dz + dx, texV + dz + dy, tW, tH, mirror, Direction.SOUTH);
-
-			//this.quads[2] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex4, modelrenderer$vertex3, modelrenderer$vertex7, modelrenderer$vertex}, f5, f10, f6, f11, texWidth, texHeight, mirorIn, Direction.DOWN);
-			//this.quads[3] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex1, modelrenderer$vertex2, modelrenderer$vertex6, modelrenderer$vertex5}, f6, f11, f7, f10, texWidth, texHeight, mirorIn, Direction.UP);
-			//this.quads[1] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex7, modelrenderer$vertex3, modelrenderer$vertex6, modelrenderer$vertex2}, f4, f11, f5, f12, texWidth, texHeight, mirorIn, Direction.WEST);
-			//this.quads[4] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex, modelrenderer$vertex7, modelrenderer$vertex2, modelrenderer$vertex1}, f5, f11, f6, f12, texWidth, texHeight, mirorIn, Direction.NORTH);
-			//this.quads[0] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex4, modelrenderer$vertex, modelrenderer$vertex1, modelrenderer$vertex5}, f6, f11, f8, f12, texWidth, texHeight, mirorIn, Direction.EAST);
-			//this.quads[5] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex3, modelrenderer$vertex4, modelrenderer$vertex5, modelrenderer$vertex6}, f8, f11, f9, f12, texWidth, texHeight, mirorIn, Direction.SOUTH);
 		}
 	}
 
@@ -185,13 +161,6 @@ public class WildfireModelRenderer {
 				  vertex, vertex7, vertex2, vertex1);
 			  this.quads[5] = new TexturedQuad(texU + dz + dx + dz, texV + dz, texU + dz + dx + dz + dx, texV + dz + dy, tW, tH, mirror, Direction.SOUTH,
 				  vertex3, vertex4, vertex5, vertex6);
-	         
-	         //this.quads[2] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex4, modelrenderer$vertex3, modelrenderer$vertex7, modelrenderer$vertex}, f5, f10, f6, f11, texWidth, texHeight, mirorIn, Direction.DOWN);
-	         //this.quads[3] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex1, modelrenderer$vertex2, modelrenderer$vertex6, modelrenderer$vertex5}, f6, f11, f7, f10, texWidth, texHeight, mirorIn, Direction.UP);
-	         //this.quads[1] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex7, modelrenderer$vertex3, modelrenderer$vertex6, modelrenderer$vertex2}, f4, f11, f5, f12, texWidth, texHeight, mirorIn, Direction.WEST);
-	         //this.quads[4] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex, modelrenderer$vertex7, modelrenderer$vertex2, modelrenderer$vertex1}, f5, f11, f6, f12, texWidth, texHeight, mirorIn, Direction.NORTH);
-	         //this.quads[0] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex4, modelrenderer$vertex, modelrenderer$vertex1, modelrenderer$vertex5}, f6, f11, f8, f12, texWidth, texHeight, mirorIn, Direction.EAST);
-	         //this.quads[5] = new SteinModelRenderer.TexturedQuad(new SteinModelRenderer.PositionTextureVertex[]{modelrenderer$vertex3, modelrenderer$vertex4, modelrenderer$vertex5, modelrenderer$vertex6}, f8, f11, f9, f12, texWidth, texHeight, mirorIn, Direction.SOUTH);
 	      }
 	   }
 

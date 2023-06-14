@@ -21,7 +21,6 @@ package com.wildfire.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.*;
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.Breasts;
 import com.wildfire.main.WildfireHelper;
@@ -30,7 +29,6 @@ import com.wildfire.render.WildfireModelRenderer.BreastModelBox;
 import com.wildfire.render.WildfireModelRenderer.OverlayModelBox;
 import com.wildfire.render.WildfireModelRenderer.PositionTextureVertex;
 import java.util.Locale;
-import java.util.UUID;
 import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -38,12 +36,15 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -55,8 +56,7 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.*;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
+import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.client.ForgeHooksClient;
 import org.joml.Matrix3f;
@@ -66,14 +66,18 @@ import org.joml.Vector3f;
 
 public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
+	private final TextureAtlas armorTrimAtlas;
+
 	private BreastModelBox lBreast, rBreast;
-	private OverlayModelBox lBreastWear, rBreastWear;
-	private BreastModelBox lBoobArmor, rBoobArmor;
+	private final OverlayModelBox lBreastWear, rBreastWear;
+	private final BreastModelBox lBoobArmor, rBoobArmor;
 
 	private float preBreastSize = 0f;
 
-	public GenderLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> player) {
+	public GenderLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> player, ModelManager modelManager) {
 		super(player);
+
+		armorTrimAtlas = modelManager.getAtlas(Sheets.ARMOR_TRIMS_SHEET);
 
 		lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, 4, 0.0F, false);
 		rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, 4, 0.0F, false);
@@ -84,8 +88,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		rBoobArmor = new BreastModelBox(64, 32, 20, 17, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 	}
 
-	private static final Map<String, ResourceLocation> ARMOR_LOCATION_CACHE = new HashMap<>();
-	//Copy of Forge's patched in HumanoidArmorLayer#getArmorResource
+	//Copy of Forge's patched in HumanoidArmorLayer#getArmorResource but with the removal of the string to rl map lookup
 	public ResourceLocation getArmorResource(AbstractClientPlayer entity, ItemStack stack, EquipmentSlot slot, @Nullable String type) {
 		ArmorItem item = (ArmorItem) stack.getItem();
 		String texture = item.getMaterial().getName();
@@ -99,14 +102,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			(slot == EquipmentSlot.LEGS ? 2 : 1), type == null ? "" : String.format(Locale.ROOT, "_%s", type));
 
 		s1 = ForgeHooksClient.getArmorTexture(entity, stack, s1, slot, type);
-		ResourceLocation resourcelocation = ARMOR_LOCATION_CACHE.get(s1);
-
-		if (resourcelocation == null) {
-			resourcelocation = new ResourceLocation(s1);
-			ARMOR_LOCATION_CACHE.put(s1, resourcelocation);
-		}
-
-		return resourcelocation;
+		return new ResourceLocation(s1);
 	}
 
 	@Override
@@ -118,10 +114,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		}
 		//Surround with a try/catch to fix for essential mod.
 		try {
-			//0.5 or 0
-			UUID playerUUID = ent.getUUID();
-			//System.out.println(playerUUID);
-			GenderPlayer plr = WildfireGender.getPlayerById(playerUUID);
+			GenderPlayer plr = WildfireGender.getPlayerById(ent.getUUID());
 			if(plr == null) return;
 
 			ItemStack armorStack = ent.getItemBySlot(EquipmentSlot.CHEST);
@@ -158,10 +151,6 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 				preBreastSize = bSize;
 			}
 
-			//DEPENDENCIES
-			float overlayRed = 1;
-			float overlayGreen = 1;
-			float overlayBlue = 1;
 			//Note: We only render if the entity is not visible to the player, so we can assume it is visible to the player
 			float overlayAlpha = ent.isInvisible() ? 0.15F : 1;
 
@@ -202,17 +191,17 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			// is less than or equal to 0.5 so that if we won't be rendering it we can avoid doing extra calculations
 			boolean breathingAnimation = resistance <= 0.5F &&
 										 (!ent.isUnderWater() || MobEffectUtil.hasWaterBreathing(ent) ||
-										  ent.level.getBlockState(new BlockPos(ent.getX(), ent.getEyeY(), ent.getZ())).is(Blocks.BUBBLE_COLUMN));
+										  ent.level().getBlockState(BlockPos.containing(ent.getX(), ent.getEyeY(), ent.getZ())).is(Blocks.BUBBLE_COLUMN));
 			boolean bounceEnabled = plr.hasBreastPhysics() && (!isChestplateOccupied || resistance < 1); //oh, you found this?
 
 			int combineTex = LivingEntityRenderer.getOverlayCoords(ent, 0);
 			RenderType type = RenderType.entityTranslucent(rend.getTextureLocation(ent));
-			renderBreastWithTransforms(ent, model.body, armorStack, matrixStack, bufferSource, type, packedLightIn, combineTex, overlayRed, overlayGreen,
-				overlayBlue, overlayAlpha, bounceEnabled, lTotalX, lTotal, leftBounceRotation, breastSize, breastOffsetX, breastOffsetY, breastOffsetZ, zOff,
-				outwardAngle, breasts.isUniboob(), isChestplateOccupied, breathingAnimation, true);
-			renderBreastWithTransforms(ent, model.body, armorStack, matrixStack, bufferSource, type, packedLightIn, combineTex, overlayRed, overlayGreen,
-				overlayBlue, overlayAlpha, bounceEnabled, rTotalX, rTotal, rightBounceRotation, breastSize, -breastOffsetX, breastOffsetY, breastOffsetZ, zOff,
-				-outwardAngle, breasts.isUniboob(), isChestplateOccupied, breathingAnimation, false);
+			renderBreastWithTransforms(ent, model.body, armorStack, matrixStack, bufferSource, type, packedLightIn, combineTex, overlayAlpha, bounceEnabled,
+				lTotalX, lTotal, leftBounceRotation, breastSize, breastOffsetX, breastOffsetY, breastOffsetZ, zOff, outwardAngle, breasts.isUniboob(),
+				isChestplateOccupied, breathingAnimation, true);
+			renderBreastWithTransforms(ent, model.body, armorStack, matrixStack, bufferSource, type, packedLightIn, combineTex, overlayAlpha, bounceEnabled,
+				rTotalX, rTotal, rightBounceRotation, breastSize, -breastOffsetX, breastOffsetY, breastOffsetZ, zOff, -outwardAngle, breasts.isUniboob(),
+				isChestplateOccupied, breathingAnimation, false);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -220,9 +209,9 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 	}
 
 	private void renderBreastWithTransforms(AbstractClientPlayer entity, ModelPart body, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource,
-		RenderType breastRenderType, int packedLightIn, int combineTex, float red, float green, float blue, float alpha, boolean bounceEnabled, float totalX, float total,
-		float bounceRotation, float breastSize, float breastOffsetX, float breastOffsetY, float breastOffsetZ, float zOff, float outwardAngle, boolean uniboob,
-		boolean isChestplateOccupied, boolean breathingAnimation, boolean left) {
+		RenderType breastRenderType, int packedLightIn, int combineTex, float alpha, boolean bounceEnabled, float totalX, float total, float bounceRotation,
+		float breastSize, float breastOffsetX, float breastOffsetY, float breastOffsetZ, float zOff, float outwardAngle, boolean uniboob, boolean isChestplateOccupied,
+		boolean breathingAnimation, boolean left) {
 		matrixStack.pushPose();
 		//Surround with a try/catch to fix for essential mod.
 		try {
@@ -282,7 +271,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 			matrixStack.scale(0.9995f, 1f, 1f); //z-fighting FIXXX
 
-			renderBreast(entity, armorStack, matrixStack, bufferSource, breastRenderType, packedLightIn, combineTex, red, green, blue, alpha, left);
+			renderBreast(entity, armorStack, matrixStack, bufferSource, breastRenderType, packedLightIn, combineTex, alpha, left);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -290,13 +279,13 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 	}
 
 	private void renderBreast(AbstractClientPlayer entity, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource, RenderType breastRenderType,
-		int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, boolean left) {
+		int packedLightIn, int packedOverlayIn, float alpha, boolean left) {
 		VertexConsumer vertexConsumer = bufferSource.getBuffer(breastRenderType);
-		renderBox(left ? lBreast : rBreast, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+		renderBox(left ? lBreast : rBreast, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1F, 1F, 1F, alpha);
 		if (entity.isModelPartShown(PlayerModelPart.JACKET)) {
 			matrixStack.translate(0, 0, -0.015f);
 			matrixStack.scale(1.05f, 1.05f, 1.05f);
-			renderBox(left ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+			renderBox(left ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1F, 1F, 1F, alpha);
 		}
 		//TODO: Eventually we may want to expose a way via the API for mods to be able to override rendering
 		// be it because they are not an armor item or the way they render their armor item is custom
@@ -319,13 +308,24 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			matrixStack.scale(1.05f, 1, 1);
 			WildfireModelRenderer.BreastModelBox armor = left ? lBoobArmor : rBoobArmor;
 			RenderType armorType = RenderType.armorCutoutNoCull(armorTexture);
-			VertexConsumer armorVertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferSource, armorType, false, armorStack.hasFoil());
+			VertexConsumer armorVertexConsumer = bufferSource.getBuffer(armorType);
 			renderBox(armor, matrixStack, armorVertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, armorR, armorG, armorB, 1);
 			if (overlayTexture != null) {
 				RenderType overlayType = RenderType.armorCutoutNoCull(overlayTexture);
-				VertexConsumer overlayVertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferSource, overlayType, false, armorStack.hasFoil());
+				VertexConsumer overlayVertexConsumer = bufferSource.getBuffer(overlayType);
 				renderBox(armor, matrixStack, overlayVertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 			}
+			ArmorTrim.getTrim(entity.level().registryAccess(), armorStack).ifPresent(trim -> {
+				ArmorMaterial armorMaterial = armorItem.getMaterial();
+				TextureAtlasSprite sprite = this.armorTrimAtlas.getSprite(trim.outerTexture(armorMaterial));
+				VertexConsumer trimVertexConsumer = sprite.wrap(bufferSource.getBuffer(Sheets.armorTrimsSheet()));
+				renderBox(armor, matrixStack, trimVertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+			});
+
+			if (armorStack.hasFoil()) {
+				renderBox(armor, matrixStack, bufferSource.getBuffer(RenderType.armorEntityGlint()), packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+			}
+
 			matrixStack.popPose();
 		}
 	}
@@ -337,17 +337,15 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		for (WildfireModelRenderer.TexturedQuad quad : model.quads) {
 			Vector3f vector3f = new Vector3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
 			vector3f.mul(matrix3f);
-			float normalX = vector3f.x();
-			float normalY = vector3f.y();
-			float normalZ = vector3f.z();
 			for (PositionTextureVertex vertex : quad.vertexPositions) {
-				bufferIn.vertex(matrix4f, vertex.x() / 16.0F, vertex.y() / 16.0F, vertex.z() / 16.0F)
-					.color(red, green, blue, alpha)
-					.uv(vertex.texturePositionX(), vertex.texturePositionY())
-					.overlayCoords(packedOverlayIn)
-					.uv2(packedLightIn)
-					.normal(normalX, normalY, normalZ)
-					.endVertex();
+				//TODO - 1.20: Switch back to chaining https://github.com/MinecraftForge/MinecraftForge/pull/9564
+				bufferIn.vertex(matrix4f, vertex.x() / 16.0F, vertex.y() / 16.0F, vertex.z() / 16.0F);
+				bufferIn.color(red, green, blue, alpha);
+				bufferIn.uv(vertex.texturePositionX(), vertex.texturePositionY());
+				bufferIn.overlayCoords(packedOverlayIn);
+				bufferIn.uv2(packedLightIn);
+				bufferIn.normal(vector3f.x(), vector3f.y(), vector3f.z());
+				bufferIn.endVertex();
 			}
 		}
 	}

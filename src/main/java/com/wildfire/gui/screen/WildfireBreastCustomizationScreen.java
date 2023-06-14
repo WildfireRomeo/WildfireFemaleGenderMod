@@ -19,7 +19,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.wildfire.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.Breasts;
@@ -28,7 +27,9 @@ import com.wildfire.main.config.ClientConfiguration;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
@@ -84,10 +85,10 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
     }
 
     @Override
-    public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
+    public void render(@Nonnull GuiGraphics graphics, int f1, int f2, float f3) {
         Minecraft minecraft = Minecraft.getInstance();
         GenderPlayer plr = getPlayer();
-        super.renderBackground(m);
+        super.renderBackground(graphics);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         if(plr == null) return;
@@ -98,7 +99,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             int yP = this.height / 2 + 275;
             Player ent = Minecraft.getInstance().level.getPlayerByUUID(this.playerUUID);
             if(ent != null) {
-                WardrobeBrowserScreen.drawEntityOnScreen(xP, yP, 200, -20, -20, ent);
+                InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, xP, yP, 200, -20, -20, ent);
             } else {
                 //player left, fallback
                 minecraft.setScreen(new WildfirePlayerListScreen(minecraft));
@@ -117,10 +118,10 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
         int x = this.width / 2;
         int y = this.height / 2;
-        fill(m, x + 28, y - 64, x + 190, y + 79, 0x55000000);
-        fill(m, x + 29, y - 63, x + 189, y - 50, 0x55000000);
-        this.font.draw(m, title, x + 32, y - 60, 0xFFFFFF);
-        super.render(m, f1, f2, f3);
+        graphics.fill(x + 28, y - 64, x + 190, y + 79, 0x55000000);
+        graphics.fill(x + 29, y - 63, x + 189, y - 50, 0x55000000);
+        graphics.drawString(this.font, title, x + 32, y - 60, 0xFFFFFF, false);
+        super.render(graphics, f1, f2, f3);
     }
 
     @Override

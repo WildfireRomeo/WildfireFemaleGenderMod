@@ -19,13 +19,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.wildfire.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.narration.NarrationSupplier;
 import net.minecraft.network.chat.Component;
 
 public class WildfireButton extends Button {
@@ -43,15 +42,16 @@ public class WildfireButton extends Button {
    }
 
    @Override
-   public void renderButton(@Nonnull PoseStack m, int mouseX, int mouseY, float partialTicks) {
+   public void renderWidget(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
       Minecraft minecraft = Minecraft.getInstance();
       Font font = minecraft.font;
       int clr = 0x444444 + (84 << 24);
       if(this.isHoveredOrFocused()) clr = 0x666666 + (84 << 24);
       if(!this.active)  clr = 0x222222 + (84 << 24);
-      if(!transparent) fill(m, getX(), getY(), getX() + getWidth(), getY() + getHeight(), clr);
+      if(!transparent) graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), clr);
 
-      font.draw(m, this.getMessage(),getX() + (this.width / 2f) - (font.width(this.getMessage()) / 2f) + 1, getY() + (int) Math.ceil((float) height / 2f) - font.lineHeight / 2f, active ? 0xFFFFFF : 0x666666);
+      graphics.drawString(font, this.getMessage().getVisualOrderText(),getX() + (this.width / 2f) - (font.width(this.getMessage()) / 2f) + 1,
+            getY() + (int) Math.ceil((float) height / 2f) - font.lineHeight / 2f, active ? 0xFFFFFF : 0x666666, false);
       RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
    }
 

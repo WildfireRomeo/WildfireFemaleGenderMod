@@ -22,26 +22,18 @@ import com.wildfire.main.GenderPlayer.Gender;
 import com.wildfire.main.WildfireGender;
 import java.util.UUID;
 
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.GenderPlayer;
-import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
+import org.jetbrains.annotations.NotNull;
 
 public class WardrobeBrowserScreen extends BaseWildfireScreen {
 
@@ -91,27 +83,23 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	}
 
   	@Override
-	public void render(PoseStack m, int f1, int f2, float f3) {
+	public void render(@NotNull GuiGraphics graphics, int f1, int f2, float f3) {
 		Minecraft minecraft = Minecraft.getInstance();
 		GenderPlayer plr = getPlayer();
-	    super.renderBackground(m);
+	    super.renderBackground(graphics);
 	    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		RenderSystem.setShaderTexture(0, this.BACKGROUND);
 
 	    int i = (this.width - 248) / 2;
 	    int j = (this.height - 134) / 2;
-		blit(m, i, j, 0, 0, 248, 156);
+		graphics.blit(BACKGROUND, i, j, 0, 0, 248, 156);
 
 	    if(plr == null) return;
 
 
 		int x = this.width / 2;
 	    int y = this.height / 2;
-	    
-	    this.font.draw(m, title, x - 42, y - 62, 4473924);
+
+		graphics.drawString(this.font, title, x - 42, y - 62, 4473924, false);
 
 	    modelRotation = 0.6f;
 
@@ -120,9 +108,9 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			RenderSystem.setShaderColor(1f, 1.0F, 1.0F, 1.0F);
 		    int xP = this.width / 2 - 82;
 		    int yP = this.height / 2 + 32;
-		    Player ent = Minecraft.getInstance().level.getPlayerByUUID(this.playerUUID);
+		    Player ent = minecraft.level.getPlayerByUUID(this.playerUUID);
 		    if(ent != null) {
-				drawEntityOnScreen(xP, yP, 45, (float)(xP) - f1, (float)(j + 75 - 40) - f2, this.minecraft.player);
+				InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, xP, yP, 45, xP - f1, j + 75 - 40 - f2, ent);
 		    } else {
 				//player left, fallback
 				minecraft.setScreen(new WildfirePlayerListScreen(minecraft));
@@ -132,57 +120,6 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			minecraft.setScreen(new WildfirePlayerListScreen(minecraft));
 		}
 
-	    super.render(m, f1, f2, f3);
-	}
-
-	public static void drawEntityOnScreen(int pPosX, int pPosY, int pScale, float pMouseX, float pMouseY, LivingEntity pLivingEntity) {
-		float f = (float)Math.atan((double)(pMouseX / 40.0F));
-		float f1 = (float)Math.atan((double)(pMouseY / 40.0F));
-		drawEntityOnScreenRaw(pPosX, pPosY, pScale, f, f1, pLivingEntity);
-	}
-	public static void drawEntityOnScreenRaw(int pPosX, int pPosY, int pScale, float angleXComponent, float angleYComponent, LivingEntity pLivingEntity) {
-		float f = angleXComponent;
-		float f1 = angleYComponent;
-		PoseStack posestack = RenderSystem.getModelViewStack();
-		posestack.pushPose();
-		posestack.translate((float)pPosX, (float)pPosY, 1050.0F);
-		posestack.scale(1.0F, 1.0F, -1.0F);
-		RenderSystem.applyModelViewMatrix();
-		PoseStack posestack1 = new PoseStack();
-		posestack1.translate(0.0F, 0.0F, 1000.0F);
-		posestack1.scale((float)pScale, (float)pScale, (float)pScale);
-		Quaternionf quaternionf = (new Quaternionf()).rotateZ((float)Math.PI);
-		Quaternionf quaternionf1 = (new Quaternionf()).rotateX(f1 * 20.0F * ((float)Math.PI / 180F));
-		quaternionf.mul(quaternionf1);
-		posestack1.mulPose(quaternionf);
-		float f2 = pLivingEntity.yBodyRot;
-		float f3 = pLivingEntity.getYRot();
-		float f4 = pLivingEntity.getXRot();
-		float f5 = pLivingEntity.yHeadRotO;
-		float f6 = pLivingEntity.yHeadRot;
-		pLivingEntity.yBodyRot = 180.0F + f * 20.0F;
-		pLivingEntity.setYRot(180.0F + f * 40.0F);
-		pLivingEntity.setXRot(-f1 * 20.0F);
-		pLivingEntity.yHeadRot = pLivingEntity.getYRot();
-		pLivingEntity.yHeadRotO = pLivingEntity.getYRot();
-		Lighting.setupForEntityInInventory();
-		EntityRenderDispatcher entityrenderdispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-		quaternionf1.conjugate();
-		entityrenderdispatcher.overrideCameraOrientation(quaternionf1);
-		entityrenderdispatcher.setRenderShadow(false);
-		MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
-		RenderSystem.runAsFancy(() -> {
-			entityrenderdispatcher.render(pLivingEntity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, posestack1, multibuffersource$buffersource, 15728880);
-		});
-		multibuffersource$buffersource.endBatch();
-		entityrenderdispatcher.setRenderShadow(true);
-		pLivingEntity.yBodyRot = f2;
-		pLivingEntity.setYRot(f3);
-		pLivingEntity.setXRot(f4);
-		pLivingEntity.yHeadRotO = f5;
-		pLivingEntity.yHeadRot = f6;
-		posestack.popPose();
-		RenderSystem.applyModelViewMatrix();
-		Lighting.setupFor3DItems();
+	    super.render(graphics, f1, f2, f3);
 	}
 }

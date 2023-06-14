@@ -19,7 +19,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.wildfire.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfirePlayerList;
 import com.wildfire.main.GenderPlayer;
@@ -29,9 +28,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -67,9 +67,6 @@ public class WildfirePlayerListScreen extends Screen {
 
 	    int x = this.width / 2;
 	    int y = this.height / 2 - 20;
-		/*this.addButton(new SteinButton(this.width / 2 - 60, y + 75, 66, 15, new TranslationTextComponent("wildfire_gender.player_list.settings_button"), button -> {
-			mc.displayGuiScreen(new WildfireSettingsScreen(SteinPlayerListScreen.this));
-		}));*/
 
 		this.addWidget(new WildfireButton(this.width / 2 + 53, y - 74, 9, 9, Component.translatable("wildfire_gender.label.exit"), button -> Minecraft.getInstance().setScreen(null)));
 
@@ -84,28 +81,26 @@ public class WildfirePlayerListScreen extends Screen {
   	}
 
 	@Override
-	public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
+	public void render(@Nonnull GuiGraphics graphics, int f1, int f2, float f3) {
 		HOVER_PLAYER = null;
 		this.setTooltip(null);
 		PLAYER_LIST.refreshList();
 
 
-	    super.renderBackground(m);
+	    super.renderBackground(graphics);
 		Minecraft mc = Minecraft.getInstance();
 	    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 	    if(this.TXTR_BACKGROUND != null) {
-			RenderSystem.setShader(GameRenderer::getPositionTexShader);
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-			RenderSystem.setShaderTexture(0, this.TXTR_BACKGROUND);
+			int i = (this.width - 132) / 2;
+			int j = (this.height - 156) / 2 - 20;
+			graphics.blit(TXTR_BACKGROUND, i, j, 0, 0, 192, 174);
 		}
-	    int i = (this.width - 132) / 2;
-	    int j = (this.height - 156) / 2 - 20;
-	    blit(m, i, j, 0, 0, 192, 174);
 
 	    int x = (this.width / 2);
 	    int y = (this.height / 2) - 20;
 
-	    super.render(m, f1, f2, f3);
+	    super.render(graphics, f1, f2, f3);
 
         double scale = mc.getWindow().getGuiScale();
         int left = x - 59;
@@ -115,7 +110,7 @@ public class WildfirePlayerListScreen extends Screen {
         RenderSystem.enableScissor((int)(left  * scale), (int) (bottom * scale),
 				(int)(width * scale), (int) (height * scale));
 
-	    PLAYER_LIST.render(m, f1, f2, f3);
+	    PLAYER_LIST.render(graphics, f1, f2, f3);
 	  	RenderSystem.disableScissor();
 
 	    if(HOVER_PLAYER != null) {
@@ -123,25 +118,25 @@ public class WildfirePlayerListScreen extends Screen {
 			int dialogY = y - 73;
 			Player pEntity = mc.level.getPlayerByUUID(HOVER_PLAYER.uuid);
 			if(pEntity != null) {
-				this.font.drawShadow(m, pEntity.getDisplayName().copy().withStyle(ChatFormatting.UNDERLINE), dialogX, dialogY - 2, 0xFFFFFF);
+				graphics.drawString(this.font, pEntity.getDisplayName().copy().withStyle(ChatFormatting.UNDERLINE), dialogX, dialogY - 2, 0xFFFFFF);
 			}
 
 			Gender gender = HOVER_PLAYER.getGender();
-			this.font.drawShadow(m, Component.translatable("wildfire_gender.label.gender").append(" ").append(gender.getDisplayName()), dialogX, dialogY + 10, 0xBBBBBB);
+			graphics.drawString(this.font, Component.translatable("wildfire_gender.label.gender").append(" ").append(gender.getDisplayName()), dialogX, dialogY + 10, 0xBBBBBB);
 			if (gender.canHaveBreasts()) {
-				this.font.drawShadow(m, Component.translatable("wildfire_gender.wardrobe.slider.breast_size", Math.round(HOVER_PLAYER.getBustSize() * 100)), dialogX, dialogY + 20, 0xBBBBBB);
-				this.font.drawShadow(m, Component.translatable("wildfire_gender.char_settings.physics", Component.translatable(HOVER_PLAYER.hasBreastPhysics() ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 40, 0xBBBBBB);
-				this.font.drawShadow(m, Component.translatable("wildfire_gender.player_list.bounce_multiplier", HOVER_PLAYER.getBounceMultiplier()), dialogX + 6, dialogY + 50, 0xBBBBBB);
-				this.font.drawShadow(m, Component.translatable("wildfire_gender.player_list.breast_momentum", Math.round(HOVER_PLAYER.getFloppiness() * 100)), dialogX + 6, dialogY + 60, 0xBBBBBB);
+				graphics.drawString(this.font, Component.translatable("wildfire_gender.wardrobe.slider.breast_size", Math.round(HOVER_PLAYER.getBustSize() * 100)), dialogX, dialogY + 20, 0xBBBBBB);
+				graphics.drawString(this.font, Component.translatable("wildfire_gender.char_settings.physics", Component.translatable(HOVER_PLAYER.hasBreastPhysics() ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 40, 0xBBBBBB);
+				graphics.drawString(this.font, Component.translatable("wildfire_gender.player_list.bounce_multiplier", HOVER_PLAYER.getBounceMultiplier()), dialogX + 6, dialogY + 50, 0xBBBBBB);
+				graphics.drawString(this.font, Component.translatable("wildfire_gender.player_list.breast_momentum", Math.round(HOVER_PLAYER.getFloppiness() * 100)), dialogX + 6, dialogY + 60, 0xBBBBBB);
 
-				this.font.drawShadow(m, Component.translatable("wildfire_gender.player_list.female_sounds", Component.translatable(HOVER_PLAYER.hasHurtSounds() ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 80, 0xBBBBBB);
+				graphics.drawString(this.font, Component.translatable("wildfire_gender.player_list.female_sounds", Component.translatable(HOVER_PLAYER.hasHurtSounds() ? "wildfire_gender.label.enabled" : "wildfire_gender.label.disabled")), dialogX, dialogY + 80, 0xBBBBBB);
 			}
 			if(pEntity != null) {
-				WardrobeBrowserScreen.drawEntityOnScreen(x - 110, y + 45, 45, (x - 300), (y - 26 - f2), pEntity);
+				InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, x - 110, y + 45, 45, (x - 300), (y - 26 - f2), pEntity);
 			}
 		}
 
-	    this.font.draw(m, Component.translatable("wildfire_gender.player_list.title"), x - 60, y - 73, 4473924);
+		graphics.drawString(this.font, Component.translatable("wildfire_gender.player_list.title"), x - 60, y - 73, 4473924, false);
 
 		boolean withCreator = false;
 		PlayerInfo[] playersC = this.minecraft.getConnection().getOnlinePlayers().toArray(new PlayerInfo[0]);
@@ -153,20 +148,18 @@ public class WildfirePlayerListScreen extends Screen {
 		}
 
 		if(withCreator) {
-			drawCenteredString(m, this.font, Component.translatable("wildfire_gender.label.with_creator"), this.width / 2, y + 89, 0xFF00FF);
+			graphics.drawCenteredString(this.font, Component.translatable("wildfire_gender.label.with_creator"), this.width / 2, y + 89, 0xFF00FF);
 		}
 
 		//Breast Cancer Awareness Month Notification
-		if(Calendar.getInstance().get(Calendar.MONTH) == 9) {
-			fill(m, x - 159, y + 106, x + 159, y + 136, 0x55000000);
-			this.font.draw(m, ChatFormatting.BOLD + "" + ChatFormatting.ITALIC + "Hey, it's Breast Cancer Awareness Month!", this.width / 2 - 148, y + 117, 0xFFFFFF);
-			RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		if(Calendar.getInstance().get(Calendar.MONTH) == Calendar.OCTOBER) {
+			graphics.fill(x - 159, y + 106, x + 159, y + 136, 0x55000000);
+			graphics.drawString(this.font, Component.translatable("wildfire_gender.cancer_awareness.title").withStyle(ChatFormatting.BOLD, ChatFormatting.ITALIC), this.width / 2 - 148, y + 117, 0xFFFFFF, false);
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-			RenderSystem.setShaderTexture(0, this.TXTR_RIBBON);
-			Screen.blit(m, x + 130, y + 109, 26, 26, 0, 0, 20, 20, 20, 20);
+			graphics.blit(TXTR_RIBBON, x + 130, y + 109, 26, 26, 0, 0, 20, 20, 20, 20);
 		}
 		if (tooltip != null) {
-			this.renderTooltip(m, tooltip, f1, f2);
+			graphics.renderTooltip(this.font, tooltip, f1, f2);
 		}
   	}
 

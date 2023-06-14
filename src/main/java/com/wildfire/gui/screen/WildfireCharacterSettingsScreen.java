@@ -25,17 +25,14 @@ import com.wildfire.main.config.ClientConfiguration;
 import java.util.UUID;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.GenderPlayer;
 import javax.annotation.Nonnull;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -76,15 +73,6 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
                 GenderPlayer.saveGenderInfo(aPlr);
             }
         }, Tooltip.create(Component.translatable("wildfire_gender.tooltip.breast_physics"))));
-
-        /*this.addRenderableWidget(new WildfireButton(xPos, yPos + 20, 157, 20,
-              Component.translatable("wildfire_gender.char_settings.armor_physics", aPlr.hasArmorBreastPhysics() ? ENABLED : DISABLED), button -> {
-            boolean enablePhysicsArmor = !aPlr.hasArmorBreastPhysics();
-            if (aPlr.updateArmorBreastPhysics(enablePhysicsArmor)) {
-                button.setMessage(Component.translatable("wildfire_gender.char_settings.armor_physics", enablePhysicsArmor ? ENABLED : DISABLED));
-                GenderPlayer.saveGenderInfo(aPlr);
-            }
-        }, Tooltip.create(Component.translatable("wildfire_gender.tooltip.armor_physics"))));*/
 
         this.addRenderableWidget(new WildfireButton(xPos, yPos + 20, 157, 20,
               Component.translatable("wildfire_gender.char_settings.hide_in_armor", aPlr.showBreastsInArmor() ? DISABLED : ENABLED), button -> {
@@ -134,33 +122,31 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
     }
 
     @Override
-    public void render(@Nonnull PoseStack m, int f1, int f2, float f3) {
-        super.renderBackground(m);
+    public void render(@Nonnull GuiGraphics graphics, int f1, int f2, float f3) {
+        super.renderBackground(graphics);
         Player plrEntity = Minecraft.getInstance().level.getPlayerByUUID(this.playerUUID);
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        if(this.BACKGROUND != null) {
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        if (this.BACKGROUND != null) {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShaderTexture(0, this.BACKGROUND);
+            int i = (this.width - 172) / 2;
+            int j = (this.height - 124) / 2;
+            graphics.blit(BACKGROUND, i, j, 0, 0, 172, 144);
         }
-        int i = (this.width - 172) / 2;
-        int j = (this.height - 124) / 2;
-        blit(m, i, j, 0, 0, 172, 144);
 
         int x = this.width / 2;
         int y = this.height / 2;
 
-        this.font.draw(m, title, x - 79, yPos - 10, 4473924);
+        graphics.drawString(this.font, title, x - 79, yPos - 10, 4473924, false);
 
-        super.render(m, f1, f2, f3);
+        super.render(graphics, f1, f2, f3);
 
         if(plrEntity != null) {
-            Screen.drawCenteredString(m, this.font, plrEntity.getDisplayName(), x, yPos - 30, 0xFFFFFF);
+            graphics.drawCenteredString(this.font, plrEntity.getDisplayName(), x, yPos - 30, 0xFFFFFF);
         }
 
         if(bounceWarning) {
-            Screen.drawCenteredString(m, font, Component.translatable("wildfire_gender.tooltip.bounce_warning").withStyle(ChatFormatting.ITALIC), x, y+90, 0xFF6666);
+            graphics.drawCenteredString(font, Component.translatable("wildfire_gender.tooltip.bounce_warning").withStyle(ChatFormatting.ITALIC), x, y+90, 0xFF6666);
         }
     }
 

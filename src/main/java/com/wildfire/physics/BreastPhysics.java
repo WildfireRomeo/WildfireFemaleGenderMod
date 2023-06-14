@@ -92,7 +92,7 @@ public class BreastPhysics {
 			bounceIntensity = bounceIntensity * WildfireHelper.randFloat(0.5f, 1.5f);
 		}
 		if(plr.fallDistance > 0 && !alreadyFalling) {
-			randomB = plr.level.random.nextBoolean() ? -1 : 1;
+			randomB = plr.level().random.nextBoolean() ? -1 : 1;
 			alreadyFalling = true;
 		}
 		if(plr.fallDistance == 0) alreadyFalling = false;
@@ -105,18 +105,14 @@ public class BreastPhysics {
 		this.targetRotVel = -((plr.yBodyRot - plr.yBodyRotO) / 15f) * bounceIntensity;
 
 
-		float f = 1.0F;
-		if (true) {
-			f = (float) plr.getDeltaMovement().lengthSqr();
-			f = f / 0.2F;
-			f = f * f * f;
-		}
+		float f = (float) plr.getDeltaMovement().lengthSqr() / 0.2F;
+		f = f * f * f;
 
 		if (f < 1.0F) {
 			f = 1.0F;
 		}
 
-		this.targetBounce += Mth.cos(plr.animationPosition * 0.6662F + (float)Math.PI) * 0.5F * plr.animationSpeed * 0.5F / f;
+		this.targetBounce += Mth.cos(plr.walkAnimation.position() * 0.6662F + (float)Math.PI) * 0.5F * plr.walkAnimation.speed() * 0.5F / f;
 		//System.out.println(plr.rotationYaw);
 
 		this.targetRotVel += (float) motion.y * bounceIntensity * randomB;
@@ -135,8 +131,8 @@ public class BreastPhysics {
 		//button option for extra entities
 		if(plr.getVehicle() != null) {
 			if(plr.getVehicle() instanceof Boat boat) {
-				int rowTime = (int) boat.getRowingTime(0, plr.animationPosition);
-				int rowTime2 = (int) boat.getRowingTime(1, plr.animationPosition);
+				int rowTime = (int) boat.getRowingTime(0, plr.walkAnimation.position());
+				int rowTime2 = (int) boat.getRowingTime(1, plr.walkAnimation.position());
 
 				float rotationL = (float)Mth.clampedLerp(-(float)Math.PI / 3F, -0.2617994F, (double)((Mth.sin(-rowTime2) + 1.0F) / 2.0F));
 				float rotationR = (float)Mth.clampedLerp(-(float)Math.PI / 4F, (float)Math.PI / 4F, (double)((Mth.sin(-rowTime + 1.0F) + 1.0F) / 2.0F));
