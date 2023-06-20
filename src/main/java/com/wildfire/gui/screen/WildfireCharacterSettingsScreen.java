@@ -36,6 +36,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
@@ -124,7 +125,8 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
     @Override
     public void render(@Nonnull GuiGraphics graphics, int f1, int f2, float f3) {
         super.renderBackground(graphics);
-        Player plrEntity = Minecraft.getInstance().level.getPlayerByUUID(this.playerUUID);
+        Level level = Minecraft.getInstance().level;
+        Player plrEntity = level == null ? null : level.getPlayerByUUID(this.playerUUID);
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (this.BACKGROUND != null) {

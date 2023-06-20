@@ -34,6 +34,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.Holder;
@@ -115,7 +116,8 @@ public class WildfireEventHandler {
 		}
 		boolean isVanillaServer = true;
 		try {
-			isVanillaServer = NetworkHooks.isVanillaConnection(Minecraft.getInstance().getConnection().getConnection());
+			ClientPacketListener connection = Minecraft.getInstance().getConnection();
+			isVanillaServer = connection != null && NetworkHooks.isVanillaConnection(connection.getConnection());
 		} catch(Exception ignored) {}
 
 		if(!isVanillaServer) {
@@ -125,7 +127,11 @@ public class WildfireEventHandler {
 			if (timer >= 5) {
 				//System.out.println("sync");
 				try {
-					GenderPlayer aPlr = WildfireGender.getPlayerById(Minecraft.getInstance().player.getUUID());
+					Player player = Minecraft.getInstance().player;
+					if (player == null) {
+						return;
+					}
+					GenderPlayer aPlr = WildfireGender.getPlayerById(player.getUUID());
 					//Only sync it if it has changed
 					if (aPlr == null || !aPlr.needsSync) {
 						return;
@@ -155,7 +161,7 @@ public class WildfireEventHandler {
 		if (toggleEditGUI.isDown()) {
 			if(WildfireGender.modEnabled) {
 				WildfireGender.refreshAllGenders();
-				Minecraft.getInstance().setScreen(new WildfirePlayerListScreen(Minecraft.getInstance()));
+				Minecraft.getInstance().setScreen(new WildfirePlayerListScreen());
 
 			}
 		}
@@ -170,7 +176,8 @@ public class WildfireEventHandler {
 				aPlr = new GenderPlayer(uuid);
 				WildfireGender.CLOTHING_PLAYERS.put(uuid, aPlr);
 				//Mark the player as needing sync if it is the client's own player
-				WildfireGender.loadGenderInfoAsync(uuid, uuid.equals(Minecraft.getInstance().player.getUUID()));
+				Player player = Minecraft.getInstance().player;
+				WildfireGender.loadGenderInfoAsync(uuid, player != null && uuid.equals(player.getUUID()));
 
 				WildfireGender.refreshAllGenders();
 			}
@@ -202,13 +209,16 @@ public class WildfireEventHandler {
 						//If the player who produced the hurt sound is a female sound replace it
 						soundEvent = Math.random() > 0.5f ? WildfireSounds.FEMALE_HURT1 : WildfireSounds.FEMALE_HURT2;
 					}
-				} else if (p.getUUID().equals(Minecraft.getInstance().player.getUUID())) {
-					//Skip playing remote hurt sounds. Note: sounds played via /playsound will not be intercepted
-					// as they are played directly
-					//Note: This might behave slightly strangely if a mod is manually firing a player damage sound
-					// only on the server and not also on the client
-					//TODO: Ideally we would fix that edge case but I find it highly unlikely it will ever actually occur
-					return;
+				} else {
+					Player player = Minecraft.getInstance().player;
+					if (player != null && p.getUUID().equals(player.getUUID())) {
+						//Skip playing remote hurt sounds. Note: sounds played via /playsound will not be intercepted
+						// as they are played directly
+						//Note: This might behave slightly strangely if a mod is manually firing a player damage sound
+						// only on the server and not also on the client
+						//TODO: Ideally we would fix that edge case but I find it highly unlikely it will ever actually occur
+						return;
+					}
 				}
 				p.level().playLocalSound(p.getX(), p.getY(), p.getZ(), soundEvent, event.getSource(), event.getNewVolume(), event.getNewPitch(), false);
 			}

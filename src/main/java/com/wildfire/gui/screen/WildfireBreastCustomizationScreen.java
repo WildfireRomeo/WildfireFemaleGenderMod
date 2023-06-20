@@ -97,16 +97,16 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             RenderSystem.setShaderColor(1f,1.0F, 1.0F, 1.0F);
             int xP = this.width / 2 - 102;
             int yP = this.height / 2 + 275;
-            Player ent = Minecraft.getInstance().level.getPlayerByUUID(this.playerUUID);
-            if(ent != null) {
+            Player ent = minecraft.level == null ? null : minecraft.level.getPlayerByUUID(this.playerUUID);
+            if (ent != null) {
                 InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, xP, yP, 200, -20, -20, ent);
             } else {
                 //player left, fallback
-                minecraft.setScreen(new WildfirePlayerListScreen(minecraft));
+                minecraft.setScreen(new WildfirePlayerListScreen());
             }
         } catch(Exception e) {
             //error, fallback
-            minecraft.setScreen(new WildfirePlayerListScreen(minecraft));
+            minecraft.setScreen(new WildfirePlayerListScreen());
         }
 
         boolean canHaveBreasts = plr.getGender().canHaveBreasts();

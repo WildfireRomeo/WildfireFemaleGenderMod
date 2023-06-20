@@ -31,7 +31,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -52,10 +52,9 @@ public class WildfirePlayerListScreen extends Screen {
  	public static GenderPlayer HOVER_PLAYER;
 
 	WildfirePlayerList PLAYER_LIST;
-	private Minecraft client;
-	public WildfirePlayerListScreen(Minecraft mc) {
+
+	public WildfirePlayerListScreen() {
 		super(Component.translatable("wildfire_gender.player_list.title"));
-		this.client = mc;
 	}
 
 	@Override
@@ -63,7 +62,6 @@ public class WildfirePlayerListScreen extends Screen {
 
 	@Override
   	public void init() {
-	  	Minecraft mc = Minecraft.getInstance();
 
 	    int x = this.width / 2;
 	    int y = this.height / 2 - 20;
@@ -116,8 +114,8 @@ public class WildfirePlayerListScreen extends Screen {
 	    if(HOVER_PLAYER != null) {
 			int dialogX = x + 75;
 			int dialogY = y - 73;
-			Player pEntity = mc.level.getPlayerByUUID(HOVER_PLAYER.uuid);
-			if(pEntity != null) {
+			Player pEntity = mc.level == null ? null : mc.level.getPlayerByUUID(HOVER_PLAYER.uuid);
+			if (pEntity != null) {
 				graphics.drawString(this.font, pEntity.getDisplayName().copy().withStyle(ChatFormatting.UNDERLINE), dialogX, dialogY - 2, 0xFFFFFF);
 			}
 
@@ -139,15 +137,12 @@ public class WildfirePlayerListScreen extends Screen {
 		graphics.drawString(this.font, Component.translatable("wildfire_gender.player_list.title"), x - 60, y - 73, 4473924, false);
 
 		boolean withCreator = false;
-		PlayerInfo[] playersC = this.minecraft.getConnection().getOnlinePlayers().toArray(new PlayerInfo[0]);
-
-		for (PlayerInfo loadedPlayer : playersC) {
-			if (loadedPlayer.getProfile().getId().equals(CREATOR_UUID)) {
-				withCreator = true;
-			}
+		ClientPacketListener connection = mc.getConnection();
+		if (connection != null) {
+			withCreator = connection.getOnlinePlayers().stream().anyMatch(loadedPlayer -> loadedPlayer.getProfile().getId().equals(CREATOR_UUID));
 		}
 
-		if(withCreator) {
+		if (withCreator) {
 			graphics.drawCenteredString(this.font, Component.translatable("wildfire_gender.label.with_creator"), this.width / 2, y + 89, 0xFF00FF);
 		}
 

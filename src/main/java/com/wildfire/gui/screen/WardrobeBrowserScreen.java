@@ -108,16 +108,16 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			RenderSystem.setShaderColor(1f, 1.0F, 1.0F, 1.0F);
 		    int xP = this.width / 2 - 82;
 		    int yP = this.height / 2 + 32;
-		    Player ent = minecraft.level.getPlayerByUUID(this.playerUUID);
-		    if(ent != null) {
+		    Player ent = minecraft.level == null ? null : minecraft.level.getPlayerByUUID(this.playerUUID);
+		    if (ent != null) {
 				InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, xP, yP, 45, xP - f1, j + 75 - 40 - f2, ent);
 		    } else {
 				//player left, fallback
-				minecraft.setScreen(new WildfirePlayerListScreen(minecraft));
+				minecraft.setScreen(new WildfirePlayerListScreen());
 		    }
 		} catch(Exception e) {
 			//error, fallback
-			minecraft.setScreen(new WildfirePlayerListScreen(minecraft));
+			minecraft.setScreen(new WildfirePlayerListScreen());
 		}
 
 	    super.render(graphics, f1, f2, f3);

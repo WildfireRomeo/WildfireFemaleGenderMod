@@ -52,6 +52,7 @@ import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
 import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.*;
 
@@ -108,7 +109,8 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 	@Override
 	public void render(@Nonnull PoseStack matrixStack, @Nonnull MultiBufferSource bufferSource, int packedLightIn, @Nonnull AbstractClientPlayer ent, float limbAngle,
 		float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
-		if (ent.isInvisibleTo(Minecraft.getInstance().player)) {
+		Player player = Minecraft.getInstance().player;
+		if (player != null && ent.isInvisibleTo(player)) {
 			//Exit early if the entity shouldn't actually be seen
 			return;
 		}
