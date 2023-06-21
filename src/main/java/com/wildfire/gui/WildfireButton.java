@@ -19,6 +19,7 @@
 package com.wildfire.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.wildfire.main.WildfireHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -53,7 +54,7 @@ public class WildfireButton extends ButtonWidget {
       int x = (int) (getX() + (getWidth() / 2f) - (font.getWidth(this.getMessage()) / 2f) + 1);
       int y = (int) (getY() + (int) Math.ceil((float) getHeight() / 2f) - font.fontHeight / 2f);
       int textColor = active ? 0xFFFFFF : 0x666666;
-      ctx.drawTextWithShadow(font, this.getMessage(), x, y, textColor);
+      WildfireHelper.drawCenteredText(ctx, font, this.getMessage(), (getX() + getWidth() / 2) + 1, y + 1, textColor);
       RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
    }
 

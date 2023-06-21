@@ -80,9 +80,7 @@ public class WildfireHelper {
 
     @Environment(EnvType.CLIENT)
     public static void drawCenteredText(DrawContext ctx, TextRenderer textRenderer, Text text, int x, int y, int color) {
-        float centeredX = (float) x - textRenderer.getWidth(text);
-        textRenderer.draw(text, centeredX, y, color, false,
-                ctx.getMatrices().peek().getPositionMatrix(), ctx.getVertexConsumers(),
-                TextRenderer.TextLayerType.NORMAL, Integer.MIN_VALUE, 1);
+        int centeredX = (int) x - textRenderer.getWidth(text) / 2;
+        ctx.drawText(textRenderer, text, centeredX, y, color, false);
     }
 }

@@ -82,7 +82,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             }
         }, Tooltip.of(Text.translatable("wildfire_gender.tooltip.hide_in_armor"))));
 
-        this.addDrawableChild(this.bounceSlider = new WildfireSlider(xPos, yPos + 40, 158, 22, Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplierRaw(), value -> {
+        this.addDrawableChild(this.bounceSlider = new WildfireSlider(xPos, yPos + 40, 158, 20, Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplierRaw(), value -> {
         }, value -> {
             float bounceText = 3 * value;
             float v = Math.round(bounceText * 10) / 10f;
@@ -99,7 +99,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             }
         }));
 
-        this.addDrawableChild(this.floppySlider = new WildfireSlider(xPos, yPos + 60, 158, 22, Configuration.FLOPPY_MULTIPLIER, aPlr.getFloppiness(), value -> {
+        this.addDrawableChild(this.floppySlider = new WildfireSlider(xPos, yPos + 60, 158, 20, Configuration.FLOPPY_MULTIPLIER, aPlr.getFloppiness(), value -> {
         }, value -> Text.translatable("wildfire_gender.slider.floppy", Math.round(value * 100)), value -> {
             if (aPlr.updateFloppiness(value)) {
                 GenderPlayer.saveGenderInfo(aPlr);
