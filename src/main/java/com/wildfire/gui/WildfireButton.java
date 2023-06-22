@@ -50,7 +50,7 @@ public class WildfireButton extends Button {
       if(!this.active)  clr = 0x222222 + (84 << 24);
       if(!transparent) graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), clr);
 
-      graphics.drawString(font, this.getMessage().getVisualOrderText(),getX() + (this.width / 2f) - (font.width(this.getMessage()) / 2f) + 1,
+      graphics.drawString(font, this.getMessage().getVisualOrderText(),getX() + (this.width / 2f) - (font.width(this.getMessage()) / 2f),
             getY() + (int) Math.ceil((float) height / 2f) - font.lineHeight / 2f, active ? 0xFFFFFF : 0x666666, false);
       RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
    }

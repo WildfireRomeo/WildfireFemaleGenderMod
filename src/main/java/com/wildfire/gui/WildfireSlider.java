@@ -103,10 +103,10 @@ public class WildfireSlider extends AbstractSliderButton {
 		graphics.fill(getX() + 1, getY() + 1, getX() + getWidth() - 1, getY() + getHeight() - 1, 0x222222 + (128 << 24));
 
 		//Inner Blue Filler
-		int xPos = getX() + 4 + (int) (value * (getWidth() - 6));
+		int xPos = getX() + 2 + (int) (value * (getWidth() - 3));
 		graphics.fill(getX() + 2, getY() + 2, xPos - 1, getY() + getHeight() - 2, 0x222266 + (180 << 24));
 
-		int xPos2 = getX() + 2 + (int) (value * (getWidth() - 4));
+		int xPos2 = getX() + 3 + (int) (value * (getWidth() - 4));
 		graphics.fill(xPos2-2, getY() + 1, xPos2, getY() + getHeight()-1, 0xFFFFFF + (120 << 24));
 		RenderSystem.enableDepthTest();
 
