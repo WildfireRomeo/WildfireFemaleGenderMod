@@ -1,0 +1,60 @@
+{
+	"category.wildfire_gender.generic": "Wildfire's Female Gender Mod",
+	"key.wildfire_gender.gender_menu": "Меню Female Gender",
+
+	"wildfire_gender.hurt.female": "Жаночыя гукі болю",
+
+	"wildfire_gender.player_list.title": "Female Gender Mod",
+	"wildfire_gender.player_list.settings_button": "Налады",
+	"wildfire_gender.player_list.sync_status": "Статус сінхранізацыі",
+	"wildfire_gender.player_list.state.loading": "Загрузка даныя.",
+	"wildfire_gender.player_list.state.synced": "Гулец сінхранізаваны",
+
+	"wildfire_gender.wardrobe.title": "Налады грудзей",
+	"wildfire_gender.wardrobe.slider.breast_size": "Памер грудзей: %s%%",
+	"wildfire_gender.wardrobe.slider.separation": "Раздзяленне: %s",
+	"wildfire_gender.wardrobe.slider.height": "Вышыня: %s",
+	"wildfire_gender.wardrobe.slider.depth": "Глыбіня: %s",
+	"wildfire_gender.wardrobe.slider.rotation": "Паварот: %s градусов",
+
+	"wildfire_gender.appearance_settings.title": "Налады выгляду",
+	"wildfire_gender.char_settings.title": "Налады персанажа",
+	"wildfire_gender.char_settings.physics": "Фізіка грудзей: %s",
+	"wildfire_gender.tooltip.breast_physics": "Ўключае пампаванне грудзей пры руху",
+	"wildfire_gender.char_settings.hide_in_armor": "Хаваць у брані: %s",
+	"wildfire_gender.tooltip.hide_in_armor": "Хавае мадэль грудзей пры нашэнні даспехаў",
+	"wildfire_gender.char_settings.hurt_sounds": "Жаночыя гукі: %s",
+	"wildfire_gender.tooltip.hurt_sounds": "Гэты гулец пачынае выдаваць жаночыя гукі пры атрымання страт",
+
+	"wildfire_gender.breast_customization.dual_physics": "Паасобная фізіка: %s",
+
+	"wildfire_gender.player_list.bounce_multiplier": "Сіла адскоку: %sx",
+	"wildfire_gender.player_list.breast_momentum": "Калыханне грудзей: %s%%",
+	"wildfire_gender.player_list.female_sounds": "Жаночыя гукі: %s",
+
+	"wildfire_gender.settings.title": "Меню налад Wildfire",
+
+	"wildfire_gender.acknowledge.confirm": "Окей",
+
+	"wildfire_gender.label.gender": "Гендар",
+	"wildfire_gender.label.female": "Жанчына",
+	"wildfire_gender.label.male": "Мужчына",
+	"wildfire_gender.label.other": "Другое",
+
+	"wildfire_gender.label.enabled": "Уключаны",
+	"wildfire_gender.label.disabled": "Адключаны",
+	"wildfire_gender.label.yes": "Да",
+	"wildfire_gender.label.no": "Нет",
+	"wildfire_gender.label.exit": "X",
+	"wildfire_gender.label.too_far": "Занадта далёка",
+	"wildfire_gender.label.with_creator": "Вы гуляеце на сэрвэры разам з стваральнікам гэтага мада!",
+
+	"wildfire_gender.slider.bounce": "Сіла адскоку: %sx",
+	"wildfire_gender.slider.floppy": "Калыханне грудзей: %s%%",
+	"wildfire_gender.slider.min_bounce": "Навошта наогул ўключана фізіка??",
+	"wildfire_gender.slider.max_bounce": "Анімэ фізіка грудзей!!!",
+	"wildfire_gender.tooltip.bounce_warning": "Налада 'Сіла адскоку' на высокае значэнне будзе выглядаць вельмі ненатуральна!",
+
+	"wildfire_gender.cancer_awareness.title": "Эй, зараз 'Месяц інфармавання аб раку малочнай залозы'!",
+	"wildfire_gender.cancer_awareness.description": "Націсніце тут, каб зрабіць ахвяраванне ў §dФонд Сьюзан г. Комен!§r"
+}
