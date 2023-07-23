@@ -21,6 +21,8 @@ package com.wildfire.physics;
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireHelper;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.passive.HorseEntity;
 import net.minecraft.entity.passive.PigEntity;
@@ -29,6 +31,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 
 public class BreastPhysics {
@@ -60,6 +63,43 @@ public class BreastPhysics {
 			this.prePos = plr.getPos();
 			return;
 		}
+
+		float h = 0; //tickDelta
+
+		float i = plr.getLeaningPitch(0);
+		float j;
+		float k;
+
+		AbstractClientPlayerEntity aPlr = (AbstractClientPlayerEntity) plr;
+		float bodyXRotation = 0;
+		float bodyYRotation = 0;
+
+		if (plr.isFallFlying()) {
+			j = (float) plr.getRoll() + h;
+			k = MathHelper.clamp(j * j / 100.0F, 0.0F, 1.0F);
+			if (!plr.isUsingRiptide()) {
+				bodyXRotation = k * (-90.0F - plr.getPitch());
+			}
+
+			Vec3d vec3d = plr.getRotationVec(h);
+			Vec3d vec3d2 = aPlr.lerpVelocity(h);
+			double d = vec3d2.horizontalLengthSquared();
+			double e = vec3d.horizontalLengthSquared();
+			if (d > 0.0 && e > 0.0) {
+				double l = (vec3d2.x * vec3d.x + vec3d2.z * vec3d.z) / Math.sqrt(d * e);
+				double m = vec3d2.x * vec3d.z - vec3d2.z * vec3d.x;
+				bodyYRotation = (float) (Math.signum(m) * Math.acos(l));
+			}
+		} else if (i > 0.0F) {
+			j = aPlr.isTouchingWater() ? -90.0F - aPlr.getPitch() : -90.0F;
+			k = MathHelper.lerp(i, 0.0F, j);
+			bodyXRotation = k;
+		} else if(plr.isSleeping()) {
+			bodyXRotation = 90f;
+		} else if(plr.getPose() == EntityPose.CROUCHING) {
+			bodyXRotation = -15f;
+		}
+
 
 		float breastWeight = genderPlayer.getBustSize() * 1.25f;
 		float targetBreastSize = genderPlayer.getBustSize();
@@ -108,11 +148,13 @@ public class BreastPhysics {
 		//float horizLocal = -horizVel * ((plr.getRotationYawHead()-plr.renderYawOffset)<0?-1:1);
 		this.targetRotVel = -((plr.bodyYaw - plr.prevBodyYaw) / 15f) * bounceIntensity;
 
-		float f = (float) plr.getVelocity().lengthSquared() / 0.2F;
-		f = f * f * f;
-		if(f < 1.0F) f = 1.0F;
+		//System.out.println("Body Rotation: " + (bodyXRotation) / 90);
 
-		this.targetBounceY += MathHelper.cos(plr.limbAnimator.getPos() * 0.6662F + (float)Math.PI) * 0.5F * plr.limbAnimator.getSpeed() * 0.5F / f;
+		float f2 = (float) plr.getVelocity().lengthSquared() / 0.2F;
+		f2 = f2 * f2 * f2;
+		if(f2 < 1.0F) f2 = 1.0F;
+
+		this.targetBounceY += MathHelper.cos(plr.limbAnimator.getPos() * 0.6662F + (float)Math.PI) * 0.5F * plr.limbAnimator.getSpeed() * 0.5F / f2;
 		//System.out.println(plr.rotationYaw);
 
 		this.targetRotVel += (float) motion.y * bounceIntensity * randomB;

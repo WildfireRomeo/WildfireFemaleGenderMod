@@ -137,7 +137,7 @@ public class WildfirePlayerListScreen extends Screen {
 
 		ClientPlayNetworkHandler clientPlayNetworkHandler = client.player.networkHandler;
 		boolean withCreator = clientPlayNetworkHandler.getPlayerList().stream()
-				.anyMatch((player) -> player.getProfile().getId() == CREATOR_UUID);
+				.anyMatch((player) -> player.getProfile().getId().equals(CREATOR_UUID));
 		if(withCreator) {
 			WildfireHelper.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, y + 89, 0xFF00FF);
 		}
