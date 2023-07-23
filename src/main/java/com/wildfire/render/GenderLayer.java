@@ -175,9 +175,9 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 			float resistance = MathHelper.clamp(genderArmor.physicsResistance(), 0, 1);
 			//Note: We only check if the breathing animation should be enabled if the chestplate's physics resistance
 			// is less than or equal to 0.5 so that if we won't be rendering it we can avoid doing extra calculations
-			boolean breathingAnimation = resistance <= 0.5F &&
+			boolean breathingAnimation = ((plr.getArmorPhysicsOverride() || resistance <= 0.5F) &&
 										 (!ent.isSubmergedInWater() || StatusEffectUtil.hasWaterBreathing(ent) ||
-										  ent.getWorld().getBlockState(new BlockPos(ent.getBlockX(), ent.getBlockY(), ent.getBlockZ())).isOf(Blocks.BUBBLE_COLUMN));
+										  ent.getWorld().getBlockState(new BlockPos(ent.getBlockX(), ent.getBlockY(), ent.getBlockZ())).isOf(Blocks.BUBBLE_COLUMN)));
 			boolean bounceEnabled = plr.hasBreastPhysics() && (!isChestplateOccupied || resistance < 1); //oh, you found this?
 
 			int combineTex = LivingEntityRenderer.getOverlay(ent, 0);
