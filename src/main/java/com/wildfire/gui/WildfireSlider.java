@@ -113,7 +113,9 @@ public class WildfireSlider extends ClickableWidget {
 			ctx.fill(xPos2 - 2, getY() + 1, xPos2, getY() + this.height - 1, 0xFFFFFF + (120 << 24));
 			RenderSystem.enableDepthTest();
 			TextRenderer font = MinecraftClient.getInstance().textRenderer;
-			WildfireHelper.drawCenteredText(ctx, font, getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, this.hovered || changed ? 0xFFFF55 : 0xFFFFFF);
+			int i = this.getX() + 2;
+			int j = this.getX() + this.getWidth() - 2;
+			WildfireHelper.drawScrollableText(ctx, font, this.getMessage(), i, this.getY(), j, this.getY() + this.getHeight(), this.hovered || changed ? 0xFFFF55 : 0xFFFFFF);
 		}
 	}
 
