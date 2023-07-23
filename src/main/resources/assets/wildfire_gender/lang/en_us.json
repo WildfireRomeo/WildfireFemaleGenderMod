@@ -1,6 +1,7 @@
 {
 	"category.wildfire_gender.generic": "Wildfire's Female Gender Mod",
 	"key.wildfire_gender.gender_menu": "Female Gender Menu",
+	"toast.wildfire_gender.get_started": "Press '%s' to get started!",
 
 	"wildfire_gender.hurt.female": "Female Player Hurt",
 
@@ -21,6 +22,10 @@
 	"wildfire_gender.char_settings.title": "Character Settings",
 	"wildfire_gender.char_settings.physics": "Breast Physics: %s",
 	"wildfire_gender.tooltip.breast_physics": "Enables Breast Physics",
+
+	"wildfire_gender.char_settings.override_armor_physics": "Armor Physics: %s",
+	"wildfire_gender.tooltip.override_armor_physics": "Override Armor Physics Attributes When Wearing Armor",
+
 	"wildfire_gender.char_settings.hide_in_armor": "Hide In Armor: %s",
 	"wildfire_gender.tooltip.hide_in_armor": "Hide Breast Model When Wearing Armors",
 	"wildfire_gender.char_settings.hurt_sounds": "Female Hurt Sounds: %s",
