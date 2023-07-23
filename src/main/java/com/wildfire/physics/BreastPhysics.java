@@ -33,7 +33,7 @@ import net.minecraft.util.math.Vec3d;
 
 public class BreastPhysics {
 
-	private float bounceVel = 0, targetBounce = 0, velocity = 0, wfg_femaleBreast, wfg_preBounce;
+	private float bounceVel = 0, targetBounceY = 0, velocity = 0, wfg_femaleBreast, wfg_preBounce;
 	private float bounceRotVel = 0, targetRotVel = 0, rotVelocity = 0, wfg_bounceRotation, wfg_preBounceRotation;
 	private float bounceVelX = 0, targetBounceX = 0, velocityX = 0, wfg_femaleBreastX, wfg_preBounceX;
 
@@ -102,8 +102,8 @@ public class BreastPhysics {
 		if(plr.fallDistance == 0) alreadyFalling = false;
 
 
-		this.targetBounce = (float) motion.y * bounceIntensity;
-		this.targetBounce += breastWeight;
+		this.targetBounceY = (float) motion.y * bounceIntensity;
+		this.targetBounceY += breastWeight;
 		float horizVel = (float) Math.sqrt(Math.pow(motion.x, 2) + Math.pow(motion.z, 2)) * (bounceIntensity);
 		//float horizLocal = -horizVel * ((plr.getRotationYawHead()-plr.renderYawOffset)<0?-1:1);
 		this.targetRotVel = -((plr.bodyYaw - plr.prevBodyYaw) / 15f) * bounceIntensity;
@@ -112,7 +112,7 @@ public class BreastPhysics {
 		f = f * f * f;
 		if(f < 1.0F) f = 1.0F;
 
-		this.targetBounce += MathHelper.cos(plr.limbAnimator.getPos() * 0.6662F + (float)Math.PI) * 0.5F * plr.limbAnimator.getSpeed() * 0.5F / f;
+		this.targetBounceY += MathHelper.cos(plr.limbAnimator.getPos() * 0.6662F + (float)Math.PI) * 0.5F * plr.limbAnimator.getSpeed() * 0.5F / f;
 		//System.out.println(plr.rotationYaw);
 
 		this.targetRotVel += (float) motion.y * bounceIntensity * randomB;
@@ -120,11 +120,11 @@ public class BreastPhysics {
 
 		if(plr.getPose() == EntityPose.CROUCHING && !this.justSneaking) {
 			this.justSneaking = true;
-			this.targetBounce += bounceIntensity;
+			this.targetBounceY += bounceIntensity;
 		}
 		if(plr.getPose() != EntityPose.CROUCHING && this.justSneaking) {
 			this.justSneaking = false;
-			this.targetBounce += bounceIntensity;
+			this.targetBounceY += bounceIntensity;
 		}
 
 
@@ -138,7 +138,7 @@ public class BreastPhysics {
 				float rotationR = (float) MathHelper.clampedLerp(-(float)Math.PI / 4F, (float)Math.PI / 4F, (double) ((MathHelper.sin(-rowTime + 1.0F) + 1.0F) / 2.0F));
 				//System.out.println(rotationL + ", " + rotationR);
 				if(rotationL < -1 || rotationR < -0.6f) {
-					this.targetBounce = bounceIntensity / 3.25f;
+					this.targetBounceY = bounceIntensity / 3.25f;
 				}
 			}
 
@@ -146,9 +146,9 @@ public class BreastPhysics {
 				float speed = (float) cart.getVelocity().lengthSquared();
 				if(Math.random() * speed < 0.5f && speed > 0.2f) {
 					if(Math.random() > 0.5) {
-						this.targetBounce = -bounceIntensity / 6f;
+						this.targetBounceY = -bounceIntensity / 6f;
 					} else {
-						this.targetBounce = bounceIntensity / 6f;
+						this.targetBounceY = bounceIntensity / 6f;
 					}
 				}
 				/*if(rotationL < -1 || rotationR < -1) {
@@ -158,7 +158,7 @@ public class BreastPhysics {
 			if(plr.getVehicle() instanceof HorseEntity horse) {
 				float movement = (float) horse.getVelocity().lengthSquared();
 				if(horse.age % clampMovement(movement) == 5 && movement > 0.1f) {
-					this.targetBounce = bounceIntensity / 4f;
+					this.targetBounceY = bounceIntensity / 4f;
 				}
 				//horse
 			}
@@ -166,29 +166,29 @@ public class BreastPhysics {
 				float movement = (float) pig.getVelocity().lengthSquared();
 				//System.out.println(movement);
 				if(pig.age % clampMovement(movement) == 5 && movement > 0.08f) {
-					this.targetBounce = bounceIntensity / 4f;
+					this.targetBounceY = bounceIntensity / 4f;
 				}
 				//horse
 			}
 			if(plr.getVehicle() instanceof StriderEntity strider) {
-				this.targetBounce += ((float) (strider.getMountedHeightOffset()*3f) - 4.5f) * bounceIntensity;
+				this.targetBounceY += ((float) (strider.getMountedHeightOffset()*3f) - 4.5f) * bounceIntensity;
 				//horse
 			}
 			//System.out.println("VEHICLE");
 		}
 		if(plr.handSwinging && plr.age % 5 == 0 && plr.getPose() != EntityPose.SLEEPING) {
 			if(Math.random() > 0.5) {
-				this.targetBounce += -0.25f * bounceIntensity;
+				this.targetBounceY += -0.25f * bounceIntensity;
 			} else {
-				this.targetBounce += 0.25f * bounceIntensity;
+				this.targetBounceY += 0.25f * bounceIntensity;
 			}
 		}
 		if(plr.getPose() == EntityPose.SLEEPING && !this.alreadySleeping) {
-			this.targetBounce = bounceIntensity;
+			this.targetBounceY = bounceIntensity;
 			this.alreadySleeping = true;
 		}
 		if(plr.getPose() != EntityPose.SLEEPING && this.alreadySleeping) {
-			this.targetBounce = bounceIntensity;
+			this.targetBounceY = bounceIntensity;
 			this.alreadySleeping = false;
 		}
 		/*if(plr.getPose() == EntityPose.SWIMMING) {
@@ -208,17 +208,17 @@ public class BreastPhysics {
 		float distanceFromMax = Math.abs(bounceVel - 2.65f) * 0.5f;
 
 		if(bounceVel < -0.5f) {
-			targetBounce += distanceFromMin;
+			targetBounceY += distanceFromMin;
 		}
 		if(bounceVel > 2.5f) {
-			targetBounce -= distanceFromMax;
+			targetBounceY -= distanceFromMax;
 		}
-		if(targetBounce < -1.5f) targetBounce = -1.5f;
-		if(targetBounce > 2.5f) targetBounce = 2.5f;
+		if(targetBounceY < -1.5f) targetBounceY = -1.5f;
+		if(targetBounceY > 2.5f) targetBounceY = 2.5f;
 		if(targetRotVel < -25f) targetRotVel = -25f;
 		if(targetRotVel > 25f) targetRotVel = 25f;
 
-		this.velocity = MathHelper.lerp(bounceAmount, this.velocity, (this.targetBounce - this.bounceVel) * delta);
+		this.velocity = MathHelper.lerp(bounceAmount, this.velocity, (this.targetBounceY - this.bounceVel) * delta);
 		//this.preY = MathHelper.lerp(0.5f, this.preY, (this.targetBounce - this.bounceVel) * 1.25f);
 		this.bounceVel += this.velocity * percent * 1.1625f;
 

@@ -1,7 +1,6 @@
 ﻿name: Build Fabric mod with Gradle
 on:
   push:
-    branches: [ fabric-1.19.4 ]
 jobs:
   build:
     runs-on: ubuntu-22.04
