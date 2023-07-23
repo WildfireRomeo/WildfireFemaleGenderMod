@@ -39,7 +39,6 @@ public class WildfireGender implements ClientModInitializer {
 	@Override
   	public void onInitializeClient() {
 		WildfireEventHandler.registerClientEvents();
-		WildfireSounds.register();
     }
 
 	@Nullable

@@ -24,14 +24,9 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 
 public class WildfireSounds {
-	private static Identifier SND1 = new Identifier(WildfireGender.MODID, "female_hurt1");
-	public static SoundEvent FEMALE_HURT1 = SoundEvent.of(SND1);
+	public static final SoundEvent FEMALE_HURT = SoundEvent.of(new Identifier(WildfireGender.MODID, "female_hurt"));
 
-	private static Identifier SND2 = new Identifier(WildfireGender.MODID, "female_hurt2");
-	public static SoundEvent FEMALE_HURT2 = SoundEvent.of(SND2);
-
-	public static void register() {
-		Registry.register(Registries.SOUND_EVENT, SND1, FEMALE_HURT1);
-		Registry.register(Registries.SOUND_EVENT, SND2, FEMALE_HURT2);
+	protected static void register() {
+		Registry.register(Registries.SOUND_EVENT, FEMALE_HURT.getId(), FEMALE_HURT);
 	}
 }
