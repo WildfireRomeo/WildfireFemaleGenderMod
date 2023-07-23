@@ -40,7 +40,7 @@ import net.minecraft.util.Identifier;
 import org.joml.Quaternionf;
 
 public class WardrobeBrowserScreen extends BaseWildfireScreen {
-	private static final Identifier BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg.png");
+	private static final Identifier BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg2.png");
 	public static float modelRotation = 0.5F;
 
 	public WardrobeBrowserScreen(Screen parent, UUID uuid) {
@@ -100,11 +100,11 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	    int y = this.height / 2;
 		modelRotation = 0.6f;
 
-		ctx.drawText(textRenderer, title, x - 42, y - 62, 4473924, false);
+		ctx.drawText(textRenderer, title, x - 118, y - 62, 4473924, false);
 		try {
 			RenderSystem.setShaderColor(1f, 1.0F, 1.0F, 1.0F);
 		    int xP = this.width / 2 - 82;
-		    int yP = this.height / 2 + 32;
+		    int yP = this.height / 2 + 40;
 		    PlayerEntity ent = minecraft.world.getPlayerByUuid(this.playerUUID);
 		    if(ent != null) {
 		    	drawEntityOnScreen(xP, yP, 45, (xP - mouseX), (yP - 76 - mouseY), minecraft.world.getPlayerByUuid(this.playerUUID));
