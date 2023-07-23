@@ -104,12 +104,12 @@ public class WildfireSlider extends ClickableWidget {
 			RenderSystem.disableDepthTest();
 			this.hovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
 
-			int xP = getX() +4;
-			ctx.fill(xP - 2, getY() + 1, getX() + this.width - 1, getY() + this.height - 1, 0x222222 + (128 << 24));
-			int xPos =  getX() + 4 + (int) (this.value * (float)(this.width - 6));
-			ctx.fill(getX() + 3, getY() + 2, xPos - 1, getY() + this.height - 2, 0x222266 + (180 << 24));
+			int xP = getX() + 2;
+			ctx.fill(xP - 2, getY(), getX() + this.width - 1, getY() + this.height, 0x222222 + (128 << 24));
+			int xPos = getX() + 2 + (int) (this.value * (float)(this.width - 3));
+			ctx.fill(getX() + 1, getY() + 1, xPos - 1, getY() + this.height - 1, 0x222266 + (180 << 24));
 
-			int xPos2 = this.getX() + 2 + (int) (this.value * (float)(this.width - 4));
+			int xPos2 = this.getX() + 3 + (int) (this.value * (float)(this.width - 5));
 			ctx.fill(xPos2 - 2, getY() + 1, xPos2, getY() + this.height - 1, 0xFFFFFF + (120 << 24));
 			RenderSystem.enableDepthTest();
 			TextRenderer font = MinecraftClient.getInstance().textRenderer;

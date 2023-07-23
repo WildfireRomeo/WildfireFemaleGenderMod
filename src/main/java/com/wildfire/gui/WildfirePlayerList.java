@@ -115,12 +115,12 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
 
             RenderSystem.setShaderTexture(0, nInfo.getSkinTexture());
             PlayerSkinDrawer.draw(ctx, nInfo.getSkinTexture(), x+2, y+2, 16);
-            ctx.drawTextWithShadow(font, name, x + 23, y + 2, 0xFFFFFF);
+            ctx.drawText(font, name, x + 23, y + 2, 0xFFFFFF, false);
 
             if(aPlr != null) {
                 btnOpenGUI.active = !aPlr.lockSettings;
 
-                ctx.drawTextWithShadow(font, aPlr.getGender().getDisplayName(), x + 23, y + 11, 0xFFFFFF);
+                ctx.drawText(font, aPlr.getGender().getDisplayName(), x + 23, y + 11, 0xFFFFFF, false);
                 if (aPlr.getSyncStatus() == GenderPlayer.SyncStatus.SYNCED) {
                     ctx.drawTexture(TXTR_SYNC, x + 98, y + 11, 12, 8, 0, 0, 12, 8, 12, 8);
                     if (mouseX > x + 98 - 2 && mouseY > y + 11 - 2 && mouseX < y + 98 + 12 + 2 && mouseY < y + 20) {
@@ -132,7 +132,7 @@ public class WildfirePlayerList extends EntryListWidget<WildfirePlayerList.Entry
                 }
             } else {
                 btnOpenGUI.active = false;
-                ctx.drawTextWithShadow(font, Text.translatable("wildfire_gender.label.too_far").formatted(Formatting.RED), x + 23, y + 11, 0xFFFFFF);
+                ctx.drawText(font, Text.translatable("wildfire_gender.label.too_far").formatted(Formatting.RED), x + 23, y + 11, 0xFFFFFF, false);
             }
             this.btnOpenGUI.setX(x);
             this.btnOpenGUI.setY(y);
