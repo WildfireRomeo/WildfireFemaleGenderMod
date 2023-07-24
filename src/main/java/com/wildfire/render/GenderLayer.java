@@ -320,13 +320,17 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 	                             ArmorTrim trim, boolean hasGlint, boolean left) {
 		BreastModelBox trimModelBox = left ? lTrim : rTrim;
 		Sprite sprite = this.armorTrimsAtlas.getSprite(trim.getGenericModelId(material));
-		// FIXME this doesn't render the enchantment glint as-is; changing this to use ItemRenderer.getArmorGlintConsumer
-		//       instead does result in the glint rendering, but not in sync with the rest of the armor, which I personally
-		//       consider to be a worse solution than simply leaving this as-is for the time being, as I don't understand
-		//       Minecraft's renderer enough to try to actually fix this  - celeste
-		VertexConsumer vertexConsumer = sprite.getTextureSpecificVertexConsumer(
-				ItemRenderer.getDirectItemGlintConsumer(vertexConsumerProvider, TexturedRenderLayers.getArmorTrims(), true, hasGlint));
+		VertexConsumer vertexConsumer = sprite.getTextureSpecificVertexConsumer(vertexConsumerProvider.getBuffer(TexturedRenderLayers.getArmorTrims()));
+		// Render the armor trim itself
 		renderBox(trimModelBox, matrixStack, vertexConsumer, packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
+		// The enchantment glint however requires special handling; due to how Minecraft's enchant glint rendering works, rendering
+		// it at the same time as the trim itself results in the glint not rendering in sync with the rest of the armor.
+		// We *also* can't simply render the glint for both the trim and armor at the same time, due to the slight delta we apply
+		// to fix z-fighting between the trim and armor - and as such - a glint has to be rendered for each respective layer.
+		if(hasGlint) {
+			renderBox(trimModelBox, matrixStack, vertexConsumerProvider.getBuffer(RenderLayer.getArmorEntityGlint()),
+					packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
+		}
 	}
 
 	private static void renderBox(WildfireModelRenderer.ModelBox model, MatrixStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn,
