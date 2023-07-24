@@ -19,6 +19,7 @@
 package com.wildfire.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.wildfire.gui.WildfireBreastPresetList;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.Breasts;
@@ -36,14 +37,18 @@ import java.util.UUID;
 public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
     private WildfireSlider breastSlider, xOffsetBoobSlider, yOffsetBoobSlider, zOffsetBoobSlider, cleavageSlider;
+    private WildfireButton btnDualPhysics, btnPresets, btnCustomization;
+
+    private WildfireBreastPresetList PRESET_LIST;
 
     public WildfireBreastCustomizationScreen(Screen parent, UUID uuid) {
         super(Text.translatable("wildfire_gender.appearance_settings.title"), parent, uuid);
     }
 
+    private int currentTab = 0; // 0 = customization, 1 = presets
     @Override
     public void init() {
-        int j = this.height / 2;
+        int j = this.height / 2 - 11;
 
         GenderPlayer plr = getPlayer();
         Breasts breasts = plr.getBreasts();
@@ -52,9 +57,37 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             GenderPlayer.saveGenderInfo(plr);
         };
 
-        this.addDrawableChild(new WildfireButton(this.width / 2 + 178, j - 61, 9, 9, Text.translatable("wildfire_gender.label.exit"),
+        this.addDrawableChild(new WildfireButton(this.width / 2 + 178, j - 72, 9, 9, Text.translatable("wildfire_gender.label.exit"),
               button -> MinecraftClient.getInstance().setScreen(parent)));
 
+        //Customization Tab
+        this.addDrawableChild(btnCustomization = new WildfireButton(this.width / 2 + 30, j - 60, 158 / 2 - 1, 10,
+                Text.translatable("wildfire_gender.breast_customization.tab_customization"), button -> {
+            currentTab = 0;
+            btnCustomization.active = false;
+            btnPresets.active = true;
+
+        }).setActive(false));
+
+        //Presets Tab
+        this.addDrawableChild(btnPresets = new WildfireButton(this.width / 2 + 31 + 158/2, j - 60, 158 / 2 - 1, 10,
+                Text.translatable("wildfire_gender.breast_customization.tab_presets"), button -> {
+            currentTab = 1;
+            btnCustomization.active = true;
+            btnPresets.active = false;
+        }));
+
+        //Preset Tab Below
+        PRESET_LIST = new WildfireBreastPresetList(this, 54, (j - 40), (j + 89));
+        PRESET_LIST.setRenderBackground(false);
+        PRESET_LIST.setRenderHorizontalShadows(false);
+        //PLAYER_LIST.refreshList();
+        this.addSelectableChild(this.PRESET_LIST);
+
+
+
+
+        //Customization Tab Below
         this.addDrawableChild(this.breastSlider = new WildfireSlider(this.width / 2 + 30, j - 48, 158, 20, Configuration.BUST_SIZE, plr.getBustSize(),
               plr::updateBustSize, value -> Text.translatable("wildfire_gender.wardrobe.slider.breast_size", Math.round(value * 1.25f * 100)), onSave));
 
@@ -69,7 +102,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         this.addDrawableChild(this.cleavageSlider = new WildfireSlider(this.width / 2 + 30, j + 36, 158, 20, Configuration.BREASTS_CLEAVAGE, breasts.getCleavage(),
               breasts::updateCleavage, value -> Text.translatable("wildfire_gender.wardrobe.slider.rotation", Math.round((Math.round(value * 100f) / 100f) * 100)), onSave));
 
-        this.addDrawableChild(new WildfireButton(this.width / 2 + 30, j + 57, 158, 20,
+        this.addDrawableChild(this.btnDualPhysics =new WildfireButton(this.width / 2 + 30, j + 57, 158, 20,
                 Text.translatable("wildfire_gender.breast_customization.dual_physics", Text.translatable(breasts.isUniboob() ? "wildfire_gender.label.no" : "wildfire_gender.label.yes")), button -> {
             boolean isUniboob = !breasts.isUniboob();
             if (breasts.updateUniboob(isUniboob)) {
@@ -108,18 +141,26 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         }
 
         boolean canHaveBreasts = plr.getGender().canHaveBreasts();
-        breastSlider.visible = canHaveBreasts;
-        xOffsetBoobSlider.visible = canHaveBreasts;
-        yOffsetBoobSlider.visible = canHaveBreasts;
-        zOffsetBoobSlider.visible = canHaveBreasts;
-        cleavageSlider.visible = canHaveBreasts;
+        breastSlider.visible = canHaveBreasts && currentTab == 0;
+        xOffsetBoobSlider.visible = canHaveBreasts && currentTab == 0;
+        yOffsetBoobSlider.visible = canHaveBreasts && currentTab == 0;
+        zOffsetBoobSlider.visible = canHaveBreasts && currentTab == 0;
+        cleavageSlider.visible = canHaveBreasts && currentTab == 0;
+        btnDualPhysics.visible = canHaveBreasts && currentTab == 0;
 
         int x = this.width / 2;
         int y = this.height / 2;
-        ctx.fill(x + 28, y - 64, x + 190, y + 79, 0x55000000);
-        ctx.fill(x + 29, y - 63, x + 189, y - 50, 0x55000000);
-        ctx.drawText(textRenderer, getTitle(), x + 32, y - 60, 0xFFFFFF, false);
+        ctx.fill(x + 28, y - 64 - 21, x + 190, y + 79, 0x55000000);
+        ctx.fill(x + 29, y - 63 - 21, x + 189, y - 50, 0x55000000);
+        ctx.drawText(textRenderer, getTitle(), x + 32, y - 60 - 21, 0xFFFFFF, false);
         super.render(ctx, f1, f2, f3);
+
+        if(currentTab == 0) {
+
+        }
+        if(currentTab == 1) {
+            PRESET_LIST.render(ctx, f1, f2, f3);
+        }
     }
 
     @Override

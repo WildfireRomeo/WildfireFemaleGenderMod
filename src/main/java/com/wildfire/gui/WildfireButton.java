@@ -62,4 +62,8 @@ public class WildfireButton extends ButtonWidget {
       this.transparent = b;
       return this;
    }
+   public WildfireButton setActive(boolean b) {
+      this.active = b;
+      return this;
+   }
 }
