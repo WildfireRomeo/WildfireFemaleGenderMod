@@ -4,7 +4,7 @@
   "package": "com.wildfire.mixins",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "PlayerEntityServerMixin"
+    "LivingEntityMixin"
   ],
   "client": [
     "PlayerEntityMixin",

@@ -27,6 +27,9 @@ public class WildfireGenderServer implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        // while this class is named 'Server', this is actually a common code path,
+        // so we can safely register here for both sides.
+        WildfireSounds.register();
         ServerPlayNetworking.registerGlobalReceiver(new Identifier(WildfireGender.MODID, "send_gender_info"),
         (server, playerEntity, handler, buf, responseSender) -> {
             PacketSendGenderInfo.handle(server, playerEntity, handler, buf, responseSender);
