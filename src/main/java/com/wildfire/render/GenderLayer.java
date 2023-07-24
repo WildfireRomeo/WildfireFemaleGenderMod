@@ -64,7 +64,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> {
-	private static final Map<String, Identifier> ARMOR_TEXTURE_CACHE = new HashMap<>();
+
 	private final SpriteAtlasTexture armorTrimsAtlas;
 
 	private BreastModelBox lBreast, rBreast;
@@ -92,8 +92,7 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 	}
 
 	public Identifier getArmorResource(ArmorItem item, boolean legs, @Nullable String overlay) {
-		String texturePath = "textures/models/armor/" + item.getMaterial().getName() + "_layer_" + (legs ? 2 : 1) + (overlay == null ? "" : "_" + overlay) + ".png";
-		return ARMOR_TEXTURE_CACHE.computeIfAbsent(texturePath, Identifier::new);
+		return new Identifier("textures/models/armor/" + item.getMaterial().getName() + "_layer_" + (legs ? 2 : 1) + (overlay == null ? "" : "_" + overlay) + ".png");
 	}
 
 	@Override
