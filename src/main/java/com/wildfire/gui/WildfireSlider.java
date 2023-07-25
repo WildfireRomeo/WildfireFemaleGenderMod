@@ -86,6 +86,11 @@ public class WildfireSlider extends ClickableWidget {
 	}
 
 	@Override
+	public void onClick(double mouseX, double mouseY) {
+		this.setValueFromMouse(mouseX);
+	}
+
+	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		boolean result = super.keyPressed(keyCode, scanCode, modifiers);
 		if (keyCode == GLFW.GLFW_KEY_LEFT || keyCode == GLFW.GLFW_KEY_RIGHT) {
