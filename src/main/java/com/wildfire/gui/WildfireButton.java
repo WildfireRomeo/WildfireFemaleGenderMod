@@ -36,6 +36,7 @@ public class WildfireButton extends ButtonWidget {
    }
    public WildfireButton(int x, int y, int w, int h, Text text, ButtonWidget.PressAction onPress) {
       this(x, y, w, h, text, onPress, DEFAULT_NARRATION_SUPPLIER);
+
    }
    public WildfireButton(int x, int y, int w, int h, Text text, ButtonWidget.PressAction onPress, Tooltip tooltip) {
       this(x, y, w, h, text, onPress, DEFAULT_NARRATION_SUPPLIER);

@@ -77,16 +77,6 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             btnPresets.active = false;
         }));
 
-        //Preset Tab Below
-        PRESET_LIST = new WildfireBreastPresetList(this, 54, (j - 40), (j + 89));
-        PRESET_LIST.setRenderBackground(false);
-        PRESET_LIST.setRenderHorizontalShadows(false);
-        //PLAYER_LIST.refreshList();
-        this.addSelectableChild(this.PRESET_LIST);
-
-
-
-
         //Customization Tab Below
         this.addDrawableChild(this.breastSlider = new WildfireSlider(this.width / 2 + 30, j - 48, 158, 20, Configuration.BUST_SIZE, plr.getBustSize(),
               plr::updateBustSize, value -> Text.translatable("wildfire_gender.wardrobe.slider.breast_size", Math.round(value * 1.25f * 100)), onSave));
@@ -110,6 +100,15 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
                 GenderPlayer.saveGenderInfo(plr);
             }
         }));
+
+
+        //Preset Tab Below
+        PRESET_LIST = new WildfireBreastPresetList(this, 156, (j - 48), (j + 77));
+        PRESET_LIST.setLeftPos(this.width / 2 + 30);
+
+        this.addSelectableChild(this.PRESET_LIST);
+
+        this.currentTab = 0;
 
         super.init();
     }
@@ -150,17 +149,17 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
         int x = this.width / 2;
         int y = this.height / 2;
-        ctx.fill(x + 28, y - 64 - 21, x + 190, y + 79, 0x55000000);
-        ctx.fill(x + 29, y - 63 - 21, x + 189, y - 50, 0x55000000);
+        ctx.fill(x + 28, y - 64 - 21, x + 190, y + 68, 0x55000000);
+        ctx.fill(x + 29, y - 63 - 21, x + 189, y - 60, 0x55000000);
         ctx.drawText(textRenderer, getTitle(), x + 32, y - 60 - 21, 0xFFFFFF, false);
-        super.render(ctx, f1, f2, f3);
 
-        if(currentTab == 0) {
-
-        }
+        PRESET_LIST.visible = currentTab == 1;
         if(currentTab == 1) {
+            ctx.fill(PRESET_LIST.getLeft(), PRESET_LIST.getTop(), PRESET_LIST.getRight(), PRESET_LIST.getBottom(), 0x55000000);
             PRESET_LIST.render(ctx, f1, f2, f3);
         }
+
+        super.render(ctx, f1, f2, f3);
     }
 
     @Override
