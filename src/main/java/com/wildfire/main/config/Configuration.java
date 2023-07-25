@@ -128,6 +128,7 @@ public class Configuration {
 	public void save() {
 		try (FileWriter writer = new FileWriter(CFG_FILE);
 			 JsonWriter jsonWriter = new JsonWriter(writer)) {
+			jsonWriter.setIndent("		");
 			ADAPTER.write(jsonWriter, SAVE_VALUES);
 			//System.out.println("[Configuration] Saved New File!");
 		} catch (IOException e1) {
