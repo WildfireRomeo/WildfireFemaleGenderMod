@@ -18,7 +18,7 @@
 
 package com.wildfire.main;
 
-import com.wildfire.gui.screen.WildfirePlayerListScreen;
+import com.wildfire.gui.screen.WardrobeBrowserScreen;
 import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.main.networking.PacketSync;
 
@@ -101,7 +101,10 @@ public class WildfireEventHandler {
 			}
 
 			while (toggleEditGUI.wasPressed()) {
-				client.setScreen(new WildfirePlayerListScreen(client));
+				//client.setScreen(new WildfirePlayerListScreen(client)); //old screen
+				try {
+					MinecraftClient.getInstance().setScreen(new WardrobeBrowserScreen(null, MinecraftClient.getInstance().player.getUuid()));
+				} catch(Exception ignored) {}
 			}
 		});
 

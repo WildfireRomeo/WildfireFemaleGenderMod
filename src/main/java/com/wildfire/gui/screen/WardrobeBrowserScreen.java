@@ -108,14 +108,9 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 		    PlayerEntity ent = minecraft.world.getPlayerByUuid(this.playerUUID);
 		    if(ent != null) {
 		    	drawEntityOnScreen(xP, yP, 45, (xP - mouseX), (yP - 76 - mouseY), minecraft.world.getPlayerByUuid(this.playerUUID));
-		    } else {
-				//player left, fallback
-				minecraft.setScreen(new WildfirePlayerListScreen(minecraft));
 		    }
-		} catch(Exception e) {
-			//error, fallback
-			minecraft.setScreen(new WildfirePlayerListScreen(minecraft));
-		}
+		} catch(Exception e) {}
+
 	    super.render(ctx, mouseX, mouseY, delta);
 	}
 
