@@ -130,13 +130,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             PlayerEntity ent = minecraft.world.getPlayerByUuid(this.playerUUID);
             if(ent != null) {
                 WardrobeBrowserScreen.drawEntityOnScreen(xP, yP, 200, -20, -20, ent);
-            } else {
-                //player left, fallback
-                minecraft.setScreen(new WildfirePlayerListScreen(minecraft));
             }
-        } catch(Exception e) {
-            //error, fallback
-            minecraft.setScreen(new WildfirePlayerListScreen(minecraft));
         }
 
         boolean canHaveBreasts = plr.getGender().canHaveBreasts();
