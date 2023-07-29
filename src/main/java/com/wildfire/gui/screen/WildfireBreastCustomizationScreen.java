@@ -131,7 +131,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             if(ent != null) {
                 WardrobeBrowserScreen.drawEntityOnScreen(xP, yP, 200, -20, -20, ent);
             }
-        }
+        } catch(Exception e) {}
 
         boolean canHaveBreasts = plr.getGender().canHaveBreasts();
         breastSlider.visible = canHaveBreasts && currentTab == 0;
