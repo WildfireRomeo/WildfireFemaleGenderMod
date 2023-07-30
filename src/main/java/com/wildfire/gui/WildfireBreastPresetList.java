@@ -1,10 +1,14 @@
 package com.wildfire.gui;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.gui.screen.WildfireBreastCustomizationScreen;
 import com.wildfire.main.WildfireGender;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -16,7 +20,11 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
+import java.io.File;
+import java.io.FileReader;
+import java.nio.file.Path;
 import java.time.format.TextStyle;
+import java.util.Map;
 
 public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPresetList.Entry> {
 
@@ -27,12 +35,33 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
 
         public Identifier ident;
         public String name;
+        private JsonObject data;
 
         public BreastPresetListEntry(String name, String location) {
             this.name = name;
-            ident = new Identifier(WildfireGender.MODID, "textures/presets/" + location);
+            this.ident = new Identifier(WildfireGender.MODID, "textures/presets/" + location);
+            load();
+        }
+
+        private void load() {
+            Path saveDir = FabricLoader.getInstance().getConfigDir();
+            System.out.println("SAVE DIR: " + saveDir.toString());
+
+            data = new JsonObject();
+            File CFG_FILE = saveDir.resolve("WildfireGender/presets").resolve(this.name + ".json").toFile();
+
+            try (FileReader configurationFile = new FileReader(CFG_FILE)) {
+                JsonObject obj = new Gson().fromJson(configurationFile, JsonObject.class);
+                for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+                    String key = entry.getKey();
+                    data.add(key, entry.getValue());
+                }
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
         }
     }
+
     private BreastPresetListEntry[] BREAST_PRESETS = new BreastPresetListEntry[] {
             new BreastPresetListEntry("Normal", "preset1.png"),
             new BreastPresetListEntry("Curved", "preset2.png"),

@@ -40,8 +40,11 @@ import net.minecraft.util.Identifier;
 import org.joml.Quaternionf;
 
 public class WardrobeBrowserScreen extends BaseWildfireScreen {
-	private static final Identifier BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg2.png");
+	private static final Identifier BACKGROUND_FEMALE = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg2.png");
+	private static final Identifier BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg3.png");
 	public static float modelRotation = 0.5F;
+
+	private WildfireButton btnAppearanceSettings;
 
 	public WardrobeBrowserScreen(Screen parent, UUID uuid) {
 		super(Text.translatable("wildfire_gender.wardrobe.title"), parent, uuid);
@@ -61,14 +64,21 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			if (plr.updateGender(gender)) {
 				button.setMessage(getGenderLabel(gender));
 				GenderPlayer.saveGenderInfo(plr);
+
+				//re-render menu (re-open it)
+				MinecraftClient.getInstance().setScreen(new WardrobeBrowserScreen(null, playerUUID));
 			}
 		}));
 
-		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, Text.translatable("wildfire_gender.appearance_settings.title").append("..."),
-			button -> MinecraftClient.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID))));
-
-		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 12, 158, 20, Text.translatable("wildfire_gender.char_settings.title").append("..."),
-			button -> MinecraftClient.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
+		if(plr.getGender() != Gender.MALE) {
+			this.addDrawableChild(btnAppearanceSettings = new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, Text.translatable("wildfire_gender.appearance_settings.title").append("..."),
+					button -> MinecraftClient.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID))));
+			this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 12, 158, 20, Text.translatable("wildfire_gender.char_settings.title").append("..."),
+					button -> MinecraftClient.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
+		} else {
+			this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, Text.translatable("wildfire_gender.char_settings.title").append("..."),
+					button -> MinecraftClient.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
+		}
 
 		this.addDrawableChild(new WildfireButton(this.width / 2 + 111, j - 63, 9, 9, Text.translatable("wildfire_gender.label.exit"),
 			button -> MinecraftClient.getInstance().setScreen(parent)));
@@ -92,7 +102,11 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 
 		RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		ctx.drawTexture(BACKGROUND, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156);
+		if(plr.getGender() != Gender.MALE) {
+			ctx.drawTexture(BACKGROUND_FEMALE, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156);
+		} else {
+			ctx.drawTexture(BACKGROUND, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156);
+		}
 
 	    if(plr == null) return;
 
