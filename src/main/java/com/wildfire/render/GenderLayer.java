@@ -60,11 +60,8 @@ import net.minecraft.util.math.*;
 import org.joml.*;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> {
-
 	private final SpriteAtlasTexture armorTrimsAtlas;
 
 	private BreastModelBox lBreast, rBreast;
@@ -91,8 +88,15 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 		rTrim = new BreastModelBox(64, 32, 20, 17, 0, 0.0F, 0F, 4, 5, 5, 0.001F, false);
 	}
 
-	public Identifier getArmorResource(ArmorItem item, boolean legs, @Nullable String overlay) {
-		return new Identifier("textures/models/armor/" + item.getMaterial().getName() + "_layer_" + (legs ? 2 : 1) + (overlay == null ? "" : "_" + overlay) + ".png");
+	public Identifier getArmorResource(@Nonnull ArmorItem item, boolean legs, @Nullable String overlay) {
+		String material = item.getMaterial().getName();
+		String namespace = "minecraft";
+		int namespaceDelim = material.indexOf(":");
+		if(namespaceDelim >= 0) {
+			namespace = material.substring(0, namespaceDelim);
+			material = material.substring(namespaceDelim + 1);
+		}
+		return new Identifier(namespace, "textures/models/armor/" + material + "_layer_" + (legs ? 2 : 1) + (overlay == null ? "" : "_" + overlay) + ".png");
 	}
 
 	@Override
@@ -283,6 +287,13 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 	private void renderVanillaLikeBreastArmor(PlayerEntity entity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, ArmorItem armorItem,
 	                                          ItemStack armorStack, int packedLightIn, boolean left) {
 		Identifier armorTexture = getArmorResource(armorItem, false, null);
+		if (MinecraftClient.getInstance().getResourceManager().getResource(armorTexture).isEmpty()) {
+			// Give up early if the armor either uses its own renderer, or otherwise has extremely broken textures,
+			// as there's not much we can do here other than render a pink box.
+			// The downside of where this check is does mean that the skin breast model box will end up sticking out
+			// through the actual armor model itself, but oh well; you could always enable Hide in Armor, I guess.
+			return;
+		}
 		Identifier overlayTexture = null;
 		boolean hasGlint = armorStack.hasGlint();
 		float armorR = 1f, armorG = 1f, armorB = 1f;
@@ -334,9 +345,9 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 	}
 
 	private static void renderBox(WildfireModelRenderer.ModelBox model, MatrixStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn,
-		float red, float green, float blue, float alpha) {
+	                              float red, float green, float blue, float alpha) {
 		Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
-		Matrix3f matrix3f =	matrixStack.peek().getNormalMatrix();
+		Matrix3f matrix3f = matrixStack.peek().getNormalMatrix();
 		for (WildfireModelRenderer.TexturedQuad quad : model.quads) {
 			Vector3f vector3f = new Vector3f(quad.normal.x, quad.normal.y, quad.normal.z);
 			vector3f.mul(matrix3f);
