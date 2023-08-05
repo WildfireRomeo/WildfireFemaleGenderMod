@@ -18,7 +18,7 @@
 
 package com.wildfire.main;
 
-import java.nio.file.Path;
+import com.wildfire.main.config.GeneralClientConfig;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -32,12 +32,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -60,10 +61,11 @@ public class WildfireGender {
 	public static Map<UUID, GenderPlayer> CLOTHING_PLAYERS = new HashMap<>();
 
   	public WildfireGender() {
-		Path configDir = FMLPaths.GAMEDIR.get().resolve(FMLPaths.CONFIGDIR.get());
-
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup); //common
 		MinecraftForge.EVENT_BUS.addListener(this::onPlayerLoginEvent);
+		if (FMLEnvironment.dist.isClient()) {
+			GeneralClientConfig.register(ModLoadingContext.get().getActiveContainer());
+		}
     }
 
 	@Nullable

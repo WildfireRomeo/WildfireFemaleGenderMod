@@ -24,6 +24,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.Breasts;
 import com.wildfire.main.WildfireHelper;
+import com.wildfire.main.config.GeneralClientConfig;
 import com.wildfire.physics.BreastPhysics;
 import com.wildfire.render.WildfireModelRenderer.BreastModelBox;
 import com.wildfire.render.WildfireModelRenderer.OverlayModelBox;
@@ -109,6 +110,10 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 	@Override
 	public void render(@Nonnull PoseStack matrixStack, @Nonnull MultiBufferSource bufferSource, int packedLightIn, @Nonnull AbstractClientPlayer ent, float limbAngle,
 		float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
+		if (GeneralClientConfig.INSTANCE.disableRendering.get()) {
+			//Rendering is disabled client side, just
+			return;
+		}
 		Player player = Minecraft.getInstance().player;
 		if (player != null && ent.isInvisibleTo(player)) {
 			//Exit early if the entity shouldn't actually be seen

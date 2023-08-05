@@ -21,6 +21,7 @@ package com.wildfire.main;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.gui.screen.WildfirePlayerListScreen;
+import com.wildfire.main.config.GeneralClientConfig;
 import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.render.GenderLayer;
 
@@ -195,6 +196,9 @@ public class WildfireEventHandler {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onPlaySound(PlayLevelSoundEvent.AtEntity event) {
+		if (GeneralClientConfig.INSTANCE.disableSoundReplacement.get()) {
+			return;
+		}
 		Holder<SoundEvent> soundHolder = event.getSound();
 		if (soundHolder != null) {
 			SoundEvent soundEvent = soundHolder.get();
