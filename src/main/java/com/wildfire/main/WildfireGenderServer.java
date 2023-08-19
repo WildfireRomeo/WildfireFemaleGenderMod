@@ -17,22 +17,34 @@
 */
 
 package com.wildfire.main;
-import com.wildfire.main.networking.PacketSendGenderInfo;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.util.Identifier;
 
+import com.wildfire.main.networking.WildfireSync;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 public class WildfireGenderServer implements ModInitializer {
-
-    @Override
     public void onInitialize() {
         // while this class is named 'Server', this is actually a common code path,
         // so we can safely register here for both sides.
         WildfireSounds.register();
-        ServerPlayNetworking.registerGlobalReceiver(new Identifier(WildfireGender.MODID, "send_gender_info"),
-        (server, playerEntity, handler, buf, responseSender) -> {
-            PacketSendGenderInfo.handle(server, playerEntity, handler, buf, responseSender);
-        });
+        ServerPlayNetworking.registerGlobalReceiver(WildfireSync.SEND_GENDER_IDENTIFIER, WildfireSync::handle);
+        EntityTrackingEvents.START_TRACKING.register(this::onBeginTracking);
+    }
+
+    private void onBeginTracking(Entity tracked, ServerPlayerEntity syncTo) {
+        if(tracked instanceof PlayerEntity toSync) {
+            GenderPlayer genderToSync = WildfireGender.getPlayerById(toSync.getUuid());
+            if(genderToSync == null) return;
+            // Note that we intentionally don't check if we've previously synced a player with this code path;
+            // because we use entity tracking to sync, it's entirely possible that one player would leave the
+            // tracking distance of another, change their settings, and then re-enter their tracking distance;
+            // we wouldn't sync while they're out of tracking distance, and as such, their settings would be out
+            // of sync until they relog.
+            WildfireSync.sendToClient(syncTo, genderToSync);
+        }
     }
 }
