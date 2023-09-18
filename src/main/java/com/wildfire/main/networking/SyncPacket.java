@@ -21,11 +21,12 @@ package com.wildfire.main.networking;
 import com.wildfire.main.Breasts;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.GenderPlayer.Gender;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.network.PacketByteBuf;
 
 import java.util.UUID;
 
-public abstract class PacketGenderInfo {
+class SyncPacket {
     protected final UUID uuid;
     private final Gender gender;
     private final float bust_size;
@@ -42,7 +43,7 @@ public abstract class PacketGenderInfo {
 
     private final boolean hurtSounds;
 
-    protected PacketGenderInfo(GenderPlayer plr) {
+    protected SyncPacket(GenderPlayer plr) {
         this.uuid = plr.uuid;
         this.gender = plr.getGender();
         this.bust_size = plr.getBustSize();
@@ -63,7 +64,7 @@ public abstract class PacketGenderInfo {
         this.cleavage = breasts.getCleavage();
     }
 
-    protected PacketGenderInfo(PacketByteBuf buffer) {
+    protected SyncPacket(PacketByteBuf buffer) {
         this.uuid = buffer.readUuid();
         this.gender = buffer.readEnumConstant(Gender.class);
         this.bust_size = buffer.readFloat();
@@ -82,7 +83,7 @@ public abstract class PacketGenderInfo {
         this.cleavage = buffer.readFloat();
     }
 
-    public void encode(PacketByteBuf buffer) {
+    protected void encode(PacketByteBuf buffer) {
         buffer.writeUuid(this.uuid);
         buffer.writeEnumConstant(this.gender);
         buffer.writeFloat(this.bust_size);
@@ -117,5 +118,14 @@ public abstract class PacketGenderInfo {
         breasts.updateZOffset(zOffset);
         breasts.updateUniboob(uniboob);
         breasts.updateCleavage(cleavage);
+    }
+
+    /**
+     * Convenience method for creating a sync packet to send over the network
+     */
+    protected PacketByteBuf getPacket() {
+        PacketByteBuf packet = PacketByteBufs.create();
+        this.encode(packet);
+        return packet;
     }
 }

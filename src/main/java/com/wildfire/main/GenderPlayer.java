@@ -44,8 +44,6 @@ public class GenderPlayer {
 	private float bounceMultiplier = Configuration.BOUNCE_MULTIPLIER.getDefault();
 	private float floppyMultiplier = Configuration.FLOPPY_MULTIPLIER.getDefault();
 
-	public boolean lockSettings = false;
-
 	public SyncStatus syncStatus = SyncStatus.UNKNOWN;
 	private boolean showBreastsInArmor = Configuration.SHOW_IN_ARMOR.getDefault();
 	private boolean armorPhysOverride = Configuration.ARMOR_PHYSICS_OVERRIDE.getDefault();
@@ -191,7 +189,6 @@ public class GenderPlayer {
 	public static GenderPlayer loadCachedPlayer(UUID uuid, boolean markForSync) {
 		GenderPlayer plr = WildfireGender.getPlayerById(uuid);
 		if (plr != null) {
-			plr.lockSettings = false;
 			plr.syncStatus = SyncStatus.CACHED;
 			Configuration config = plr.getConfig();
 			plr.updateGender(config.get(Configuration.GENDER));
@@ -218,7 +215,7 @@ public class GenderPlayer {
 		}
 		return null;
 	}
-	
+
 	public static void saveGenderInfo(GenderPlayer plr) {
 		Configuration config = plr.getConfig();
 		config.set(Configuration.USERNAME, plr.uuid);
