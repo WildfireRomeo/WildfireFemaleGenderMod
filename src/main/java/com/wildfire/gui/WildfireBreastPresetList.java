@@ -5,7 +5,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.gui.screen.WildfireBreastCustomizationScreen;
+import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
+import com.wildfire.main.config.BreastPresetConfiguration;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
@@ -24,6 +26,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.nio.file.Path;
 import java.time.format.TextStyle;
+import java.util.ArrayList;
 import java.util.Map;
 
 public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPresetList.Entry> {
@@ -31,42 +34,22 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
     public boolean active = true;
     public boolean visible = true;
 
-    private class BreastPresetListEntry {
+    public class BreastPresetListEntry {
 
         public Identifier ident;
         public String name;
-        private JsonObject data;
+        private BreastPresetConfiguration data;
 
-        public BreastPresetListEntry(String name, String location) {
+        public BreastPresetListEntry(String name, BreastPresetConfiguration data) {
             this.name = name;
-            this.ident = new Identifier(WildfireGender.MODID, "textures/presets/" + location);
-            load();
+            this.data = data;
+            this.ident = new Identifier(WildfireGender.MODID, "textures/presets/iknowthisisnull.png");
         }
 
-        private void load() {
-            Path saveDir = FabricLoader.getInstance().getConfigDir();
-            System.out.println("SAVE DIR: " + saveDir.toString());
-
-            data = new JsonObject();
-            File CFG_FILE = saveDir.resolve("WildfireGender/presets").resolve(this.name + ".json").toFile();
-
-            try (FileReader configurationFile = new FileReader(CFG_FILE)) {
-                JsonObject obj = new Gson().fromJson(configurationFile, JsonObject.class);
-                for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-                    String key = entry.getKey();
-                    data.add(key, entry.getValue());
-                }
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     private BreastPresetListEntry[] BREAST_PRESETS = new BreastPresetListEntry[] {
-            new BreastPresetListEntry("Normal", "preset1.png"),
-            new BreastPresetListEntry("Curved", "preset2.png"),
-            new BreastPresetListEntry("Small", "preset3.png"),
-            new BreastPresetListEntry("Large", "preset4.png"),
+
     };
     private static final Identifier TXTR_SYNC = new Identifier(WildfireGender.MODID, "textures/sync.png");
     private static final Identifier TXTR_UNKNOWN = new Identifier(WildfireGender.MODID, "textures/unknown.png");
@@ -85,6 +68,9 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
         this.refreshList();
     }
 
+    public BreastPresetListEntry[] getPresetList() {
+        return BREAST_PRESETS;
+    }
     @Override
     protected void renderList(DrawContext context, int mouseX, int mouseY, float delta) {
         int i = this.getRowLeft();
@@ -118,6 +104,16 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
 
     public void refreshList() {
         this.clearEntries();
+
+        //BREAST_PRESETS
+        BreastPresetConfiguration[] CONFIGS = BreastPresetConfiguration.getBreastPresetConfigurationFiles();
+        ArrayList<BreastPresetListEntry> tmpPresets = new ArrayList<>();
+        for(BreastPresetConfiguration presetCfg : CONFIGS) {
+            System.out.println("Preset Name: " + presetCfg.get(BreastPresetConfiguration.PRESET_NAME));
+            tmpPresets.add(new BreastPresetListEntry(presetCfg.get(BreastPresetConfiguration.PRESET_NAME), presetCfg));
+        }
+        BREAST_PRESETS = tmpPresets.toArray(new BreastPresetListEntry[tmpPresets.size()]);
+
         if(this.client.world == null || this.client.player == null) return;
 
         for(int i = 0; i < BREAST_PRESETS.length; i++) {
@@ -138,12 +134,12 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
             this.nInfo = nInfo;
             this.thumbnail = nInfo.ident;
             btnOpenGUI = new WildfireButton(0, 0, getRowWidth() - 6, itemHeight, Text.empty(), button -> {
-                /*GenderPlayer aPlr = WildfireGender.getPlayerById(nInfo.getProfile().getId());
-                if(aPlr == null) return;
-
-                try {
-                    MinecraftClient.getInstance().setScreen(new WardrobeBrowserScreen(parent, nInfo.getProfile().getId()));
-                } catch(Exception ignored) {}*/
+                parent.getPlayer().updateBustSize(nInfo.data.get(BreastPresetConfiguration.BUST_SIZE));
+                parent.getPlayer().getBreasts().updateXOffset(nInfo.data.get(BreastPresetConfiguration.BREASTS_OFFSET_X));
+                parent.getPlayer().getBreasts().updateYOffset(nInfo.data.get(BreastPresetConfiguration.BREASTS_OFFSET_Y));
+                parent.getPlayer().getBreasts().updateZOffset(nInfo.data.get(BreastPresetConfiguration.BREASTS_OFFSET_Z));
+                parent.getPlayer().getBreasts().updateCleavage(nInfo.data.get(BreastPresetConfiguration.BREASTS_CLEAVAGE));
+                parent.getPlayer().getBreasts().updateUniboob(nInfo.data.get(BreastPresetConfiguration.BREASTS_UNIBOOB));
             });
         }
 

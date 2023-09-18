@@ -36,7 +36,7 @@ public abstract class BaseWildfireScreen extends Screen {
         this.playerUUID = uuid;
     }
 
-    protected GenderPlayer getPlayer() {
+    public GenderPlayer getPlayer() {
         return WildfireGender.getPlayerById(this.playerUUID);
     }
 
