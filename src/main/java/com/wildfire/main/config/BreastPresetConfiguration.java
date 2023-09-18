@@ -69,11 +69,17 @@ public class BreastPresetConfiguration {
 		ArrayList<BreastPresetConfiguration> tmp = new ArrayList<>();
 
 		Path saveDir = FabricLoader.getInstance().getConfigDir();
-		File[] presetFiles = saveDir.resolve("WildfireGender/presets").toFile().listFiles();
-		for(File f : presetFiles) {
-			BreastPresetConfiguration cfg = new BreastPresetConfiguration(f.getName().replace(".json", ""));
-			cfg.load(); // Load the preset values
-			tmp.add(cfg);
+		File presetFileLocation = saveDir.resolve("WildfireGender/presets").toFile();
+		if(!presetFileLocation.exists()) {
+			presetFileLocation.mkdirs();
+		}
+		File[] presetFiles = presetFileLocation.listFiles();
+		if(presetFiles.length > 0) {
+			for (File f : presetFiles) {
+				BreastPresetConfiguration cfg = new BreastPresetConfiguration(f.getName().replace(".json", ""));
+				cfg.load(); // Load the preset values
+				tmp.add(cfg);
+			}
 		}
 
 		if(tmp.size() == 0) {
