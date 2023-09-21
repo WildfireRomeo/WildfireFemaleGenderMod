@@ -27,9 +27,11 @@ import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.config.Configuration;
 import com.wildfire.main.config.BreastPresetConfiguration;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 
@@ -75,6 +77,9 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         //Presets Tab
         this.addDrawableChild(btnPresets = new WildfireButton(this.width / 2 + 31 + 158/2, j - 60, 158 / 2 - 1, 10,
                 Text.translatable("wildfire_gender.breast_customization.tab_presets"), button -> {
+            // TODO temporary release readiness fix: lock presets tab behind a development environment (-Dfabric.development=true)
+            if(!FabricLoader.getInstance().isDevelopmentEnvironment()) return;
+
             currentTab = 1;
             btnCustomization.active = true;
             btnPresets.active = false;
@@ -82,6 +87,9 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             btnDeletePreset.visible = true;
             PRESET_LIST.refreshList();
         }));
+        if(!FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            btnPresets.setTooltip(Tooltip.of(Text.translatable("wildfire_gender.coming_soon")));
+        }
         this.addDrawableChild(btnAddPreset = new WildfireButton(this.width / 2 + 31 + 158/2, j + 80, 158 / 2 - 1, 12,
                 Text.translatable("wildfire_gender.breast_customization.presets.add_new"), button -> {
             createNewPreset("Test Preset");
