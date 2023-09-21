@@ -98,10 +98,6 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 	@Override
 	public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, @Nonnull AbstractClientPlayerEntity ent, float limbAngle,
 					   float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
-		if (ent.isInvisibleTo(MinecraftClient.getInstance().player)) {
-			//Exit early if the entity shouldn't actually be seen
-			return;
-		}
 		//Surround with a try/catch to fix for essential mod.
 		try {
 			GenderPlayer plr = WildfireGender.getPlayerById(ent.getUuid());
@@ -114,6 +110,10 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 			if (genderArmor.alwaysHidesBreasts() || !plr.showBreastsInArmor() && isChestplateOccupied) {
 				//If the armor always hides breasts or there is armor and the player configured breasts
 				// to be hidden when wearing armor, we can just exit early rather than doing any calculations
+				return;
+			}
+			if(!isChestplateOccupied && ent.isInvisibleTo(MinecraftClient.getInstance().player)) {
+				// nothing to render here, just exit early
 				return;
 			}
 
@@ -267,13 +267,17 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 	private void renderBreast(AbstractClientPlayerEntity entity, ItemStack armorStack, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, RenderLayer breastRenderType,
 	                          int packedLightIn, int packedOverlayIn, float alpha, boolean left) {
 		VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(breastRenderType);
-		renderBox(left ? lBreast : rBreast, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
-		if (entity.isPartVisible(PlayerModelPart.JACKET)) {
-			matrixStack.translate(0, 0, -0.015f);
-			matrixStack.scale(1.05f, 1.05f, 1.05f);
-			renderBox(left ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
+		// We don't want to render the player if they have invisibility active
+		if (!entity.isInvisibleTo(MinecraftClient.getInstance().player)) {
+			renderBox(left ? lBreast : rBreast, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
+			if (entity.isPartVisible(PlayerModelPart.JACKET)) {
+				matrixStack.translate(0, 0, -0.015f);
+				matrixStack.scale(1.05f, 1.05f, 1.05f);
+				renderBox(left ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
+			}
 		}
 
+		// But we do still want to render their chestplate to match vanilla behavior
 		if (!armorStack.isEmpty() && armorStack.getItem() instanceof ArmorItem armorItem) {
 			renderVanillaLikeBreastArmor(entity, matrixStack, vertexConsumerProvider, armorItem, armorStack, packedLightIn, left);
 		}
@@ -308,7 +312,7 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 				renderBox(armor, matrixStack, overlayVertexConsumer, packedLightIn, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 			}
 
-			ArmorTrim.getTrim(entity.getWorld().getRegistryManager(), armorStack).ifPresent((trim) -> {
+			ArmorTrim.getTrim(entity.getWorld().getRegistryManager(), armorStack, true).ifPresent((trim) -> {
 				renderArmorTrim(armorItem.getMaterial(), matrixStack, vertexConsumerProvider, packedLightIn, trim, hasGlint, left);
 			});
 		} finally {
@@ -320,7 +324,8 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 	                             ArmorTrim trim, boolean hasGlint, boolean left) {
 		BreastModelBox trimModelBox = left ? lTrim : rTrim;
 		Sprite sprite = this.armorTrimsAtlas.getSprite(trim.getGenericModelId(material));
-		VertexConsumer vertexConsumer = sprite.getTextureSpecificVertexConsumer(vertexConsumerProvider.getBuffer(TexturedRenderLayers.getArmorTrims()));
+		VertexConsumer vertexConsumer = sprite.getTextureSpecificVertexConsumer(
+				vertexConsumerProvider.getBuffer(TexturedRenderLayers.getArmorTrims(trim.getPattern().value().decal())));
 		// Render the armor trim itself
 		renderBox(trimModelBox, matrixStack, vertexConsumer, packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
 		// The enchantment glint however requires special handling; due to how Minecraft's enchant glint rendering works, rendering
@@ -334,9 +339,9 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 	}
 
 	private static void renderBox(WildfireModelRenderer.ModelBox model, MatrixStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn,
-		float red, float green, float blue, float alpha) {
+	                              float red, float green, float blue, float alpha) {
 		Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
-		Matrix3f matrix3f =	matrixStack.peek().getNormalMatrix();
+		Matrix3f matrix3f = matrixStack.peek().getNormalMatrix();
 		for (WildfireModelRenderer.TexturedQuad quad : model.quads) {
 			Vector3f vector3f = new Vector3f(quad.normal.x, quad.normal.y, quad.normal.z);
 			vector3f.mul(matrix3f);

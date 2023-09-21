@@ -44,15 +44,16 @@ public class BreastPhysics {
 
 	private float breastSize = 0, preBreastSize = 0;
 
-	private Vec3d motion;
 	private Vec3d prePos;
-	private GenderPlayer genderPlayer;
+	private final GenderPlayer genderPlayer;
+
 	public BreastPhysics(GenderPlayer genderPlayer) {
 		this.genderPlayer = genderPlayer;
 	}
 
 	private int randomB = 1;
 	private boolean alreadyFalling = false;
+
 	public void update(PlayerEntity plr, IGenderArmor armor) {
 		this.wfg_preBounce = this.wfg_femaleBreast;
 		this.wfg_preBounceX = this.wfg_femaleBreastX;
@@ -121,7 +122,7 @@ public class BreastPhysics {
 		}
 
 
-		this.motion = plr.getPos().subtract(this.prePos);
+		Vec3d motion = plr.getPos().subtract(this.prePos);
 		this.prePos = plr.getPos();
 		//System.out.println(motion);
 
@@ -178,7 +179,6 @@ public class BreastPhysics {
 
 				float rotationL = (float) MathHelper.clampedLerp(-(float)Math.PI / 3F, -0.2617994F, (double) ((MathHelper.sin(-rowTime2) + 1.0F) / 2.0F));
 				float rotationR = (float) MathHelper.clampedLerp(-(float)Math.PI / 4F, (float)Math.PI / 4F, (double) ((MathHelper.sin(-rowTime + 1.0F) + 1.0F) / 2.0F));
-				//System.out.println(rotationL + ", " + rotationR);
 				if(rotationL < -1 || rotationR < -0.6f) {
 					this.targetBounceY = bounceIntensity / 3.25f;
 				}
@@ -187,43 +187,30 @@ public class BreastPhysics {
 			if(plr.getVehicle() instanceof MinecartEntity cart) {
 				float speed = (float) cart.getVelocity().lengthSquared();
 				if(Math.random() * speed < 0.5f && speed > 0.2f) {
-					if(Math.random() > 0.5) {
-						this.targetBounceY = -bounceIntensity / 6f;
-					} else {
-						this.targetBounceY = bounceIntensity / 6f;
-					}
+					this.targetBounceY = (Math.random() > 0.5 ? -bounceIntensity : bounceIntensity) / 6f;
 				}
-				/*if(rotationL < -1 || rotationR < -1) {
-					aPlr.targetBounce = bounceIntensity / 3.25f;
-				}*/
 			}
 			if(plr.getVehicle() instanceof HorseEntity horse) {
 				float movement = (float) horse.getVelocity().lengthSquared();
 				if(horse.age % clampMovement(movement) == 5 && movement > 0.1f) {
 					this.targetBounceY = bounceIntensity / 4f;
 				}
-				//horse
 			}
 			if(plr.getVehicle() instanceof PigEntity pig) {
 				float movement = (float) pig.getVelocity().lengthSquared();
-				//System.out.println(movement);
 				if(pig.age % clampMovement(movement) == 5 && movement > 0.08f) {
 					this.targetBounceY = bounceIntensity / 4f;
 				}
-				//horse
 			}
 			if(plr.getVehicle() instanceof StriderEntity strider) {
-				this.targetBounceY += ((float) (strider.getMountedHeightOffset()*3f) - 4.5f) * bounceIntensity;
-				//horse
+				double heightOffset = (double)strider.getHeight() - 0.19
+						+ (double)(0.12F * MathHelper.cos(strider.limbAnimator.getPos() * 1.5f)
+						* 2F * Math.min(0.25F, strider.limbAnimator.getSpeed()));
+				this.targetBounceY += ((float) (heightOffset * 3f) - 4.5f) * bounceIntensity;
 			}
-			//System.out.println("VEHICLE");
 		}
 		if(plr.handSwinging && plr.age % 5 == 0 && plr.getPose() != EntityPose.SLEEPING) {
-			if(Math.random() > 0.5) {
-				this.targetBounceY += -0.25f * bounceIntensity;
-			} else {
-				this.targetBounceY += 0.25f * bounceIntensity;
-			}
+			this.targetBounceY += (Math.random() > 0.5 ? -0.25f : 0.25f) * bounceIntensity;
 		}
 		if(plr.getPose() == EntityPose.SLEEPING && !this.alreadySleeping) {
 			this.targetBounceY = bounceIntensity;

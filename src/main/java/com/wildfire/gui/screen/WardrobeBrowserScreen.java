@@ -44,8 +44,6 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	private static final Identifier BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg3.png");
 	public static float modelRotation = 0.5F;
 
-	private WildfireButton btnAppearanceSettings;
-
 	public WardrobeBrowserScreen(Screen parent, UUID uuid) {
 		super(Text.translatable("wildfire_gender.wardrobe.title"), parent, uuid);
 	}
@@ -70,8 +68,8 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			}
 		}));
 
-		if(plr.getGender() != Gender.MALE) {
-			this.addDrawableChild(btnAppearanceSettings = new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, Text.translatable("wildfire_gender.appearance_settings.title").append("..."),
+		if(plr.getGender().canHaveBreasts()) {
+			this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, Text.translatable("wildfire_gender.appearance_settings.title").append("..."),
 					button -> MinecraftClient.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 			this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 12, 158, 20, Text.translatable("wildfire_gender.char_settings.title").append("..."),
 					button -> MinecraftClient.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
@@ -92,21 +90,19 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 		return Text.translatable("wildfire_gender.label.gender").append(" - ").append(gender.getDisplayName());
 	}
 
+	@Override
+	public void renderBackground(DrawContext ctx, int mouseX, int mouseY, float delta) {
+		super.renderBackground(ctx, mouseX, mouseY, delta);
+		Identifier backgroundTexture = getPlayer().getGender().canHaveBreasts() ? BACKGROUND_FEMALE : BACKGROUND;
+		ctx.drawTexture(backgroundTexture, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156);
+	}
+
 	@SuppressWarnings("DataFlowIssue")
 	@Override
 	public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
+		super.render(ctx, mouseX, mouseY, delta);
 		MinecraftClient minecraft = MinecraftClient.getInstance();
 		GenderPlayer plr = getPlayer();
-	    super.renderBackground(ctx);
-	    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-
-		RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		if(plr.getGender() != Gender.MALE) {
-			ctx.drawTexture(BACKGROUND_FEMALE, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156);
-		} else {
-			ctx.drawTexture(BACKGROUND, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156);
-		}
 
 	    if(plr == null) return;
 
@@ -124,8 +120,6 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 		    	drawEntityOnScreen(xP, yP, 45, (xP - mouseX), (yP - 76 - mouseY), minecraft.world.getPlayerByUuid(this.playerUUID));
 		    }
 		} catch(Exception e) {}
-
-	    super.render(ctx, mouseX, mouseY, delta);
 	}
 
 	public static void drawEntityOnScreen(int x, int y, int size, float mouseX, float mouseY, LivingEntity entity) {

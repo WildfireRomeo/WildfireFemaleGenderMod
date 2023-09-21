@@ -27,9 +27,11 @@ import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.config.Configuration;
 import com.wildfire.main.config.BreastPresetConfiguration;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 
@@ -42,12 +44,12 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
     private WildfireButton btnAddPreset, btnDeletePreset;
 
     private WildfireBreastPresetList PRESET_LIST;
+    private int currentTab = 0; // 0 = customization, 1 = presets
 
     public WildfireBreastCustomizationScreen(Screen parent, UUID uuid) {
         super(Text.translatable("wildfire_gender.appearance_settings.title"), parent, uuid);
     }
 
-    private int currentTab = 0; // 0 = customization, 1 = presets
     @Override
     public void init() {
         int j = this.height / 2 - 11;
@@ -75,6 +77,9 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         //Presets Tab
         this.addDrawableChild(btnPresets = new WildfireButton(this.width / 2 + 31 + 158/2, j - 60, 158 / 2 - 1, 10,
                 Text.translatable("wildfire_gender.breast_customization.tab_presets"), button -> {
+            // TODO temporary release readiness fix: lock presets tab behind a development environment (-Dfabric.development=true)
+            if(!FabricLoader.getInstance().isDevelopmentEnvironment()) return;
+
             currentTab = 1;
             btnCustomization.active = true;
             btnPresets.active = false;
@@ -82,6 +87,9 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             btnDeletePreset.visible = true;
             PRESET_LIST.refreshList();
         }));
+        if(!FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            btnPresets.setTooltip(Tooltip.of(Text.translatable("wildfire_gender.coming_soon")));
+        }
         this.addDrawableChild(btnAddPreset = new WildfireButton(this.width / 2 + 31 + 158/2, j + 80, 158 / 2 - 1, 12,
                 Text.translatable("wildfire_gender.breast_customization.presets.add_new"), button -> {
             createNewPreset("Test Preset");
@@ -146,52 +154,51 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         PRESET_LIST.refreshList();
     }
 
-    @Override
-    public void render(DrawContext ctx, int f1, int f2, float f3) {
-        MinecraftClient minecraft = MinecraftClient.getInstance();
-        GenderPlayer plr = getPlayer();
-        super.renderBackground(ctx);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-
-        if(plr == null) return;
-
-        try {
-            RenderSystem.setShaderColor(1f,1.0F, 1.0F, 1.0F);
-            int xP = this.width / 2 - 102;
-            int yP = this.height / 2 + 275;
-            //noinspection DataFlowIssue
-            PlayerEntity ent = minecraft.world.getPlayerByUuid(this.playerUUID);
-            if(ent != null) {
-                WardrobeBrowserScreen.drawEntityOnScreen(xP, yP, 200, -20, -20, ent);
-            }
-        } catch(Exception e) {}
-
-        boolean canHaveBreasts = plr.getGender().canHaveBreasts();
+    private void updatePresetTab() {
+        boolean canHaveBreasts = getPlayer().getGender().canHaveBreasts();
         breastSlider.visible = canHaveBreasts && currentTab == 0;
         xOffsetBoobSlider.visible = canHaveBreasts && currentTab == 0;
         yOffsetBoobSlider.visible = canHaveBreasts && currentTab == 0;
         zOffsetBoobSlider.visible = canHaveBreasts && currentTab == 0;
         cleavageSlider.visible = canHaveBreasts && currentTab == 0;
         btnDualPhysics.visible = canHaveBreasts && currentTab == 0;
+        PRESET_LIST.visible = currentTab == 1;
+    }
 
+    @Override
+    public void renderBackground(DrawContext ctx, int mouseX, int mouseY, float delta) {
+        super.renderBackground(ctx, mouseX, mouseY, delta);
         int x = this.width / 2;
         int y = this.height / 2;
         ctx.fill(x + 28, y - 64 - 21, x + 190, y + 68, 0x55000000);
         ctx.fill(x + 29, y - 63 - 21, x + 189, y - 60, 0x55000000);
         ctx.drawText(textRenderer, getTitle(), x + 32, y - 60 - 21, 0xFFFFFF, false);
-
-
-        PRESET_LIST.visible = currentTab == 1;
         if(currentTab == 1) {
             ctx.fill(PRESET_LIST.getLeft(), PRESET_LIST.getTop(), PRESET_LIST.getRight(), PRESET_LIST.getBottom(), 0x55000000);
-            PRESET_LIST.render(ctx, f1, f2, f3);
         }
+    }
 
-        if(PRESET_LIST.getPresetList().length == 0 && currentTab == 1) {
-            ctx.drawText(textRenderer, "No Presets Found", x + ((190 + 28) / 2) - textRenderer.getWidth("No Presets Found") / 2, y - 4, 0xFFFFFF, false);
+    @Override
+    public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
+        if(client == null || client.player == null || client.world == null) return;
+
+        updatePresetTab();
+        super.render(ctx, mouseX, mouseY, delta);
+        RenderSystem.setShaderColor(1f, 1.0F, 1.0F, 1.0F);
+
+        int xP = this.width / 2 - 102;
+        int yP = this.height / 2 + 275;
+        PlayerEntity ent = client.world.getPlayerByUuid(this.playerUUID);
+        if(ent != null) WardrobeBrowserScreen.drawEntityOnScreen(xP, yP, 200, -20, -20, ent);
+
+        int x = this.width / 2;
+        int y = this.height / 2;
+        if(currentTab == 1) {
+            PRESET_LIST.render(ctx, mouseX, mouseY, delta);
+            if(PRESET_LIST.getPresetList().length == 0) {
+                ctx.drawText(textRenderer, "No Presets Found", x + ((190 + 28) / 2) - textRenderer.getWidth("No Presets Found") / 2, y - 4, 0xFFFFFF, false);
+            }
         }
-
-        super.render(ctx, f1, f2, f3);
     }
 
     @Override

@@ -60,9 +60,7 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
     public WildfireBreastPresetList(WildfireBreastCustomizationScreen parent, int listWidth, int top, int bottom) {
         super(MinecraftClient.getInstance(), 156, parent.height, top, bottom, 32);
         this.setRenderHeader(false, 0);
-        this.setRenderSelection(false);
         this.setRenderBackground(false);
-        this.setRenderHorizontalShadows(false);
         this.parent = parent;
         this.listWidth = listWidth;
         this.refreshList();
@@ -71,6 +69,10 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
     public BreastPresetListEntry[] getPresetList() {
         return BREAST_PRESETS;
     }
+
+    @Override
+    protected void drawSelectionHighlight(DrawContext context, int y, int entryWidth, int entryHeight, int borderColor, int fillColor) {}
+
     @Override
     protected void renderList(DrawContext context, int mouseX, int mouseY, float delta) {
         int i = this.getRowLeft();
