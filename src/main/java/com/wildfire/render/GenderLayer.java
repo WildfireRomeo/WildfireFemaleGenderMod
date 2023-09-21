@@ -308,7 +308,7 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 				renderBox(armor, matrixStack, overlayVertexConsumer, packedLightIn, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 			}
 
-			ArmorTrim.getTrim(entity.getWorld().getRegistryManager(), armorStack).ifPresent((trim) -> {
+			ArmorTrim.getTrim(entity.getWorld().getRegistryManager(), armorStack, true).ifPresent((trim) -> {
 				renderArmorTrim(armorItem.getMaterial(), matrixStack, vertexConsumerProvider, packedLightIn, trim, hasGlint, left);
 			});
 		} finally {
@@ -320,7 +320,8 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 	                             ArmorTrim trim, boolean hasGlint, boolean left) {
 		BreastModelBox trimModelBox = left ? lTrim : rTrim;
 		Sprite sprite = this.armorTrimsAtlas.getSprite(trim.getGenericModelId(material));
-		VertexConsumer vertexConsumer = sprite.getTextureSpecificVertexConsumer(vertexConsumerProvider.getBuffer(TexturedRenderLayers.getArmorTrims()));
+		VertexConsumer vertexConsumer = sprite.getTextureSpecificVertexConsumer(
+				vertexConsumerProvider.getBuffer(TexturedRenderLayers.getArmorTrims(trim.getPattern().value().decal())));
 		// Render the armor trim itself
 		renderBox(trimModelBox, matrixStack, vertexConsumer, packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
 		// The enchantment glint however requires special handling; due to how Minecraft's enchant glint rendering works, rendering
@@ -334,9 +335,9 @@ public class GenderLayer extends FeatureRenderer<AbstractClientPlayerEntity, Pla
 	}
 
 	private static void renderBox(WildfireModelRenderer.ModelBox model, MatrixStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn,
-		float red, float green, float blue, float alpha) {
+	                              float red, float green, float blue, float alpha) {
 		Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
-		Matrix3f matrix3f =	matrixStack.peek().getNormalMatrix();
+		Matrix3f matrix3f = matrixStack.peek().getNormalMatrix();
 		for (WildfireModelRenderer.TexturedQuad quad : model.quads) {
 			Vector3f vector3f = new Vector3f(quad.normal.x, quad.normal.y, quad.normal.z);
 			vector3f.mul(matrix3f);

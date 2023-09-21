@@ -130,20 +130,19 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
     }
 
     @Override
+    public void renderBackground(DrawContext ctx, int mouseX, int mouseY, float delta) {
+        super.renderBackground(ctx, mouseX, mouseY, delta);
+        ctx.drawTexture(BACKGROUND, (this.width - 172) / 2, (this.height - 124) / 2, 0, 0, 172, 144);
+    }
+
+    @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
-        super.renderBackground(ctx);
+        super.render(ctx, mouseX, mouseY, delta);
         //noinspection DataFlowIssue
         PlayerEntity plrEntity = MinecraftClient.getInstance().world.getPlayerByUuid(this.playerUUID);
-
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        ctx.drawTexture(BACKGROUND, (this.width - 172) / 2, (this.height - 124) / 2, 0, 0, 172, 144);
-
         int x = this.width / 2;
         int y = this.height / 2;
         ctx.drawText(textRenderer, getTitle(), x - 79, yPos - 10, 4473924, false);
-        super.render(ctx, mouseX, mouseY, delta);
         if(plrEntity != null) {
             WildfireHelper.drawCenteredText(ctx, this.textRenderer, plrEntity.getDisplayName(), x, yPos - 30, 0xFFFFFF);
         }
