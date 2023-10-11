@@ -20,14 +20,18 @@ package com.wildfire.gui.screen;
 
 import com.wildfire.main.GenderPlayer.Gender;
 import com.wildfire.main.WildfireGender;
+
+import java.util.Calendar;
 import java.util.UUID;
 
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.GenderPlayer;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.wildfire.main.WildfireHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -35,13 +39,19 @@ import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.listener.ClientPacketListener;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.joml.Quaternionf;
 
 public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	private static final Identifier BACKGROUND_FEMALE = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg2.png");
 	private static final Identifier BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg3.png");
+	private static final Identifier TXTR_RIBBON = new Identifier(WildfireGender.MODID, "textures/bc_ribbon.png");
+
+	private static final UUID CREATOR_UUID = UUID.fromString("33c937ae-6bfc-423e-a38e-3a613e7c1256");
+
 	public static float modelRotation = 0.5F;
 
 	public WardrobeBrowserScreen(Screen parent, UUID uuid) {
@@ -120,6 +130,22 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 		    	drawEntityOnScreen(xP, yP, 45, (xP - mouseX), (yP - 76 - mouseY), minecraft.world.getPlayerByUuid(this.playerUUID));
 		    }
 		} catch(Exception e) {}
+
+		ClientPlayNetworkHandler clientPlayNetworkHandler = client.player.networkHandler;
+		boolean withCreator = clientPlayNetworkHandler.getPlayerList().stream()
+				.anyMatch((player) -> player.getProfile().getId().equals(CREATOR_UUID));
+		if(withCreator) {
+			WildfireHelper.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, y + 89, 0xFF00FF);
+		}
+
+		//Breast Cancer Awareness Month Notification
+		if(Calendar.getInstance().get(Calendar.MONTH) == Calendar.OCTOBER) {
+			ctx.fill(x - 159, y + 106, x + 159, y + 136, 0x55000000);
+			ctx.drawTextWithShadow(textRenderer, Text.translatable("wildfire_gender.cancer_awareness.title").formatted(Formatting.BOLD, Formatting.ITALIC), this.width / 2 - 148, y + 117, 0xFFFFFF);
+			RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			ctx.drawTexture(TXTR_RIBBON, x + 130, y + 109, 26, 26, 0, 0, 20, 20, 20, 20);
+		}
 	}
 
 	public static void drawEntityOnScreen(int x, int y, int size, float mouseX, float mouseY, LivingEntity entity) {
