@@ -131,6 +131,8 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 		    }
 		} catch(Exception e) {}
 
+		y = y - 45;
+
 		ClientPlayNetworkHandler clientPlayNetworkHandler = client.player.networkHandler;
 		boolean withCreator = clientPlayNetworkHandler.getPlayerList().stream()
 				.anyMatch((player) -> player.getProfile().getId().equals(CREATOR_UUID));
