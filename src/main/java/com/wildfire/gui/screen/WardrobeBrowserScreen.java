@@ -31,15 +31,12 @@ import com.wildfire.main.WildfireHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.listener.ClientPacketListener;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -49,10 +46,9 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	private static final Identifier BACKGROUND_FEMALE = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg2.png");
 	private static final Identifier BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg3.png");
 	private static final Identifier TXTR_RIBBON = new Identifier(WildfireGender.MODID, "textures/bc_ribbon.png");
-
 	private static final UUID CREATOR_UUID = UUID.fromString("33c937ae-6bfc-423e-a38e-3a613e7c1256");
-
-	public static float modelRotation = 0.5F;
+	private static final boolean isBreastCancerAwarenessMonth = Calendar.getInstance().get(Calendar.MONTH) == Calendar.OCTOBER;
+	private WildfireButton appearanceSettings, characterSettings;
 
 	public WardrobeBrowserScreen(Screen parent, UUID uuid) {
 		super(Text.translatable("wildfire_gender.wardrobe.title"), parent, uuid);
@@ -60,10 +56,10 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 
 	@Override
   	public void init() {
-	    int j = this.height / 2;
+	    int y = this.height / 2;
 		GenderPlayer plr = getPlayer();
 
-		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 52, 158, 20, getGenderLabel(plr.getGender()), button -> {
+		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, y - 52, 158, 20, getGenderLabel(plr.getGender()), button -> {
 			Gender gender = switch (plr.getGender()) {
 				case MALE -> Gender.FEMALE;
 				case FEMALE -> Gender.OTHER;
@@ -72,32 +68,30 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			if (plr.updateGender(gender)) {
 				button.setMessage(getGenderLabel(gender));
 				GenderPlayer.saveGenderInfo(plr);
-
-				//re-render menu (re-open it)
-				MinecraftClient.getInstance().setScreen(new WardrobeBrowserScreen(null, playerUUID));
+				updateCharacterOptionButtons();
 			}
 		}));
 
-		if(plr.getGender().canHaveBreasts()) {
-			this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, Text.translatable("wildfire_gender.appearance_settings.title").append("..."),
-					button -> MinecraftClient.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID))));
-			this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 12, 158, 20, Text.translatable("wildfire_gender.char_settings.title").append("..."),
-					button -> MinecraftClient.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
-		} else {
-			this.addDrawableChild(new WildfireButton(this.width / 2 - 42, j - 32, 158, 20, Text.translatable("wildfire_gender.char_settings.title").append("..."),
-					button -> MinecraftClient.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
-		}
+		this.addDrawableChild(appearanceSettings = new WildfireButton(this.width / 2 - 42, y - 32, 158, 20, Text.translatable("wildfire_gender.appearance_settings.title").append("..."),
+				button -> MinecraftClient.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID))));
+		this.addDrawableChild(characterSettings = new WildfireButton(this.width / 2 - 42, y - 12, 158, 20, Text.translatable("wildfire_gender.char_settings.title").append("..."),
+				button -> MinecraftClient.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
+		updateCharacterOptionButtons();
 
-		this.addDrawableChild(new WildfireButton(this.width / 2 + 111, j - 63, 9, 9, Text.translatable("wildfire_gender.label.exit"),
+		this.addDrawableChild(new WildfireButton(this.width / 2 + 111, y - 63, 9, 9, Text.literal("X"),
 			button -> MinecraftClient.getInstance().setScreen(parent)));
-	    
-	    modelRotation = 0.6F;
 
 	    super.init();
   	}
 
 	private Text getGenderLabel(Gender gender) {
 		return Text.translatable("wildfire_gender.label.gender").append(" - ").append(gender.getDisplayName());
+	}
+
+	private void updateCharacterOptionButtons() {
+		int y = this.height / 2;
+		boolean canHaveBreasts = appearanceSettings.visible = getPlayer().getGender().canHaveBreasts();
+		characterSettings.setY(y - (canHaveBreasts ? 12 : 32));
 	}
 
 	@Override
@@ -107,46 +101,36 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 		ctx.drawTexture(backgroundTexture, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156);
 	}
 
-	@SuppressWarnings("DataFlowIssue")
 	@Override
 	public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
 		super.render(ctx, mouseX, mouseY, delta);
-		MinecraftClient minecraft = MinecraftClient.getInstance();
-		GenderPlayer plr = getPlayer();
-
-	    if(plr == null) return;
-
 		int x = this.width / 2;
 	    int y = this.height / 2;
-		modelRotation = 0.6f;
-
 		ctx.drawText(textRenderer, title, x - 118, y - 62, 4473924, false);
-		try {
-			RenderSystem.setShaderColor(1f, 1.0F, 1.0F, 1.0F);
+
+		if(client != null && client.world != null) {
 		    int xP = this.width / 2 - 82;
 		    int yP = this.height / 2 + 40;
-		    PlayerEntity ent = minecraft.world.getPlayerByUuid(this.playerUUID);
-		    if(ent != null) {
-		    	drawEntityOnScreen(xP, yP, 45, (xP - mouseX), (yP - 76 - mouseY), minecraft.world.getPlayerByUuid(this.playerUUID));
-		    }
-		} catch(Exception e) {}
-
-		y = y - 45;
-
-		ClientPlayNetworkHandler clientPlayNetworkHandler = client.player.networkHandler;
-		boolean withCreator = clientPlayNetworkHandler.getPlayerList().stream()
-				.anyMatch((player) -> player.getProfile().getId().equals(CREATOR_UUID));
-		if(withCreator) {
-			WildfireHelper.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, y + 89, 0xFF00FF);
+		    PlayerEntity ent = client.world.getPlayerByUuid(this.playerUUID);
+		    if(ent != null) drawEntityOnScreen(xP, yP, 45, (xP - mouseX), (yP - 76 - mouseY), ent);
 		}
 
-		//Breast Cancer Awareness Month Notification
-		if(Calendar.getInstance().get(Calendar.MONTH) == Calendar.OCTOBER) {
-			ctx.fill(x - 159, y + 106, x + 159, y + 136, 0x55000000);
-			ctx.drawTextWithShadow(textRenderer, Text.translatable("wildfire_gender.cancer_awareness.title").formatted(Formatting.BOLD, Formatting.ITALIC), this.width / 2 - 148, y + 117, 0xFFFFFF);
-			RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-			ctx.drawTexture(TXTR_RIBBON, x + 130, y + 109, 26, 26, 0, 0, 20, 20, 20, 20);
+		if(client != null && client.player != null) {
+			boolean withCreator = client.player.networkHandler.getPlayerList().stream()
+					.anyMatch((player) -> player.getProfile().getId().equals(CREATOR_UUID));
+			if(withCreator) {
+				int creatorY = y + 65;
+				// move down so we don't overlap with the breast cancer awareness month banner
+				if(isBreastCancerAwarenessMonth) creatorY += 30;
+				WildfireHelper.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, creatorY, 0xFF00FF);
+			}
+		}
+
+		if(isBreastCancerAwarenessMonth) {
+			int bcaY = y - 45;
+			ctx.fill(x - 159, bcaY + 106, x + 159, bcaY + 136, 0x55000000);
+			ctx.drawTextWithShadow(textRenderer, Text.translatable("wildfire_gender.cancer_awareness.title").formatted(Formatting.BOLD, Formatting.ITALIC), this.width / 2 - 148, bcaY + 117, 0xFFFFFF);
+			ctx.drawTexture(TXTR_RIBBON, x + 130, bcaY + 109, 26, 26, 0, 0, 20, 20, 20, 20);
 		}
 	}
 

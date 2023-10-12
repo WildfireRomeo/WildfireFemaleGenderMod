@@ -18,10 +18,7 @@
 	"wildfire_gender.appearance_settings.title": "Aussehen",
 	"wildfire_gender.char_settings.title": "Spieler Einstellungen",
 	"wildfire_gender.char_settings.physics": "Brustphysik: %s",
-	"wildfire_gender.tooltip.breast_physics": "Brustphysik",
 	"wildfire_gender.char_settings.hide_in_armor": "Versteckt mit Rüstung: %s",
-
-	"wildfire_gender.acknowledge.confirm": "Okay",
 
 	"wildfire_gender.label.gender": "Geschlecht",
 	"wildfire_gender.label.female": "Weiblich",
@@ -32,8 +29,6 @@
 	"wildfire_gender.label.disabled": "Deaktiviert",
 	"wildfire_gender.label.yes": "Ja",
 	"wildfire_gender.label.no": "Nein",
-	"wildfire_gender.label.exit": "X",
-	"wildfire_gender.label.too_far": "Zu weit weg",
 	"wildfire_gender.label.with_creator": "Du spielst auf einem Server mit dem Programmierer dieser Mod!",
 
 	"wildfire_gender.slider.bounce": "Wackel Intensität: %sx",
@@ -42,6 +37,5 @@
 	"wildfire_gender.slider.max_bounce": "Anime Brust Physik!",
 	"wildfire_gender.tooltip.bounce_warning": "Wenn die 'Wackel Intensität' zu stark einstellen ist sieht es nicht sehr natürlich aus!",
 
-	"wildfire_gender.cancer_awareness.title": "Hey, es ist Monat des Brustkrebses!",
-	"wildfire_gender.cancer_awareness.description": "Klicke hier um an die §dDeutsche Krebshilfe§f zu spenden!"
+	"wildfire_gender.cancer_awareness.title": "Hey, es ist Monat des Brustkrebses!"
 }

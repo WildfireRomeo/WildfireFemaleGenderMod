@@ -61,7 +61,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             GenderPlayer.saveGenderInfo(plr);
         };
 
-        this.addDrawableChild(new WildfireButton(this.width / 2 + 178, j - 72, 9, 9, Text.translatable("wildfire_gender.label.exit"),
+        this.addDrawableChild(new WildfireButton(this.width / 2 + 178, j - 72, 9, 9, Text.literal("X"),
               button -> MinecraftClient.getInstance().setScreen(parent)));
 
         //Customization Tab
