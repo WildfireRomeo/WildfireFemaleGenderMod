@@ -26,6 +26,7 @@ import java.util.Optional;
 import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.main.networking.PacketSync;
 import java.util.UUID;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -52,10 +53,10 @@ public class WildfireGender {
   	public static final boolean SYNCING_ENABLED = false;
 
 	private static final String PROTOCOL_VERSION = "2";
-	//public static SimpleChannel NETWORK = NetworkRegistry.newSimpleChannel(new ResourceLocation(WildfireGender.MODID, "main_channel"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
+	private static final Predicate<String> ACCEPTED_VERSIONS = NetworkRegistry.acceptMissingOr(PROTOCOL_VERSION);
 	public static SimpleChannel NETWORK = NetworkRegistry.ChannelBuilder.named(new ResourceLocation(WildfireGender.MODID, "main_channel"))
-			.clientAcceptedVersions(v -> v.equals(NetworkRegistry.ABSENT) || v.equals(NetworkRegistry.ACCEPTVANILLA) || v.equals(PROTOCOL_VERSION))
-			.serverAcceptedVersions(v -> v.equals(NetworkRegistry.ACCEPTVANILLA) || v.equals(PROTOCOL_VERSION))
+			.clientAcceptedVersions(ACCEPTED_VERSIONS)
+			.serverAcceptedVersions(ACCEPTED_VERSIONS)
 			.networkProtocolVersion(() -> PROTOCOL_VERSION).simpleChannel();
 
 	public static Map<UUID, GenderPlayer> CLOTHING_PLAYERS = new HashMap<>();

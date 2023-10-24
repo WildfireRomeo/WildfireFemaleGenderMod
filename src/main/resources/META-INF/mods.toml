@@ -34,6 +34,9 @@ credits="Archl, arcti_cc, Kichura, Powerless001, pupnewfster" #optional
 authors="WildfireRomeo" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description="Allows players to choose what gender they want to be."
+# Ignore server version/being present for purposes of display test,
+# the network channel will still be checked for compatability and used in the display test
+displayTest="IGNORE_SERVER_VERSION"
 
 [[dependencies.wildfire_gender]]
     modId="forge"
