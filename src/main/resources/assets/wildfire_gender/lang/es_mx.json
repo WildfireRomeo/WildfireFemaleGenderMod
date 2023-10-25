@@ -1,0 +1,60 @@
+{
+	"category.wildfire_gender.generic": "Mod del genero femenino de Wildfire",
+	"key.wildfire_gender.gender_menu": "Menu de genero",
+
+	"wildfire_gender.hurt.female": "Jugadora Herida",
+
+	"wildfire_gender.player_list.title": "Mod del genero femenino",
+	"wildfire_gender.player_list.settings_button": "Ajustes",
+	"wildfire_gender.player_list.sync_status": "Estatus de sincronización",
+	"wildfire_gender.player_list.state.loading": "Cargando datos...",
+	"wildfire_gender.player_list.state.synced": "Jugador Sincronizado",
+
+	"wildfire_gender.wardrobe.title": "Menú de Personalización",
+	"wildfire_gender.wardrobe.slider.breast_size": "Tamaño del busto: %s%%",
+	"wildfire_gender.wardrobe.slider.separation": "Separación: %s",
+	"wildfire_gender.wardrobe.slider.height": "Altura: %s",
+	"wildfire_gender.wardrobe.slider.depth": "Profundidad: %s",
+	"wildfire_gender.wardrobe.slider.rotation": "Rotación: %s grados",
+
+	"wildfire_gender.appearance_settings.title": "Ajustes de apariencia",
+	"wildfire_gender.char_settings.title": "Ajustes de personaje",
+	"wildfire_gender.char_settings.physics": "Físicas del busto: %s",
+	"wildfire_gender.tooltip.breast_physics": "Activa las físicas del busto",
+	"wildfire_gender.char_settings.hide_in_armor": "Esconder en la armadura: %s",
+	"wildfire_gender.tooltip.hide_in_armor": "Esconde el modelo del busto al usar armadura.",
+	"wildfire_gender.char_settings.hurt_sounds": "Sonidos de dolor: %s",
+	"wildfire_gender.tooltip.hurt_sounds": "Habilita sonidos nuevos femeninos",
+
+	"wildfire_gender.breast_customization.dual_physics": "Físicas duales: %s",
+
+	"wildfire_gender.player_list.bounce_multiplier": "Multiplicador de rebote: %sx",
+	"wildfire_gender.player_list.breast_momentum": "Ímpetu del busto: %s%%",
+	"wildfire_gender.player_list.female_sounds": "Sonidos femeninos: %s",
+
+	"wildfire_gender.settings.title": "Menu de ajustes de Wildfire",
+
+	"wildfire_gender.acknowledge.confirm": "Okey",
+
+	"wildfire_gender.label.gender": "Género",
+	"wildfire_gender.label.female": "Mujer",
+	"wildfire_gender.label.male": "Hombre",
+	"wildfire_gender.label.other": "Otro",
+
+	"wildfire_gender.label.enabled": "Si",
+	"wildfire_gender.label.disabled": "No",
+	"wildfire_gender.label.yes": "Sí",
+	"wildfire_gender.label.no": "No",
+	"wildfire_gender.label.exit": "X",
+	"wildfire_gender.label.too_far": "¡Muy lejos!",
+	"wildfire_gender.label.with_creator": "¡Estás jugando en un servidor con la creadora del mod!",
+
+	"wildfire_gender.slider.bounce": "Intensidad de rebote: %sx",
+	"wildfire_gender.slider.floppy": "Ímpetu del busto: %s%%",
+	"wildfire_gender.slider.min_bounce": "¿Para que encendiste las físicas?",
+	"wildfire_gender.slider.max_bounce": "¡¡¡FÍSICAS DE ANIME!!!",
+	"wildfire_gender.tooltip.bounce_warning": "Colocar la 'Intensidad de rebote' muy alta se vera muy anti-natural.",
+
+	"wildfire_gender.cancer_awareness.title": "Hey, es el mes de concientización sobre el cáncer de mama",
+	"wildfire_gender.cancer_awareness.description": "Haz click aquí para donar a §dSusan G. Komen Foundation§f!"
+}
