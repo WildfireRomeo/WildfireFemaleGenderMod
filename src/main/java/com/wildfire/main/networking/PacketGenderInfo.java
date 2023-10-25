@@ -108,7 +108,7 @@ public abstract class PacketGenderInfo {
         plr.updateShowBreastsInArmor(show_in_armor);
         plr.updateBounceMultiplier(bounceMultiplier);
         plr.updateFloppiness(floppyMultiplier);
-        //System.out.println(plr.username + " - " + plr.gender);
+        //WildfireGender.logger.debug("{} - {}", plr.username, plr.gender);
 
         Breasts breasts = plr.getBreasts();
         breasts.updateXOffset(xOffset);

@@ -18,56 +18,46 @@
 
 package com.wildfire.main;
 
+import com.mojang.logging.LogUtils;
 import com.wildfire.main.config.GeneralClientConfig;
+import com.wildfire.main.networking.WildfireSync;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
-import com.wildfire.main.networking.PacketSendGenderInfo;
-import com.wildfire.main.networking.PacketSync;
 import java.util.UUID;
-import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
+import org.slf4j.Logger;
 
 @Mod(WildfireGender.MODID)
 public class WildfireGender {
-	public static final String VERSION = "2.8";
+
+	public static final String VERSION = "3.0.1";
   	public static final String MODID = "wildfire_gender";
-
-  	public static boolean modEnabled = true;
-  	public static final boolean SYNCING_ENABLED = false;
-
-	private static final String PROTOCOL_VERSION = "2";
-	private static final Predicate<String> ACCEPTED_VERSIONS = NetworkRegistry.acceptMissingOr(PROTOCOL_VERSION);
-	public static SimpleChannel NETWORK = NetworkRegistry.ChannelBuilder.named(new ResourceLocation(WildfireGender.MODID, "main_channel"))
-			.clientAcceptedVersions(ACCEPTED_VERSIONS)
-			.serverAcceptedVersions(ACCEPTED_VERSIONS)
-			.networkProtocolVersion(() -> PROTOCOL_VERSION).simpleChannel();
+	public static final Logger logger = LogUtils.getLogger();
 
 	public static Map<UUID, GenderPlayer> CLOTHING_PLAYERS = new HashMap<>();
 
   	public WildfireGender() {
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup); //common
-		MinecraftForge.EVENT_BUS.addListener(this::onPlayerLoginEvent);
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(WildfireSync::setup); //common
+		MinecraftForge.EVENT_BUS.addListener(this::onStartTracking);
 		if (FMLEnvironment.dist.isClient()) {
 			GeneralClientConfig.register(ModLoadingContext.get().getActiveContainer());
 		}
     }
+
+	public static ResourceLocation rl(String path) {
+		  return new ResourceLocation(MODID, path);
+	}
 
 	@Nullable
 	public static GenderPlayer getPlayerById(UUID id) {
@@ -78,18 +68,16 @@ public class WildfireGender {
 		return CLOTHING_PLAYERS.computeIfAbsent(id, GenderPlayer::new);
 	}
 
-	public void setup(FMLCommonSetupEvent event) {
-		NETWORK.registerMessage(1, PacketSync.class, PacketSync::encode, PacketSync::new, PacketSync::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
-		NETWORK.registerMessage(2, PacketSendGenderInfo.class, PacketSendGenderInfo::encode, PacketSendGenderInfo::new, PacketSendGenderInfo::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
-		//NETWORK.registerMessage(3, PacketSendCape.class, PacketSendCape::encode, PacketSendCape::new, PacketSendCape::handle);
-	}
-
-	public void onPlayerLoginEvent(PlayerLoggedInEvent event) {
-		Player player = event.getEntity();
-		if (!player.level().isClientSide() && player instanceof ServerPlayer sp) {
-			//Send all other players to the player who joined. Note: We don't send the player to
-			// other players as that will happen once the player finishes sending themselves to the server
-			PacketSync.sendTo(sp);
+	private void onStartTracking(PlayerEvent.StartTracking evt) {
+		if (evt.getTarget() instanceof Player toSync && evt.getEntity() instanceof ServerPlayer sendTo) {
+			GenderPlayer genderToSync = WildfireGender.getPlayerById(toSync.getUUID());
+			if(genderToSync == null) return;
+			// Note that we intentionally don't check if we've previously synced a player with this code path;
+			// because we use entity tracking to sync, it's entirely possible that one player would leave the
+			// tracking distance of another, change their settings, and then re-enter their tracking distance;
+			// we wouldn't sync while they're out of tracking distance, and as such, their settings would be out
+			// of sync until they relog.
+			WildfireSync.sendToClient(sendTo, genderToSync);
 		}
 	}
   	
@@ -97,26 +85,6 @@ public class WildfireGender {
   		Thread thread = new Thread(() -> WildfireGender.loadGenderInfo(uuid, markForSync));
 		thread.setName("WFGM_GetPlayer-" + uuid);
   		thread.start();
-  	}
-
-  	public static void refreshAllGenders() {
-		if(Minecraft.getInstance().level == null) return;
-		/*
-  		Thread thread = new Thread(new Runnable() {
-			public void run() {
-		  		NetworkPlayerInfo[] playersC = Minecraft.getInstance().getConnection().getPlayerInfoMap().toArray(new NetworkPlayerInfo[Minecraft.getInstance().getConnection().getPlayerInfoMap().size()]);
-		        for(int h = 0; h < playersC.length; h++) {
-					NetworkPlayerInfo loadedPlayer = playersC[h];
-					GenderPlayer plr = WildfireGender.getPlayerByName(loadedPlayer.getGameProfile().getId().toString());
-					if(plr != null) {
-						plr.refreshCape();
-					}
-				}
-			}
-
-		});
-		thread.setName("WFGM_GetAllPlayers");
-  		thread.start();*/
   	}
 
 	public static GenderPlayer loadGenderInfo(UUID uuid, boolean markForSync) {

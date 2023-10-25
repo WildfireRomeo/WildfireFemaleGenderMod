@@ -19,26 +19,34 @@
 package com.wildfire.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.wildfire.gui.WildfireBreastPresetList;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.Breasts;
 import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.config.BreastPresetConfiguration;
 import com.wildfire.main.config.ClientConfiguration;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.UUID;
+import net.minecraftforge.fml.loading.FMLLoader;
 
 public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
-    private WildfireSlider breastSlider, xOffsetBoobSlider, yOffsetBoobSlider, zOffsetBoobSlider; //rotateSlider
-    private WildfireSlider cleavageSlider;
+    private WildfireSlider breastSlider, xOffsetBoobSlider, yOffsetBoobSlider, zOffsetBoobSlider, cleavageSlider;
+    private WildfireButton btnDualPhysics, btnPresets, btnCustomization;
+    private WildfireButton btnAddPreset, btnDeletePreset;
+
+    private WildfireBreastPresetList PRESET_LIST;
+    private Tab currentTab = Tab.CUSTOMIZATION;
 
     public WildfireBreastCustomizationScreen(Screen parent, UUID uuid) {
         super(Component.translatable("wildfire_gender.appearance_settings.title"), parent, uuid);
@@ -46,7 +54,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
     @Override
     public void init() {
-        int j = this.height / 2;
+        int j = this.height / 2 - 11;
 
         GenderPlayer plr = getPlayer();
         Breasts breasts = plr.getBreasts();
@@ -55,11 +63,42 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             GenderPlayer.saveGenderInfo(plr);
         };
 
-        this.addRenderableWidget(new WildfireButton(this.width / 2 + 178, j - 61, 9, 9, Component.translatable("wildfire_gender.label.exit"),
+        this.addRenderableWidget(new WildfireButton(this.width / 2 + 178, j - 72, 9, 9, Component.translatable("wildfire_gender.label.exit"),
               button -> Minecraft.getInstance().setScreen(parent)));
 
+        //Customization Tab
+        this.addRenderableWidget(btnCustomization = new WildfireButton(this.width / 2 + 30, j - 60, 158 / 2 - 1, 10,
+              Component.translatable("wildfire_gender.breast_customization.tab_customization"), button -> {
+            currentTab = Tab.CUSTOMIZATION;
+            updatePresetTab();
+        }));
+        //Presets Tab
+        this.addRenderableWidget(btnPresets = new WildfireButton(this.width / 2 + 31 + 79, j - 60, 158 / 2 - 1, 10,
+              Component.translatable("wildfire_gender.breast_customization.tab_presets"), button -> {
+            // TODO temporary release readiness fix: lock presets tab behind a development environment
+            if (FMLLoader.isProduction()) return;
+
+            currentTab = Tab.PRESETS;
+            PRESET_LIST.refreshList();
+            updatePresetTab();
+        }));
+        if (FMLLoader.isProduction()) {
+            btnPresets.setTooltip(Tooltip.create(Component.translatable("wildfire_gender.coming_soon")));
+        }
+        this.addRenderableWidget(btnAddPreset = new WildfireButton(this.width / 2 + 31 + 79, j + 80, 158 / 2 - 1, 12,
+              Component.translatable("wildfire_gender.breast_customization.presets.add_new"), button -> {
+            createNewPreset("Test Preset");
+        }));
+
+        this.addRenderableWidget(btnDeletePreset = new WildfireButton(this.width / 2 + 30, j + 80, 158 / 2 - 1, 12,
+              Component.translatable("wildfire_gender.breast_customization.presets.delete"), button -> {
+
+        })).active = false;
+
+        //Customization Tab Below
+
         this.addRenderableWidget(this.breastSlider = new WildfireSlider(this.width / 2 + 30, j - 48, 158, 20, ClientConfiguration.BUST_SIZE, plr.getBustSize(),
-              plr::updateBustSize, value -> Component.translatable("wildfire_gender.wardrobe.slider.breast_size", Math.round(value * 100)), onSave));
+              plr::updateBustSize, value -> Component.translatable("wildfire_gender.wardrobe.slider.breast_size", Math.round(value * 125)), onSave));
 
         //Customization
         this.addRenderableWidget(this.xOffsetBoobSlider = new WildfireSlider(this.width / 2 + 30, j - 27, 158, 20, ClientConfiguration.BREASTS_OFFSET_X, breasts.getXOffset(),
@@ -72,7 +111,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         this.addRenderableWidget(this.cleavageSlider = new WildfireSlider(this.width / 2 + 30, j + 36, 158, 20, ClientConfiguration.BREASTS_CLEAVAGE, breasts.getCleavage(),
               breasts::updateCleavage, value -> Component.translatable("wildfire_gender.wardrobe.slider.rotation", Math.round((Math.round(value * 100f) / 100f) * 100)), onSave));
 
-        this.addRenderableWidget(new WildfireButton(this.width / 2 + 30, j + 57, 158, 20,
+        this.addRenderableWidget(this.btnDualPhysics = new WildfireButton(this.width / 2 + 30, j + 57, 158, 20,
               Component.translatable("wildfire_gender.breast_customization.dual_physics", Component.translatable(breasts.isUniboob() ? "wildfire_gender.label.no" : "wildfire_gender.label.yes")), button -> {
             boolean isUniboob = !breasts.isUniboob();
             if (breasts.updateUniboob(isUniboob)) {
@@ -81,47 +120,83 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             }
         }));
 
+        //Preset Tab Below
+        PRESET_LIST = new WildfireBreastPresetList(this, 156, (j - 48), (j + 77));
+        PRESET_LIST.setLeftPos(this.width / 2 + 30);
+
+        this.addWidget(this.PRESET_LIST);
+
+        this.currentTab = Tab.CUSTOMIZATION;
+        //Set default visibilities
+        updatePresetTab();
+
         super.init();
     }
 
+    private void createNewPreset(String presetName) {
+        BreastPresetConfiguration cfg = new BreastPresetConfiguration(presetName);
+        cfg.set(BreastPresetConfiguration.PRESET_NAME, presetName);
+        GenderPlayer player = this.getPlayer();
+        cfg.set(BreastPresetConfiguration.BUST_SIZE, player.getBustSize());
+        cfg.set(BreastPresetConfiguration.BREASTS_UNIBOOB, player.getBreasts().isUniboob());
+        cfg.set(BreastPresetConfiguration.BREASTS_CLEAVAGE, player.getBreasts().getCleavage());
+        cfg.set(BreastPresetConfiguration.BREASTS_OFFSET_X, player.getBreasts().getXOffset());
+        cfg.set(BreastPresetConfiguration.BREASTS_OFFSET_Y, player.getBreasts().getYOffset());
+        cfg.set(BreastPresetConfiguration.BREASTS_OFFSET_Z, player.getBreasts().getZOffset());
+        cfg.save();
+
+        PRESET_LIST.refreshList();
+    }
+
+    private void updatePresetTab() {
+        boolean displayBreastSettings = getPlayer().getGender().canHaveBreasts() && currentTab == Tab.CUSTOMIZATION;
+        breastSlider.visible = displayBreastSettings;
+        xOffsetBoobSlider.visible = displayBreastSettings;
+        yOffsetBoobSlider.visible = displayBreastSettings;
+        zOffsetBoobSlider.visible = displayBreastSettings;
+        cleavageSlider.visible = displayBreastSettings;
+        btnDualPhysics.visible = displayBreastSettings;
+        PRESET_LIST.visible = currentTab == Tab.PRESETS;
+
+        btnCustomization.active = currentTab != Tab.CUSTOMIZATION;
+        btnPresets.active = currentTab != Tab.PRESETS;
+        btnAddPreset.visible = currentTab == Tab.PRESETS;
+        btnDeletePreset.visible = currentTab == Tab.PRESETS;
+    }
+
     @Override
-    public void render(@Nonnull GuiGraphics graphics, int f1, int f2, float f3) {
-        Minecraft minecraft = Minecraft.getInstance();
-        GenderPlayer plr = getPlayer();
+    public void renderBackground(@Nonnull GuiGraphics graphics) {
         super.renderBackground(graphics);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-
-        if(plr == null) return;
-
-        try {
-            RenderSystem.setShaderColor(1f,1.0F, 1.0F, 1.0F);
-            int xP = this.width / 2 - 102;
-            int yP = this.height / 2 + 275;
-            Player ent = minecraft.level == null ? null : minecraft.level.getPlayerByUUID(this.playerUUID);
-            if (ent != null) {
-                InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, xP, yP, 200, -20, -20, ent);
-            } else {
-                //player left, fallback
-                minecraft.setScreen(new WildfirePlayerListScreen());
-            }
-        } catch(Exception e) {
-            //error, fallback
-            minecraft.setScreen(new WildfirePlayerListScreen());
-        }
-
-        boolean canHaveBreasts = plr.getGender().canHaveBreasts();
-        breastSlider.visible = canHaveBreasts;
-        xOffsetBoobSlider.visible = canHaveBreasts;
-        yOffsetBoobSlider.visible = canHaveBreasts;
-        zOffsetBoobSlider.visible = canHaveBreasts;
-        cleavageSlider.visible = canHaveBreasts;
-
         int x = this.width / 2;
         int y = this.height / 2;
-        graphics.fill(x + 28, y - 64, x + 190, y + 79, 0x55000000);
-        graphics.fill(x + 29, y - 63, x + 189, y - 50, 0x55000000);
-        graphics.drawString(this.font, title, x + 32, y - 60, 0xFFFFFF, false);
-        super.render(graphics, f1, f2, f3);
+        graphics.fill(x + 28, y - 64 - 21, x + 190, y + 68, 0x55000000);
+        graphics.fill(x + 29, y - 63 - 21, x + 189, y - 60, 0x55000000);
+        graphics.drawString(font, getTitle(), x + 32, y - 60 - 21, 0xFFFFFF, false);
+        if (currentTab == Tab.PRESETS) {
+            graphics.fill(PRESET_LIST.getLeft(), PRESET_LIST.getTop(), PRESET_LIST.getRight(), PRESET_LIST.getBottom(), 0x55000000);
+        }
+    }
+
+    @Override
+    public void render(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        renderBackground(graphics);
+        super.render(graphics, mouseX, mouseY, delta);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        int x = this.width / 2;
+        int y = this.height / 2;
+        if (minecraft != null && minecraft.level != null) {
+            Player ent = minecraft.level.getPlayerByUUID(this.playerUUID);
+            if (ent != null) {
+                InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, x - 102, y + 275, 200, -20, -20, ent);
+            }
+        }
+
+        if (currentTab == Tab.PRESETS) {
+            PRESET_LIST.render(graphics, mouseX, mouseY, delta);
+            if (!PRESET_LIST.hasPresets()) {
+                graphics.drawCenteredString(font, Component.translatable("wildfire_gender.breast_customization.presets.none"), x + ((190 + 28) / 2), y - 4, 0xFFFFFF);
+            }
+        }
     }
 
     @Override
@@ -133,5 +208,10 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         zOffsetBoobSlider.save();
         cleavageSlider.save();
         return super.mouseReleased(mouseX, mouseY, state);
+    }
+
+    private enum Tab {
+        CUSTOMIZATION,
+        PRESETS
     }
 }

@@ -21,7 +21,6 @@ package com.wildfire.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -44,14 +43,11 @@ public class WildfireButton extends Button {
    @Override
    public void renderWidget(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
       Minecraft minecraft = Minecraft.getInstance();
-      Font font = minecraft.font;
       int clr = 0x444444 + (84 << 24);
       if(this.isHoveredOrFocused()) clr = 0x666666 + (84 << 24);
       if(!this.active)  clr = 0x222222 + (84 << 24);
       if(!transparent) graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), clr);
-
-      graphics.drawString(font, this.getMessage().getVisualOrderText(),getX() + (this.width / 2f) - (font.width(this.getMessage()) / 2f),
-            getY() + (int) Math.ceil((float) height / 2f) - font.lineHeight / 2f, active ? 0xFFFFFF : 0x666666, false);
+      renderString(graphics, minecraft.font, active ? 0xFFFFFF : 0x666666);
       RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
    }
 

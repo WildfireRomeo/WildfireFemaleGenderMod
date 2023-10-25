@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonWriter;
+import com.wildfire.main.WildfireGender;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -57,6 +58,12 @@ public class Configuration {
 		key.save(SAVE_VALUES, value);
 	}
 
+	public void setDefaults(ConfigKey<?>... keys) {
+		for (ConfigKey<?> key : keys) {
+			setDefault(key);
+		}
+	}
+
 	public <TYPE> void setDefault(ConfigKey<TYPE> key) {
 		if (!SAVE_VALUES.has(key.key)) {
 			set(key, key.defaultValue);
@@ -89,23 +96,24 @@ public class Configuration {
 		try (FileWriter writer = new FileWriter(CFG_FILE);
 			 JsonWriter jsonWriter = new JsonWriter(writer)) {
 			ADAPTER.write(jsonWriter, obj);
-			//System.out.println("[Configuration] Saved Existing File!");
+			//WildfireGender.logger.debug("[Configuration] Saved Existing File!");
 		} catch(Exception ignored) {}
 	}
 	
 	public void save() {
 		try (FileWriter writer = new FileWriter(CFG_FILE);
 			 JsonWriter jsonWriter = new JsonWriter(writer)) {
+			jsonWriter.setIndent("		");
 			ADAPTER.write(jsonWriter, SAVE_VALUES);
-			//System.out.println("[Configuration] Saved New File!");
-		} catch (IOException e1) {
-			e1.printStackTrace();
+			//WildfireGender.logger.debug("[Configuration] Saved New File!");
+		} catch (IOException e) {
+			WildfireGender.logger.error("Failed to save Configuration", e);
 		}
 	}
 	
 	//load file values to this class for use in the program
 	public void load() {
-		 //System.out.println("[Configuration] Loading...");
+		 //WildfireGender.logger.debug("[Configuration] Loading...");
 		
 		try (FileReader configurationFile = new FileReader(CFG_FILE)) {
 			JsonObject obj = GsonHelper.parse(configurationFile);
@@ -113,10 +121,9 @@ public class Configuration {
 				String key = entry.getKey();
 				SAVE_VALUES.add(key, entry.getValue());
 			}
-		    //System.out.println("[Configuration] Loaded!\n\n");
+		    //WildfireGender.logger.debug("[Configuration] Loaded!");
 		} catch(Exception e) {
-		    //System.out.println("[Configuration] Failed!\n\n");
-		    e.printStackTrace();
+			WildfireGender.logger.error("Failed to load Configuration", e);
 		}
 	}
 }

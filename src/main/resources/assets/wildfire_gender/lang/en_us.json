@@ -11,7 +11,14 @@
 	"wildfire_gender.player_list.state.loading": "Loading Data...",
 	"wildfire_gender.player_list.state.synced": "Synced Player",
 
-	"wildfire_gender.wardrobe.title": "Customization Menu",
+	"wildfire_gender.wardrobe.title": "Wildfire's Female Gender Mod",
+	"wildfire_gender.breast_customization.tab_customization": "Customization",
+	"wildfire_gender.breast_customization.tab_presets": "Presets",
+
+	"wildfire_gender.breast_customization.presets.add_new": "Add New...",
+	"wildfire_gender.breast_customization.presets.delete": "Delete",
+	"wildfire_gender.breast_customization.presets.none": "No Presets Found",
+
 	"wildfire_gender.wardrobe.slider.breast_size": "Breast Size: %s%%",
 	"wildfire_gender.wardrobe.slider.separation": "Separation: %s",
 	"wildfire_gender.wardrobe.slider.height": "Height: %s",
@@ -22,6 +29,8 @@
 	"wildfire_gender.char_settings.title": "Character Settings",
 	"wildfire_gender.char_settings.physics": "Breast Physics: %s",
 	"wildfire_gender.tooltip.breast_physics": "Enables Breast Physics",
+	"wildfire_gender.char_settings.override_armor_physics": "Armor Physics: %s",
+	"wildfire_gender.tooltip.override_armor_physics": "Override Armor Physics Attributes When Wearing Armor",
 	"wildfire_gender.char_settings.hide_in_armor": "Hide In Armor: %s",
 	"wildfire_gender.tooltip.hide_in_armor": "Hide Breast Model When Wearing Armors",
 	"wildfire_gender.char_settings.hurt_sounds": "Female Hurt Sounds: %s",
@@ -58,6 +67,7 @@
 
 	"wildfire_gender.cancer_awareness.title": "Hey, it's Breast Cancer Awareness Month!",
 	"wildfire_gender.cancer_awareness.description": "Click here to donate to §dSusan G. Komen Foundation§f!",
+	"wildfire_gender.coming_soon": "Coming soon",
 
 	"wildfire_gender.config.client": "Client Config. This config only exists on the client",
 	"wildfire_gender.config.client.disable_rendering": "Global override to disable all rendering related to the mod (including in gender menus)",

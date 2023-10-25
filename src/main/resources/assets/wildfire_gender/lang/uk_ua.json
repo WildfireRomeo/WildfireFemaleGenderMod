@@ -1,0 +1,60 @@
+{
+  "category.wildfire_gender.generic": "Wildfire's Female Gender Mod",
+  "key.wildfire_gender.gender_menu": "Меню жіночої статі",
+
+  "wildfire_gender.hurt.female": "Жіночого гравця поранено",
+
+  "wildfire_gender.player_list.title": "Female Gender Mod",
+  "wildfire_gender.player_list.settings_button": "Налаштування",
+  "wildfire_gender.player_list.sync_status": "Синхронізація стану",
+  "wildfire_gender.player_list.state.loading": "Завантаження даних...",
+  "wildfire_gender.player_list.state.synced": "Синхронізований гравець",
+
+  "wildfire_gender.wardrobe.title": "Меню кастомізації",
+  "wildfire_gender.wardrobe.slider.breast_size": "Розмір грудей: %s%%",
+  "wildfire_gender.wardrobe.slider.separation": "Відстань: %s",
+  "wildfire_gender.wardrobe.slider.height": "Висота: %s",
+  "wildfire_gender.wardrobe.slider.depth": "Глибина: %s",
+  "wildfire_gender.wardrobe.slider.rotation": "Обертання: %s градусів",
+
+  "wildfire_gender.appearance_settings.title": "Параметри зовнішнього вигляду",
+  "wildfire_gender.char_settings.title": "Параметри персонажа",
+  "wildfire_gender.char_settings.physics": "Фізика грудей: %s",
+  "wildfire_gender.tooltip.breast_physics": "Вмикає фізику грудей",
+  "wildfire_gender.char_settings.hide_in_armor": "Приховувати під бронею: %s",
+  "wildfire_gender.tooltip.hide_in_armor": "Приховує модель грудей під час носіння броні",
+  "wildfire_gender.char_settings.hurt_sounds": "Жіночі звуки поранення: %s",
+  "wildfire_gender.tooltip.hurt_sounds": "Вмикає жіночі звуки поранення",
+
+  "wildfire_gender.breast_customization.dual_physics": "Подвійна фізика %s",
+
+  "wildfire_gender.player_list.bounce_multiplier": "Множник пружності: %sx",
+  "wildfire_gender.player_list.breast_momentum": "Імпульс грудей: %s%%",
+  "wildfire_gender.player_list.female_sounds": "Жіночі звуки: %s",
+
+  "wildfire_gender.settings.title": "Меню налаштувань Wildfire",
+
+  "wildfire_gender.acknowledge.confirm": "Згоден",
+
+  "wildfire_gender.label.gender": "Стать",
+  "wildfire_gender.label.female": "Жінка",
+  "wildfire_gender.label.male": "Чоловік",
+  "wildfire_gender.label.other": "Інше",
+
+  "wildfire_gender.label.enabled": "Увімкнено",
+  "wildfire_gender.label.disabled": "Вимкнено",
+  "wildfire_gender.label.yes": "Так",
+  "wildfire_gender.label.no": "Ні",
+  "wildfire_gender.label.exit": "X",
+  "wildfire_gender.label.too_far": "Занадто далеко",
+  "wildfire_gender.label.with_creator": "Ви граєте на одному ж сервері з творцем цього моду!",
+
+  "wildfire_gender.slider.bounce": "Інтенсивність пружності: %sx",
+  "wildfire_gender.slider.floppy": "Імпульс грудей: %s%%",
+  "wildfire_gender.slider.min_bounce": "Чому фізика взагалі включена?",
+  "wildfire_gender.slider.max_bounce": "Аніме фізика грудей!!!",
+  "wildfire_gender.tooltip.bounce_warning": "Встановлення «Інтенсивності пружності» на високе значення виглядатиме дуже неприродно!",
+
+  "wildfire_gender.cancer_awareness.title": "Привіт, сьогодні Місяць боротьби з раком молочної залози!",
+  "wildfire_gender.cancer_awareness.description": "Натисніть тут, щоб зробити пожертву §dSusan G. Komen Foundation§f!"
+}
