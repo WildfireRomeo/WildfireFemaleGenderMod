@@ -48,7 +48,6 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	private static final Identifier TXTR_RIBBON = new Identifier(WildfireGender.MODID, "textures/bc_ribbon.png");
 	private static final UUID CREATOR_UUID = UUID.fromString("33c937ae-6bfc-423e-a38e-3a613e7c1256");
 	private static final boolean isBreastCancerAwarenessMonth = Calendar.getInstance().get(Calendar.MONTH) == Calendar.OCTOBER;
-	private WildfireButton appearanceSettings, characterSettings;
 
 	public WardrobeBrowserScreen(Screen parent, UUID uuid) {
 		super(Text.translatable("wildfire_gender.wardrobe.title"), parent, uuid);
@@ -68,15 +67,16 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			if (plr.updateGender(gender)) {
 				button.setMessage(getGenderLabel(gender));
 				GenderPlayer.saveGenderInfo(plr);
-				updateCharacterOptionButtons();
+				clearAndInit();
 			}
 		}));
 
-		this.addDrawableChild(appearanceSettings = new WildfireButton(this.width / 2 - 42, y - 32, 158, 20, Text.translatable("wildfire_gender.appearance_settings.title").append("..."),
-				button -> MinecraftClient.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID))));
-		this.addDrawableChild(characterSettings = new WildfireButton(this.width / 2 - 42, y - 12, 158, 20, Text.translatable("wildfire_gender.char_settings.title").append("..."),
+		if (plr.getGender().canHaveBreasts()) {
+			this.addDrawableChild(new WildfireButton(this.width / 2 - 42, y - 32, 158, 20, Text.translatable("wildfire_gender.appearance_settings.title").append("..."),
+					button -> MinecraftClient.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID))));
+		}
+		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, y - (plr.getGender().canHaveBreasts() ? 12 : 32), 158, 20, Text.translatable("wildfire_gender.char_settings.title").append("..."),
 				button -> MinecraftClient.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
-		updateCharacterOptionButtons();
 
 		this.addDrawableChild(new WildfireButton(this.width / 2 + 111, y - 63, 9, 9, Text.literal("X"),
 			button -> MinecraftClient.getInstance().setScreen(parent)));
@@ -86,12 +86,6 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 
 	private Text getGenderLabel(Gender gender) {
 		return Text.translatable("wildfire_gender.label.gender").append(" - ").append(gender.getDisplayName());
-	}
-
-	private void updateCharacterOptionButtons() {
-		int y = this.height / 2;
-		boolean canHaveBreasts = appearanceSettings.visible = getPlayer().getGender().canHaveBreasts();
-		characterSettings.setY(y - (canHaveBreasts ? 12 : 32));
 	}
 
 	@Override
