@@ -43,7 +43,6 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
     private static final ResourceLocation BACKGROUND = WildfireGender.rl("textures/gui/settings_bg.png");
 
     private WildfireSlider bounceSlider, floppySlider;
-    private int yPos = 0;
     private boolean bounceWarning;
 
     protected WildfireCharacterSettingsScreen(Screen parent, UUID uuid) {
@@ -57,11 +56,11 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
         int x = this.width / 2;
         int y = this.height / 2;
 
-        yPos = y - 47;
+        int yPos = y - 47;
         int xPos = x - 156 / 2 - 1;
 
         //Add 'Close' button at beginning
-        this.addRenderableWidget(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, Component.translatable("wildfire_gender.label.exit"),
+        this.addRenderableWidget(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, Component.literal("X"),
                 button -> Minecraft.getInstance().setScreen(parent)));
 
         this.addRenderableWidget(new WildfireButton(xPos, yPos, 157, 20,
@@ -71,7 +70,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
                 button.setMessage(Component.translatable("wildfire_gender.char_settings.physics", enablePhysics ? ENABLED : DISABLED));
                 GenderPlayer.saveGenderInfo(aPlr);
             }
-        }, Tooltip.create(Component.translatable("wildfire_gender.tooltip.breast_physics"))));
+        }));
 
         this.addRenderableWidget(new WildfireButton(xPos, yPos + 20, 157, 20,
               Component.translatable("wildfire_gender.char_settings.hide_in_armor", aPlr.showBreastsInArmor() ? DISABLED : ENABLED), button -> {
@@ -89,16 +88,19 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
                 button.setMessage(Component.translatable("wildfire_gender.char_settings.override_armor_physics", enableArmorPhysicsOverride ? DISABLED : ENABLED));
                 GenderPlayer.saveGenderInfo(aPlr);
             }
-        }, Tooltip.create(Component.translatable("wildfire_gender.tooltip.override_armor_physics"))));
+        }, Tooltip.create(Component.translatable("wildfire_gender.tooltip.override_armor_physics.line1")
+              .append("\n\n")
+              .append(Component.translatable("wildfire_gender.tooltip.override_armor_physics.line2"))
+        )));
 
         this.addRenderableWidget(this.bounceSlider = new WildfireSlider(xPos, yPos + 60, 157, 20, ClientConfiguration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplierRaw(), value -> {
         }, value -> {
             float bounceText = 3 * value;
             float v = Math.round(bounceText * 10) / 10f;
             bounceWarning = v > 1;
-            if (v == 3) {
+            if (v == 1.5F) {
                 return Component.translatable("wildfire_gender.slider.max_bounce");
-            } else if (Math.round(bounceText * 100) / 100f == 0) {
+            } else if (v == 0F) {
                 return Component.translatable("wildfire_gender.slider.min_bounce");
             }
             return Component.translatable("wildfire_gender.slider.bounce", v);
@@ -140,6 +142,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
         int x = this.width / 2;
         int y = this.height / 2;
+        int yPos = y - 47;
 
         graphics.drawString(this.font, title, x - 79, yPos - 10, 4473924, false);
 

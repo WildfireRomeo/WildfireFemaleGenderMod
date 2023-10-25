@@ -45,8 +45,6 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 
 	private static final UUID CREATOR_UUID = UUID.fromString("33c937ae-6bfc-423e-a38e-3a613e7c1256");
 
-	public static float modelRotation = 0.5F;
-
 	private final boolean isBreastCancerAwarenessMonth = Calendar.getInstance().get(Calendar.MONTH) == Calendar.OCTOBER;
 
 	public WardrobeBrowserScreen(UUID uuid) {
@@ -55,11 +53,11 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 
 	@Override
   	public void init() {
-	    int j = this.height / 2;
+	    int y = this.height / 2;
 
 		GenderPlayer plr = getPlayer();
 
-		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - 52, 158, 20, getGenderLabel(plr.getGender()), button -> {
+		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, y - 52, 158, 20, getGenderLabel(plr.getGender()), button -> {
 			Gender gender = switch (plr.getGender()) {
 				case MALE -> Gender.FEMALE;
 				case FEMALE -> Gender.OTHER;
@@ -73,18 +71,16 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 		}));
 
 		int yOffset = 32;
-		if(plr.getGender().canHaveBreasts()) {
-			this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - yOffset, 158, 20, Component.translatable("wildfire_gender.appearance_settings.title").append("..."),
+		if (plr.getGender().canHaveBreasts()) {
+			this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, y - yOffset, 158, 20, Component.translatable("wildfire_gender.appearance_settings.title").append("..."),
 				button -> Minecraft.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 			yOffset -= 20;
 		}
-		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, j - yOffset, 158, 20, Component.translatable("wildfire_gender.char_settings.title").append("..."),
+		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, y - yOffset, 158, 20, Component.translatable("wildfire_gender.char_settings.title").append("..."),
 			button -> Minecraft.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 
-		this.addRenderableWidget(new WildfireButton(this.width / 2 + 111, j - 63, 9, 9, Component.translatable("wildfire_gender.label.exit"),
+		this.addRenderableWidget(new WildfireButton(this.width / 2 + 111, y - 63, 9, 9, Component.literal("X"),
 			button -> Minecraft.getInstance().setScreen(parent)));
-	    
-	    modelRotation = 0.6F;
     
 	    super.init();
   	}
@@ -104,38 +100,32 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	public void render(@NotNull GuiGraphics graphics, int f1, int f2, float f3) {
 		renderBackground(graphics);
 		super.render(graphics, f1, f2, f3);
-		Minecraft minecraft = Minecraft.getInstance();
 
 		int x = this.width / 2;
 	    int y = this.height / 2;
 
 		graphics.drawString(this.font, title, x - 118, y - 62, 4473924, false);
-
-	    modelRotation = 0.6f;
-
-		try {
-			RenderSystem.setShaderColor(1f, 1.0F, 1.0F, 1.0F);
-		    int xP = this.width / 2 - 82;
-		    int yP = this.height / 2 + 40;
-		    Player ent = minecraft.level == null ? null : minecraft.level.getPlayerByUUID(this.playerUUID);
-		    if (ent != null) {
+		RenderSystem.setShaderColor(1f, 1.0F, 1.0F, 1.0F);
+		int xP = this.width / 2 - 82;
+		int yP = this.height / 2 + 40;
+		if (minecraft != null && minecraft.level != null) {
+			Player ent = minecraft.level.getPlayerByUUID(this.playerUUID);
+			if (ent != null) {
 				InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, xP, yP, 45, xP - f1, yP - 107 + 75 - 40 - f2, ent);
-		    }
-		} catch(Exception ignored) {
+			}
 		}
 
 		y = y - 45;
-		boolean withCreator = minecraft.player != null && minecraft.player.connection.getListedOnlinePlayers().stream()
-			.anyMatch(player -> player.getProfile().getId().equals(CREATOR_UUID));
-		if (withCreator) {
-			graphics.drawCenteredString(font, Component.translatable("wildfire_gender.label.with_creator"), this.width / 2, y + 89, 0xFF00FF);
-		}
-
 		if (isBreastCancerAwarenessMonth) {
 			graphics.fill(x - 159, y + 106, x + 159, y + 136, 0x55000000);
 			graphics.drawString(font, Component.translatable("wildfire_gender.cancer_awareness.title").withStyle(ChatFormatting.BOLD, ChatFormatting.ITALIC), this.width / 2 - 148, y + 117, 0xFFFFFF, false);
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			graphics.blit(TXTR_RIBBON, x + 130, y + 109, 26, 26, 0, 0, 20, 20, 20, 20);
+			y += 55;
+		}
+
+		if (minecraft != null && minecraft.player != null && minecraft.player.connection.getListedOnlinePlayers().stream()
+			.anyMatch(player -> player.getProfile().getId().equals(CREATOR_UUID))) {
+			graphics.drawCenteredString(font, Component.translatable("wildfire_gender.label.with_creator"), this.width / 2, y + 89, 0xFF00FF);
 		}
 	}
 }

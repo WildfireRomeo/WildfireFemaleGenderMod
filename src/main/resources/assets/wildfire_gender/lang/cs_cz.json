@@ -20,7 +20,6 @@
 	"wildfire_gender.appearance_settings.title": "Nastavení vzhledu",
 	"wildfire_gender.char_settings.title": "Nastavení charakteru",
 	"wildfire_gender.char_settings.physics": "Fyzika prsou: %s",
-	"wildfire_gender.tooltip.breast_physics": "Zapne/vypne fyziku prsou",
 	"wildfire_gender.char_settings.hide_in_armor": "Schovat v brnění: %s",
 	"wildfire_gender.tooltip.hide_in_armor": "Schová model prsou, když je oblečeno brnění",
 	"wildfire_gender.char_settings.hurt_sounds": "Ženské zvuky zranění: %s",
@@ -45,7 +44,6 @@
 	"wildfire_gender.label.disabled": "Vypnuto",
 	"wildfire_gender.label.yes": "Ano",
 	"wildfire_gender.label.no": "Ne",
-	"wildfire_gender.label.exit": "X",
 	"wildfire_gender.label.too_far": "Příliš daleko",
 	"wildfire_gender.label.with_creator": "Hrajete na serveru s tvůrcem tohohle modu!",
 

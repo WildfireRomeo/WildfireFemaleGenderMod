@@ -20,7 +20,6 @@
   "wildfire_gender.appearance_settings.title": "Параметри зовнішнього вигляду",
   "wildfire_gender.char_settings.title": "Параметри персонажа",
   "wildfire_gender.char_settings.physics": "Фізика грудей: %s",
-  "wildfire_gender.tooltip.breast_physics": "Вмикає фізику грудей",
   "wildfire_gender.char_settings.hide_in_armor": "Приховувати під бронею: %s",
   "wildfire_gender.tooltip.hide_in_armor": "Приховує модель грудей під час носіння броні",
   "wildfire_gender.char_settings.hurt_sounds": "Жіночі звуки поранення: %s",
@@ -45,7 +44,6 @@
   "wildfire_gender.label.disabled": "Вимкнено",
   "wildfire_gender.label.yes": "Так",
   "wildfire_gender.label.no": "Ні",
-  "wildfire_gender.label.exit": "X",
   "wildfire_gender.label.too_far": "Занадто далеко",
   "wildfire_gender.label.with_creator": "Ви граєте на одному ж сервері з творцем цього моду!",
 

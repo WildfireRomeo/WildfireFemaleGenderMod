@@ -20,7 +20,6 @@
 	"wildfire_gender.appearance_settings.title": "Wat u luk laik",
 	"wildfire_gender.char_settings.title": "Wat iz dat sopsoss 2 luk laik",
 	"wildfire_gender.char_settings.physics": "Bouncy-Bouncy: %s",
-	"wildfire_gender.tooltip.breast_physics": "Maiks u bouncy.",
 	"wildfire_gender.char_settings.hide_in_armor": "Hait shirt plz: %s",
 	"wildfire_gender.tooltip.hide_in_armor": "Haits shirt from u cuz it bad.",
 	"wildfire_gender.char_settings.hurt_sounds": "Women kat oofs: %s",
@@ -45,7 +44,6 @@
 	"wildfire_gender.label.disabled": "dissaibedd",
 	"wildfire_gender.label.yes": "pls",
 	"wildfire_gender.label.no": "naw",
-	"wildfire_gender.label.exit": "X",
 	"wildfire_gender.label.too_far": "Whai u runnin!",
 	"wildfire_gender.label.with_creator": "pett owna iz un serva gg",
 

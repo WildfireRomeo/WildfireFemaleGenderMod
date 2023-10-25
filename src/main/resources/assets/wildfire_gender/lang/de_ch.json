@@ -20,7 +20,6 @@
 	"wildfire_gender.appearance_settings.title": "Ussehe",
 	"wildfire_gender.char_settings.title": "Character Iinstellige",
 	"wildfire_gender.char_settings.physics": "Brustphysik: %s",
-	"wildfire_gender.tooltip.breast_physics": "Brustphysik",
 	"wildfire_gender.char_settings.hide_in_armor": "Versteckt mit Rüstig: %s",
 	"wildfire_gender.tooltip.hide_in_armor": "Versteckt das Brustmodel wenn e Rüstung a'zoge isch.",
 	"wildfire_gender.char_settings.hurt_sounds": "Wiibliche Soundeffekte: %s",
@@ -45,7 +44,6 @@
 	"wildfire_gender.label.disabled": "Deaktiviert",
 	"wildfire_gender.label.yes": "Ja",
 	"wildfire_gender.label.no": "Nei",
-	"wildfire_gender.label.exit": "X",
 	"wildfire_gender.label.too_far": "Z'Wiit weg.",
 	"wildfire_gender.label.with_creator": "Du spielsch uf nem Server mit dem Programmierer vu dem Mod!",
 

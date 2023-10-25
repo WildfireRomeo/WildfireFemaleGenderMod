@@ -20,7 +20,6 @@
 	"wildfire_gender.appearance_settings.title": "Ajustes de apariencia",
 	"wildfire_gender.char_settings.title": "Ajustes de personaje",
 	"wildfire_gender.char_settings.physics": "Físicas del busto: %s",
-	"wildfire_gender.tooltip.breast_physics": "Activa las físicas del busto",
 	"wildfire_gender.char_settings.hide_in_armor": "Esconder en la armadura: %s",
 	"wildfire_gender.tooltip.hide_in_armor": "Esconde el modelo del busto al usar armadura.",
 	"wildfire_gender.char_settings.hurt_sounds": "Sonidos de dolor: %s",
@@ -45,7 +44,6 @@
 	"wildfire_gender.label.disabled": "No",
 	"wildfire_gender.label.yes": "Sí",
 	"wildfire_gender.label.no": "No",
-	"wildfire_gender.label.exit": "X",
 	"wildfire_gender.label.too_far": "¡Muy lejos!",
 	"wildfire_gender.label.with_creator": "¡Estás jugando en un servidor con la creadora del mod!",
 
