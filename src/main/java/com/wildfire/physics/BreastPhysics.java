@@ -33,7 +33,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class BreastPhysics {
 
-	private float bounceVel = 0, targetBounce = 0, velocity = 0, wfg_femaleBreast, wfg_preBounce;
+	private float bounceVel = 0, targetBounceY = 0, velocity = 0, wfg_femaleBreast, wfg_preBounce;
 	private float bounceRotVel = 0, targetRotVel = 0, rotVelocity = 0, wfg_bounceRotation, wfg_preBounceRotation;
 	private float bounceVelX = 0, targetBounceX = 0, velocityX = 0, wfg_femaleBreastX, wfg_preBounceX;
 
@@ -41,9 +41,8 @@ public class BreastPhysics {
 
 	private float breastSize = 0, preBreastSize = 0;
 
-	private Vec3 motion;
 	private Vec3 prePos;
-	private GenderPlayer genderPlayer;
+	private final GenderPlayer genderPlayer;
 	public BreastPhysics(GenderPlayer genderPlayer) {
 		this.genderPlayer = genderPlayer;
 	}
@@ -66,7 +65,7 @@ public class BreastPhysics {
 
 		if (!genderPlayer.getGender().canHaveBreasts()) {
 			targetBreastSize = 0;
-		} else {
+		} else if (!genderPlayer.getArmorPhysicsOverride()) { //skip resistance if physics is overridden
 			float tightness = Mth.clamp(armor.tightness(), 0, 1);
 			//Scale breast size by how tight the armor is, clamping at a max adjustment of shrinking by 0.15
 			targetBreastSize *= 1 - 0.15F * tightness;
@@ -79,14 +78,16 @@ public class BreastPhysics {
 		}
 
 
-		this.motion = plr.position().subtract(this.prePos);
+		Vec3 motion = plr.position().subtract(this.prePos);
 		this.prePos = plr.position();
-		//System.out.println(motion);
+		//WildfireGender.logger.debug("Motion: {}", motion);
 
 		float bounceIntensity = (targetBreastSize * 3f) * genderPlayer.getBounceMultiplier();
-		float resistance = Mth.clamp(armor.physicsResistance(), 0, 1);
-		//Adjust bounce intensity by physics resistance of the worn armor
-		bounceIntensity *= 1 - resistance;
+		if (!genderPlayer.getArmorPhysicsOverride()) { //skip resistance if physics is overridden
+			float resistance = Mth.clamp(armor.physicsResistance(), 0, 1);
+			//Adjust bounce intensity by physics resistance of the worn armor
+			bounceIntensity *= 1 - resistance;
+		}
 
 		if(!genderPlayer.getBreasts().isUniboob()) {
 			bounceIntensity = bounceIntensity * WildfireHelper.randFloat(0.5f, 1.5f);
@@ -98,9 +99,9 @@ public class BreastPhysics {
 		if(plr.fallDistance == 0) alreadyFalling = false;
 
 
-		this.targetBounce = (float) motion.y * bounceIntensity;
-		this.targetBounce += breastWeight;
-		float horizVel = (float) Math.sqrt(Math.pow(motion.x, 2) + Math.pow(motion.z, 2)) * (bounceIntensity);
+		this.targetBounceY = (float) motion.y * bounceIntensity;
+		this.targetBounceY += breastWeight;
+		//float horizVel = (float) Math.sqrt(Math.pow(motion.x, 2) + Math.pow(motion.z, 2)) * (bounceIntensity);
 		//float horizLocal = -horizVel * ((plr.getRotationYawHead()-plr.renderYawOffset)<0?-1:1);
 		this.targetRotVel = -((plr.yBodyRot - plr.yBodyRotO) / 15f) * bounceIntensity;
 
@@ -112,19 +113,19 @@ public class BreastPhysics {
 			f = 1.0F;
 		}
 
-		this.targetBounce += Mth.cos(plr.walkAnimation.position() * 0.6662F + (float)Math.PI) * 0.5F * plr.walkAnimation.speed() * 0.5F / f;
-		//System.out.println(plr.rotationYaw);
+		this.targetBounceY += Mth.cos(plr.walkAnimation.position() * 0.6662F + (float)Math.PI) * 0.5F * plr.walkAnimation.speed() * 0.5F / f;
+		//WildfireGender.logger.debug("Rotation yaw: {}", plr.rotationYaw);
 
 		this.targetRotVel += (float) motion.y * bounceIntensity * randomB;
 
 
 		if(plr.getPose() == Pose.CROUCHING && !this.justSneaking) {
 			this.justSneaking = true;
-			this.targetBounce += bounceIntensity;
+			this.targetBounceY += bounceIntensity;
 		}
 		if(plr.getPose() != Pose.CROUCHING && this.justSneaking) {
 			this.justSneaking = false;
-			this.targetBounce += bounceIntensity;
+			this.targetBounceY += bounceIntensity;
 		}
 
 
@@ -136,63 +137,50 @@ public class BreastPhysics {
 
 				float rotationL = (float)Mth.clampedLerp(-(float)Math.PI / 3F, -0.2617994F, (double)((Mth.sin(-rowTime2) + 1.0F) / 2.0F));
 				float rotationR = (float)Mth.clampedLerp(-(float)Math.PI / 4F, (float)Math.PI / 4F, (double)((Mth.sin(-rowTime + 1.0F) + 1.0F) / 2.0F));
-				//System.out.println(rotationL + ", " + rotationR);
+				//WildfireGender.logger.debug("{}, {}", rotationL, rotationR);
 				if(rotationL < -1 || rotationR < -0.6f) {
-					this.targetBounce = bounceIntensity / 3.25f;
+					this.targetBounceY = bounceIntensity / 3.25f;
 				}
 			}
 
 			if(plr.getVehicle() instanceof Minecart cart) {
 				float speed = (float) cart.getDeltaMovement().lengthSqr();
 				if(Math.random() * speed < 0.5f && speed > 0.2f) {
-					if(Math.random() > 0.5) {
-						this.targetBounce = -bounceIntensity / 6f;
-					} else {
-						this.targetBounce = bounceIntensity / 6f;
-					}
+					this.targetBounceY = (Math.random() > 0.5 ? -bounceIntensity : bounceIntensity) / 6f;
 				}
-				/*if(rotationL < -1 || rotationR < -1) {
-					aPlr.targetBounce = bounceIntensity / 3.25f;
-				}*/
 			}
 			if(plr.getVehicle() instanceof AbstractHorse horse) {
 				float movement = (float) horse.getDeltaMovement().length();
 				if(horse.tickCount % clampMovement(movement) == 5 && movement > 0.1f) {
-					this.targetBounce = bounceIntensity / 4f;
+					this.targetBounceY = bounceIntensity / 4f;
 				}
-				//horse
 			}
 			if(plr.getVehicle() instanceof Pig pig) {
 				float movement = (float) pig.getDeltaMovement().length();
-				//System.out.println(movement);
 				if(pig.tickCount % clampMovement(movement) == 5 && movement > 0.08f) {
-					this.targetBounce = bounceIntensity / 4f;
+					this.targetBounceY = bounceIntensity / 4f;
 				}
-				//horse
 			}
 			if(plr.getVehicle() instanceof Strider strider) {
-				this.targetBounce += ((float) (strider.getPassengersRidingOffset()*3f) - 4.5f) * bounceIntensity;
-				//horse
+				double heightOffset = (double) strider.getBbHeight() - 0.19
+									  + (double) (0.12F * Mth.cos(strider.walkAnimation.position() * 1.5f)
+												 * 2F * Math.min(0.25F, strider.walkAnimation.speed()));
+				this.targetBounceY += ((float) (heightOffset * 3f) - 4.5f) * bounceIntensity;
 			}
-			//System.out.println("VEHICLE");
 		}
 		if(plr.swinging && plr.tickCount % 5 == 0 && plr.getPose() != Pose.SLEEPING) {
-			if(Math.random() > 0.5) {
-				this.targetBounce += -0.25f * bounceIntensity;
-			} else {
-				this.targetBounce += 0.25f * bounceIntensity;
-			}
+			this.targetBounceY += (Math.random() > 0.5 ? -0.25f : 0.25f) * bounceIntensity;
 		}
 		if(plr.getPose() == Pose.SLEEPING && !this.alreadySleeping) {
-			this.targetBounce = bounceIntensity;
+			this.targetBounceY = bounceIntensity;
 			this.alreadySleeping = true;
 		}
 		if(plr.getPose() != Pose.SLEEPING && this.alreadySleeping) {
-			this.targetBounce = bounceIntensity;
+			this.targetBounceY = bounceIntensity;
 			this.alreadySleeping = false;
 		}
 		/*if(plr.getPose() == EntityPose.SWIMMING) {
-			//System.out.println(1 - plr.getRotationVec(tickDelta).getY());
+			//WildfireGender.logger.debug(1 - plr.getRotationVec(tickDelta).getY());
 			rotationMultiplier = 1 - (float) plr.getRotationVec(tickDelta).getY();
 		}
 		*/
@@ -208,17 +196,17 @@ public class BreastPhysics {
 		float distanceFromMax = Math.abs(bounceVel - 2.65f) * 0.5f;
 
 		if(bounceVel < -0.5f) {
-			targetBounce += distanceFromMin;
+			targetBounceY += distanceFromMin;
 		}
 		if(bounceVel > 2.5f) {
-			targetBounce -= distanceFromMax;
+			targetBounceY -= distanceFromMax;
 		}
-		if(targetBounce < -1.5f) targetBounce = -1.5f;
-		if(targetBounce > 2.5f) targetBounce = 2.5f;
+		if(targetBounceY < -1.5f) targetBounceY = -1.5f;
+		if(targetBounceY > 2.5f) targetBounceY = 2.5f;
 		if(targetRotVel < -25f) targetRotVel = -25f;
 		if(targetRotVel > 25f) targetRotVel = 25f;
 
-		this.velocity = Mth.lerp(bounceAmount, this.velocity, (this.targetBounce - this.bounceVel) * delta);
+		this.velocity = Mth.lerp(bounceAmount, this.velocity, (this.targetBounceY - this.bounceVel) * delta);
 		//this.preY = MathHelper.lerp(0.5f, this.preY, (this.targetBounce - this.bounceVel) * 1.25f);
 		this.bounceVel += this.velocity * percent * 1.1625f;
 

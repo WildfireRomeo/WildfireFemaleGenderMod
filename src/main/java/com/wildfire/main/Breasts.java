@@ -37,6 +37,14 @@ public class Breasts {
         return false;
     }
 
+    private <VALUE> boolean updateFrom(ConfigKey<VALUE> key, Configuration copyFrom, Consumer<VALUE> setter) {
+        VALUE value = copyFrom.get(key);
+        if (value == null) {
+            return false;
+        }
+        return updateValue(key, value, setter);
+    }
+
     public float getXOffset() {
         return xOffset;
     }
@@ -75,5 +83,14 @@ public class Breasts {
 
     public boolean updateUniboob(boolean value) {
         return updateValue(ClientConfiguration.BREASTS_UNIBOOB, value, v -> this.uniboob = v);
+    }
+
+    public boolean copyFrom(Configuration copyFrom) {
+        //Note: Use bitwise or to ensure all get ran
+        return updateFrom(ClientConfiguration.BREASTS_OFFSET_X, copyFrom, v -> this.xOffset = v) |
+               updateFrom(ClientConfiguration.BREASTS_OFFSET_Y, copyFrom, v -> this.yOffset = v) |
+               updateFrom(ClientConfiguration.BREASTS_OFFSET_Z, copyFrom, v -> this.zOffset = v) |
+               updateFrom(ClientConfiguration.BREASTS_CLEAVAGE, copyFrom, v -> this.cleavage = v) |
+               updateFrom(ClientConfiguration.BREASTS_UNIBOOB, copyFrom, v -> this.uniboob = v);
     }
 }

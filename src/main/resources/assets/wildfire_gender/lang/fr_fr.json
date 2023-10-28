@@ -20,7 +20,6 @@
 	"wildfire_gender.appearance_settings.title": "Paramètres d'Apparence",
 	"wildfire_gender.char_settings.title": "Paramètres de Personnage",
 	"wildfire_gender.char_settings.physics": "Physiques de la Poitrine: %s",
-	"wildfire_gender.tooltip.breast_physics": "Activer Physique de la Poitrine",
 	"wildfire_gender.char_settings.hide_in_armor": "Cacher dans l'Armure: %s",
 	"wildfire_gender.tooltip.hide_in_armor": "Cacher la Poitrine avec une Armure Équippée",
 	"wildfire_gender.char_settings.hurt_sounds": "Sons Blessés Féminins: %s",
@@ -45,7 +44,6 @@
 	"wildfire_gender.label.disabled": "Desactivé",
 	"wildfire_gender.label.yes": "Oui",
 	"wildfire_gender.label.no": "Non",
-	"wildfire_gender.label.exit": "X",
 	"wildfire_gender.label.too_far": "Trop Loin",
 	"wildfire_gender.label.with_creator": "Vous êtes en train de jouer sur un serveur avec la créatrice de ce mod!",
 

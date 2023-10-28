@@ -53,7 +53,6 @@ import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
 import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.*;
 
@@ -186,10 +185,8 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			float zOff = 0.0625f - (bSize * 0.0625f);
 			breastSize = bSize + 0.5f * Math.abs(bSize - 0.7f) * 2f;
 
-			//matrixStack.translate(0, 0, zOff);
-			//System.out.println(bounceRotation);
-
-			float resistance = Mth.clamp(genderArmor.physicsResistance(), 0, 1);
+			//If the armor physics is overridden ignore resistance
+			float resistance = plr.getArmorPhysicsOverride() ? 0 : Mth.clamp(genderArmor.physicsResistance(), 0, 1);
 			//Note: We only check if the breathing animation should be enabled if the chestplate's physics resistance
 			// is less than or equal to 0.5 so that if we won't be rendering it we can avoid doing extra calculations
 			boolean breathingAnimation = resistance <= 0.5F &&
@@ -224,7 +221,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 				isChestplateOccupied, breathingAnimation, false);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		} catch(Exception e) {
-			e.printStackTrace();
+			WildfireGender.logger.error("Failed to render gender layer", e);
 		}
 	}
 
@@ -293,7 +290,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 			renderBreast(entity, armorStack, matrixStack, bufferSource, breastRenderType, packedLightIn, combineTex, alpha, left);
 		} catch(Exception e) {
-			e.printStackTrace();
+			WildfireGender.logger.error("Failed to render breast", e);
 		}
 		matrixStack.popPose();
 	}

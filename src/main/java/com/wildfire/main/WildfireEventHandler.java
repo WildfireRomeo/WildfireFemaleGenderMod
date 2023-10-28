@@ -18,11 +18,10 @@
 
 package com.wildfire.main;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.api.IGenderArmor;
-import com.wildfire.gui.screen.WildfirePlayerListScreen;
+import com.wildfire.gui.screen.WardrobeBrowserScreen;
 import com.wildfire.main.config.GeneralClientConfig;
-import com.wildfire.main.networking.PacketSendGenderInfo;
+import com.wildfire.main.networking.WildfireSync;
 import com.wildfire.render.GenderLayer;
 
 import java.util.Set;
@@ -30,23 +29,17 @@ import java.util.UUID;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.toasts.Toast;
-import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.Holder;
-import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.PlayLevelSoundEvent;
@@ -57,12 +50,24 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.network.NetworkHooks;
 import org.lwjgl.glfw.GLFW;
 
 public class WildfireEventHandler {
 
-	public static final KeyMapping toggleEditGUI = new KeyMapping("key.wildfire_gender.gender_menu", GLFW.GLFW_KEY_G, "category.wildfire_gender.generic");
+	public static final KeyMapping toggleEditGUI = new KeyMapping("key.wildfire_gender.gender_menu", GLFW.GLFW_KEY_G, "category.wildfire_gender.generic") {
+
+		@Override
+		public void setDown(boolean value) {
+			if (value && !isDown()) {
+				//When the key goes from not down to down try to open the wardrobe screen
+				Minecraft minecraft = Minecraft.getInstance();
+				if (minecraft.screen == null && minecraft.player != null) {
+					minecraft.setScreen(new WardrobeBrowserScreen(minecraft.player.getUUID()));
+				}
+			}
+			super.setDown(value);
+		}
+	};
 
 	@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD, modid = WildfireGender.MODID)
 	private static class ClientModEventBusListeners {
@@ -88,65 +93,45 @@ public class WildfireEventHandler {
 		}
 	}
 
-
+	private int timer = 0;
 	private int toastTick = 0;
 	private boolean showedToast = false;
  	@SubscribeEvent
 	public void onGUI(TickEvent.ClientTickEvent evt) {
- 		if (Minecraft.getInstance().level == null) {
+		Player player = Minecraft.getInstance().player;
+ 		if (Minecraft.getInstance().level == null || player == null) {
 			WildfireGender.CLOTHING_PLAYERS.clear();
 			toastTick = 0;
-		} else {
-			 //toastTick++;
-			 if(toastTick > 100 && !showedToast) {
-				 Minecraft.getInstance().getToasts().addToast(new Toast() {
-					 @Override
-					 public Visibility render(GuiGraphics graphics, ToastComponent component, long p_94898_) {
-						 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			return;
+		}/* else if (!showedToast && toastTick++ > 100) {
+			 Minecraft.getInstance().getToasts().addToast(new Toast() {
+				 @Nonnull
+				 @Override
+				 public Visibility render(@Nonnull GuiGraphics graphics, @Nonnull ToastComponent component, long timeSinceLastVisible) {
+					 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-						 graphics.blit(TEXTURE, 0, 0, 0, 0, this.width(), this.height());
-						 Font font = component.getMinecraft().font;
-						 graphics.drawString(font, Component.translatable("category.wildfire_gender.generic"), 0, 7, 0xFF000000, false);
-						 graphics.drawString(font, Component.translatable("toast.wildfire_gender.get_started", toggleEditGUI.getTranslatedKeyMessage()), 0, 18, -1, false);
+					 graphics.blit(TEXTURE, 0, 0, 0, 0, this.width(), this.height());
+					 Font font = component.getMinecraft().font;
+					 graphics.drawString(font, Component.translatable("category.wildfire_gender.generic"), 0, 7, 0xFF000000, false);
+					 graphics.drawString(font, Component.translatable("toast.wildfire_gender.get_started", toggleEditGUI.getTranslatedKeyMessage()), 0, 18, -1, false);
 
-						 return Visibility.SHOW;
-					 }
-				 });
-				 showedToast = true;
-			 }
+					 return Visibility.SHOW;
+				 }
+			 });
+			 showedToast = true;
+		 }*/
+		boolean shouldSync = false;
+		ClientPacketListener connection = Minecraft.getInstance().getConnection();
+		if (connection != null) {
+			shouldSync = WildfireSync.NETWORK.isRemotePresent(connection.getConnection());
 		}
-		boolean isVanillaServer = true;
-		try {
-			ClientPacketListener connection = Minecraft.getInstance().getConnection();
-			isVanillaServer = connection != null && NetworkHooks.isVanillaConnection(connection.getConnection());
-		} catch(Exception ignored) {}
-
-		if(!isVanillaServer) {
-			//20 ticks per second / 5 = 4 times per second
-
-			timer++;
-			if (timer >= 5) {
-				//System.out.println("sync");
-				try {
-					Player player = Minecraft.getInstance().player;
-					if (player == null) {
-						return;
-					}
-					GenderPlayer aPlr = WildfireGender.getPlayerById(player.getUUID());
-					//Only sync it if it has changed
-					if (aPlr == null || !aPlr.needsSync) {
-						return;
-					}
-					PacketSendGenderInfo.send(aPlr);
-				} catch (Exception e) {
-					//e.printStackTrace();
-				}
-				timer = 0;
-			}
+		//20 ticks per second / 5 = 4 times per second
+		if (shouldSync && timer++ % 5 == 0) {
+			GenderPlayer aPlr = WildfireGender.getPlayerById(player.getUUID());
+			WildfireSync.sendToServer(aPlr);
 		}
 	}
 
-    int timer = 0;
  	@SubscribeEvent
 	public void onPlayerTick(PlayerTickEvent evt) {
 		if(evt.phase == TickEvent.Phase.END && evt.side.isClient()) {
@@ -157,16 +142,6 @@ public class WildfireEventHandler {
 			aPlr.getRightBreastPhysics().update(evt.player, armor);
 		}
  	}
- 	@SubscribeEvent
-	public void onKeyInput(InputEvent.Key evt) {
-		if (toggleEditGUI.isDown()) {
-			if(WildfireGender.modEnabled) {
-				WildfireGender.refreshAllGenders();
-				Minecraft.getInstance().setScreen(new WildfirePlayerListScreen());
-
-			}
-		}
-	}
 
 	@SubscribeEvent
 	public void onPlayerJoin(EntityJoinLevelEvent evt) {
@@ -179,10 +154,8 @@ public class WildfireEventHandler {
 				//Mark the player as needing sync if it is the client's own player
 				Player player = Minecraft.getInstance().player;
 				WildfireGender.loadGenderInfoAsync(uuid, player != null && uuid.equals(player.getUUID()));
-
-				WildfireGender.refreshAllGenders();
 			}
-		} 
+		}
 	}
 
 	//TODO: Eventually we may want to replace this with a map or something and replace things like drowning sounds with other drowning sounds
@@ -209,9 +182,12 @@ public class WildfireEventHandler {
 					//Note: We check hurtTime == hurtDuration and hurtTime > 0 or otherwise when the server sends a hurt sound to the client
 					// and the client will check itself instead of the player who was damaged.
 					GenderPlayer plr = WildfireGender.getPlayerById(p.getUUID());
-					if (plr != null && plr.hasHurtSounds() && plr.getGender().hasFemaleHurtSounds()) {
-						//If the player who produced the hurt sound is a female sound replace it
-						soundEvent = Math.random() > 0.5f ? WildfireSounds.FEMALE_HURT1 : WildfireSounds.FEMALE_HURT2;
+					if (plr != null && plr.hasHurtSounds()) {
+						SoundEvent soundOverride = plr.getGender().getHurtSound();
+						if (soundOverride != null) {
+							//If the player who produced the hurt sound is a female sound replace it
+							soundEvent = soundOverride;
+						}
 					}
 				} else {
 					Player player = Minecraft.getInstance().player;

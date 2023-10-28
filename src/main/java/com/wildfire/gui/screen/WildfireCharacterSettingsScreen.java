@@ -24,7 +24,6 @@ import com.wildfire.main.config.ClientConfiguration;
 
 import java.util.UUID;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.GenderPlayer;
 import javax.annotation.Nonnull;
@@ -36,16 +35,14 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 
 public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
     private static final Component ENABLED = Component.translatable("wildfire_gender.label.enabled").withStyle(ChatFormatting.GREEN);
     private static final Component DISABLED = Component.translatable("wildfire_gender.label.disabled").withStyle(ChatFormatting.RED);
+    private static final ResourceLocation BACKGROUND = WildfireGender.rl("textures/gui/settings_bg.png");
 
     private WildfireSlider bounceSlider, floppySlider;
-    private ResourceLocation BACKGROUND;
-    private int yPos = 0;
     private boolean bounceWarning;
 
     protected WildfireCharacterSettingsScreen(Screen parent, UUID uuid) {
@@ -59,11 +56,11 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
         int x = this.width / 2;
         int y = this.height / 2;
 
-        yPos = y - 47;
+        int yPos = y - 47;
         int xPos = x - 156 / 2 - 1;
 
         //Add 'Close' button at beginning
-        this.addRenderableWidget(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, Component.translatable("wildfire_gender.label.exit"),
+        this.addRenderableWidget(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, Component.literal("X"),
                 button -> Minecraft.getInstance().setScreen(parent)));
 
         this.addRenderableWidget(new WildfireButton(xPos, yPos, 157, 20,
@@ -73,7 +70,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
                 button.setMessage(Component.translatable("wildfire_gender.char_settings.physics", enablePhysics ? ENABLED : DISABLED));
                 GenderPlayer.saveGenderInfo(aPlr);
             }
-        }, Tooltip.create(Component.translatable("wildfire_gender.tooltip.breast_physics"))));
+        }));
 
         this.addRenderableWidget(new WildfireButton(xPos, yPos + 20, 157, 20,
               Component.translatable("wildfire_gender.char_settings.hide_in_armor", aPlr.showBreastsInArmor() ? DISABLED : ENABLED), button -> {
@@ -84,14 +81,26 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             }
         }, Tooltip.create(Component.translatable("wildfire_gender.tooltip.hide_in_armor"))));
 
-        this.addRenderableWidget(this.bounceSlider = new WildfireSlider(xPos, yPos + 40, 157, 20, ClientConfiguration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplierRaw(), value -> {
+        this.addRenderableWidget(new WildfireButton(xPos, yPos + 40, 157, 20,
+              Component.translatable("wildfire_gender.char_settings.override_armor_physics", aPlr.getArmorPhysicsOverride() ? ENABLED : DISABLED), button -> {
+            boolean enableArmorPhysicsOverride = !aPlr.getArmorPhysicsOverride();
+            if (aPlr.updateArmorPhysicsOverride(enableArmorPhysicsOverride)) {
+                button.setMessage(Component.translatable("wildfire_gender.char_settings.override_armor_physics", enableArmorPhysicsOverride ? DISABLED : ENABLED));
+                GenderPlayer.saveGenderInfo(aPlr);
+            }
+        }, Tooltip.create(Component.translatable("wildfire_gender.tooltip.override_armor_physics.line1")
+              .append("\n\n")
+              .append(Component.translatable("wildfire_gender.tooltip.override_armor_physics.line2"))
+        )));
+
+        this.addRenderableWidget(this.bounceSlider = new WildfireSlider(xPos, yPos + 60, 157, 20, ClientConfiguration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplierRaw(), value -> {
         }, value -> {
             float bounceText = 3 * value;
             float v = Math.round(bounceText * 10) / 10f;
             bounceWarning = v > 1;
-            if (v == 3) {
+            if (v == 1.5F) {
                 return Component.translatable("wildfire_gender.slider.max_bounce");
-            } else if (Math.round(bounceText * 100) / 100f == 0) {
+            } else if (v == 0F) {
                 return Component.translatable("wildfire_gender.slider.min_bounce");
             }
             return Component.translatable("wildfire_gender.slider.bounce", v);
@@ -101,14 +110,14 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             }
         }));
 
-        this.addRenderableWidget(this.floppySlider = new WildfireSlider(xPos, yPos + 60, 157, 20, ClientConfiguration.FLOPPY_MULTIPLIER, aPlr.getFloppiness(), value -> {
+        this.addRenderableWidget(this.floppySlider = new WildfireSlider(xPos, yPos + 80, 157, 20, ClientConfiguration.FLOPPY_MULTIPLIER, aPlr.getFloppiness(), value -> {
         }, value -> Component.translatable("wildfire_gender.slider.floppy", Math.round(value * 100)), value -> {
             if (aPlr.updateFloppiness(value)) {
                 GenderPlayer.saveGenderInfo(aPlr);
             }
         }));
 
-        this.addRenderableWidget(new WildfireButton(xPos, yPos + 80, 157, 20,
+        this.addRenderableWidget(new WildfireButton(xPos, yPos + 100, 157, 20,
               Component.translatable("wildfire_gender.char_settings.hurt_sounds", aPlr.hasHurtSounds() ? ENABLED : DISABLED), button -> {
             boolean enableHurtSounds = !aPlr.hasHurtSounds();
             if (aPlr.updateHurtSounds(enableHurtSounds)) {
@@ -117,37 +126,34 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             }
         }, Tooltip.create(Component.translatable("wildfire_gender.tooltip.hurt_sounds"))));
 
-        this.BACKGROUND = new ResourceLocation(WildfireGender.MODID, "textures/gui/settings_bg.png");
-
         super.init();
     }
 
     @Override
-    public void render(@Nonnull GuiGraphics graphics, int f1, int f2, float f3) {
+    public void renderBackground(@Nonnull GuiGraphics graphics) {
         super.renderBackground(graphics);
-        Level level = Minecraft.getInstance().level;
-        Player plrEntity = level == null ? null : level.getPlayerByUUID(this.playerUUID);
+        graphics.blit(BACKGROUND, (this.width - 172) / 2, (this.height - 124) / 2, 0, 0, 172, 144);
+    }
 
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        if (this.BACKGROUND != null) {
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            int i = (this.width - 172) / 2;
-            int j = (this.height - 124) / 2;
-            graphics.blit(BACKGROUND, i, j, 0, 0, 172, 144);
-        }
+    @Override
+    public void render(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        renderBackground(graphics);
+        super.render(graphics, mouseX, mouseY, delta);
 
         int x = this.width / 2;
         int y = this.height / 2;
+        int yPos = y - 47;
 
         graphics.drawString(this.font, title, x - 79, yPos - 10, 4473924, false);
 
-        super.render(graphics, f1, f2, f3);
-
-        if(plrEntity != null) {
-            graphics.drawCenteredString(this.font, plrEntity.getDisplayName(), x, yPos - 30, 0xFFFFFF);
+        if (minecraft != null && minecraft.level != null) {
+            Player plrEntity = minecraft.level.getPlayerByUUID(this.playerUUID);
+            if (plrEntity != null) {
+                graphics.drawCenteredString(this.font, plrEntity.getDisplayName(), x, yPos - 30, 0xFFFFFF);
+            }
         }
 
-        if(bounceWarning) {
+        if (bounceWarning) {
             graphics.drawCenteredString(font, Component.translatable("wildfire_gender.tooltip.bounce_warning").withStyle(ChatFormatting.ITALIC), x, y+90, 0xFF6666);
         }
     }

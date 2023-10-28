@@ -24,7 +24,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 public class PacketSendGenderInfo extends PacketGenderInfo {
@@ -46,19 +45,11 @@ public class PacketSendGenderInfo extends PacketGenderInfo {
             }
             GenderPlayer plr = WildfireGender.getOrAddPlayerById(packet.uuid);
             packet.updatePlayerFromPacket(plr);
-            //System.out.println("Received data from player " + plr.uuid);
-            //Sync changes to other online players
-            PacketSync.sendToOthers(player, plr);
+            //WildfireGender.logger.debug("Received data from player {}", plr.uuid);
+            //Sync changes to other online players that are tracking us
+            WildfireSync.sendToOtherClients(player, plr);
         });
 
         context.get().setPacketHandled(true);
-    }
-
-    // Send Packet
-
-    public static void send(GenderPlayer plr) {
-        if(plr == null || !plr.needsSync) return;
-        WildfireGender.NETWORK.sendToServer(new PacketSendGenderInfo(plr));
-        plr.needsSync = false;
     }
 }

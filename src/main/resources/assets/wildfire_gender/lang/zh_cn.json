@@ -1,0 +1,58 @@
+{
+  "category.wildfire_gender.generic": "Wildfire's Female Gender Mod",
+  "key.wildfire_gender.gender_menu": "性别菜单",
+
+  "wildfire_gender.hurt.female": "女玩家受伤",
+
+  "wildfire_gender.player_list.title": "Female Gender Mod",
+  "wildfire_gender.player_list.settings_button": "设置",
+  "wildfire_gender.player_list.sync_status": "同步状态",
+  "wildfire_gender.player_list.state.loading": "正在加载数据...",
+  "wildfire_gender.player_list.state.synced": "同步玩家",
+
+  "wildfire_gender.wardrobe.title": "自定义菜单",
+  "wildfire_gender.wardrobe.slider.breast_size": "乳房大小：%s%%",
+  "wildfire_gender.wardrobe.slider.separation": "分离：%s",
+  "wildfire_gender.wardrobe.slider.height": "高度：%s",
+  "wildfire_gender.wardrobe.slider.depth": "深度：%s",
+  "wildfire_gender.wardrobe.slider.rotation": "旋转：%s度",
+
+  "wildfire_gender.appearance_settings.title": "外观设置",
+  "wildfire_gender.char_settings.title": "角色设置",
+  "wildfire_gender.char_settings.physics": "乳房物理：%s",
+  "wildfire_gender.char_settings.hide_in_armor": "隐藏在盔甲中：%s",
+  "wildfire_gender.tooltip.hide_in_armor": "穿着盔甲时隐藏乳房模型",
+  "wildfire_gender.char_settings.hurt_sounds": "女性受伤的声音：%s",
+  "wildfire_gender.tooltip.hurt_sounds": "使女性受伤的声音",
+
+  "wildfire_gender.breast_customization.dual_physics": "对偶物理：%s",
+
+  "wildfire_gender.player_list.bounce_multiplier": "反弹系数：%sx",
+  "wildfire_gender.player_list.breast_momentum": "乳房动量：%s%%",
+  "wildfire_gender.player_list.female_sounds": "女性声音：%s",
+
+  "wildfire_gender.settings.title": "Wildfire的设置菜单",
+
+  "wildfire_gender.acknowledge.confirm": "好",
+
+  "wildfire_gender.label.gender": "性别",
+  "wildfire_gender.label.female": "女性",
+  "wildfire_gender.label.male": "男性",
+  "wildfire_gender.label.other": "其他",
+
+  "wildfire_gender.label.enabled": "启用",
+  "wildfire_gender.label.disabled": "禁用",
+  "wildfire_gender.label.yes": "是",
+  "wildfire_gender.label.no": "否",
+  "wildfire_gender.label.too_far": "太远了",
+  "wildfire_gender.label.with_creator": "您正在与该模组的作者一起在服务器上玩！",
+
+  "wildfire_gender.slider.bounce": "弹跳强度：%sx",
+  "wildfire_gender.slider.floppy": "乳房动量：%s%%",
+  "wildfire_gender.slider.min_bounce": "为什么开启物理？",
+  "wildfire_gender.slider.max_bounce": "动漫乳房物理!!!",
+  "wildfire_gender.tooltip.bounce_warning": "将“反弹强度”设置为高值看起来非常不自然！",
+
+  "wildfire_gender.cancer_awareness.title": "嘿，这是乳腺癌宣传月！",
+  "wildfire_gender.cancer_awareness.description": "点击这里捐赠给§dSusan G. Komen Foundation§f！§r"
+}

@@ -20,17 +20,11 @@ package com.wildfire.main.networking;
 
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
-import java.util.Map;
-import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.PacketDistributor;
 
 import java.util.function.Supplier;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
 
 public class PacketSync extends PacketGenderInfo {
 
@@ -48,37 +42,11 @@ public class PacketSync extends PacketGenderInfo {
                 GenderPlayer plr = WildfireGender.getOrAddPlayerById(packet.uuid);
                 packet.updatePlayerFromPacket(plr);
                 plr.syncStatus = GenderPlayer.SyncStatus.SYNCED;
-                plr.lockSettings = true;
-                //System.out.println("Received player data " + plr.uuid);
-            } else {
-                //System.out.println("Ignoring packet, this is yourself.");
-            }
+                //WildfireGender.logger.debug("Received player data {}", plr.uuid);
+            }/* else {
+                WildfireGender.logger.debug("Ignoring packet, this is yourself.");
+            }*/
         });
         context.get().setPacketHandled(true);
-    }
-
-    // Send Packet
-
-    public static void sendToOthers(ServerPlayer player, GenderPlayer genderPlayer) {
-        MinecraftServer server = player.getServer();
-        if (genderPlayer != null && server != null) {
-            PacketSync syncPacket = new PacketSync(genderPlayer);
-            for (ServerPlayer serverPlayer : server.getPlayerList().getPlayers()) {
-                if (!player.getUUID().equals(serverPlayer.getUUID())) {
-                    //Only sync if it isn't the client we are syncing (they already know about themselves)
-                    WildfireGender.NETWORK.send(PacketDistributor.PLAYER.with(() -> serverPlayer), syncPacket);
-                }
-            }
-        }
-    }
-
-    public static void sendTo(ServerPlayer player) {
-        PacketTarget target = PacketDistributor.PLAYER.with(() -> player);
-        for (Map.Entry<UUID, GenderPlayer> entry : WildfireGender.CLOTHING_PLAYERS.entrySet()) {
-            UUID uuid = entry.getKey();
-            if (!player.getUUID().equals(uuid)) {
-                WildfireGender.NETWORK.send(target, new PacketSync(entry.getValue()));
-            }
-        }
     }
 }
