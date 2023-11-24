@@ -7,6 +7,9 @@
 	"wildfire_gender.player_list.sync_status": "Sinc stauz",
 	"wildfire_gender.player_list.state.loading": "Dawnludin fush...",
 	"wildfire_gender.player_list.state.synced": "Dawnludedd kat",
+	"wildfire_gender.player_list.bounce_multiplier": "Crazy Bouncy: %sx",
+	"wildfire_gender.player_list.breast_momentum": "Haw huvy: %s%%",
+	"wildfire_gender.player_list.female_sounds": "Nyas: %s",
 
 	"wildfire_gender.wardrobe.title": "kat two setinz",
 	"wildfire_gender.wardrobe.slider.breast_size": "Baluon saiz: %s%%",
@@ -18,21 +21,11 @@
 	"wildfire_gender.appearance_settings.title": "Wat u luk laik",
 	"wildfire_gender.char_settings.title": "Wat iz dat sopsoss 2 luk laik",
 	"wildfire_gender.char_settings.physics": "Bouncy-Bouncy: %s",
-	"wildfire_gender.tooltip.breast_physics": "Maiks u bouncy.",
 	"wildfire_gender.char_settings.hide_in_armor": "Hait shirt plz: %s",
-	"wildfire_gender.tooltip.hide_in_armor": "Haits shirt from u cuz it bad.",
 	"wildfire_gender.char_settings.hurt_sounds": "Women kat oofs: %s",
 	"wildfire_gender.tooltip.hurt_sounds": "Maiks kats oof.",
 
 	"wildfire_gender.breast_customization.dual_physics": "Double bouncy-bouncy: %s",
-
-	"wildfire_gender.player_list.bounce_multiplier": "Crazy Bouncy: %sx",
-	"wildfire_gender.player_list.breast_momentum": "Haw huvy: %s%%",
-	"wildfire_gender.player_list.female_sounds": "Nyas: %s",
-
-	"wildfire_gender.settings.title": "Wildfire's Setinz Mood",
-
-	"wildfire_gender.acknowledge.confirm": "K",
 
 	"wildfire_gender.label.gender": "Gunda",
 	"wildfire_gender.label.female": "Women",
@@ -43,8 +36,6 @@
 	"wildfire_gender.label.disabled": "dissaibedd",
 	"wildfire_gender.label.yes": "pls",
 	"wildfire_gender.label.no": "naw",
-	"wildfire_gender.label.exit": "X",
-	"wildfire_gender.label.too_far": "Whai u runnin!",
 	"wildfire_gender.label.with_creator": "pett owna iz un serva gg",
 
 	"wildfire_gender.slider.bounce": "Crazy Bouncy: %sx",
@@ -53,6 +44,5 @@
 	"wildfire_gender.slider.max_bounce": "BALONS!",
 	"wildfire_gender.tooltip.bounce_warning": "Usin 'Crazy Bouncy' 2 haiar valve iz luk badd!",
 
-	"wildfire_gender.cancer_awareness.title": "Hay, It cancor awarniss mouth!",
-	"wildfire_gender.cancer_awareness.description": "Tuch haer 2 spend munies 2 §dSusan G. Komen Fauntion§f!"
+	"wildfire_gender.cancer_awareness.title": "Hay, It cancor awarniss mouth!"
 }
