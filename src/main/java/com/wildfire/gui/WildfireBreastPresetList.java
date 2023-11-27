@@ -1,33 +1,19 @@
 package com.wildfire.gui;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.gui.screen.WildfireBreastCustomizationScreen;
-import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.config.BreastPresetConfiguration;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.EntryListWidget;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
-import java.io.File;
-import java.io.FileReader;
-import java.nio.file.Path;
-import java.time.format.TextStyle;
 import java.util.ArrayList;
-import java.util.Map;
 
 public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPresetList.Entry> {
 

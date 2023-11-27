@@ -19,15 +19,19 @@
 package com.wildfire.main;
 
 import com.wildfire.gui.screen.WardrobeBrowserScreen;
+import com.wildfire.main.entitydata.EntityConfig;
+import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.networking.WildfireSync;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.Entity;
@@ -44,7 +48,9 @@ public class WildfireEventHandler {
 
 	public static void registerClientEvents() {
 		ClientEntityEvents.ENTITY_LOAD.register(WildfireEventHandler::onEntityLoad);
+		ClientEntityEvents.ENTITY_UNLOAD.register(WildfireEventHandler::onEntityUnload);
 		ClientTickEvents.END_CLIENT_TICK.register(WildfireEventHandler::onClientTick);
+		ClientPlayConnectionEvents.DISCONNECT.register(WildfireEventHandler::disconnect);
 		ClientPlayNetworking.registerGlobalReceiver(WildfireSync.SYNC_IDENTIFIER, WildfireSync::handle);
 	}
 
@@ -52,24 +58,26 @@ public class WildfireEventHandler {
 		if(!world.isClient() || MinecraftClient.getInstance().player == null) return;
 		if(entity instanceof AbstractClientPlayerEntity plr) {
 			UUID uuid = plr.getUuid();
-			GenderPlayer aPlr = WildfireGender.getPlayerById(plr.getUuid());
+			PlayerConfig aPlr = WildfireGender.getPlayerById(plr.getUuid());
 			if(aPlr == null) {
-				aPlr = new GenderPlayer(uuid);
-				WildfireGender.CLOTHING_PLAYERS.put(uuid, aPlr);
-				WildfireGender.loadGenderInfoAsync(uuid, uuid.equals(MinecraftClient.getInstance().player.getUuid()));
+				aPlr = new PlayerConfig(uuid);
+				WildfireGender.PLAYER_CACHE.put(uuid, aPlr);
+				WildfireGender.loadGenderInfo(uuid, uuid.equals(MinecraftClient.getInstance().player.getUuid()));
 			}
 		}
 	}
 
+	private static void onEntityUnload(Entity entity, World world) {
+		// note that we don't attempt to unload players; they're instead only ever unloaded once we leave a world
+		EntityConfig.ENTITY_CACHE.remove(entity.getUuid());
+	}
+
 	private static void onClientTick(MinecraftClient client) {
-		if(client.world == null || client.player == null) {
-			WildfireGender.CLOTHING_PLAYERS.clear();
-			return;
-		}
+		if(client.world == null || client.player == null) return;
 
 		// Only attempt to sync if the server will accept the packet, and only once every 5 ticks, or around 4 times a second
 		if(ClientPlayNetworking.canSend(WildfireSync.SEND_GENDER_IDENTIFIER) && timer++ % 5 == 0) {
-			GenderPlayer aPlr = WildfireGender.getPlayerById(client.player.getUuid());
+			PlayerConfig aPlr = WildfireGender.getPlayerById(client.player.getUuid());
 			// sendToServer will only actually send a packet if any changes have been made that need to be synced,
 			// or if we haven't synced before.
 			if(aPlr != null) WildfireSync.sendToServer(aPlr);
@@ -78,5 +86,10 @@ public class WildfireEventHandler {
 		if(toggleEditGUI.wasPressed() && client.currentScreen == null) {
 			client.setScreen(new WardrobeBrowserScreen(null, client.player.getUuid()));
 		}
+	}
+
+	private static void disconnect(ClientPlayNetworkHandler networkHandler, MinecraftClient client) {
+		WildfireGender.PLAYER_CACHE.clear();
+		EntityConfig.ENTITY_CACHE.clear();
 	}
 }

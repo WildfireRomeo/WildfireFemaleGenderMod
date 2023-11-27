@@ -68,4 +68,19 @@ public interface IGenderArmor {
     default float tightness() {
         return 0;
     }
+
+    /**
+     * Determines whether armor stands should copy the breast settings of the player equipping this chestplate
+     * onto it.
+     *
+     * @implNote If this returns {@code true}, any time a player equips this chestplate onto an armor stand, their
+     *           breast settings will be copied onto the item stack's NBT under the key {@code WildfireGender}.
+     *
+     * @return   Defaults to returning {@code true} if this armor {@link #coversBreasts() covers the breasts}
+     *           (and {@link #alwaysHidesBreasts() doesn't hide them}), and {@link #physicsResistance() has
+     *           complete physics resistance}.
+     */
+    default boolean armorStandsCopySettings() {
+        return !alwaysHidesBreasts() && coversBreasts() && physicsResistance() == 1f;
+    }
 }

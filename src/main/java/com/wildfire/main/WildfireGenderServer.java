@@ -18,6 +18,7 @@
 
 package com.wildfire.main;
 
+import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.networking.WildfireSync;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
@@ -37,7 +38,7 @@ public class WildfireGenderServer implements ModInitializer {
 
     private void onBeginTracking(Entity tracked, ServerPlayerEntity syncTo) {
         if(tracked instanceof PlayerEntity toSync) {
-            GenderPlayer genderToSync = WildfireGender.getPlayerById(toSync.getUuid());
+            PlayerConfig genderToSync = WildfireGender.getPlayerById(toSync.getUuid());
             if(genderToSync == null) return;
             // Note that we intentionally don't check if we've previously synced a player with this code path;
             // because we use entity tracking to sync, it's entirely possible that one player would leave the

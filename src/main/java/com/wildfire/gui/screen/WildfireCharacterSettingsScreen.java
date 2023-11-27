@@ -25,7 +25,7 @@ import com.wildfire.main.config.Configuration;
 import java.util.UUID;
 
 import com.wildfire.gui.WildfireButton;
-import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.entitydata.PlayerConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -50,7 +50,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
     @Override
     public void init() {
-        GenderPlayer aPlr = getPlayer();
+        PlayerConfig aPlr = getPlayer();
         int x = this.width / 2;
         int y = this.height / 2;
         int yPos = y - 47;
@@ -64,7 +64,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             boolean enablePhysics = !aPlr.hasBreastPhysics();
             if (aPlr.updateBreastPhysics(enablePhysics)) {
                 button.setMessage(Text.translatable("wildfire_gender.char_settings.physics", enablePhysics ? ENABLED : DISABLED));
-                GenderPlayer.saveGenderInfo(aPlr);
+                PlayerConfig.saveGenderInfo(aPlr);
             }
         }));
 
@@ -73,7 +73,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             boolean enableShowInArmor = !aPlr.showBreastsInArmor();
             if (aPlr.updateShowBreastsInArmor(enableShowInArmor)) {
                 button.setMessage(Text.translatable("wildfire_gender.char_settings.hide_in_armor", enableShowInArmor ? DISABLED : ENABLED));
-                GenderPlayer.saveGenderInfo(aPlr);
+                PlayerConfig.saveGenderInfo(aPlr);
             }
         }));
 
@@ -82,14 +82,14 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             boolean enableArmorPhysicsOverride = !aPlr.getArmorPhysicsOverride();
             if (aPlr.updateArmorPhysicsOverride(enableArmorPhysicsOverride )) {
                 button.setMessage(Text.translatable("wildfire_gender.char_settings.override_armor_physics", aPlr.getArmorPhysicsOverride() ? ENABLED : DISABLED));
-                GenderPlayer.saveGenderInfo(aPlr);
+                PlayerConfig.saveGenderInfo(aPlr);
             }
         }, Tooltip.of(Text.translatable("wildfire_gender.tooltip.override_armor_physics.line1")
                 .append("\n\n")
                 .append(Text.translatable("wildfire_gender.tooltip.override_armor_physics.line2")))
         ));
 
-        this.addDrawableChild(this.bounceSlider = new WildfireSlider(xPos, yPos + 60, 158, 20, Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplierRaw(), value -> {
+        this.addDrawableChild(this.bounceSlider = new WildfireSlider(xPos, yPos + 60, 158, 20, Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplier(), value -> {
         }, value -> {
             float bounceText = 3 * value;
             float v = Math.round(bounceText * 10) / 10f;
@@ -100,14 +100,14 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             else return Text.translatable("wildfire_gender.slider.bounce", v);
         }, value -> {
             if (aPlr.updateBounceMultiplier(value)) {
-                GenderPlayer.saveGenderInfo(aPlr);
+                PlayerConfig.saveGenderInfo(aPlr);
             }
         }));
 
         this.addDrawableChild(this.floppySlider = new WildfireSlider(xPos, yPos + 80, 158, 20, Configuration.FLOPPY_MULTIPLIER, aPlr.getFloppiness(), value -> {
         }, value -> Text.translatable("wildfire_gender.slider.floppy", Math.round(value * 100)), value -> {
             if (aPlr.updateFloppiness(value)) {
-                GenderPlayer.saveGenderInfo(aPlr);
+                PlayerConfig.saveGenderInfo(aPlr);
             }
         }));
 
@@ -116,7 +116,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             boolean enableHurtSounds = !aPlr.hasHurtSounds();
             if (aPlr.updateHurtSounds(enableHurtSounds)) {
                 button.setMessage(Text.translatable("wildfire_gender.char_settings.hurt_sounds", enableHurtSounds ? ENABLED : DISABLED));
-                GenderPlayer.saveGenderInfo(aPlr);
+                PlayerConfig.saveGenderInfo(aPlr);
             }
         }, Tooltip.of(Text.translatable("wildfire_gender.tooltip.hurt_sounds"))));
 

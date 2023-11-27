@@ -18,8 +18,8 @@
 
 package com.wildfire.mixins;
 
-import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
+import com.wildfire.main.entitydata.PlayerConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -51,7 +51,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * `PlayerEntity#getHurtSound(DamageSource)`.
  */
 @Mixin(LivingEntity.class)
-public class LivingEntityMixin {
+public abstract class LivingEntityMixin {
 	@Environment(EnvType.CLIENT)
 	@Inject(
 		method = "onDamaged",
@@ -86,7 +86,7 @@ public class LivingEntityMixin {
 
 	@Unique
 	private void playGenderHurtSound(PlayerEntity player) {
-		GenderPlayer genderPlayer = WildfireGender.getPlayerById(player.getUuid());
+		PlayerConfig genderPlayer = WildfireGender.getPlayerById(player.getUuid());
 		if(genderPlayer == null || !genderPlayer.hasHurtSounds()) return;
 
 		SoundEvent hurtSound = genderPlayer.getGender().getHurtSound();

@@ -18,24 +18,31 @@
 
 package com.wildfire.api;
 
-import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.config.Configuration;
+import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireGender;
+import com.wildfire.main.Gender;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.Future;
 
+@SuppressWarnings("unused")
 public class WildfireAPI {
 
-    private static Map<Item, IGenderArmor> GENDER_ARMORS = new HashMap<>();
+    private static final Map<Item, IGenderArmor> GENDER_ARMORS = new HashMap<>();
 
     /**
-     * Add custom attributes to the armor you apply this to.
+     * Add custom physics resistance attributes to a chestplate
      *
-     * @param  item  the item that you are adding {@link IGenderArmor} to.
-     * @param  genderArmor the class implementing {@link IGenderArmor} to apply to the item.
+     * @param  item  the item that you are linking this {@link IGenderArmor} to
+     * @param  genderArmor the class implementing the {@link IGenderArmor} to apply to the item
      * @see    IGenderArmor
      */
     public static void addGenderArmor(Item item, IGenderArmor genderArmor) {
@@ -43,37 +50,43 @@ public class WildfireAPI {
     }
 
     /**
-     * Add custom attributes to the armor you apply this to.
+     * Get the config for a {@link PlayerEntity}
      *
-     * @param  uuid  the uuid of the {@link net.minecraft.entity.player.PlayerEntity }.
+     * @param  uuid  the uuid of the target {@link PlayerEntity}
      * @see    IGenderArmor
      */
-    public static GenderPlayer getPlayerById(UUID uuid) {
+    public static @Nullable PlayerConfig getPlayerById(UUID uuid) {
         return WildfireGender.getPlayerById(uuid);
     }
 
     /**
-     * Get the player's {@link com.wildfire.main.GenderPlayer.Gender }.
+     * Get the player's {@link Gender}
      *
-     * @param  uuid  the uuid of the {@link PlayerEntity }.
-     * @see    GenderPlayer.Gender
+     * @param  uuid  the uuid of the target {@link PlayerEntity}.
+     * @see    Gender
      */
-    public static GenderPlayer.Gender getPlayerGender(UUID uuid) {
-        return WildfireGender.getPlayerById(uuid).getGender();
+    public static @Nonnull Gender getPlayerGender(UUID uuid) {
+        PlayerConfig cfg = WildfireGender.getPlayerById(uuid);
+        if(cfg == null) return Configuration.GENDER.getDefault();
+        return cfg.getGender();
     }
 
     /**
-     * Load the cached Gender Settings file for the specified {@link UUID }
+     * <p>Load the cached Gender Settings file for the specified {@link UUID}</p>
      *
-     * @param  uuid  the uuid of the {@link PlayerEntity }.
+     * <p>You should avoid using this unless you need to, as the mod will do this for you when loading a player entity.</p>
+     *
+     * @param  uuid  the uuid of the target {@link PlayerEntity}
      * @param  markForSync true if you want to send the gender settings to the server upon loading.
      */
-    public static void loadGenderInfo(UUID uuid, boolean markForSync) {
-        WildfireGender.loadGenderInfoAsync(uuid, markForSync);
+    public static Future<Optional<PlayerConfig>> loadGenderInfo(UUID uuid, boolean markForSync) {
+        return WildfireGender.loadGenderInfo(uuid, markForSync);
     }
 
     /**
-     * Get the list of armors supported by Wildfire's Female Gender Mod.
+     * Get every registered {@link IGenderArmor custom armor configuration}
+     *
+     * @implNote This does not provide vanilla armor configurations; see {@link com.wildfire.render.armor.SimpleGenderArmor} for that.
      */
     public static Map<Item, IGenderArmor> getGenderArmors() {
         return GENDER_ARMORS;

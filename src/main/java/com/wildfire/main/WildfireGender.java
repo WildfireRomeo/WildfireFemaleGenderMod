@@ -20,36 +20,38 @@ package com.wildfire.main;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.Future;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import com.mojang.logging.LogUtils;
+import com.wildfire.main.entitydata.PlayerConfig;
 import net.fabricmc.api.ClientModInitializer;
+import net.minecraft.util.Util;
+import org.slf4j.Logger;
 
 public class WildfireGender implements ClientModInitializer {
 	public static final String VERSION = "3.1";
   	public static final String MODID = "wildfire_gender";
-	public static Map<UUID, GenderPlayer> CLOTHING_PLAYERS = new HashMap<>();
+	public static final Logger LOGGER = LogUtils.getLogger();
+	public static final Map<UUID, PlayerConfig> PLAYER_CACHE = new HashMap<>();
 
 	@Override
   	public void onInitializeClient() {
 		WildfireEventHandler.registerClientEvents();
     }
 
-	@Nullable
-	public static GenderPlayer getPlayerById(UUID id) {
-		  return CLOTHING_PLAYERS.get(id);
+	public static @Nullable PlayerConfig getPlayerById(UUID id) {
+		  return PLAYER_CACHE.get(id);
 	}
 
-	public static GenderPlayer getOrAddPlayerById(UUID id) {
-		return CLOTHING_PLAYERS.computeIfAbsent(id, GenderPlayer::new);
+	public static @Nonnull PlayerConfig getOrAddPlayerById(UUID id) {
+		return PLAYER_CACHE.computeIfAbsent(id, PlayerConfig::new);
 	}
 
-  	public static void loadGenderInfoAsync(UUID uuid, boolean markForSync) {
-  		Thread thread = new Thread(() -> WildfireGender.loadGenderInfo(uuid, markForSync));
-		thread.setName("WFGM_GetPlayer-" + uuid);
-  		thread.start();
+  	public static Future<Optional<PlayerConfig>> loadGenderInfo(UUID uuid, boolean markForSync) {
+	    return Util.getIoWorkerExecutor().submit(() -> Optional.ofNullable(PlayerConfig.loadCachedPlayer(uuid, markForSync)));
   	}
-
-	public static GenderPlayer loadGenderInfo(UUID uuid, boolean markForSync) {
-		return GenderPlayer.loadCachedPlayer(uuid, markForSync);
-	}
 }

@@ -18,14 +18,14 @@
 
 package com.wildfire.gui.screen;
 
-import com.wildfire.main.GenderPlayer.Gender;
+import com.wildfire.main.Gender;
 import com.wildfire.main.WildfireGender;
 
 import java.util.Calendar;
 import java.util.UUID;
 
 import com.wildfire.gui.WildfireButton;
-import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.entitydata.PlayerConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.main.WildfireHelper;
 import net.minecraft.client.MinecraftClient;
@@ -56,7 +56,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	@Override
   	public void init() {
 	    int y = this.height / 2;
-		GenderPlayer plr = getPlayer();
+		PlayerConfig plr = getPlayer();
 
 		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, y - 52, 158, 20, getGenderLabel(plr.getGender()), button -> {
 			Gender gender = switch (plr.getGender()) {
@@ -66,7 +66,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			};
 			if (plr.updateGender(gender)) {
 				button.setMessage(getGenderLabel(gender));
-				GenderPlayer.saveGenderInfo(plr);
+				PlayerConfig.saveGenderInfo(plr);
 				clearAndInit();
 			}
 		}));

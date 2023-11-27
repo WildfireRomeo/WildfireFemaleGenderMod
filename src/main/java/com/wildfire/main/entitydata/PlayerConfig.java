@@ -16,51 +16,37 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.wildfire.main;
+package com.wildfire.main.entitydata;
 
 import com.google.gson.JsonObject;
+import com.wildfire.main.WildfireGender;
 import com.wildfire.main.config.ConfigKey;
 import com.wildfire.main.config.Configuration;
-import com.wildfire.physics.BreastPhysics;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import com.wildfire.main.Gender;
+import net.minecraft.item.ItemStack;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class GenderPlayer {
+/**
+ * A version of {@link EntityConfig} backed by a {@link Configuration} for use with players
+ */
+public class PlayerConfig extends EntityConfig {
 
 	public boolean needsSync;
-	public final UUID uuid;
-	private Gender gender;
-	private float pBustSize = Configuration.BUST_SIZE.getDefault();
-
-	private boolean hurtSounds = Configuration.HURT_SOUNDS.getDefault();
-
-	//physics variables
-	private boolean breastPhysics = Configuration.BREAST_PHYSICS.getDefault();
-	private float bounceMultiplier = Configuration.BOUNCE_MULTIPLIER.getDefault();
-	private float floppyMultiplier = Configuration.FLOPPY_MULTIPLIER.getDefault();
-
 	public SyncStatus syncStatus = SyncStatus.UNKNOWN;
-	private boolean showBreastsInArmor = Configuration.SHOW_IN_ARMOR.getDefault();
-	private boolean armorPhysOverride = Configuration.ARMOR_PHYSICS_OVERRIDE.getDefault();
 
 	private final Configuration cfg;
-	private final BreastPhysics lBreastPhysics, rBreastPhysics;
-	private final Breasts breasts;
+	private boolean hurtSounds = Configuration.HURT_SOUNDS.getDefault();
+	private boolean armorPhysOverride = Configuration.ARMOR_PHYSICS_OVERRIDE.getDefault();
 
-	public GenderPlayer(UUID uuid) {
+	public PlayerConfig(UUID uuid) {
 		this(uuid, Configuration.GENDER.getDefault());
 	}
 
-	public GenderPlayer(UUID uuid, Gender gender) {
-		lBreastPhysics = new BreastPhysics(this);
-		rBreastPhysics = new BreastPhysics(this);
-		breasts = new Breasts();
-		this.uuid = uuid;
+	public PlayerConfig(UUID uuid, Gender gender) {
+		super(uuid);
 		this.gender = gender;
 		this.cfg = new Configuration("WildfireGender", this.uuid.toString());
 		this.cfg.set(Configuration.USERNAME, this.uuid);
@@ -82,6 +68,10 @@ public class GenderPlayer {
 		this.cfg.finish();
 	}
 
+	// this shouldn't ever be called on players, but just to be safe, override with a noop.
+	@Override
+	public void readFromStack(@Nonnull ItemStack chestplate) {}
+
 	public Configuration getConfig() {
 		return cfg;
 	}
@@ -94,16 +84,8 @@ public class GenderPlayer {
 		return false;
 	}
 
-	public Gender getGender() {
-		return gender;
-	}
-
 	public boolean updateGender(Gender value) {
 		return updateValue(Configuration.GENDER, value, v -> this.gender = v);
-	}
-
-	public float getBustSize() {
-		return pBustSize;
 	}
 
 	public boolean updateBustSize(float value) {
@@ -118,10 +100,6 @@ public class GenderPlayer {
 		return updateValue(Configuration.HURT_SOUNDS, value, v -> this.hurtSounds = v);
 	}
 
-	public boolean hasBreastPhysics() {
-		return breastPhysics;
-	}
-
 	public boolean updateBreastPhysics(boolean value) {
 		return updateValue(Configuration.BREAST_PHYSICS, value, v -> this.breastPhysics = v);
 	}
@@ -129,9 +107,11 @@ public class GenderPlayer {
 	public boolean getArmorPhysicsOverride() {
 		return armorPhysOverride;
 	}
+
 	public boolean updateArmorPhysicsOverride(boolean value) {
 		return updateValue(Configuration.ARMOR_PHYSICS_OVERRIDE, value, v -> this.armorPhysOverride = v);
 	}
+
 	public boolean showBreastsInArmor() {
 		return showBreastsInArmor;
 	}
@@ -140,20 +120,8 @@ public class GenderPlayer {
 		return updateValue(Configuration.SHOW_IN_ARMOR, value, v -> this.showBreastsInArmor = v);
 	}
 
-	public float getBounceMultiplier() {
-		return Math.round((this.getBounceMultiplierRaw() * 3) * 100) / 100f;
-	}
-
-	public float getBounceMultiplierRaw() {
-		return bounceMultiplier;
-	}
-
 	public boolean updateBounceMultiplier(float value) {
 		return updateValue(Configuration.BOUNCE_MULTIPLIER, value, v -> this.bounceMultiplier = v);
-	}
-
-	public float getFloppiness() {
-		return this.floppyMultiplier;
 	}
 
 	public boolean updateFloppiness(float value) {
@@ -164,7 +132,7 @@ public class GenderPlayer {
 		return this.syncStatus;
 	}
 
-	public static JsonObject toJsonObject(GenderPlayer plr) {
+	public static JsonObject toJsonObject(PlayerConfig plr) {
 		JsonObject obj = new JsonObject();
 		Configuration.USERNAME.save(obj, plr.uuid);
 		Configuration.GENDER.save(obj, plr.getGender());
@@ -174,7 +142,7 @@ public class GenderPlayer {
 		Configuration.BREAST_PHYSICS.save(obj, plr.hasBreastPhysics());
 		Configuration.SHOW_IN_ARMOR.save(obj, plr.showBreastsInArmor());
 		Configuration.ARMOR_PHYSICS_OVERRIDE.save(obj, plr.getArmorPhysicsOverride());
-		Configuration.BOUNCE_MULTIPLIER.save(obj, plr.getBounceMultiplierRaw());
+		Configuration.BOUNCE_MULTIPLIER.save(obj, plr.getBounceMultiplier());
 		Configuration.FLOPPY_MULTIPLIER.save(obj, plr.getFloppiness());
 
 		Breasts breasts = plr.getBreasts();
@@ -186,8 +154,8 @@ public class GenderPlayer {
 		return obj;
 	}
 
-	public static GenderPlayer loadCachedPlayer(UUID uuid, boolean markForSync) {
-		GenderPlayer plr = WildfireGender.getPlayerById(uuid);
+	public static PlayerConfig loadCachedPlayer(UUID uuid, boolean markForSync) {
+		PlayerConfig plr = WildfireGender.getPlayerById(uuid);
 		if (plr != null) {
 			plr.syncStatus = SyncStatus.CACHED;
 			Configuration config = plr.getConfig();
@@ -216,7 +184,7 @@ public class GenderPlayer {
 		return null;
 	}
 
-	public static void saveGenderInfo(GenderPlayer plr) {
+	public static void saveGenderInfo(PlayerConfig plr) {
 		Configuration config = plr.getConfig();
 		config.set(Configuration.USERNAME, plr.uuid);
 		config.set(Configuration.GENDER, plr.getGender());
@@ -227,7 +195,7 @@ public class GenderPlayer {
 		config.set(Configuration.BREAST_PHYSICS, plr.hasBreastPhysics());
 		config.set(Configuration.SHOW_IN_ARMOR, plr.showBreastsInArmor());
 		config.set(Configuration.ARMOR_PHYSICS_OVERRIDE, plr.getArmorPhysicsOverride());
-		config.set(Configuration.BOUNCE_MULTIPLIER, plr.getBounceMultiplierRaw());
+		config.set(Configuration.BOUNCE_MULTIPLIER, plr.getBounceMultiplier());
 		config.set(Configuration.FLOPPY_MULTIPLIER, plr.getFloppiness());
 
 		config.set(Configuration.BREASTS_OFFSET_X, plr.getBreasts().getXOffset());
@@ -240,46 +208,12 @@ public class GenderPlayer {
 		plr.needsSync = true;
 	}
 
-	public Breasts getBreasts() {
-		return breasts;
-	}
-
-	public BreastPhysics getLeftBreastPhysics() {
-		return lBreastPhysics;
-	}
-	public BreastPhysics getRightBreastPhysics() {
-		return rBreastPhysics;
+	@Override
+	public boolean hasJacketLayer() {
+		throw new UnsupportedOperationException("PlayerConfig does not support #hasJacketLayer(); use PlayerEntity#isPartVisible instead");
 	}
 
 	public enum SyncStatus {
 		CACHED, SYNCED, UNKNOWN
-	}
-
-	public enum Gender {
-		FEMALE(Text.translatable("wildfire_gender.label.female").formatted(Formatting.LIGHT_PURPLE), true, WildfireSounds.FEMALE_HURT),
-		MALE(Text.translatable("wildfire_gender.label.male").formatted(Formatting.BLUE), false, null),
-		OTHER(Text.translatable("wildfire_gender.label.other").formatted(Formatting.GREEN), true, WildfireSounds.FEMALE_HURT);
-
-		private final Text name;
-		private final boolean canHaveBreasts;
-		private final @Nullable SoundEvent hurtSound;
-
-		Gender(Text name, boolean canHaveBreasts, @Nullable SoundEvent hurtSound) {
-			this.name = name;
-			this.canHaveBreasts = canHaveBreasts;
-			this.hurtSound = hurtSound;
-		}
-
-		public Text getDisplayName() {
-			return name;
-		}
-
-		public @Nullable SoundEvent getHurtSound() {
-			return hurtSound;
-		}
-
-		public boolean canHaveBreasts() {
-			return canHaveBreasts;
-		}
 	}
 }

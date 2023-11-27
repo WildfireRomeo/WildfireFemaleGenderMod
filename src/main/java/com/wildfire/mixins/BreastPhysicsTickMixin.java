@@ -18,40 +18,32 @@
 
 package com.wildfire.mixins;
 
-import com.mojang.authlib.GameProfile;
-import com.wildfire.api.IGenderArmor;
-import com.wildfire.main.GenderPlayer;
-import com.wildfire.main.WildfireGender;
-import com.wildfire.main.WildfireHelper;
+import com.wildfire.main.entitydata.EntityConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(value = PlayerEntity.class, priority = 900)
-public abstract class PlayerEntityMixin extends LivingEntity {
-    public PlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
-        super(EntityType.PLAYER, world);
-    }
+@Mixin({ArmorStandEntity.class, PlayerEntity.class})
+public abstract class BreastPhysicsTickMixin {
+	@Inject(at = @At("TAIL"), method = "tick")
+	public void wildfiregender$tickBreastPhysics(CallbackInfo info) {
+		LivingEntity entity = (LivingEntity)(Object)this;
+		// Ignore ticks from the singleplayer integrated server
+		if(!entity.getWorld().isClient()) return;
 
-    @Inject(at = @At("TAIL"), method = "tick")
-    public void onTick(CallbackInfo info) {
-        if(!this.getWorld().isClient()) return;
-        GenderPlayer aPlr = WildfireGender.getPlayerById(this.getUuid());
-        if(aPlr == null) return;
-        PlayerEntity plr = (PlayerEntity) (Object) this;
-        IGenderArmor armor = WildfireHelper.getArmorConfig(plr.getEquippedStack(EquipmentSlot.CHEST));
-
-        aPlr.getLeftBreastPhysics().update(plr, armor);
-        aPlr.getRightBreastPhysics().update(plr, armor);
-    }
+		EntityConfig cfg = EntityConfig.getEntity(entity);
+		if(cfg == null) return;
+		if(entity instanceof ArmorStandEntity) {
+			cfg.readFromStack(entity.getEquippedStack(EquipmentSlot.CHEST));
+		}
+		cfg.tickBreastPhysics(entity);
+	}
 }
