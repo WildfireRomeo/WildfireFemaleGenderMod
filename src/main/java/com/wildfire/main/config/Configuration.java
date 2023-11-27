@@ -23,9 +23,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonWriter;
-import com.wildfire.main.entitydata.Breasts;
-import com.wildfire.main.entitydata.EntityConfig;
-import com.wildfire.main.entitydata.PlayerConfig;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
