@@ -97,8 +97,8 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 			// Render left
 			matrixStack.push();
 			try {
-				setupTransformations(ent, model.body, matrixStack, true);
-				renderBreastArmor(ent, matrixStack, vertexConsumerProvider, packedLightIn, true);
+				setupTransformations(ent, model.body, matrixStack, BreastSide.LEFT);
+				renderBreastArmor(ent, matrixStack, vertexConsumerProvider, packedLightIn, BreastSide.LEFT);
 			} finally {
 				matrixStack.pop();
 			}
@@ -106,8 +106,8 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 			matrixStack.push();
 			// Render right
 			try {
-				setupTransformations(ent, model.body, matrixStack, false);
-				renderBreastArmor(ent, matrixStack, vertexConsumerProvider, packedLightIn, false);
+				setupTransformations(ent, model.body, matrixStack, BreastSide.RIGHT);
+				renderBreastArmor(ent, matrixStack, vertexConsumerProvider, packedLightIn, BreastSide.RIGHT);
 			} finally {
 				matrixStack.pop();
 			}
@@ -117,8 +117,8 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 	}
 
 	@Override
-	protected void setupTransformations(T entity, ModelPart body, MatrixStack matrixStack, boolean left) {
-		super.setupTransformations(entity, body, matrixStack, left);
+	protected void setupTransformations(T entity, ModelPart body, MatrixStack matrixStack, BreastSide side) {
+		super.setupTransformations(entity, body, matrixStack, side);
 		if((entity instanceof AbstractClientPlayerEntity player && player.isPartVisible(PlayerModelPart.JACKET)) ||
 				(entity instanceof ArmorStandEntity && entityConfig.hasJacketLayer())) {
 			matrixStack.translate(0, 0, -0.015f);
@@ -127,7 +127,7 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 	}
 
 	// TODO eventually expose some way for mods to override this, maybe through a default impl in IGenderArmor or similar
-	protected void renderBreastArmor(T entity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, boolean left) {
+	protected void renderBreastArmor(T entity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, BreastSide side) {
 		if(armorStack.isEmpty() || !(armorStack.getItem() instanceof ArmorItem armorItem)) return;
 
 		Identifier armorTexture = getArmorResource(armorItem, false, null);
@@ -143,9 +143,9 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 		}
 		matrixStack.push();
 		try {
-			matrixStack.translate(left ? 0.001f : -0.001f, 0.015f, -0.015f);
+			matrixStack.translate(side == BreastSide.LEFT ? 0.001f : -0.001f, 0.015f, -0.015f);
 			matrixStack.scale(1.05f, 1, 1);
-			BreastModelBox armor = left ? lBoobArmor : rBoobArmor;
+			BreastModelBox armor = side == BreastSide.LEFT ? lBoobArmor : rBoobArmor;
 			RenderLayer armorType = RenderLayer.getArmorCutoutNoCull(armorTexture);
 			VertexConsumer armorVertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumerProvider, armorType, false, hasGlint);
 			renderBox(armor, matrixStack, armorVertexConsumer, packedLightIn, OverlayTexture.DEFAULT_UV, armorR, armorG, armorB, 1);
@@ -157,7 +157,7 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 			}
 
 			ArmorTrim.getTrim(entity.getWorld().getRegistryManager(), armorStack, true).ifPresent((trim) -> {
-				renderArmorTrim(armorItem.getMaterial(), matrixStack, vertexConsumerProvider, packedLightIn, trim, hasGlint, left);
+				renderArmorTrim(armorItem.getMaterial(), matrixStack, vertexConsumerProvider, packedLightIn, trim, hasGlint, side);
 			});
 		} finally {
 			matrixStack.pop();
@@ -165,8 +165,8 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 	}
 
 	protected void renderArmorTrim(ArmorMaterial material, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn,
-	                             ArmorTrim trim, boolean hasGlint, boolean left) {
-		BreastModelBox trimModelBox = left ? lTrim : rTrim;
+	                             ArmorTrim trim, boolean hasGlint, BreastSide side) {
+		BreastModelBox trimModelBox = side == BreastSide.LEFT ? lTrim : rTrim;
 		Sprite sprite = this.armorTrimsAtlas.getSprite(trim.getGenericModelId(material));
 		VertexConsumer vertexConsumer = sprite.getTextureSpecificVertexConsumer(
 				vertexConsumerProvider.getBuffer(TexturedRenderLayers.getArmorTrims(trim.getPattern().value().decal())));

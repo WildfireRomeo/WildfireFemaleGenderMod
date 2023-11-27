@@ -116,8 +116,8 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 			// Render left
 			matrixStack.push();
 			try {
-				setupTransformations(ent, model.body, matrixStack, true);
-				renderBreast(ent, matrixStack, vertexConsumerProvider, packedLightIn, combineTex, true);
+				setupTransformations(ent, model.body, matrixStack, BreastSide.LEFT);
+				renderBreast(ent, matrixStack, vertexConsumerProvider, packedLightIn, combineTex, BreastSide.LEFT);
 			} finally {
 				matrixStack.pop();
 			}
@@ -125,8 +125,8 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 			// Render right
 			matrixStack.push();
 			try {
-				setupTransformations(ent, model.body, matrixStack, false);
-				renderBreast(ent, matrixStack, vertexConsumerProvider, packedLightIn, combineTex, false);
+				setupTransformations(ent, model.body, matrixStack, BreastSide.RIGHT);
+				renderBreast(ent, matrixStack, vertexConsumerProvider, packedLightIn, combineTex, BreastSide.RIGHT);
 			} finally {
 				matrixStack.pop();
 			}
@@ -213,7 +213,8 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		return true;
 	}
 
-	protected void setupTransformations(T entity, ModelPart body, MatrixStack matrixStack, boolean left) {
+	protected void setupTransformations(T entity, ModelPart body, MatrixStack matrixStack, BreastSide side) {
+		boolean left = side == BreastSide.LEFT;
 		matrixStack.translate(body.pivotX * 0.0625f, body.pivotY * 0.0625f, body.pivotZ * 0.0625f);
 		if(body.roll != 0.0F) {
 			matrixStack.multiply(new Quaternionf().rotationXYZ(0f, 0f, body.roll));
@@ -271,16 +272,16 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		matrixStack.scale(0.9995f, 1f, 1f); //z-fighting FIXXX
 	}
 
-	protected void renderBreast(T entity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, int packedOverlayIn, boolean left) {
+	private void renderBreast(T entity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, int packedOverlayIn, BreastSide side) {
 		RenderLayer breastRenderType = getRenderLayer(entity);
 		if(breastRenderType == null) return; // only render if the player is visible in some capacity
 		float alpha = entity.isInvisible() ? 0.15F : 1;
 		VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(breastRenderType);
-		renderBox(left ? lBreast : rBreast, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
+		renderBox(side == BreastSide.LEFT ? lBreast : rBreast, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
 		if(entity instanceof AbstractClientPlayerEntity player && player.isPartVisible(PlayerModelPart.JACKET)) {
 			matrixStack.translate(0, 0, -0.015f);
 			matrixStack.scale(1.05f, 1.05f, 1.05f);
-			renderBox(left ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
+			renderBox(side == BreastSide.LEFT ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
 		}
 	}
 
