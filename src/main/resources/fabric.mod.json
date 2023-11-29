@@ -45,5 +45,12 @@
   "conflicts": {
     "skinlayers": "*",
     "allthetrims": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https://discord.gg/4VDfQu4Wgb"
+      }
+    }
   }
 }
