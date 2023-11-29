@@ -21,7 +21,7 @@ package com.wildfire.main.config;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.wildfire.main.GenderPlayer.Gender;
+import com.wildfire.main.Gender;
 
 public class GenderConfigKey extends ConfigKey<Gender> {
 

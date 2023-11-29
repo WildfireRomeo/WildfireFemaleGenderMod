@@ -18,9 +18,9 @@
 
 package com.wildfire.main.networking;
 
-import com.wildfire.main.Breasts;
-import com.wildfire.main.GenderPlayer;
-import com.wildfire.main.GenderPlayer.Gender;
+import com.wildfire.main.entitydata.Breasts;
+import com.wildfire.main.entitydata.PlayerConfig;
+import com.wildfire.main.Gender;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.network.PacketByteBuf;
 
@@ -43,7 +43,7 @@ class SyncPacket {
 
     private final boolean hurtSounds;
 
-    protected SyncPacket(GenderPlayer plr) {
+    protected SyncPacket(PlayerConfig plr) {
         this.uuid = plr.uuid;
         this.gender = plr.getGender();
         this.bust_size = plr.getBustSize();
@@ -52,7 +52,7 @@ class SyncPacket {
         //physics variables
         this.breast_physics = plr.hasBreastPhysics();
         this.show_in_armor = plr.showBreastsInArmor();
-        this.bounceMultiplier = plr.getBounceMultiplierRaw();
+        this.bounceMultiplier = plr.getBounceMultiplier();
         this.floppyMultiplier = plr.getFloppiness();
 
         Breasts breasts = plr.getBreasts();
@@ -100,7 +100,7 @@ class SyncPacket {
         buffer.writeFloat(this.cleavage);
     }
 
-    protected void updatePlayerFromPacket(GenderPlayer plr) {
+    protected void updatePlayerFromPacket(PlayerConfig plr) {
         plr.updateGender(gender);
         plr.updateBustSize(bust_size);
         plr.updateHurtSounds(hurtSounds);

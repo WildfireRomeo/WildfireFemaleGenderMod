@@ -22,8 +22,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.gui.WildfireBreastPresetList;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfireSlider;
-import com.wildfire.main.Breasts;
-import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.entitydata.Breasts;
+import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.config.Configuration;
 import com.wildfire.main.config.BreastPresetConfiguration;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
@@ -54,11 +54,11 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
     public void init() {
         int j = this.height / 2 - 11;
 
-        GenderPlayer plr = getPlayer();
+        PlayerConfig plr = getPlayer();
         Breasts breasts = plr.getBreasts();
         FloatConsumer onSave = value -> {
             //Just save as we updated the actual value in value change
-            GenderPlayer.saveGenderInfo(plr);
+            PlayerConfig.saveGenderInfo(plr);
         };
 
         this.addDrawableChild(new WildfireButton(this.width / 2 + 178, j - 72, 9, 9, Text.literal("X"),
@@ -124,7 +124,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             boolean isUniboob = !breasts.isUniboob();
             if (breasts.updateUniboob(isUniboob)) {
                 button.setMessage(Text.translatable("wildfire_gender.breast_customization.dual_physics", Text.translatable(isUniboob ? "wildfire_gender.label.no" : "wildfire_gender.label.yes")));
-                GenderPlayer.saveGenderInfo(plr);
+                PlayerConfig.saveGenderInfo(plr);
             }
         }));
 
