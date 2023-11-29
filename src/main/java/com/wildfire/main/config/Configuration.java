@@ -62,9 +62,6 @@ public class Configuration {
 	public Configuration(String saveLoc, String cfgName) {
 
 		Path saveDir = FabricLoader.getInstance().getConfigDir();
-		System.out.println("SAVE DIR: " + saveDir.toString());
-
-		System.out.println("SAVE DIR: " + saveDir.resolve(saveLoc).toString());
 		if(!Files.isDirectory(saveDir.resolve(saveLoc))) {
 			try {
 				Files.createDirectory(saveDir.resolve(saveLoc));
@@ -72,7 +69,6 @@ public class Configuration {
 				e.printStackTrace();
 			}
 		}
-		//.getOrCreateGameRelativePath(FMLPaths.CONFIGDIR.get().resolve(saveLoc), saveLoc);
 		CFG_FILE = saveDir.resolve(saveLoc).resolve(cfgName + ".json").toFile();
 	}
 
