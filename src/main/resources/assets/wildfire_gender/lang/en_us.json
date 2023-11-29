@@ -50,7 +50,7 @@
 	"wildfire_gender.label.no": "No",
 	"wildfire_gender.label.with_creator": "You are playing on a server with the creator of this mod!",
 
-	"wildfire_gender.slider.bounce": "Bounce Intensity: %sx",
+	"wildfire_gender.slider.bounce": "Bounce Intensity: %s%%",
 	"wildfire_gender.slider.floppy": "Breast Momentum: %s%%",
 	"wildfire_gender.slider.min_bounce": "Why Are Physics Even On?",
 	"wildfire_gender.slider.max_bounce": "Anime Breast Physics!!!",

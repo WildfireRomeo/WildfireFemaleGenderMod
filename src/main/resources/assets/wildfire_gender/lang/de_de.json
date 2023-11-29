@@ -31,7 +31,7 @@
 	"wildfire_gender.label.no": "Nein",
 	"wildfire_gender.label.with_creator": "Du spielst auf einem Server mit dem Programmierer dieser Mod!",
 
-	"wildfire_gender.slider.bounce": "Wackel Intensität: %sx",
+	"wildfire_gender.slider.bounce": "Wackel Intensität: %s%%",
 	"wildfire_gender.slider.floppy": "Brust Schwung: %s%%",
 	"wildfire_gender.slider.min_bounce": "Warum ist die Physik überhaupt an?",
 	"wildfire_gender.slider.max_bounce": "Anime Brust Physik!",

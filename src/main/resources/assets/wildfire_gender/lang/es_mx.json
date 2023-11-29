@@ -38,7 +38,7 @@
 	"wildfire_gender.label.no": "No",
 	"wildfire_gender.label.with_creator": "¡Estás jugando en un servidor con la creadora del mod!",
 
-	"wildfire_gender.slider.bounce": "Intensidad de rebote: %sx",
+	"wildfire_gender.slider.bounce": "Intensidad de rebote: %s%%",
 	"wildfire_gender.slider.floppy": "Ímpetu del busto: %s%%",
 	"wildfire_gender.slider.min_bounce": "¿Para que encendiste las físicas?",
 	"wildfire_gender.slider.max_bounce": "¡¡¡FÍSICAS DE ANIME!!!",

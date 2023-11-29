@@ -38,7 +38,7 @@
 	"wildfire_gender.label.no": "Ne",
 	"wildfire_gender.label.with_creator": "Hrajete na serveru s tvůrcem tohohle modu!",
 
-	"wildfire_gender.slider.bounce": "Intenzita houpání: %sx",
+	"wildfire_gender.slider.bounce": "Intenzita houpání: %s%%",
 	"wildfire_gender.slider.floppy": "Hybnost: %s%%",
 	"wildfire_gender.slider.min_bounce": "Proč mám vůbec zaplou fyziku?",
 	"wildfire_gender.slider.max_bounce": "Anime fyzika!!!",

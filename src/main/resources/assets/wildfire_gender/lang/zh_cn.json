@@ -38,7 +38,7 @@
   "wildfire_gender.label.no": "否",
   "wildfire_gender.label.with_creator": "您正在与该模组的作者一起在服务器上玩！",
 
-  "wildfire_gender.slider.bounce": "弹跳强度：%sx",
+  "wildfire_gender.slider.bounce": "弹跳强度：%s%%",
   "wildfire_gender.slider.floppy": "乳房动量：%s%%",
   "wildfire_gender.slider.min_bounce": "为什么开启物理？",
   "wildfire_gender.slider.max_bounce": "动漫乳房物理!!!",

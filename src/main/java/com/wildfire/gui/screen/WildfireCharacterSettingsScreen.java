@@ -92,12 +92,9 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
         this.addDrawableChild(this.bounceSlider = new WildfireSlider(xPos, yPos + 60, 158, 20, Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplier(), value -> {
         }, value -> {
             float bounceText = 3 * value;
-            float v = Math.round(bounceText * 10) / 10f;
-            bounceWarning = v > 1;
-
-            if(v == 1.5f) return Text.translatable("wildfire_gender.slider.max_bounce");
-            else if(v == 0f) return Text.translatable("wildfire_gender.slider.min_bounce");
-            else return Text.translatable("wildfire_gender.slider.bounce", v);
+            int v = Math.round(bounceText * 100);
+            bounceWarning = v > 100;
+            return Text.translatable("wildfire_gender.slider.bounce", v);
         }, value -> {
             if (aPlr.updateBounceMultiplier(value)) {
                 PlayerConfig.saveGenderInfo(aPlr);
