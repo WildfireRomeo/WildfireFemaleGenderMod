@@ -172,7 +172,7 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		outwardAngle = (Math.round(breasts.getCleavage() * 100f) / 100f) * 100f;
 		outwardAngle = Math.min(outwardAngle, 10);
 
-		float reducer = 0;
+		float reducer = -1;
 		if(bSize < 0.84f) reducer++;
 		if(bSize < 0.72f) reducer++;
 

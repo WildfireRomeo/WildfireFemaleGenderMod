@@ -241,7 +241,7 @@ public class BreastPhysics {
 		float delta = 2.25f - bounceAmount;
 		//if(plr.isInWater()) delta = 0.75f - (1f * bounceAmount); //water resistance
 
-		float distanceFromMin = Math.abs(bounceVel + 0.5f) * 0.5f;
+		float distanceFromMin = Math.abs(bounceVel + 1.5f) * 0.5f;
 		float distanceFromMax = Math.abs(bounceVel - 2.65f) * 0.5f;
 
 		if(bounceVel < -0.5f) {
@@ -269,6 +269,14 @@ public class BreastPhysics {
 		this.wfg_bounceRotation = this.bounceRotVel;
 		this.wfg_femaleBreastX = this.bounceVelX;
 		this.wfg_femaleBreast = this.bounceVel;
+
+		if(this.wfg_femaleBreast < -0.5f) this.wfg_femaleBreast = -0.5f;
+		if(this.wfg_femaleBreast > 1.5f) {
+			this.wfg_femaleBreast = 1.5f;
+			this.velocity = 0;
+		}
+		System.out.println(this.wfg_femaleBreast );
+
 	}
 
 	public float getBreastSize(float partialTicks) {
