@@ -23,6 +23,7 @@ import com.wildfire.main.entitydata.EntityConfig;
 import com.wildfire.render.WildfireModelRenderer.BreastModelBox;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.impl.client.rendering.ArmorRendererRegistryImpl;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -132,6 +133,13 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 	// TODO eventually expose some way for mods to override this, maybe through a default impl in IGenderArmor or similar
 	protected void renderBreastArmor(T entity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, BreastSide side) {
 		if(armorStack.isEmpty() || !(armorStack.getItem() instanceof ArmorItem armorItem)) return;
+
+		// If the armor uses its own custom renderer, just give up rendering entirely, as the only thing we'd
+		// actually be able to do here is simply render a pink box.
+		// Note that we fail this far in to allow for mods to override this through means like a mixin,
+		// until any sort of official compatibility API is added.
+		//noinspection UnstableApiUsage
+		if(ArmorRendererRegistryImpl.get(armorStack.getItem()) != null) return;
 
 		Identifier armorTexture = getArmorResource(armorItem, false, null);
 		Identifier overlayTexture = null;
