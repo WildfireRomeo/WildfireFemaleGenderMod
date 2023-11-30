@@ -44,7 +44,7 @@ public class WildfireButton extends ButtonWidget {
    }
 
    @Override
-   public void renderButton(DrawContext ctx, int mouseX, int mouseY, float partialTicks) {
+   protected void renderWidget(DrawContext ctx, int mouseX, int mouseY, float partialTicks) {
       MinecraftClient minecraft = MinecraftClient.getInstance();
       TextRenderer font = minecraft.textRenderer;
       int clr = 0x444444 + (84 << 24);

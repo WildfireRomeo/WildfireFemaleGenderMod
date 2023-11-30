@@ -130,8 +130,9 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
 
         //Preset Tab Below
-        PRESET_LIST = new WildfireBreastPresetList(this, 156, (j - 48), (j + 77));
-        PRESET_LIST.setLeftPos(this.width / 2 + 30);
+        PRESET_LIST = new WildfireBreastPresetList(this, 156, (j - 48));
+        PRESET_LIST.setX(this.width / 2 + 30);
+        PRESET_LIST.setHeight(125);
 
         this.addSelectableChild(this.PRESET_LIST);
 
@@ -174,7 +175,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         ctx.fill(x + 29, y - 63 - 21, x + 189, y - 60, 0x55000000);
         ctx.drawText(textRenderer, getTitle(), x + 32, y - 60 - 21, 0xFFFFFF, false);
         if(currentTab == 1) {
-            ctx.fill(PRESET_LIST.getLeft(), PRESET_LIST.getTop(), PRESET_LIST.getRight(), PRESET_LIST.getBottom(), 0x55000000);
+            ctx.fill(PRESET_LIST.getX(), PRESET_LIST.getY(), PRESET_LIST.getRight(), PRESET_LIST.getBottom(), 0x55000000);
         }
     }
 

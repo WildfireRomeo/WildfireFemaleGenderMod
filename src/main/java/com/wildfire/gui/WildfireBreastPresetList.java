@@ -43,8 +43,8 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
     private final int listWidth;
     private final WildfireBreastCustomizationScreen parent;
 
-    public WildfireBreastPresetList(WildfireBreastCustomizationScreen parent, int listWidth, int top, int bottom) {
-        super(MinecraftClient.getInstance(), 156, parent.height, top, bottom, 32);
+    public WildfireBreastPresetList(WildfireBreastCustomizationScreen parent, int listWidth, int top) {
+        super(MinecraftClient.getInstance(), 156, parent.height, top, 32);
         this.setRenderHeader(false, 0);
         this.setRenderBackground(false);
         this.parent = parent;
@@ -69,16 +69,15 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
         for(int m = 0; m < l; ++m) {
             int n = this.getRowTop(m);
             int o = this.getRowBottom(m);
-            if (o >= this.top && n <= this.bottom) {
+            if (o >= this.getY() && n <= this.getBottom()) {
                 this.renderEntry(context, mouseX, mouseY, delta, m, i, n, j, k);
             }
         }
-
     }
 
     @Override
     protected int getRowTop(int index) {
-        return this.top - (int)this.getScrollAmount() + index * this.itemHeight + this.headerHeight;
+        return this.getY() - (int)this.getScrollAmount() + index * this.itemHeight + this.headerHeight;
     }
     @Override
     protected int getScrollbarPositionX() {
@@ -104,13 +103,13 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
 
         if(this.client.world == null || this.client.player == null) return;
 
-        for(int i = 0; i < BREAST_PRESETS.length; i++) {
-            addEntry(new Entry(BREAST_PRESETS[i]));
+        for(BreastPresetListEntry breastPreset : BREAST_PRESETS) {
+            addEntry(new Entry(breastPreset));
         }
     }
 
     @Override
-    public void appendNarrations(NarrationMessageBuilder builder) {}
+    protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
     @Environment(EnvType.CLIENT)
     public class Entry extends EntryListWidget.Entry<WildfireBreastPresetList.Entry> {
@@ -158,19 +157,5 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
             }
             return false;
         }
-    }
-
-
-    public int getLeft() {
-        return left;
-    }
-    public int getRight() {
-        return right;
-    }
-    public int getTop() {
-        return top;
-    }
-    public int getBottom() {
-        return bottom;
     }
 }
