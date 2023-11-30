@@ -53,7 +53,7 @@ public class WildfireAPI {
      * Get the config for a {@link PlayerEntity}
      *
      * @param  uuid  the uuid of the target {@link PlayerEntity}
-     * @see    IGenderArmor
+     * @see    PlayerConfig
      */
     public static @Nullable PlayerConfig getPlayerById(UUID uuid) {
         return WildfireGender.getPlayerById(uuid);
