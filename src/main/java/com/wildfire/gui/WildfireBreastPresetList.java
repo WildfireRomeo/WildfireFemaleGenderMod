@@ -15,6 +15,7 @@ import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 
+@Environment(EnvType.CLIENT)
 public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPresetList.Entry> {
 
     public boolean active = true;

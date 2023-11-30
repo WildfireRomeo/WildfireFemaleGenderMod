@@ -22,9 +22,12 @@ import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireGender;
 import java.util.UUID;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
+@Environment(EnvType.CLIENT)
 public abstract class BaseWildfireScreen extends Screen {
 
     protected final UUID playerUUID;

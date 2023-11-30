@@ -21,6 +21,8 @@ package com.wildfire.render;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.entitydata.EntityConfig;
 import com.wildfire.render.WildfireModelRenderer.BreastModelBox;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -45,6 +47,7 @@ import net.minecraft.util.Identifier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+@Environment(EnvType.CLIENT)
 public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel<T>> extends GenderLayer<T, M> {
 
 	private final SpriteAtlasTexture armorTrimsAtlas;
