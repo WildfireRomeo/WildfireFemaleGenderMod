@@ -275,7 +275,6 @@ public class BreastPhysics {
 			this.wfg_femaleBreast = 1.5f;
 			this.velocity = 0;
 		}
-		System.out.println(this.wfg_femaleBreast );
 
 	}
 
