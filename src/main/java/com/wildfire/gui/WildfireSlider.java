@@ -123,7 +123,7 @@ public class WildfireSlider extends ClickableWidget {
 			TextRenderer font = MinecraftClient.getInstance().textRenderer;
 			int i = this.getX() + 2;
 			int j = this.getX() + this.getWidth() - 2;
-			WildfireHelper.drawScrollableText(ctx, font, this.getMessage(), i, this.getY(), j, this.getY() + this.getHeight(), this.hovered || changed ? 0xFFFF55 : 0xFFFFFF);
+			WildfireHelper.drawScrollableTextWithoutShadow(ctx, font, this.getMessage(), i, this.getY(), j, this.getY() + this.getHeight(), this.hovered || changed ? 0xFFFF55 : 0xFFFFFF);
 		}
 	}
 

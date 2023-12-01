@@ -58,7 +58,7 @@ public class WildfireButton extends ButtonWidget {
       int textColor = active ? 0xFFFFFF : 0x666666;
       int i = this.getX() + 2;
       int j = this.getX() + this.getWidth() - 2;
-      WildfireHelper.drawScrollableText(ctx, font, this.getMessage(), i, this.getY(), j, this.getY() + this.getHeight(), textColor);
+      WildfireHelper.drawScrollableTextWithoutShadow(ctx, font, this.getMessage(), i, this.getY(), j, this.getY() + this.getHeight(), textColor);
       RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
    }
 
