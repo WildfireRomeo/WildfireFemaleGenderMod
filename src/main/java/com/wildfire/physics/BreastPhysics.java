@@ -37,9 +37,12 @@ import net.minecraft.util.math.Vec3d;
 
 public class BreastPhysics {
 
-	private float bounceVel = 0, targetBounceY = 0, velocity = 0, wfg_femaleBreast, wfg_preBounce;
+	//X-Axis
+	private float bounceVelX = 0, targetBounceX = 0, velocityX = 0, positionX, prePositionX;
+	//Y-Axis
+	private float bounceVel = 0, targetBounceY = 0, velocity = 0, positionY, prePositionY;
+	//Rotation
 	private float bounceRotVel = 0, targetRotVel = 0, rotVelocity = 0, wfg_bounceRotation, wfg_preBounceRotation;
-	private float bounceVelX = 0, targetBounceX = 0, velocityX = 0, wfg_femaleBreastX, wfg_preBounceX;
 
 	private boolean justSneaking = false, alreadySleeping = false;
 
@@ -62,8 +65,8 @@ public class BreastPhysics {
 			return;
 		}
 
-		this.wfg_preBounce = this.wfg_femaleBreast;
-		this.wfg_preBounceX = this.wfg_femaleBreastX;
+		this.prePositionY = this.positionY;
+		this.prePositionX = this.positionX;
 		this.wfg_preBounceRotation = this.wfg_bounceRotation;
 		this.preBreastSize = this.breastSize;
 
@@ -72,43 +75,43 @@ public class BreastPhysics {
 			return;
 		}
 
-		float h = 0; //tickDelta
+		{
+			float h = 0; //tickDelta
+			float i = entity.getLeaningPitch(0);
+			float j;
+			float k;
 
-		float i = entity.getLeaningPitch(0);
-		float j;
-		float k;
+			float bodyXRotation = 0;
+			float bodyYRotation = 0;
 
-		float bodyXRotation = 0;
-		float bodyYRotation = 0;
-
-		if (entity.isFallFlying()) {
-			j = (float) entity.getRoll() + h;
-			k = MathHelper.clamp(j * j / 100.0F, 0.0F, 1.0F);
-			if (!entity.isUsingRiptide()) {
-				bodyXRotation = k * (-90.0F - entity.getPitch());
-			}
-
-			if(entity instanceof AbstractClientPlayerEntity player) {
-				Vec3d vec3d = entity.getRotationVec(h);
-				Vec3d vec3d2 = player.lerpVelocity(h);
-				double d = vec3d2.horizontalLengthSquared();
-				double e = vec3d.horizontalLengthSquared();
-				if (d > 0.0 && e > 0.0) {
-					double l = (vec3d2.x * vec3d.x + vec3d2.z * vec3d.z) / Math.sqrt(d * e);
-					double m = vec3d2.x * vec3d.z - vec3d2.z * vec3d.x;
-					bodyYRotation = (float) (Math.signum(m) * Math.acos(l));
+			if (entity.isFallFlying()) {
+				j = (float) entity.getRoll() + h;
+				k = MathHelper.clamp(j * j / 100.0F, 0.0F, 1.0F);
+				if (!entity.isUsingRiptide()) {
+					bodyXRotation = k * (-90.0F - entity.getPitch());
 				}
-			}
-		} else if (i > 0.0F) {
-			j = entity.isTouchingWater() ? -90.0F - entity.getPitch() : -90.0F;
-			k = MathHelper.lerp(i, 0.0F, j);
-			bodyXRotation = k;
-		} else if(entity.isSleeping()) {
-			bodyXRotation = 90f;
-		} else if(entity.getPose() == EntityPose.CROUCHING) {
-			bodyXRotation = -15f;
-		}
 
+				if (entity instanceof AbstractClientPlayerEntity player) {
+					Vec3d vec3d = entity.getRotationVec(h);
+					Vec3d vec3d2 = player.lerpVelocity(h);
+					double d = vec3d2.horizontalLengthSquared();
+					double e = vec3d.horizontalLengthSquared();
+					if (d > 0.0 && e > 0.0) {
+						double l = (vec3d2.x * vec3d.x + vec3d2.z * vec3d.z) / Math.sqrt(d * e);
+						double m = vec3d2.x * vec3d.z - vec3d2.z * vec3d.x;
+						bodyYRotation = (float) (Math.signum(m) * Math.acos(l));
+					}
+				}
+			} else if (i > 0.0F) {
+				j = entity.isTouchingWater() ? -90.0F - entity.getPitch() : -90.0F;
+				k = MathHelper.lerp(i, 0.0F, j);
+				bodyXRotation = k;
+			} else if (entity.isSleeping()) {
+				bodyXRotation = 90f;
+			} else if (entity.getPose() == EntityPose.CROUCHING) {
+				bodyXRotation = -15f;
+			}
+		} //unused currently, might be later
 
 		float breastWeight = entityConfig.getBustSize() * 1.25f;
 		float targetBreastSize = entityConfig.getBustSize();
@@ -118,21 +121,14 @@ public class BreastPhysics {
 		} else {
 			float tightness = MathHelper.clamp(armor.tightness(), 0, 1);
 			if(entityConfig.getArmorPhysicsOverride()) tightness = 0; //override resistance
-
 			//Scale breast size by how tight the armor is, clamping at a max adjustment of shrinking by 0.15
 			targetBreastSize *= 1 - 0.15F * tightness;
 		}
 
-		if(breastSize < targetBreastSize) {
-			breastSize += Math.abs(breastSize - targetBreastSize) / 2f;
-		} else {
-			breastSize -= Math.abs(breastSize - targetBreastSize) / 2f;
-		}
-
+		breastSize += (breastSize < targetBreastSize) ? Math.abs(breastSize - targetBreastSize) / 2f : -Math.abs(breastSize - targetBreastSize) / 2f;
 
 		Vec3d motion = entity.getPos().subtract(this.prePos);
 		this.prePos = entity.getPos();
-		//System.out.println(motion);
 
 		float bounceIntensity = (targetBreastSize * 3f) * Math.round((entityConfig.getBounceMultiplier() * 3) * 100) / 100f;
 		float resistance = MathHelper.clamp(armor.physicsResistance(), 0, 1);
@@ -154,17 +150,13 @@ public class BreastPhysics {
 		this.targetBounceY = (float) motion.y * bounceIntensity;
 		this.targetBounceY += breastWeight;
 		float horizVel = (float) Math.sqrt(Math.pow(motion.x, 2) + Math.pow(motion.z, 2)) * (bounceIntensity);
-		//float horizLocal = -horizVel * ((plr.getRotationYawHead()-plr.renderYawOffset)<0?-1:1);
 		this.targetRotVel = -((entity.bodyYaw - entity.prevBodyYaw) / 15f) * bounceIntensity;
-
-		//System.out.println("Body Rotation: " + (bodyXRotation) / 90);
 
 		float f2 = (float) entity.getVelocity().lengthSquared() / 0.2F;
 		f2 = f2 * f2 * f2;
 		if(f2 < 1.0F) f2 = 1.0F;
 
 		this.targetBounceY += MathHelper.cos(entity.limbAnimator.getPos() * 0.6662F + (float)Math.PI) * 0.5F * entity.limbAnimator.getSpeed() * 0.5F / f2;
-		//System.out.println(plr.rotationYaw);
 
 		this.targetRotVel += (float) motion.y * bounceIntensity * randomB;
 
@@ -177,7 +169,6 @@ public class BreastPhysics {
 			this.justSneaking = false;
 			this.targetBounceY += bounceIntensity;
 		}
-
 
 		//button option for extra entities
 		if(entity.getVehicle() != null) {
@@ -231,8 +222,7 @@ public class BreastPhysics {
 		/*if(plr.getPose() == EntityPose.SWIMMING) {
 			//System.out.println(1 - plr.getRotationVec(tickDelta).getY());
 			rotationMultiplier = 1 - (float) plr.getRotationVec(tickDelta).getY();
-		}
-		*/
+		}*/
 
 
 		float percent =  entityConfig.getFloppiness();
@@ -256,7 +246,6 @@ public class BreastPhysics {
 		if(targetRotVel > 25f) targetRotVel = 25f;
 
 		this.velocity = MathHelper.lerp(bounceAmount, this.velocity, (this.targetBounceY - this.bounceVel) * delta);
-		//this.preY = MathHelper.lerp(0.5f, this.preY, (this.targetBounce - this.bounceVel) * 1.25f);
 		this.bounceVel += this.velocity * percent * 1.1625f;
 
 		//X
@@ -267,12 +256,12 @@ public class BreastPhysics {
 		this.bounceRotVel += this.rotVelocity * percent;
 
 		this.wfg_bounceRotation = this.bounceRotVel;
-		this.wfg_femaleBreastX = this.bounceVelX;
-		this.wfg_femaleBreast = this.bounceVel;
+		this.positionX = this.bounceVelX;
+		this.positionY = this.bounceVel;
 
-		if(this.wfg_femaleBreast < -0.5f) this.wfg_femaleBreast = -0.5f;
-		if(this.wfg_femaleBreast > 1.5f) {
-			this.wfg_femaleBreast = 1.5f;
+		if(this.positionY < -0.5f) this.positionY = -0.5f;
+		if(this.positionY > 1.5f) {
+			this.positionY = 1.5f;
 			this.velocity = 0;
 		}
 
@@ -282,18 +271,18 @@ public class BreastPhysics {
 		return MathHelper.lerp(partialTicks, preBreastSize, breastSize);
 	}
 
-	public float getPreBounceY() {
-		return this.wfg_preBounce;
+	public float getPrePositionY() {
+		return this.prePositionY;
 	}
-	public float getBounceY() {
-		return this.wfg_femaleBreast;
+	public float getPositionY() {
+		return this.positionY;
 	}
 
-	public float getPreBounceX() {
-		return this.wfg_preBounceX;
+	public float getPrePositionX() {
+		return this.prePositionX;
 	}
-	public float getBounceX() {
-		return this.wfg_femaleBreastX;
+	public float getPositionX() {
+		return this.positionX;
 	}
 
 	public float getBounceRotation() {

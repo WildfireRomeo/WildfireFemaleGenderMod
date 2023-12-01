@@ -62,8 +62,8 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 	protected ItemStack armorStack;
 	protected IGenderArmor genderArmor;
 	protected boolean isChestplateOccupied, bounceEnabled, breathingAnimation;
-	protected float breastOffsetX, breastOffsetY, breastOffsetZ, lTotal, lTotalX, rTotal, rTotalX,
-			leftBounceRotation, rightBounceRotation, breastSize, zOffset, outwardAngle;
+	protected float breastOffsetX, breastOffsetY, breastOffsetZ, lPhysPositionY, lPhysPositionX, rPhysPositionY, rTotalX,
+			lPhysBounceRotation, rPhysBounceRotation, breastSize, zOffset, outwardAngle;
 
 	public GenderLayer(FeatureRendererContext<T, M> render) {
 		super(render);
@@ -182,18 +182,18 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 			preBreastSize = bSize;
 		}
 
-		lTotal = MathHelper.lerp(partialTicks, leftBreastPhysics.getPreBounceY(), leftBreastPhysics.getBounceY());
-		lTotalX = MathHelper.lerp(partialTicks, leftBreastPhysics.getPreBounceX(), leftBreastPhysics.getBounceX());
-		leftBounceRotation = MathHelper.lerp(partialTicks, leftBreastPhysics.getPreBounceRotation(), leftBreastPhysics.getBounceRotation());
+		lPhysPositionY = MathHelper.lerp(partialTicks, leftBreastPhysics.getPrePositionY(), leftBreastPhysics.getPositionY());
+		lPhysPositionX = MathHelper.lerp(partialTicks, leftBreastPhysics.getPrePositionX(), leftBreastPhysics.getPositionX());
+		lPhysBounceRotation = MathHelper.lerp(partialTicks, leftBreastPhysics.getPreBounceRotation(), leftBreastPhysics.getBounceRotation());
 		if(breasts.isUniboob()) {
-			rTotal = lTotal;
-			rTotalX = lTotalX;
-			rightBounceRotation = leftBounceRotation;
+			rPhysPositionY = lPhysPositionY;
+			rTotalX = lPhysPositionX;
+			rPhysBounceRotation = lPhysBounceRotation;
 		} else {
 			BreastPhysics rightBreastPhysics = entityConfig.getRightBreastPhysics();
-			rTotal = MathHelper.lerp(partialTicks, rightBreastPhysics.getPreBounceY(), rightBreastPhysics.getBounceY());
-			rTotalX = MathHelper.lerp(partialTicks, rightBreastPhysics.getPreBounceX(), rightBreastPhysics.getBounceX());
-			rightBounceRotation = MathHelper.lerp(partialTicks, rightBreastPhysics.getPreBounceRotation(), rightBreastPhysics.getBounceRotation());
+			rPhysPositionY = MathHelper.lerp(partialTicks, rightBreastPhysics.getPrePositionY(), rightBreastPhysics.getPositionY());
+			rTotalX = MathHelper.lerp(partialTicks, rightBreastPhysics.getPrePositionX(), rightBreastPhysics.getPositionX());
+			rPhysBounceRotation = MathHelper.lerp(partialTicks, rightBreastPhysics.getPreBounceRotation(), rightBreastPhysics.getBounceRotation());
 		}
 		breastSize = bSize * 1.5f;
 		if(breastSize > 0.7f) breastSize = 0.7f;
@@ -227,8 +227,8 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		}
 
 		if(bounceEnabled) {
-			matrixStack.translate((left ? lTotalX : rTotalX) / 32f, 0, 0);
-			matrixStack.translate(0, (left ? lTotal : rTotal) / 32f, 0);
+			matrixStack.translate((left ? lPhysPositionX : rTotalX) / 32f, 0, 0);
+			matrixStack.translate(0, (left ? lPhysPositionY : rPhysPositionY) / 32f, 0);
 		}
 
 		matrixStack.translate((left ? breastOffsetX : -breastOffsetX) * 0.0625f, 0.05625f + (breastOffsetY * 0.0625f), zOffset - 0.0625f * 2f + (breastOffsetZ * 0.0625f)); //shift down to correct position
@@ -237,7 +237,7 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 			matrixStack.translate(-0.0625f * 2 * (left ? 1 : -1), 0, 0);
 		}
 		if(bounceEnabled) {
-			matrixStack.multiply(new Quaternionf().rotationXYZ(0, (float)((left ? leftBounceRotation : rightBounceRotation) * (Math.PI / 180f)), 0));
+			matrixStack.multiply(new Quaternionf().rotationXYZ(0, (float)((left ? lPhysBounceRotation : rPhysBounceRotation) * (Math.PI / 180f)), 0));
 		}
 		if(!breasts.isUniboob()) {
 			matrixStack.translate(0.0625f * 2 * (left ? 1 : -1), 0, 0);
@@ -246,7 +246,7 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		float rotationMultiplier = 0;
 		if(bounceEnabled) {
 			matrixStack.translate(0, -0.035f * breastSize, 0); //shift down to correct position
-			rotationMultiplier = -(left ? lTotal : rTotal) / 12f;
+			rotationMultiplier = -(left ? lPhysPositionY : rPhysPositionY) / 12f;
 		}
 		float totalRotation = breastSize + rotationMultiplier;
 		if(!bounceEnabled) {
