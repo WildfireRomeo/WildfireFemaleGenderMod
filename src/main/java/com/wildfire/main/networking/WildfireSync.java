@@ -68,13 +68,14 @@ public class WildfireSync {
 	 * @param playerConfig The {@link PlayerConfig configuration} for the target player
 	 */
 	public static void sendToAllClients(ServerPlayerEntity toSync, PlayerConfig playerConfig) {
-	    if(playerConfig == null || toSync.getServer() == null) return;
+		if(playerConfig == null || toSync.getServer() == null) return;
 
-	    PacketByteBuf packet = new SyncPacket(playerConfig).getPacket();
-	    PlayerLookup.tracking(toSync).forEach((sendTo) -> {
+		SyncPacket syncPacket = new SyncPacket(playerConfig);
+		PlayerLookup.tracking(toSync).forEach((sendTo) -> {
 			if(sendTo.getUuid().equals(toSync.getUuid())) return;
-		    if(ServerPlayNetworking.canSend(sendTo, SYNC_IDENTIFIER)) {
-			    ServerPlayNetworking.send(sendTo, SYNC_IDENTIFIER, packet);
+			if(ServerPlayNetworking.canSend(sendTo, SYNC_IDENTIFIER)) {
+				// encode a packet for each player we send this sync to (GH-164)
+				ServerPlayNetworking.send(sendTo, SYNC_IDENTIFIER, syncPacket.getPacket());
 		    }
 	    });
 	}
@@ -86,8 +87,8 @@ public class WildfireSync {
 	 * @param toSync The {@link PlayerConfig configuration} for the player being synced
 	 */
 	public static void sendToClient(ServerPlayerEntity sendTo, PlayerConfig toSync) {
-		PacketByteBuf packet = new SyncPacket(toSync).getPacket();
 		if(ServerPlayNetworking.canSend(sendTo, SYNC_IDENTIFIER)) {
+			PacketByteBuf packet = new SyncPacket(toSync).getPacket();
 			ServerPlayNetworking.send(sendTo, SYNC_IDENTIFIER, packet);
 		}
 	}
