@@ -154,9 +154,9 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 		}
 		matrixStack.push();
 		try {
-			matrixStack.translate(side == BreastSide.LEFT ? 0.001f : -0.001f, 0.015f, -0.015f);
+			matrixStack.translate(side.isLeft ? 0.001f : -0.001f, 0.015f, -0.015f);
 			matrixStack.scale(1.05f, 1, 1);
-			BreastModelBox armor = side == BreastSide.LEFT ? lBoobArmor : rBoobArmor;
+			BreastModelBox armor = side.isLeft ? lBoobArmor : rBoobArmor;
 			RenderLayer armorType = RenderLayer.getArmorCutoutNoCull(armorTexture);
 			VertexConsumer armorVertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumerProvider, armorType, false, hasGlint);
 			renderBox(armor, matrixStack, armorVertexConsumer, packedLightIn, OverlayTexture.DEFAULT_UV, armorR, armorG, armorB, 1);
@@ -177,7 +177,7 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 
 	protected void renderArmorTrim(ArmorMaterial material, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn,
 	                             ArmorTrim trim, boolean hasGlint, BreastSide side) {
-		BreastModelBox trimModelBox = side == BreastSide.LEFT ? lTrim : rTrim;
+		BreastModelBox trimModelBox = side.isLeft ? lTrim : rTrim;
 		Sprite sprite = this.armorTrimsAtlas.getSprite(trim.getGenericModelId(material));
 		VertexConsumer vertexConsumer = sprite.getTextureSpecificVertexConsumer(
 				vertexConsumerProvider.getBuffer(TexturedRenderLayers.getArmorTrims(trim.getPattern().value().decal())));
