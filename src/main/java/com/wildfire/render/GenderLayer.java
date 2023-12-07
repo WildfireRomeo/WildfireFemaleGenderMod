@@ -33,6 +33,8 @@ import java.util.ConcurrentModificationException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
@@ -52,6 +54,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import org.joml.*;
 
+@Environment(EnvType.CLIENT)
 public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> extends FeatureRenderer<T, M> {
 
 	private BreastModelBox lBreast, rBreast;
@@ -214,7 +217,6 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 	}
 
 	protected void setupTransformations(T entity, ModelPart body, MatrixStack matrixStack, BreastSide side) {
-		boolean left = side == BreastSide.LEFT;
 		matrixStack.translate(body.pivotX * 0.0625f, body.pivotY * 0.0625f, body.pivotZ * 0.0625f);
 		if(body.roll != 0.0F) {
 			matrixStack.multiply(new Quaternionf().rotationXYZ(0f, 0f, body.roll));
@@ -227,26 +229,26 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		}
 
 		if(bounceEnabled) {
-			matrixStack.translate((left ? lPhysPositionX : rTotalX) / 32f, 0, 0);
-			matrixStack.translate(0, (left ? lPhysPositionY : rPhysPositionY) / 32f, 0);
+			matrixStack.translate((side.isLeft ? lPhysPositionX : rTotalX) / 32f, 0, 0);
+			matrixStack.translate(0, (side.isLeft ? lPhysPositionY : rPhysPositionY) / 32f, 0);
 		}
 
-		matrixStack.translate((left ? breastOffsetX : -breastOffsetX) * 0.0625f, 0.05625f + (breastOffsetY * 0.0625f), zOffset - 0.0625f * 2f + (breastOffsetZ * 0.0625f)); //shift down to correct position
+		matrixStack.translate((side.isLeft ? breastOffsetX : -breastOffsetX) * 0.0625f, 0.05625f + (breastOffsetY * 0.0625f), zOffset - 0.0625f * 2f + (breastOffsetZ * 0.0625f)); //shift down to correct position
 
 		if(!breasts.isUniboob()) {
-			matrixStack.translate(-0.0625f * 2 * (left ? 1 : -1), 0, 0);
+			matrixStack.translate(-0.0625f * 2 * (side.isLeft ? 1 : -1), 0, 0);
 		}
 		if(bounceEnabled) {
-			matrixStack.multiply(new Quaternionf().rotationXYZ(0, (float)((left ? lPhysBounceRotation : rPhysBounceRotation) * (Math.PI / 180f)), 0));
+			matrixStack.multiply(new Quaternionf().rotationXYZ(0, (float)((side.isLeft ? lPhysBounceRotation : rPhysBounceRotation) * (Math.PI / 180f)), 0));
 		}
 		if(!breasts.isUniboob()) {
-			matrixStack.translate(0.0625f * 2 * (left ? 1 : -1), 0, 0);
+			matrixStack.translate(0.0625f * 2 * (side.isLeft ? 1 : -1), 0, 0);
 		}
 
 		float rotationMultiplier = 0;
 		if(bounceEnabled) {
 			matrixStack.translate(0, -0.035f * breastSize, 0); //shift down to correct position
-			rotationMultiplier = -(left ? lPhysPositionY : rPhysPositionY) / 12f;
+			rotationMultiplier = -(side.isLeft ? lPhysPositionY : rPhysPositionY) / 12f;
 		}
 		float totalRotation = breastSize + rotationMultiplier;
 		if(!bounceEnabled) {
@@ -261,7 +263,7 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 			matrixStack.translate(0, 0, 0.01f);
 		}
 
-		matrixStack.multiply(new Quaternionf().rotationXYZ(0, (float)((left ? outwardAngle : -outwardAngle) * (Math.PI / 180f)), 0));
+		matrixStack.multiply(new Quaternionf().rotationXYZ(0, (float)((side.isLeft ? outwardAngle : -outwardAngle) * (Math.PI / 180f)), 0));
 		matrixStack.multiply(new Quaternionf().rotationXYZ((float)(-35f * totalRotation * (Math.PI / 180f)), 0, 0));
 
 		if(breathingAnimation) {
@@ -277,16 +279,16 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		if(breastRenderType == null) return; // only render if the player is visible in some capacity
 		float alpha = entity.isInvisible() ? 0.15F : 1;
 		VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(breastRenderType);
-		renderBox(side == BreastSide.LEFT ? lBreast : rBreast, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
+		renderBox(side.isLeft ? lBreast : rBreast, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
 		if(entity instanceof AbstractClientPlayerEntity player && player.isPartVisible(PlayerModelPart.JACKET)) {
 			matrixStack.translate(0, 0, -0.015f);
 			matrixStack.scale(1.05f, 1.05f, 1.05f);
-			renderBox(side == BreastSide.LEFT ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
+			renderBox(side.isLeft ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
 		}
 	}
 
 	protected static void renderBox(WildfireModelRenderer.ModelBox model, MatrixStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn,
-	                              float red, float green, float blue, float alpha) {
+	                                float red, float green, float blue, float alpha) {
 		Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
 		Matrix3f matrix3f = matrixStack.peek().getNormalMatrix();
 		for (WildfireModelRenderer.TexturedQuad quad : model.quads) {

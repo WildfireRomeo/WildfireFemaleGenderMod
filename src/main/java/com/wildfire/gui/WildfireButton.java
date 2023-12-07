@@ -20,6 +20,8 @@ package com.wildfire.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.main.WildfireHelper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -27,6 +29,7 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 
+@Environment(EnvType.CLIENT)
 public class WildfireButton extends ButtonWidget {
 
    public boolean transparent = false;
@@ -44,7 +47,7 @@ public class WildfireButton extends ButtonWidget {
    }
 
    @Override
-   public void renderButton(DrawContext ctx, int mouseX, int mouseY, float partialTicks) {
+   protected void renderWidget(DrawContext ctx, int mouseX, int mouseY, float partialTicks) {
       MinecraftClient minecraft = MinecraftClient.getInstance();
       TextRenderer font = minecraft.textRenderer;
       int clr = 0x444444 + (84 << 24);
@@ -55,7 +58,7 @@ public class WildfireButton extends ButtonWidget {
       int textColor = active ? 0xFFFFFF : 0x666666;
       int i = this.getX() + 2;
       int j = this.getX() + this.getWidth() - 2;
-      WildfireHelper.drawScrollableText(ctx, font, this.getMessage(), i, this.getY(), j, this.getY() + this.getHeight(), textColor);
+      WildfireHelper.drawScrollableTextWithoutShadow(ctx, font, this.getMessage(), i, this.getY(), j, this.getY() + this.getHeight(), textColor);
       RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
    }
 

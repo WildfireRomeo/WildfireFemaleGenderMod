@@ -21,9 +21,10 @@ package com.wildfire.physics;
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.entitydata.EntityConfig;
 import com.wildfire.main.WildfireHelper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.passive.HorseEntity;
@@ -31,7 +32,6 @@ import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.entity.passive.StriderEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
@@ -58,6 +58,9 @@ public class BreastPhysics {
 	private int randomB = 1;
 	private boolean alreadyFalling = false;
 
+	// this class cannot be blanket marked as client-side only, as this is referenced in the constructor for EntityConfig;
+	// as such, the best we can get here is marking this method as such.
+	@Environment(EnvType.CLIENT)
 	public void update(LivingEntity entity, IGenderArmor armor) {
 		if(entity instanceof ArmorStandEntity && !armor.armorStandsCopySettings()) {
 			// optimization: skip physics on armor stands that either don't have a chestplate,

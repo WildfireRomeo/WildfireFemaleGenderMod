@@ -18,9 +18,12 @@
 
 package com.wildfire.render;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.util.math.Direction;
 import org.joml.Vector3f;
 
+@Environment(EnvType.CLIENT)
 public class WildfireModelRenderer {
 
 	public static class ModelBox {

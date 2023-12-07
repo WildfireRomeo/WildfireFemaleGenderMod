@@ -26,6 +26,8 @@ import java.util.UUID;
 
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.entitydata.PlayerConfig;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -35,6 +37,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
+@Environment(EnvType.CLIENT)
 public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
     private static final Text ENABLED = Text.translatable("wildfire_gender.label.enabled").formatted(Formatting.GREEN);

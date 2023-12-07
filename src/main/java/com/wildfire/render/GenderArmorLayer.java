@@ -21,6 +21,9 @@ package com.wildfire.render;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.entitydata.EntityConfig;
 import com.wildfire.render.WildfireModelRenderer.BreastModelBox;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.impl.client.rendering.ArmorRendererRegistryImpl;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -45,6 +48,7 @@ import net.minecraft.util.Identifier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+@Environment(EnvType.CLIENT)
 public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel<T>> extends GenderLayer<T, M> {
 
 	private final SpriteAtlasTexture armorTrimsAtlas;
@@ -130,6 +134,13 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 	protected void renderBreastArmor(T entity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, BreastSide side) {
 		if(armorStack.isEmpty() || !(armorStack.getItem() instanceof ArmorItem armorItem)) return;
 
+		// If the armor uses its own custom renderer, just give up rendering entirely, as the only thing we'd
+		// actually be able to do here is simply render a pink box.
+		// Note that we fail this far in to allow for mods to override this through means like a mixin,
+		// until any sort of official compatibility API is added.
+		//noinspection UnstableApiUsage
+		if(ArmorRendererRegistryImpl.get(armorStack.getItem()) != null) return;
+
 		Identifier armorTexture = getArmorResource(armorItem, false, null);
 		Identifier overlayTexture = null;
 		boolean hasGlint = armorStack.hasGlint();
@@ -143,9 +154,9 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 		}
 		matrixStack.push();
 		try {
-			matrixStack.translate(side == BreastSide.LEFT ? 0.001f : -0.001f, 0.015f, -0.015f);
+			matrixStack.translate(side.isLeft ? 0.001f : -0.001f, 0.015f, -0.015f);
 			matrixStack.scale(1.05f, 1, 1);
-			BreastModelBox armor = side == BreastSide.LEFT ? lBoobArmor : rBoobArmor;
+			BreastModelBox armor = side.isLeft ? lBoobArmor : rBoobArmor;
 			RenderLayer armorType = RenderLayer.getArmorCutoutNoCull(armorTexture);
 			VertexConsumer armorVertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumerProvider, armorType, false, hasGlint);
 			renderBox(armor, matrixStack, armorVertexConsumer, packedLightIn, OverlayTexture.DEFAULT_UV, armorR, armorG, armorB, 1);
@@ -166,7 +177,7 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 
 	protected void renderArmorTrim(ArmorMaterial material, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn,
 	                             ArmorTrim trim, boolean hasGlint, BreastSide side) {
-		BreastModelBox trimModelBox = side == BreastSide.LEFT ? lTrim : rTrim;
+		BreastModelBox trimModelBox = side.isLeft ? lTrim : rTrim;
 		Sprite sprite = this.armorTrimsAtlas.getSprite(trim.getGenericModelId(material));
 		VertexConsumer vertexConsumer = sprite.getTextureSpecificVertexConsumer(
 				vertexConsumerProvider.getBuffer(TexturedRenderLayers.getArmorTrims(trim.getPattern().value().decal())));

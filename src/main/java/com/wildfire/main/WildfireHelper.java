@@ -95,7 +95,7 @@ public class WildfireHelper {
     }
 
     @Environment(EnvType.CLIENT)
-    public static void drawScrollableText(DrawContext context, TextRenderer textRenderer, Text text, int left, int top, int right, int bottom, int color) {
+    public static void drawScrollableTextWithoutShadow(DrawContext context, TextRenderer textRenderer, Text text, int left, int top, int right, int bottom, int color) {
         int i = textRenderer.getWidth(text);
         int var10000 = top + bottom;
         Objects.requireNonNull(textRenderer);

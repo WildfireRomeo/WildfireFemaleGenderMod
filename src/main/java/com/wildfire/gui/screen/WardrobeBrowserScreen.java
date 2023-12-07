@@ -28,6 +28,8 @@ import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.main.WildfireHelper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -42,6 +44,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.joml.Quaternionf;
 
+@Environment(EnvType.CLIENT)
 public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	private static final Identifier BACKGROUND_FEMALE = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg2.png");
 	private static final Identifier BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg3.png");

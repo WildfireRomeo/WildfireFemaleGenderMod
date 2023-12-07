@@ -27,6 +27,8 @@ import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.config.Configuration;
 import com.wildfire.main.config.BreastPresetConfiguration;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -37,6 +39,7 @@ import net.minecraft.text.Text;
 
 import java.util.UUID;
 
+@Environment(EnvType.CLIENT)
 public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
     private WildfireSlider breastSlider, xOffsetBoobSlider, yOffsetBoobSlider, zOffsetBoobSlider, cleavageSlider;
@@ -130,8 +133,9 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
 
         //Preset Tab Below
-        PRESET_LIST = new WildfireBreastPresetList(this, 156, (j - 48), (j + 77));
-        PRESET_LIST.setLeftPos(this.width / 2 + 30);
+        PRESET_LIST = new WildfireBreastPresetList(this, 156, (j - 48));
+        PRESET_LIST.setX(this.width / 2 + 30);
+        PRESET_LIST.setHeight(125);
 
         this.addSelectableChild(this.PRESET_LIST);
 
@@ -174,7 +178,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         ctx.fill(x + 29, y - 63 - 21, x + 189, y - 60, 0x55000000);
         ctx.drawText(textRenderer, getTitle(), x + 32, y - 60 - 21, 0xFFFFFF, false);
         if(currentTab == 1) {
-            ctx.fill(PRESET_LIST.getLeft(), PRESET_LIST.getTop(), PRESET_LIST.getRight(), PRESET_LIST.getBottom(), 0x55000000);
+            ctx.fill(PRESET_LIST.getX(), PRESET_LIST.getY(), PRESET_LIST.getRight(), PRESET_LIST.getBottom(), 0x55000000);
         }
     }
 
