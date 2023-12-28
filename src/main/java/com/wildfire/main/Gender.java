@@ -3,8 +3,7 @@ package com.wildfire.main;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public enum Gender {
 	FEMALE(Text.translatable("wildfire_gender.label.female").formatted(Formatting.LIGHT_PURPLE), true, WildfireSounds.FEMALE_HURT),

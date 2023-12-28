@@ -44,9 +44,8 @@ import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.DyeableArmorItem;
 import net.minecraft.item.trim.ArmorTrim;
 import net.minecraft.util.Identifier;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel<T>> extends GenderLayer<T, M> {
@@ -67,7 +66,7 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 		rTrim = new BreastModelBox(64, 32, 20, 17, 0, 0.0F, 0F, 4, 5, 4, 0.001F, false);
 	}
 
-	public Identifier getArmorResource(@Nonnull ArmorItem item, boolean legs, @Nullable String overlay) {
+	public Identifier getArmorResource(@NotNull ArmorItem item, boolean legs, @Nullable String overlay) {
 		String material = item.getMaterial().getName();
 		String namespace = "minecraft";
 		int namespaceDelim = material.indexOf(":");
@@ -79,7 +78,7 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 	}
 
 	@Override
-	public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, @Nonnull T ent, float limbAngle, float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
+	public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, @NotNull T ent, float limbAngle, float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if(client.player == null) {
 			// we're currently in a menu, give up rendering before we crash the game
