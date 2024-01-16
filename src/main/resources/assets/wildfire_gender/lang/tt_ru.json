@@ -2,14 +2,17 @@
 	"modmenu.descriptionTranslation.wildfire_gender": "Уенчыларга теләгән җенесне сайларга рөхсәт итә.",
 
 	"category.wildfire_gender.generic": "Wildfire's Female Gender Mod",
-  "key.wildfire_gender.gender_menu": "Хатын җенесе менюсы",
-  "toast.wildfire_gender.get_started": "Башлау өчен «%s» төймәсенә басыгыз!",
+  	"key.wildfire_gender.gender_menu": "Хатын җенесе менюсы",
+ 	"toast.wildfire_gender.get_started": "Башлау өчен «%s» төймәсенә басыгыз!",
 
 	"wildfire_gender.player_list.title": "Хатын җенесенең моды",
 	"wildfire_gender.player_list.settings_button": "Көйләүләр",
 	"wildfire_gender.player_list.sync_status": "Синхронлаштыру халәте",
 	"wildfire_gender.player_list.state.loading": "Мәгълүмат йөкләү...",
 	"wildfire_gender.player_list.state.synced": "Синхронлаштырылган уенчы",
+	"wildfire_gender.player_list.bounce_multiplier": "Сикерү тапкырлаучысы: %s×",
+	"wildfire_gender.player_list.breast_momentum": "Имчәк моменты: %s%%",
+	"wildfire_gender.player_list.female_sounds": "Хатын тавышлары: %s",
 
 	"wildfire_gender.wardrobe.title": "Wildfire's Female Gender Mod",
 	"wildfire_gender.breast_customization.tab_customization": "Көйләү",
@@ -27,25 +30,16 @@
 	"wildfire_gender.appearance_settings.title": "Тышкы кыяфәт көйләүләре",
 	"wildfire_gender.char_settings.title": "Персонаж көйләүләре",
 	"wildfire_gender.char_settings.physics": "Имчәк физикасы: %s",
-	"wildfire_gender.tooltip.breast_physics": "Имчәк физикасын куша.",
 
 	"wildfire_gender.char_settings.override_armor_physics": "Көбә физикасы: %s",
-	"wildfire_gender.tooltip.override_armor_physics": "Көбә киенгәндә көбә физикасы атрибутларын яңадан билгеләү",
+	"wildfire_gender.tooltip.override_armor_physics.line1": "Кушылганда имчәк физикасы киенгән көбәгез тарафыннан кечерәймәячәк һәм бастырылмаячак",
+	"wildfire_gender.tooltip.override_armor_physics.line2": "Бу көйләү яшерүче ресурс җыелмалары яки шундый ук минималь көбә җыелмалары белән куллану өчен эшләнгән",
 
 	"wildfire_gender.char_settings.hide_in_armor": "Көбәдә яшерү: %s",
-	"wildfire_gender.tooltip.hide_in_armor": "Көбәне киеп йөргәндә имчәк моделен яшерү.",
 	"wildfire_gender.char_settings.hurt_sounds": "Яралану тавышлары: %s",
-	"wildfire_gender.tooltip.hurt_sounds": "Хатын яралануының тавышларын куша.",
+	"wildfire_gender.tooltip.hurt_sounds": "Әгәр Сезнең җенес «Хатын» яки «Башка» дип урнаштырылса, зыян алынганда персонажыгыз хатынның яралану тавышын уйнатачак.",
 
-  "wildfire_gender.breast_customization.dual_physics": "Ике-физик: %s",
-
-	"wildfire_gender.player_list.bounce_multiplier": "Сикерү тапкырлаучысы: %s×",
-	"wildfire_gender.player_list.breast_momentum": "Имчәк моменты: %s%%",
-	"wildfire_gender.player_list.female_sounds": "Хатын тавышлары: %s",
-
-	"wildfire_gender.settings.title": "Wildfire-ның көйләүләр менюсы",
-
-	"wildfire_gender.acknowledge.confirm": "Okay",
+  	"wildfire_gender.breast_customization.dual_physics": "Ике-физик: %s",
 
 	"wildfire_gender.label.gender": "Җенес",
 	"wildfire_gender.label.female": "Хатын",
@@ -56,8 +50,6 @@
 	"wildfire_gender.label.disabled": "Сүнек",
 	"wildfire_gender.label.yes": "Әйе",
 	"wildfire_gender.label.no": "Юк",
-	"wildfire_gender.label.exit": "X",
-	"wildfire_gender.label.too_far": "Ерак",
 	"wildfire_gender.label.with_creator": "Сез бу модның ясаучы белән бер серверда уйныйсыз!",
 
 	"wildfire_gender.slider.bounce": "Сикерү интенсивлыгы: ×%s",
@@ -66,6 +58,6 @@
 	"wildfire_gender.slider.max_bounce": "Анимедагы имчәлек физикасы!!!",
 	"wildfire_gender.tooltip.bounce_warning": "«Сикерү интенсивлыгы» югары кыйммәтендә табигый булмаган рәвештә күренәчәк!",
 
-  "wildfire_gender.cancer_awareness.title": "Әй, бу имчәкнең ракы турында хәбәрдарлыкның ае!",
+  	"wildfire_gender.cancer_awareness.title": "Әй, бу имчәкнең ракы турында хәбәрдарлыкның ае!",
 	"wildfire_gender.coming_soon": "Тиздән"
 }
