@@ -23,36 +23,19 @@ import com.wildfire.main.entitydata.PlayerConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/*
- * A note on why this implementation in particular was chosen:
- *
- * While this could be reduced down to one mixin (the `#onDamaged(DamageSource)` one in particular), and forego any sort
- * of server-side handling, this is being done as (at least as of when this is being written,) the mod fails to ever
- * perform an initial sync upon a player joining a dedicated server; as such, we're using client- *and* server-side mixins
- * to provide some level of consistency, even if syncing isn't consistent.
- *
- * We're additionally playing *alongside* the vanilla hurt sound, largely for the sake of accessibility, as the vanilla
- * hurt sound may provide important context as for why a player is taking damage, which could prove especially helpful
- * for players with poor/no eyesight.
- *
- * Additionally, completely replacing the hurt sound server-side would essentially require the mod client-side as well
- * to hear *any* hurt sounds from players with this setting enabled, which rules out mixins to methods such as
- * `PlayerEntity#getHurtSound(DamageSource)`.
- */
 @Mixin(LivingEntity.class)
+@Environment(EnvType.CLIENT)
 public abstract class LivingEntityMixin {
-	@Environment(EnvType.CLIENT)
 	@Inject(
 		method = "onDamaged",
 		at = @At(
@@ -60,39 +43,16 @@ public abstract class LivingEntityMixin {
 			target = "Lnet/minecraft/entity/LivingEntity;playSound(Lnet/minecraft/sound/SoundEvent;FF)V"
 		)
 	)
-	public void clientGenderHurtSound(DamageSource damageSource, CallbackInfo ci) {
-		MinecraftClient client = MinecraftClient.getInstance();
-		if(client.player == null || client.world == null) return;
+	public void wildfiregender$playGenderHurtSound(DamageSource damageSource, CallbackInfo ci) {
+		if((LivingEntity)(Object)this instanceof AbstractClientPlayerEntity player) {
+			PlayerConfig genderPlayer = WildfireGender.getPlayerById(player.getUuid());
+			if(genderPlayer == null || !genderPlayer.hasHurtSounds()) return;
 
-		if((LivingEntity)(Object)this instanceof PlayerEntity player) {
-			if(player.getWorld().isClient() && player.getUuid().equals(client.player.getUuid())) {
-				this.playGenderHurtSound(player);
+			SoundEvent hurtSound = genderPlayer.getGender().getHurtSound();
+			if(hurtSound != null) {
+				float pitch = (player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.2F + 1.0F;
+				player.playSound(hurtSound, 1f, pitch);
 			}
-		}
-	}
-
-	@Inject(
-		method = "damage",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/entity/LivingEntity;playHurtSound(Lnet/minecraft/entity/damage/DamageSource;)V"
-		)
-	)
-	public void serverGenderHurtSound(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-		if((LivingEntity)(Object)this instanceof PlayerEntity player) {
-			if(!player.getWorld().isClient()) this.playGenderHurtSound(player);
-		}
-	}
-
-	@Unique
-	private void playGenderHurtSound(PlayerEntity player) {
-		PlayerConfig genderPlayer = WildfireGender.getPlayerById(player.getUuid());
-		if(genderPlayer == null || !genderPlayer.hasHurtSounds()) return;
-
-		SoundEvent hurtSound = genderPlayer.getGender().getHurtSound();
-		if(hurtSound != null) {
-			float pitch = (player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.2F + 1.0F;
-			player.playSound(hurtSound, 1f, pitch);
 		}
 	}
 }
