@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonWriter;
 import com.wildfire.main.WildfireGender;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
@@ -43,7 +44,7 @@ public abstract class AbstractConfiguration {
 
 	protected AbstractConfiguration(String directory, String cfgName) {
 		Path saveDir = FabricLoader.getInstance().getConfigDir().resolve(directory);
-		if(!Files.isDirectory(saveDir)) {
+		if(supportsSaving() && !Files.isDirectory(saveDir)) {
 			try {
 				Files.createDirectory(saveDir);
 			} catch(IOException e) {
@@ -53,11 +54,8 @@ public abstract class AbstractConfiguration {
 		CFG_FILE = saveDir.resolve(cfgName + ".json").toFile();
 	}
 
-	public void finish() {
-		if(CFG_FILE.exists()) {
-			load(); //load file
-			updateConfig();
-		}
+	public static boolean supportsSaving() {
+		return FabricLoader.getInstance().getEnvironmentType() != EnvType.SERVER;
 	}
 
 	public <TYPE> void set(ConfigKey<TYPE> key, TYPE value) {
@@ -69,7 +67,7 @@ public abstract class AbstractConfiguration {
 	}
 
 	public <TYPE> void setDefault(ConfigKey<TYPE> key) {
-		if (!SAVE_VALUES.has(key.key)) {
+		if(!SAVE_VALUES.has(key.key)) {
 			set(key, key.defaultValue);
 		}
 	}
@@ -82,22 +80,9 @@ public abstract class AbstractConfiguration {
 		SAVE_VALUES.remove(key);
 	}
 
-	public void updateConfig() {
-		JsonObject obj;
-		try (FileReader configurationFile = new FileReader(CFG_FILE)) {
-			obj = new Gson().fromJson(configurationFile, JsonObject.class); //GsonHelper.parse(configurationFile);
-			//Merge with existing values
-			for (Map.Entry<String, JsonElement> entry : SAVE_VALUES.entrySet()) {
-				obj.add(entry.getKey(), entry.getValue());
-			}
-		} catch(Exception ignored) {
-			return;
-		}
-		save();
-	}
-
 	public void save() {
-		try (FileWriter writer = new FileWriter(CFG_FILE); JsonWriter jsonWriter = new JsonWriter(writer)) {
+		if(!supportsSaving()) return;
+		try(FileWriter writer = new FileWriter(CFG_FILE); JsonWriter jsonWriter = new JsonWriter(writer)) {
 			jsonWriter.setIndent("\t");
 			ADAPTER.write(jsonWriter, SAVE_VALUES);
 		} catch (IOException e) {
@@ -106,13 +91,13 @@ public abstract class AbstractConfiguration {
 	}
 
 	public void load() {
-		try (FileReader configurationFile = new FileReader(CFG_FILE)) {
+		if(!supportsSaving()) return;
+		try(FileReader configurationFile = new FileReader(CFG_FILE)) {
 			JsonObject obj = new Gson().fromJson(configurationFile, JsonObject.class);
-			for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-				String key = entry.getKey();
-				SAVE_VALUES.add(key, entry.getValue());
+			for(Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+				SAVE_VALUES.add(entry.getKey(), entry.getValue());
 			}
-		} catch(Exception e) {
+		} catch(IOException e) {
 			WildfireGender.LOGGER.error("Failed to load config file", e);
 		}
 	}

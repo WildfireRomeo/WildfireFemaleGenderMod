@@ -65,7 +65,7 @@ public class PlayerConfig extends EntityConfig {
 		this.cfg.setDefault(Configuration.SHOW_IN_ARMOR);
 		this.cfg.setDefault(Configuration.BOUNCE_MULTIPLIER);
 		this.cfg.setDefault(Configuration.FLOPPY_MULTIPLIER);
-		this.cfg.finish();
+		this.cfg.load();
 	}
 
 	// this shouldn't ever be called on players, but just to be safe, override with a noop.
