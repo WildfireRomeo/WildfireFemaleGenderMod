@@ -48,7 +48,7 @@ public class PlayerConfig extends EntityConfig {
 	public PlayerConfig(UUID uuid, Gender gender) {
 		super(uuid);
 		this.gender = gender;
-		this.cfg = new Configuration("WildfireGender", this.uuid.toString());
+		this.cfg = new Configuration(this.uuid.toString());
 		this.cfg.set(Configuration.USERNAME, this.uuid);
 		this.cfg.setDefault(Configuration.GENDER);
 		this.cfg.setDefault(Configuration.BUST_SIZE);
@@ -65,7 +65,7 @@ public class PlayerConfig extends EntityConfig {
 		this.cfg.setDefault(Configuration.SHOW_IN_ARMOR);
 		this.cfg.setDefault(Configuration.BOUNCE_MULTIPLIER);
 		this.cfg.setDefault(Configuration.FLOPPY_MULTIPLIER);
-		this.cfg.finish();
+		this.cfg.load();
 	}
 
 	// this shouldn't ever be called on players, but just to be safe, override with a noop.

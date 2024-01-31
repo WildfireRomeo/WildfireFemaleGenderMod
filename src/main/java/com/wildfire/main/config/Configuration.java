@@ -18,24 +18,12 @@
 
 package com.wildfire.main.config;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonWriter;
-import net.fabricmc.loader.api.FabricLoader;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Map;
 import java.util.UUID;
 
-public class Configuration {
+public class Configuration extends AbstractConfiguration {
+
+	private static final String CONFIG_DIR = "WildfireGender";
 
 	public static final UUIDConfigKey USERNAME = new UUIDConfigKey("username", UUID.nameUUIDFromBytes("UNKNOWN".getBytes(StandardCharsets.UTF_8)));
 	public static final GenderConfigKey GENDER = new GenderConfigKey("gender");
@@ -54,98 +42,7 @@ public class Configuration {
 	public static final FloatConfigKey BOUNCE_MULTIPLIER = new FloatConfigKey("bounce_multiplier", 0.34F, 0, 0.5f);
 	public static final FloatConfigKey FLOPPY_MULTIPLIER = new FloatConfigKey("floppy_multiplier", 0.75F, 0.25f, 1);
 
-	private static final TypeAdapter<JsonObject> ADAPTER = new Gson().getAdapter(JsonObject.class);
-
-	private final File CFG_FILE;
-	public JsonObject SAVE_VALUES = new JsonObject();
-
-	public Configuration(String saveLoc, String cfgName) {
-
-		Path saveDir = FabricLoader.getInstance().getConfigDir();
-		if(!Files.isDirectory(saveDir.resolve(saveLoc))) {
-			try {
-				Files.createDirectory(saveDir.resolve(saveLoc));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		CFG_FILE = saveDir.resolve(saveLoc).resolve(cfgName + ".json").toFile();
-	}
-
-	public void finish() {
-		if(CFG_FILE.exists()) {
-			load(); //load file
-			updateConfig();
-		} else {
-			//save(); //save all values to default in new file.
-		}
-	}
-
-	public <TYPE> void set(ConfigKey<TYPE> key, TYPE value) {
-		key.save(SAVE_VALUES, value);
-	}
-
-	public <TYPE> void setDefault(ConfigKey<TYPE> key) {
-		if (!SAVE_VALUES.has(key.key)) {
-			set(key, key.defaultValue);
-		}
-	}
-
-	public <TYPE> TYPE get(ConfigKey<TYPE> key) {
-		return key.read(SAVE_VALUES);
-	}
-
-	public void removeParameter(ConfigKey<?> key) {
-		removeParameter(key.key);
-	}
-	
-	public void removeParameter(String key) {
-		SAVE_VALUES.remove(key);
-	}
-	
-	public void updateConfig() {
-		JsonObject obj;
-		try (FileReader configurationFile = new FileReader(CFG_FILE)) {
-			obj = new Gson().fromJson(configurationFile, JsonObject.class); //GsonHelper.parse(configurationFile);
-			//Merge with existing values
-			for (Map.Entry<String, JsonElement> entry : SAVE_VALUES.entrySet()) {
-				obj.add(entry.getKey(), entry.getValue());
-			}
-		} catch(Exception ignored) {
-			return;
-		}
-		try (FileWriter writer = new FileWriter(CFG_FILE);
-			 JsonWriter jsonWriter = new JsonWriter(writer)) {
-			ADAPTER.write(jsonWriter, obj);
-			//System.out.println("[Configuration] Saved Existing File!");
-		} catch(Exception ignored) {}
-	}
-	
-	public void save() {
-		try (FileWriter writer = new FileWriter(CFG_FILE);
-			 JsonWriter jsonWriter = new JsonWriter(writer)) {
-			jsonWriter.setIndent("		");
-			ADAPTER.write(jsonWriter, SAVE_VALUES);
-			//System.out.println("[Configuration] Saved New File!");
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-	}
-	
-	//load file values to this class for use in the program
-	public void load() {
-		 //System.out.println("[Configuration] Loading...");
-		
-		try (FileReader configurationFile = new FileReader(CFG_FILE)) {
-			JsonObject obj = new Gson().fromJson(configurationFile, JsonObject.class);
-			for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-				String key = entry.getKey();
-				SAVE_VALUES.add(key, entry.getValue());
-			}
-		    //System.out.println("[Configuration] Loaded!\n\n");
-		} catch(Exception e) {
-		    //System.out.println("[Configuration] Failed!\n\n");
-		    e.printStackTrace();
-		}
+	public Configuration(String cfgName) {
+		super(CONFIG_DIR, cfgName);
 	}
 }
