@@ -48,7 +48,7 @@ public class PlayerConfig extends EntityConfig {
 	public PlayerConfig(UUID uuid, Gender gender) {
 		super(uuid);
 		this.gender = gender;
-		this.cfg = new Configuration("WildfireGender", this.uuid.toString());
+		this.cfg = new Configuration(this.uuid.toString());
 		this.cfg.set(Configuration.USERNAME, this.uuid);
 		this.cfg.setDefault(Configuration.GENDER);
 		this.cfg.setDefault(Configuration.BUST_SIZE);
