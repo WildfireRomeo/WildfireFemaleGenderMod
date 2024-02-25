@@ -47,7 +47,7 @@ public class WildfireButton extends Button {
       if(this.isHoveredOrFocused()) clr = 0x666666 + (84 << 24);
       if(!this.active)  clr = 0x222222 + (84 << 24);
       if(!transparent) graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), clr);
-      renderString(graphics, minecraft.font, active ? 0xFFFFFF : 0x666666);
+      GuiHelper.renderScrollingString(graphics, this, minecraft.font, 2, active ? 0xFFFFFF : 0x666666);
       RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
    }
 

@@ -110,7 +110,7 @@ public class WildfireSlider extends AbstractSliderButton {
 		RenderSystem.enableDepthTest();
 
 		Font font = Minecraft.getInstance().font;
-		renderScrollingString(graphics, font, 2, isHovered || changed ? 0xFFFF55 : 0xFFFFFF);
+		GuiHelper.renderScrollingString(graphics, this, font, 2, isHovered || changed ? 0xFFFF55 : 0xFFFFFF);
 	}
 
 	public float getFloatValue() {
