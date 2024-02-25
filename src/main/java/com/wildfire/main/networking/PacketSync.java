@@ -20,13 +20,15 @@ package com.wildfire.main.networking;
 
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
-
-import java.util.function.Supplier;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import org.jetbrains.annotations.NotNull;
 
 public class PacketSync extends PacketGenderInfo {
+
+    public static final ResourceLocation ID = WildfireGender.rl("sync");
 
     public PacketSync(GenderPlayer plr) {
         super(plr);
@@ -36,17 +38,22 @@ public class PacketSync extends PacketGenderInfo {
         super(buffer);
     }
 
-    public static void handle(final PacketSync packet, Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(() -> {
-            if (Minecraft.getInstance().player == null || !packet.uuid.equals(Minecraft.getInstance().player.getUUID())) {
-                GenderPlayer plr = WildfireGender.getOrAddPlayerById(packet.uuid);
-                packet.updatePlayerFromPacket(plr);
-                plr.syncStatus = GenderPlayer.SyncStatus.SYNCED;
-                //WildfireGender.logger.debug("Received player data {}", plr.uuid);
-            }/* else {
-                WildfireGender.logger.debug("Ignoring packet, this is yourself.");
-            }*/
-        });
-        context.get().setPacketHandled(true);
+    @Override
+    public void handle(IPayloadContext context) {
+        context.player()
+              //Validate it is a different player
+              .filter(player -> !player.getUUID().equals(uuid))
+              .ifPresent(player -> {
+                  GenderPlayer plr = WildfireGender.getOrAddPlayerById(uuid);
+                  updatePlayerFromPacket(plr);
+                  plr.syncStatus = GenderPlayer.SyncStatus.SYNCED;
+                  //WildfireGender.logger.debug("Received player data {}", plr.uuid);
+              });
+    }
+
+    @NotNull
+    @Override
+    public ResourceLocation id() {
+        return ID;
     }
 }

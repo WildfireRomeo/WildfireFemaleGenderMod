@@ -17,8 +17,7 @@ classes/
 *.iws
 
 #Minecraft
-run/
-runV2/
+runs/
 
 # vscode
 
@@ -27,10 +26,6 @@ runV2/
 bin/
 .classpath
 .project
-
-# Files from Forge MDK
-
-forge*changelog.txt
 
 # macOS
 

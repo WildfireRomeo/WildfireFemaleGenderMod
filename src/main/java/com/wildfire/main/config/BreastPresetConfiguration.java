@@ -18,7 +18,7 @@ package com.wildfire.main.config;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.neoforged.fml.loading.FMLPaths;
 
 public class BreastPresetConfiguration extends Configuration {
 

@@ -26,6 +26,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -41,11 +42,10 @@ public class WildfireBreastPresetList extends AbstractSelectionList<BreastPreset
     private final int listWidth;
     private boolean hasPresets;
 
-    public WildfireBreastPresetList(WildfireBreastCustomizationScreen parent, int listWidth, int top, int bottom) {
-        super(Minecraft.getInstance(), 156, parent.height, top, bottom, 32);
+    public WildfireBreastPresetList(WildfireBreastCustomizationScreen parent, int listWidth, int top, int height) {
+        super(Minecraft.getInstance(), 156, height, top, 32);
         setRenderHeader(false, 0);
         setRenderBackground(false);
-        setRenderTopAndBottom(false);
         this.parent = parent;
         this.listWidth = listWidth;
         this.refreshList();
@@ -91,7 +91,7 @@ public class WildfireBreastPresetList extends AbstractSelectionList<BreastPreset
     }
 
     @Override
-    public void updateNarration(@Nonnull NarrationElementOutput output) {
+    protected void updateWidgetNarration(@Nonnull NarrationElementOutput output) {
     }
 
     public class BreastPresetListEntry extends AbstractSelectionList.Entry<BreastPresetListEntry> {
@@ -100,7 +100,7 @@ public class WildfireBreastPresetList extends AbstractSelectionList<BreastPreset
         private final WildfireButton btnOpenGUI;
 
         private BreastPresetListEntry(BreastPresetConfiguration data) {
-            this(WildfireGender.rl("textures/presets/iknowthisisnull.png"), data.get(BreastPresetConfiguration.PRESET_NAME), data);
+            this(MissingTextureAtlasSprite.getLocation(), data.get(BreastPresetConfiguration.PRESET_NAME), data);
             WildfireGender.logger.debug("Preset Name: {}", name);
         }
 

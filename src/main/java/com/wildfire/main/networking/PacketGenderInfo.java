@@ -23,8 +23,10 @@ import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.GenderPlayer.Gender;
 import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
-public abstract class PacketGenderInfo {
+public abstract class PacketGenderInfo implements IWildfirePacket<IPayloadContext> {
     protected final UUID uuid;
     private final Gender gender;
     private final float bust_size;
@@ -81,7 +83,8 @@ public abstract class PacketGenderInfo {
         this.cleavage = buffer.readFloat();
     }
 
-    public void encode(FriendlyByteBuf buffer) {
+    @Override
+    public void write(FriendlyByteBuf buffer) {
         buffer.writeUUID(this.uuid);
         buffer.writeEnum(this.gender);
         buffer.writeFloat(this.bust_size);

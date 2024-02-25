@@ -21,12 +21,15 @@ package com.wildfire.main.networking;
 import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
-
-import java.util.function.Supplier;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.NotNull;
 
 public class PacketSendGenderInfo extends PacketGenderInfo {
+
+    public static final ResourceLocation ID = WildfireGender.rl("send_gender_info");
 
     public PacketSendGenderInfo(GenderPlayer plr) {
         super(plr);
@@ -36,20 +39,25 @@ public class PacketSendGenderInfo extends PacketGenderInfo {
         super(buffer);
     }
 
-    public static void handle(final PacketSendGenderInfo packet, Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(() -> {
-            ServerPlayer player = context.get().getSender();
-            if (player == null || !player.getUUID().equals(packet.uuid)) {
-                //Validate the uuid matches the player who sent it
-                return;
-            }
-            GenderPlayer plr = WildfireGender.getOrAddPlayerById(packet.uuid);
-            packet.updatePlayerFromPacket(plr);
-            //WildfireGender.logger.debug("Received data from player {}", plr.uuid);
-            //Sync changes to other online players that are tracking us
-            WildfireSync.sendToOtherClients(player, plr);
-        });
+    @Override
+    public void handle(IPayloadContext context) {
+        context.player()
+              //Validate the uuid matches the player who sent it
+              .filter(player -> player.getUUID().equals(uuid))
+              .ifPresent(player -> {
+                  GenderPlayer plr = WildfireGender.getOrAddPlayerById(uuid);
+                  updatePlayerFromPacket(plr);
+                  //WildfireGender.logger.debug("Received data from player {}", plr.uuid);
+                  //Sync changes to other online players that are tracking us
+                  for (ServerPlayer tracker : WildfireGender.getTrackers(player)) {
+                      PacketDistributor.PLAYER.with(tracker).send(new PacketSync(plr));
+                  }
+              });
+    }
 
-        context.get().setPacketHandled(true);
+    @NotNull
+    @Override
+    public ResourceLocation id() {
+        return ID;
     }
 }

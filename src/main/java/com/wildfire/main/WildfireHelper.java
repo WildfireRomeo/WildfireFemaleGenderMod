@@ -19,20 +19,22 @@
 package com.wildfire.main;
 
 import com.wildfire.api.IGenderArmor;
-import com.wildfire.render.armor.SimpleGenderArmor;
+import com.wildfire.api.WildfireAPI;
+import com.wildfire.main.networking.PacketSendGenderInfo;
+import com.wildfire.main.networking.PacketSync;
 import com.wildfire.render.armor.EmptyGenderArmor;
+import com.wildfire.render.armor.SimpleGenderArmor;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Consumer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 
 public class WildfireHelper {
-
-    public static final Capability<IGenderArmor> GENDER_ARMOR_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
     public static float randFloat(float min, float max) {
         return (float) ThreadLocalRandom.current().nextDouble(min, (double) max + 1);
@@ -42,36 +44,59 @@ public class WildfireHelper {
         if (stack.isEmpty()) {
             return EmptyGenderArmor.INSTANCE;
         }
-        return stack.getCapability(WildfireHelper.GENDER_ARMOR_CAPABILITY).orElseGet(() -> {
-            //While these defaults could be attached to the item stack via the AttachCapabilitiesEvent there is not
-            // really a great reason to do so as we would then need to ensure we handle all the lazy optionals properly,
-            // so we just include them as part of this fallback
-            if (stack.getItem() instanceof ArmorItem armorItem && armorItem.getType() == ArmorItem.Type.CHESTPLATE) {
-                //Start by checking if it is a vanilla chestplate as we have custom configurations for those we check against
-                // the armor material instead of the item instance in case any mods define custom armor items using vanilla
-                // materials as then we can make a better guess at what we want the default implementation to be
-                ArmorMaterial material = armorItem.getMaterial();
-                if (material == ArmorMaterials.LEATHER) {
-                    return SimpleGenderArmor.LEATHER;
-                } else if (material == ArmorMaterials.CHAIN) {
-                    return SimpleGenderArmor.CHAIN_MAIL;
-                } else if (material == ArmorMaterials.GOLD) {
-                    return SimpleGenderArmor.GOLD;
-                } else if (material == ArmorMaterials.IRON) {
-                    return SimpleGenderArmor.IRON;
-                } else if (material == ArmorMaterials.DIAMOND) {
-                    return SimpleGenderArmor.DIAMOND;
-                } else if (material == ArmorMaterials.NETHERITE) {
-                    return SimpleGenderArmor.NETHERITE;
-                }
-                //Otherwise just fallback to our default armor implementation
-                return SimpleGenderArmor.FALLBACK;
-            }
-            //If it is not an armor item default as if "nothing is being worn that covers the breast area"
-            // this might not be fully accurate and may need some tweaks but in general is likely relatively
-            // close to the truth of if it should render or not. This covers cases such as the elytra and
-            // other wearables
-            return EmptyGenderArmor.INSTANCE;
-        });
+        IGenderArmor capability = stack.getCapability(WildfireAPI.GENDER_ARMOR_CAPABILITY);
+        if (capability != null) {
+            return capability;
+        }
+        //Note: Vanilla armor will be handled above, as we attach the capability to the corresponding items
+        if (stack.getItem() instanceof ArmorItem armorItem && armorItem.getType() == ArmorItem.Type.CHESTPLATE) {
+            //If it is an armor item, use our fallback value
+            return SimpleGenderArmor.FALLBACK;
+        }
+        //If it is not an armor item default as if "nothing is being worn that covers the breast area"
+        // this might not be fully accurate and may need some tweaks but in general is likely relatively
+        // close to the truth of if it should render or not. This covers cases such as the elytra and
+        // other wearables
+        return EmptyGenderArmor.INSTANCE;
+    }
+
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        //Expose our defaults for vanilla chest pieces so that if another mod wants to query the values they can easily do so
+        event.registerItem(WildfireAPI.GENDER_ARMOR_CAPABILITY, (stack, context) -> SimpleGenderArmor.LEATHER, Items.LEATHER_CHESTPLATE);
+        event.registerItem(WildfireAPI.GENDER_ARMOR_CAPABILITY, (stack, context) -> SimpleGenderArmor.CHAIN_MAIL, Items.CHAINMAIL_CHESTPLATE);
+        event.registerItem(WildfireAPI.GENDER_ARMOR_CAPABILITY, (stack, context) -> SimpleGenderArmor.GOLD, Items.GOLDEN_CHESTPLATE);
+        event.registerItem(WildfireAPI.GENDER_ARMOR_CAPABILITY, (stack, context) -> SimpleGenderArmor.IRON, Items.IRON_CHESTPLATE);
+        event.registerItem(WildfireAPI.GENDER_ARMOR_CAPABILITY, (stack, context) -> SimpleGenderArmor.DIAMOND, Items.DIAMOND_CHESTPLATE);
+        event.registerItem(WildfireAPI.GENDER_ARMOR_CAPABILITY, (stack, context) -> SimpleGenderArmor.NETHERITE, Items.NETHERITE_CHESTPLATE);
+    }
+
+    public static void registerPackets(RegisterPayloadHandlerEvent event) {
+        //TODO: We can accept packets from fabric but for some reason it doesn't seem like NeoForge is properly letting fabric know we exist?
+        IPayloadRegistrar registrar = event.registrar(WildfireGender.MODID).optional();
+        //Client to server
+        registrar.play(PacketSendGenderInfo.ID, PacketSendGenderInfo::new, builder -> builder.server(PacketSendGenderInfo::handleMainThread));
+        //Server to client
+        registrar.play(PacketSync.ID, PacketSync::new, builder -> builder.client(PacketSync::handleMainThread));
+    }
+
+    public static <ENTITY extends LivingEntity> void withEntityAngles(ENTITY entity, float yBodyRot, float yRot, float xRot, Consumer<ENTITY> runnable) {
+        float oldYBodyRot = entity.yBodyRot;
+        float oldYRot = entity.getYRot();
+        float oldXRot = entity.getXRot();
+        float oldYHeadRot0 = entity.yHeadRotO;
+        float oldYHeadRot = entity.yHeadRot;
+        entity.yBodyRot = yBodyRot;
+        entity.setYRot(yRot);
+        entity.setXRot(xRot);
+        entity.yHeadRot = yRot;
+        entity.yHeadRotO = yRot;
+
+        runnable.accept(entity);
+
+        entity.yBodyRot = oldYBodyRot;
+        entity.setYRot(oldYRot);
+        entity.setXRot(oldXRot);
+        entity.yHeadRotO = oldYHeadRot0;
+        entity.yHeadRot = oldYHeadRot;
     }
 }

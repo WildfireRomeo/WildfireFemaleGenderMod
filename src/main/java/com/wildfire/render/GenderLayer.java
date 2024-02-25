@@ -59,7 +59,7 @@ import net.minecraft.world.item.*;
 import javax.annotation.Nullable;
 import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.client.ForgeHooksClient;
+import net.neoforged.neoforge.client.ClientHooks;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -102,7 +102,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		String s1 = String.format(Locale.ROOT, "%s:textures/models/armor/%s_layer_%d%s.png", domain, texture,
 			(slot == EquipmentSlot.LEGS ? 2 : 1), type == null ? "" : String.format(Locale.ROOT, "_%s", type));
 
-		s1 = ForgeHooksClient.getArmorTexture(entity, stack, s1, slot, type);
+		s1 = ClientHooks.getArmorTexture(entity, stack, s1, slot, type);
 		return new ResourceLocation(s1);
 	}
 
@@ -195,7 +195,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			boolean bounceEnabled = plr.hasBreastPhysics() && (!isChestplateOccupied || resistance < 1); //oh, you found this?
 
 			int combineTex = LivingEntityRenderer.getOverlayCoords(ent, 0);
-			ResourceLocation entityTexture = ent.getSkinTextureLocation();
+			ResourceLocation entityTexture = ent.getSkin().texture();
 			//RenderType selection copied from LivingEntityRenderer#getRenderType
 			RenderType type;
 			boolean bodyVisible = !ent.isInvisible();
@@ -335,10 +335,10 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 				VertexConsumer overlayVertexConsumer = bufferSource.getBuffer(overlayType);
 				renderBox(armor, matrixStack, overlayVertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 			}
-			ArmorTrim.getTrim(entity.level().registryAccess(), armorStack).ifPresent(trim -> {
+			ArmorTrim.getTrim(entity.level().registryAccess(), armorStack, true).ifPresent(trim -> {
 				ArmorMaterial armorMaterial = armorItem.getMaterial();
 				TextureAtlasSprite sprite = this.armorTrimAtlas.getSprite(trim.outerTexture(armorMaterial));
-				VertexConsumer trimVertexConsumer = sprite.wrap(bufferSource.getBuffer(Sheets.armorTrimsSheet()));
+				VertexConsumer trimVertexConsumer = sprite.wrap(bufferSource.getBuffer(Sheets.armorTrimsSheet(trim.pattern().value().decal())));
 				renderBox(armor, matrixStack, trimVertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 			});
 
@@ -358,14 +358,13 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			Vector3f vector3f = new Vector3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
 			vector3f.mul(matrix3f);
 			for (PositionTextureVertex vertex : quad.vertexPositions) {
-				//TODO - 1.20: Switch back to chaining https://github.com/MinecraftForge/MinecraftForge/pull/9564
-				bufferIn.vertex(matrix4f, vertex.x() / 16.0F, vertex.y() / 16.0F, vertex.z() / 16.0F);
-				bufferIn.color(red, green, blue, alpha);
-				bufferIn.uv(vertex.texturePositionX(), vertex.texturePositionY());
-				bufferIn.overlayCoords(packedOverlayIn);
-				bufferIn.uv2(packedLightIn);
-				bufferIn.normal(vector3f.x(), vector3f.y(), vector3f.z());
-				bufferIn.endVertex();
+				bufferIn.vertex(matrix4f, vertex.x() / 16.0F, vertex.y() / 16.0F, vertex.z() / 16.0F)
+					.color(red, green, blue, alpha)
+					.uv(vertex.texturePositionX(), vertex.texturePositionY())
+					.overlayCoords(packedOverlayIn)
+					.uv2(packedLightIn)
+					.normal(vector3f.x(), vector3f.y(), vector3f.z())
+					.endVertex();
 			}
 		}
 	}

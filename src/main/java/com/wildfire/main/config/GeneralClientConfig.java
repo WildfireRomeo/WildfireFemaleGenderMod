@@ -18,11 +18,11 @@
 
 package com.wildfire.main.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.config.ModConfig.Type;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.config.ModConfig.Type;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
 
 public class GeneralClientConfig {
 
@@ -32,13 +32,13 @@ public class GeneralClientConfig {
 		modContainer.addConfig(new ModConfig(Type.CLIENT, INSTANCE.configSpec, modContainer, "WildfireGender/client.toml"));
 	}
 
-	public final ForgeConfigSpec configSpec;
+	public final ModConfigSpec configSpec;
 
 	public final BooleanValue disableRendering;
 	public final BooleanValue disableSoundReplacement;
 
 	private GeneralClientConfig() {
-		ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+		ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 		builder.comment("Client Config. This config only exists on the client")
 			  .translation("wildfire_gender.config.client")
 			  .push("client");

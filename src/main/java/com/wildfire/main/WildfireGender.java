@@ -20,22 +20,25 @@ package com.wildfire.main;
 
 import com.mojang.logging.LogUtils;
 import com.wildfire.main.config.GeneralClientConfig;
-import com.wildfire.main.networking.WildfireSync;
+import com.wildfire.main.networking.PacketSync;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
+import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.fml.ModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.slf4j.Logger;
 
 @Mod(WildfireGender.MODID)
@@ -46,17 +49,30 @@ public class WildfireGender {
 	public static final Logger logger = LogUtils.getLogger();
 
 	public static Map<UUID, GenderPlayer> CLOTHING_PLAYERS = new HashMap<>();
+	private static WildfireGender instance;
 
-  	public WildfireGender() {
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(WildfireSync::setup); //common
-		MinecraftForge.EVENT_BUS.addListener(this::onStartTracking);
+	//Tracked player to the set of tracking players
+	private final Map<UUID, Set<ServerPlayer>> trackedPlayers = new HashMap<>();
+
+  	public WildfireGender(ModContainer modContainer, IEventBus modEventBus) {
+		instance = this;
+
+		modEventBus.addListener(WildfireHelper::registerCapabilities);
+		modEventBus.addListener(WildfireHelper::registerPackets);
+		NeoForge.EVENT_BUS.addListener(this::onStartTracking);
+		NeoForge.EVENT_BUS.addListener(this::onStopTracking);
+
 		if (FMLEnvironment.dist.isClient()) {
-			GeneralClientConfig.register(ModLoadingContext.get().getActiveContainer());
+			GeneralClientConfig.register(modContainer);
 		}
-    }
+	}
 
 	public static ResourceLocation rl(String path) {
 		  return new ResourceLocation(MODID, path);
+	}
+
+	public static Set<ServerPlayer> getTrackers(Player target) {
+		  return instance.trackedPlayers.getOrDefault(target.getUUID(), Set.of());
 	}
 
 	@Nullable
@@ -69,7 +85,9 @@ public class WildfireGender {
 	}
 
 	private void onStartTracking(PlayerEvent.StartTracking evt) {
-		if (evt.getTarget() instanceof Player toSync && evt.getEntity() instanceof ServerPlayer sendTo) {
+		if (evt.getTarget() instanceof Player toSync && evt.getEntity() instanceof ServerPlayer sendTo && sendTo.connection.isConnected(PacketSync.ID)) {
+			trackedPlayers.computeIfAbsent(toSync.getUUID(), uuid -> new HashSet<>()).add(sendTo);
+
 			GenderPlayer genderToSync = WildfireGender.getPlayerById(toSync.getUUID());
 			if(genderToSync == null) return;
 			// Note that we intentionally don't check if we've previously synced a player with this code path;
@@ -77,13 +95,24 @@ public class WildfireGender {
 			// tracking distance of another, change their settings, and then re-enter their tracking distance;
 			// we wouldn't sync while they're out of tracking distance, and as such, their settings would be out
 			// of sync until they relog.
-			WildfireSync.sendToClient(sendTo, genderToSync);
+			PacketDistributor.PLAYER.with(sendTo).send(new PacketSync(genderToSync));
 		}
 	}
-  	
+
+	private void onStopTracking(PlayerEvent.StopTracking evt) {
+		if (evt.getTarget() instanceof Player toSync && evt.getEntity() instanceof ServerPlayer sendTo) {
+			UUID uuid = toSync.getUUID();
+			Set<ServerPlayer> trackers = trackedPlayers.get(uuid);
+            if (trackers.remove(sendTo) && trackers.isEmpty()) {
+                trackedPlayers.remove(uuid);
+            }
+        }
+	}
+
   	public static void loadGenderInfoAsync(UUID uuid, boolean markForSync) {
   		Thread thread = new Thread(() -> WildfireGender.loadGenderInfo(uuid, markForSync));
 		thread.setName("WFGM_GetPlayer-" + uuid);
+		thread.setDaemon(true);
   		thread.start();
   	}
 

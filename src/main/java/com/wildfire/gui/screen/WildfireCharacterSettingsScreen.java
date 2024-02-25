@@ -130,14 +130,13 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
     }
 
     @Override
-    public void renderBackground(@Nonnull GuiGraphics graphics) {
-        super.renderBackground(graphics);
+    public void renderBackground(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        super.renderBackground(graphics, mouseX, mouseY, partialTick);
         graphics.blit(BACKGROUND, (this.width - 172) / 2, (this.height - 124) / 2, 0, 0, 172, 144);
     }
 
     @Override
     public void render(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, delta);
 
         int x = this.width / 2;

@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
 import net.minecraft.util.GsonHelper;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.neoforged.fml.loading.FMLPaths;
 
 public class Configuration {
 

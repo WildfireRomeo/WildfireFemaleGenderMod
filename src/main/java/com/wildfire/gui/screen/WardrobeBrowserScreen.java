@@ -57,7 +57,8 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 
 		GenderPlayer plr = getPlayer();
 
-		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, y - 52, 158, 20, getGenderLabel(plr.getGender()), button -> {
+		int buttonX = this.width / 2 - 42;
+		this.addRenderableWidget(new WildfireButton(buttonX, y - 52, 158, 20, getGenderLabel(plr.getGender()), button -> {
 			Gender gender = switch (plr.getGender()) {
 				case MALE -> Gender.FEMALE;
 				case FEMALE -> Gender.OTHER;
@@ -72,11 +73,11 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 
 		int yOffset = 32;
 		if (plr.getGender().canHaveBreasts()) {
-			this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, y - yOffset, 158, 20, Component.translatable("wildfire_gender.appearance_settings.title").append("..."),
+			this.addRenderableWidget(new WildfireButton(buttonX, y - yOffset, 158, 20, Component.translatable("wildfire_gender.appearance_settings.title").append("..."),
 				button -> Minecraft.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 			yOffset -= 20;
 		}
-		this.addRenderableWidget(new WildfireButton(this.width / 2 - 42, y - yOffset, 158, 20, Component.translatable("wildfire_gender.char_settings.title").append("..."),
+		this.addRenderableWidget(new WildfireButton(buttonX, y - yOffset, 158, 20, Component.translatable("wildfire_gender.char_settings.title").append("..."),
 			button -> Minecraft.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 
 		this.addRenderableWidget(new WildfireButton(this.width / 2 + 111, y - 63, 9, 9, Component.literal("X"),
@@ -90,28 +91,25 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	}
 
 	@Override
-	public void renderBackground(@Nonnull GuiGraphics graphics) {
-		super.renderBackground(graphics);
+	public void renderBackground(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		super.renderBackground(graphics, mouseX, mouseY, partialTick);
 		ResourceLocation backgroundTexture = getPlayer().getGender().canHaveBreasts() ? BACKGROUND_FEMALE : BACKGROUND;
 		graphics.blit(backgroundTexture, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156);
 	}
 
   	@Override
-	public void render(@NotNull GuiGraphics graphics, int f1, int f2, float f3) {
-		renderBackground(graphics);
-		super.render(graphics, f1, f2, f3);
+	public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		super.render(graphics, mouseX, mouseY, partialTick);
 
 		int x = this.width / 2;
 	    int y = this.height / 2;
 
 		graphics.drawString(this.font, title, x - 118, y - 62, 4473924, false);
 		RenderSystem.setShaderColor(1f, 1.0F, 1.0F, 1.0F);
-		int xP = this.width / 2 - 82;
-		int yP = this.height / 2 + 40;
 		if (minecraft != null && minecraft.level != null) {
 			Player ent = minecraft.level.getPlayerByUUID(this.playerUUID);
 			if (ent != null) {
-				InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, xP, yP, 45, xP - f1, yP - 107 + 75 - 40 - f2, ent);
+				InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, x - 164, y - 80, x, y + 80, 45, 0, mouseX, mouseY, ent);
 			}
 		}
 

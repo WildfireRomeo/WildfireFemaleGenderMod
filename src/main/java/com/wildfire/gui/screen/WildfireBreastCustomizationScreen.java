@@ -24,22 +24,36 @@ import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.Breasts;
 import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.WildfireHelper;
 import com.wildfire.main.config.BreastPresetConfiguration;
 import com.wildfire.main.config.ClientConfiguration;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
+import java.util.UUID;
+import java.util.function.Consumer;
 import javax.annotation.Nonnull;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-
-import java.util.UUID;
-import net.minecraftforge.fml.loading.FMLLoader;
+import net.neoforged.fml.loading.FMLLoader;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
+
+    private static final float ANGLE = (float) Math.atan(-0.5);
+    private static final float PREVIEW_Y_BODY_ROT = 180.0F + ANGLE * 20.0F;
+    private static final float PREVIEW_Y_ROT = 180.0F + ANGLE * 40.0F;
+    private static final float PREVIEW_X_ROT = -ANGLE * 20.0F;
+    private static final Quaternionf CAMERA_ORIENTATION = (new Quaternionf()).rotateX(ANGLE * 20.0F * ((float) Math.PI / 180F));
+    private static final Quaternionf PREVIEW_ANGLE = Util.make(new Quaternionf().rotateZ(Mth.PI), preview -> preview.mul(CAMERA_ORIENTATION));
 
     private WildfireSlider breastSlider, xOffsetBoobSlider, yOffsetBoobSlider, zOffsetBoobSlider, cleavageSlider;
     private WildfireButton btnDualPhysics, btnPresets, btnCustomization;
@@ -76,7 +90,9 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         this.addRenderableWidget(btnPresets = new WildfireButton(this.width / 2 + 31 + 79, j - 60, 158 / 2 - 1, 10,
               Component.translatable("wildfire_gender.breast_customization.tab_presets"), button -> {
             // TODO temporary release readiness fix: lock presets tab behind a development environment
-            if (FMLLoader.isProduction()) return;
+            if (FMLLoader.isProduction()) {
+                return;
+            }
 
             currentTab = Tab.PRESETS;
             PRESET_LIST.refreshList();
@@ -121,8 +137,8 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         }));
 
         //Preset Tab Below
-        PRESET_LIST = new WildfireBreastPresetList(this, 156, (j - 48), (j + 77));
-        PRESET_LIST.setLeftPos(this.width / 2 + 30);
+        PRESET_LIST = new WildfireBreastPresetList(this, 156, j - 48, 125);
+        PRESET_LIST.setX(this.width / 2 + 30);
 
         this.addWidget(this.PRESET_LIST);
 
@@ -165,34 +181,34 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
     }
 
     @Override
-    public void renderBackground(@Nonnull GuiGraphics graphics) {
-        super.renderBackground(graphics);
+    public void renderBackground(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        super.renderBackground(graphics, mouseX, mouseY, partialTick);
         int x = this.width / 2;
         int y = this.height / 2;
         graphics.fill(x + 28, y - 64 - 21, x + 190, y + 68, 0x55000000);
         graphics.fill(x + 29, y - 63 - 21, x + 189, y - 60, 0x55000000);
         graphics.drawString(font, getTitle(), x + 32, y - 60 - 21, 0xFFFFFF, false);
         if (currentTab == Tab.PRESETS) {
-            graphics.fill(PRESET_LIST.getLeft(), PRESET_LIST.getTop(), PRESET_LIST.getRight(), PRESET_LIST.getBottom(), 0x55000000);
+            graphics.fill(PRESET_LIST.getX(), PRESET_LIST.getY(), PRESET_LIST.getRight(), PRESET_LIST.getBottom(), 0x55000000);
         }
     }
 
     @Override
-    public void render(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        renderBackground(graphics);
-        super.render(graphics, mouseX, mouseY, delta);
+    public void render(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        super.render(graphics, mouseX, mouseY, partialTick);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         int x = this.width / 2;
         int y = this.height / 2;
         if (minecraft != null && minecraft.level != null) {
             Player ent = minecraft.level.getPlayerByUUID(this.playerUUID);
             if (ent != null) {
-                InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, x - 102, y + 275, 200, -20, -20, ent);
+                WildfireHelper.withEntityAngles(ent, PREVIEW_Y_BODY_ROT, PREVIEW_Y_ROT, PREVIEW_X_ROT, entity -> InventoryScreen.renderEntityInInventory(graphics,
+                      x - 102, y + 75, 200, new Vector3f(0, entity.getBbHeight() / 2F, 0), PREVIEW_ANGLE, CAMERA_ORIENTATION, entity));
             }
         }
 
         if (currentTab == Tab.PRESETS) {
-            PRESET_LIST.render(graphics, mouseX, mouseY, delta);
+            PRESET_LIST.render(graphics, mouseX, mouseY, partialTick);
             if (!PRESET_LIST.hasPresets()) {
                 graphics.drawCenteredString(font, Component.translatable("wildfire_gender.breast_customization.presets.none"), x + ((190 + 28) / 2), y - 4, 0xFFFFFF);
             }

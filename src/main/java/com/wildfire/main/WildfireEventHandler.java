@@ -21,7 +21,7 @@ package com.wildfire.main;
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.gui.screen.WardrobeBrowserScreen;
 import com.wildfire.main.config.GeneralClientConfig;
-import com.wildfire.main.networking.WildfireSync;
+import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.render.GenderLayer;
 
 import java.util.Set;
@@ -33,23 +33,25 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.PlayLevelSoundEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.TickEvent.PlayerTickEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.PlayLevelSoundEvent;
+import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.event.TickEvent.PlayerTickEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 public class WildfireEventHandler {
@@ -73,18 +75,17 @@ public class WildfireEventHandler {
 	private static class ClientModEventBusListeners {
 		@SubscribeEvent
 		public static void entityLayers(EntityRenderersEvent.AddLayers event) {
-			for (String skinName : event.getSkins()) {
-				LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> renderer = event.getSkin(skinName);
+			for (PlayerSkin.Model model : event.getSkins()) {
+				LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> renderer = event.getSkin(model);
 				if (renderer != null) {
-					//TODO - 1.20: Switch to get model manager from event https://github.com/MinecraftForge/MinecraftForge/pull/9562
-					renderer.addLayer(new GenderLayer(renderer, Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getModelManager()));
+					renderer.addLayer(new GenderLayer(renderer, event.getContext().getModelManager()));
 				}
 			}
 		}
 
 		@SubscribeEvent
 		public static void setupClient(FMLClientSetupEvent event) {
-			MinecraftForge.EVENT_BUS.register(new WildfireEventHandler());
+			NeoForge.EVENT_BUS.register(new WildfireEventHandler());
 		}
 
 		@SubscribeEvent
@@ -120,15 +121,16 @@ public class WildfireEventHandler {
 			 });
 			 showedToast = true;
 		 }*/
-		boolean shouldSync = false;
 		ClientPacketListener connection = Minecraft.getInstance().getConnection();
 		if (connection != null) {
-			shouldSync = WildfireSync.NETWORK.isRemotePresent(connection.getConnection());
-		}
-		//20 ticks per second / 5 = 4 times per second
-		if (shouldSync && timer++ % 5 == 0) {
-			GenderPlayer aPlr = WildfireGender.getPlayerById(player.getUUID());
-			WildfireSync.sendToServer(aPlr);
+			//20 ticks per second / 5 = 4 times per second
+			if (connection.isConnected(PacketSendGenderInfo.ID) && timer++ % 5 == 0) {
+				GenderPlayer plr = WildfireGender.getPlayerById(player.getUUID());
+				if (plr != null && plr.needsSync) {
+					PacketDistributor.SERVER.noArg().send(new PacketSendGenderInfo(plr));
+					plr.needsSync = false;
+				}
+			}
 		}
 	}
 
@@ -174,7 +176,7 @@ public class WildfireEventHandler {
 		}
 		Holder<SoundEvent> soundHolder = event.getSound();
 		if (soundHolder != null) {
-			SoundEvent soundEvent = soundHolder.get();
+			SoundEvent soundEvent = soundHolder.value();
 			if (playerHurtSounds.contains(soundEvent) && event.getEntity() instanceof Player p && p.level().isClientSide) {
 				//Cancel as we handle all hurt sounds manually so that we can
 				event.setCanceled(true);
