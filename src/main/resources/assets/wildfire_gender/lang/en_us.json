@@ -1,5 +1,9 @@
 {
 	"category.wildfire_gender.generic": "Wildfire's Female Gender Mod",
+
+	"fml.menu.mods.info.displayname.wildfire_gender": "Wildfire's Female Gender Mod",
+	"fml.menu.mods.info.description.wildfire_gender": "Allows players to choose what gender they want to be.",
+
 	"key.wildfire_gender.gender_menu": "Female Gender Menu",
 	"toast.wildfire_gender.get_started": "Press '%s' to get started!",
 
