@@ -21,6 +21,8 @@ package com.wildfire.main;
 import com.wildfire.gui.screen.WardrobeBrowserScreen;
 import com.wildfire.main.entitydata.EntityConfig;
 import com.wildfire.main.entitydata.PlayerConfig;
+import com.wildfire.main.networking.SyncToClientPacket;
+import com.wildfire.main.networking.SyncToServerPacket;
 import com.wildfire.main.networking.WildfireSync;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -51,7 +53,7 @@ public class WildfireEventHandler {
 		ClientEntityEvents.ENTITY_UNLOAD.register(WildfireEventHandler::onEntityUnload);
 		ClientTickEvents.END_CLIENT_TICK.register(WildfireEventHandler::onClientTick);
 		ClientPlayConnectionEvents.DISCONNECT.register(WildfireEventHandler::disconnect);
-		ClientPlayNetworking.registerGlobalReceiver(WildfireSync.SYNC_IDENTIFIER, WildfireSync::handle);
+		ClientPlayConnectionEvents.INIT.register((handler, client) -> ClientPlayNetworking.registerReceiver(SyncToClientPacket.PACKET_TYPE, (packet, player, responseSender) -> packet.handle(player)));
 	}
 
 	private static void onEntityLoad(Entity entity, World world) {
@@ -76,7 +78,7 @@ public class WildfireEventHandler {
 		if(client.world == null || client.player == null) return;
 
 		// Only attempt to sync if the server will accept the packet, and only once every 5 ticks, or around 4 times a second
-		if(ClientPlayNetworking.canSend(WildfireSync.SEND_GENDER_IDENTIFIER) && timer++ % 5 == 0) {
+		if(ClientPlayNetworking.canSend(SyncToServerPacket.PACKET_TYPE) &&timer++ % 5 == 0) {
 			PlayerConfig aPlr = WildfireGender.getPlayerById(client.player.getUuid());
 			// sendToServer will only actually send a packet if any changes have been made that need to be synced,
 			// or if we haven't synced before.
