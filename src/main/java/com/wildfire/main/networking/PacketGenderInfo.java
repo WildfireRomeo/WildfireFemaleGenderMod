@@ -18,13 +18,12 @@
 
 package com.wildfire.main.networking;
 
-import com.wildfire.main.Breasts;
-import com.wildfire.main.GenderPlayer;
-import com.wildfire.main.GenderPlayer.Gender;
+import com.wildfire.main.entitydata.Breasts;
+import com.wildfire.main.entitydata.PlayerConfig;
+import com.wildfire.main.Gender;
 import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 public abstract class PacketGenderInfo implements IWildfirePacket<IPayloadContext> {
     protected final UUID uuid;
@@ -43,7 +42,7 @@ public abstract class PacketGenderInfo implements IWildfirePacket<IPayloadContex
 
     private final boolean hurtSounds;
 
-    protected PacketGenderInfo(GenderPlayer plr) {
+    protected PacketGenderInfo(PlayerConfig plr) {
         this.uuid = plr.uuid;
         this.gender = plr.getGender();
         this.bust_size = plr.getBustSize();
@@ -52,7 +51,7 @@ public abstract class PacketGenderInfo implements IWildfirePacket<IPayloadContex
         //physics variables
         this.breast_physics = plr.hasBreastPhysics();
         this.show_in_armor = plr.showBreastsInArmor();
-        this.bounceMultiplier = plr.getBounceMultiplierRaw();
+        this.bounceMultiplier = plr.getBounceMultiplier();
         this.floppyMultiplier = plr.getFloppiness();
 
         Breasts breasts = plr.getBreasts();
@@ -101,7 +100,7 @@ public abstract class PacketGenderInfo implements IWildfirePacket<IPayloadContex
         buffer.writeFloat(this.cleavage);
     }
 
-    protected void updatePlayerFromPacket(GenderPlayer plr) {
+    protected void updatePlayerFromPacket(PlayerConfig plr) {
         plr.updateGender(gender);
         plr.updateBustSize(bust_size);
         plr.updateHurtSounds(hurtSounds);

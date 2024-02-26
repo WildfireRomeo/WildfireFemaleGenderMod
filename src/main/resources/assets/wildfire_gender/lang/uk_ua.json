@@ -47,7 +47,7 @@
   "wildfire_gender.label.too_far": "Занадто далеко",
   "wildfire_gender.label.with_creator": "Ви граєте на одному ж сервері з творцем цього моду!",
 
-  "wildfire_gender.slider.bounce": "Інтенсивність пружності: %sx",
+  "wildfire_gender.slider.bounce": "Інтенсивність пружності: %s%%",
   "wildfire_gender.slider.floppy": "Імпульс грудей: %s%%",
   "wildfire_gender.slider.min_bounce": "Чому фізика взагалі включена?",
   "wildfire_gender.slider.max_bounce": "Аніме фізика грудей!!!",

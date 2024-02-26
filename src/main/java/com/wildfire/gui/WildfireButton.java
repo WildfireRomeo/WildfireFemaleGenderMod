@@ -19,12 +19,12 @@
 package com.wildfire.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
 public class WildfireButton extends Button {
    public boolean transparent = false;
@@ -41,7 +41,7 @@ public class WildfireButton extends Button {
    }
 
    @Override
-   public void renderWidget(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+   protected void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
       Minecraft minecraft = Minecraft.getInstance();
       int clr = 0x444444 + (84 << 24);
       if(this.isHoveredOrFocused()) clr = 0x666666 + (84 << 24);

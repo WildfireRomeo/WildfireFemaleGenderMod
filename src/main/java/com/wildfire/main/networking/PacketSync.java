@@ -18,19 +18,18 @@
 
 package com.wildfire.main.networking;
 
-import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireGender;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 public class PacketSync extends PacketGenderInfo {
 
     public static final ResourceLocation ID = WildfireGender.rl("sync");
 
-    public PacketSync(GenderPlayer plr) {
+    public PacketSync(PlayerConfig plr) {
         super(plr);
     }
 
@@ -44,9 +43,9 @@ public class PacketSync extends PacketGenderInfo {
               //Validate it is a different player
               .filter(player -> !player.getUUID().equals(uuid))
               .ifPresent(player -> {
-                  GenderPlayer plr = WildfireGender.getOrAddPlayerById(uuid);
+                  PlayerConfig plr = WildfireGender.getOrAddPlayerById(uuid);
                   updatePlayerFromPacket(plr);
-                  plr.syncStatus = GenderPlayer.SyncStatus.SYNCED;
+                  plr.syncStatus = PlayerConfig.SyncStatus.SYNCED;
                   //WildfireGender.logger.debug("Received player data {}", plr.uuid);
               });
     }

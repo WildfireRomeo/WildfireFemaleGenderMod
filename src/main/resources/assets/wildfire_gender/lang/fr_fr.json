@@ -47,7 +47,7 @@
 	"wildfire_gender.label.too_far": "Trop Loin",
 	"wildfire_gender.label.with_creator": "Vous êtes en train de jouer sur un serveur avec la créatrice de ce mod!",
 
-	"wildfire_gender.slider.bounce": "Intensité de Rebond: %sx",
+	"wildfire_gender.slider.bounce": "Intensité de Rebond: %s%%",
 	"wildfire_gender.slider.floppy": "Élan de la Poitrine: %s%%",
 	"wildfire_gender.slider.min_bounce": "Pourquoi Activer la Physique?",
 	"wildfire_gender.slider.max_bounce": "Anime Breast Physics!!!",

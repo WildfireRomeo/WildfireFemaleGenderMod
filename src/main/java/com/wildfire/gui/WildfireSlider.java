@@ -22,13 +22,13 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.main.config.FloatConfigKey;
 import it.unimi.dsi.fastutil.floats.Float2ObjectFunction;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
-import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 public class WildfireSlider extends AbstractSliderButton {
@@ -95,7 +95,7 @@ public class WildfireSlider extends AbstractSliderButton {
 	}
 
 	@Override
-	public void renderWidget(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
+	public void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
 		RenderSystem.disableDepthTest();
 		graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 84 << 24);
 

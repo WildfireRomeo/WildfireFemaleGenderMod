@@ -18,7 +18,7 @@
 
 package com.wildfire.gui.screen;
 
-import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireGender;
 import java.util.UUID;
 import net.minecraft.client.gui.screens.Screen;
@@ -35,7 +35,7 @@ public abstract class BaseWildfireScreen extends Screen {
         this.playerUUID = uuid;
     }
 
-    public GenderPlayer getPlayer() {
+    public PlayerConfig getPlayer() {
         return WildfireGender.getPlayerById(this.playerUUID);
     }
 

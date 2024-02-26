@@ -22,17 +22,18 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wildfire.api.IGenderArmor;
-import com.wildfire.main.Breasts;
+import com.wildfire.main.entitydata.Breasts;
 import com.wildfire.main.WildfireHelper;
 import com.wildfire.main.config.GeneralClientConfig;
+import com.wildfire.main.entitydata.EntityConfig;
 import com.wildfire.physics.BreastPhysics;
 import com.wildfire.render.WildfireModelRenderer.BreastModelBox;
 import com.wildfire.render.WildfireModelRenderer.OverlayModelBox;
 import com.wildfire.render.WildfireModelRenderer.PositionTextureVertex;
+import java.util.ConcurrentModificationException;
 import java.util.Locale;
-import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -41,7 +42,6 @@ import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -49,23 +49,27 @@ import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireGender;
 import net.minecraft.world.effect.MobEffectUtil;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.*;
 
-import javax.annotation.Nullable;
 import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.client.ClientHooks;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
+public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidModel<ENTITY>> extends RenderLayer<ENTITY, MODEL> {
 
 	private final TextureAtlas armorTrimAtlas;
 
@@ -75,8 +79,8 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 	private float preBreastSize = 0f;
 
-	public GenderLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> player, ModelManager modelManager) {
-		super(player);
+	public GenderLayer(RenderLayerParent<ENTITY, MODEL> renderer, ModelManager modelManager) {
+		super(renderer);
 
 		armorTrimAtlas = modelManager.getAtlas(Sheets.ARMOR_TRIMS_SHEET);
 
@@ -90,7 +94,7 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 	}
 
 	//Copy of Forge's patched in HumanoidArmorLayer#getArmorResource but with the removal of the string to rl map lookup
-	public ResourceLocation getArmorResource(AbstractClientPlayer entity, ItemStack stack, EquipmentSlot slot, @Nullable String type) {
+	public ResourceLocation getArmorResource(Entity entity, ItemStack stack, EquipmentSlot slot, @Nullable String type) {
 		ArmorItem item = (ArmorItem) stack.getItem();
 		String texture = item.getMaterial().getName();
 		String domain = "minecraft";
@@ -106,38 +110,67 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 		return new ResourceLocation(s1);
 	}
 
+	@Nullable
+	protected EntityConfig getConfig(ENTITY entity) {
+		try {
+			return EntityConfig.getEntity(entity);
+		} catch(ConcurrentModificationException e) {
+			// likely a temporary failure, try again later
+			return null;
+		}
+	}
+
 	@Override
-	public void render(@Nonnull PoseStack matrixStack, @Nonnull MultiBufferSource bufferSource, int packedLightIn, @Nonnull AbstractClientPlayer ent, float limbAngle,
+	public void render(@NotNull PoseStack matrixStack, @NotNull MultiBufferSource bufferSource, int packedLightIn, @NotNull ENTITY entity, float limbAngle,
 		float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
-		if (GeneralClientConfig.INSTANCE.disableRendering.get() || ent.isSpectator()) {
-			//Rendering is disabled client side, or the player is in spectator so only the head will be rendered
+		if (GeneralClientConfig.INSTANCE.disableRendering.get() || entity.isSpectator()) {
+			//Rendering is disabled client side, or the entity is in spectator so only the head will be rendered
 			return;
 		}
 		//Surround with a try/catch to fix for essential mod.
 		try {
-			GenderPlayer plr = WildfireGender.getPlayerById(ent.getUUID());
-			if(plr == null) return;
+            EntityConfig entityConfig = getConfig(entity);
+			if(entityConfig == null) return;
 
-			ItemStack armorStack = ent.getItemBySlot(EquipmentSlot.CHEST);
+			ItemStack armorStack = entity.getItemBySlot(EquipmentSlot.CHEST);
 			//Note: When the stack is empty the helper will fall back to an implementation that returns the proper data
 			IGenderArmor genderArmor = WildfireHelper.getArmorConfig(armorStack);
 			boolean isChestplateOccupied = genderArmor.coversBreasts();
-			if (genderArmor.alwaysHidesBreasts() || !plr.showBreastsInArmor() && isChestplateOccupied) {
+			if (genderArmor.alwaysHidesBreasts() || !entityConfig.showBreastsInArmor() && isChestplateOccupied) {
 				//If the armor always hides breasts or there is armor and the player configured breasts
 				// to be hidden when wearing armor, we can just exit early rather than doing any calculations
 				return;
 			}
+            RenderType breastRenderType = null;
+            ResourceLocation entityTexture = getBreastTexture(entity);
+            if (entityTexture != null) {
+                //RenderType selection copied from LivingEntityRenderer#getRenderType
+                boolean bodyVisible = !entity.isInvisible();
+                Minecraft minecraft = Minecraft.getInstance();
+                boolean translucent = !bodyVisible && minecraft.player != null && !entity.isInvisibleTo(minecraft.player);
+                if (translucent) {
+                    breastRenderType = RenderType.itemEntityTranslucentCull(entityTexture);
+                } else if (bodyVisible) {
+                    breastRenderType = RenderType.entityTranslucent(entityTexture);
+                } else if (minecraft.shouldEntityAppearGlowing(entity)) {
+                    breastRenderType = RenderType.outline(entityTexture);
+                } else {
+                    if (!isChestplateOccupied) {
+                        //Exit early if we don't need to render the breasts, and we don't need to render the armor
+                        return;
+                    }
+                }
+            } else if (!isChestplateOccupied) {
+                //Exit early if we don't need to render the breasts, and we don't need to render the armor
+                return;
+            }
 
-			Minecraft minecraft = Minecraft.getInstance();
-			PlayerRenderer rend = (PlayerRenderer) minecraft.getEntityRenderDispatcher().getRenderer(ent);
-			PlayerModel<AbstractClientPlayer> model = rend.getModel();
-
-			Breasts breasts = plr.getBreasts();
+			Breasts breasts = entityConfig.getBreasts();
 			float breastOffsetX = Math.round((Math.round(breasts.getXOffset() * 100f) / 100f) * 10) / 10f;
 			float breastOffsetY = -Math.round((Math.round(breasts.getYOffset() * 100f) / 100f) * 10) / 10f;
 			float breastOffsetZ = -Math.round((Math.round(breasts.getZOffset() * 100f) / 100f) * 10) / 10f;
 
-			BreastPhysics leftBreastPhysics = plr.getLeftBreastPhysics();
+			BreastPhysics leftBreastPhysics = entityConfig.getLeftBreastPhysics();
 			final float bSize = leftBreastPhysics.getBreastSize(partialTicks);
 			float outwardAngle = (Math.round(breasts.getCleavage() * 100f) / 100f) * 100f;
 			outwardAngle = Math.min(outwardAngle, 10);
@@ -154,12 +187,12 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			}
 
 			//Note: We only render if the entity is not visible to the player, so we can assume it is visible to the player
-			float overlayAlpha = ent.isInvisible() ? 0.15F : 1;
+			float overlayAlpha = entity.isInvisible() ? 0.15F : 1;
 
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
-			float lTotal = Mth.lerp(partialTicks, leftBreastPhysics.getPreBounceY(), leftBreastPhysics.getBounceY());
-			float lTotalX = Mth.lerp(partialTicks, leftBreastPhysics.getPreBounceX(), leftBreastPhysics.getBounceX());
+			float lTotal = Mth.lerp(partialTicks, leftBreastPhysics.getPrePositionY(), leftBreastPhysics.getPositionY());
+			float lTotalX = Mth.lerp(partialTicks, leftBreastPhysics.getPrePositionX(), leftBreastPhysics.getPositionX());
 			float leftBounceRotation = Mth.lerp(partialTicks, leftBreastPhysics.getPreBounceRotation(), leftBreastPhysics.getBounceRotation());
 			float rTotal;
 			float rTotalX;
@@ -169,9 +202,9 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 				rTotalX = lTotalX;
 				rightBounceRotation = leftBounceRotation;
 			} else {
-				BreastPhysics rightBreastPhysics = plr.getRightBreastPhysics();
-				rTotal = Mth.lerp(partialTicks, rightBreastPhysics.getPreBounceY(), rightBreastPhysics.getBounceY());
-				rTotalX = Mth.lerp(partialTicks, rightBreastPhysics.getPreBounceX(), rightBreastPhysics.getBounceX());
+				BreastPhysics rightBreastPhysics = entityConfig.getRightBreastPhysics();
+				rTotal = Mth.lerp(partialTicks, rightBreastPhysics.getPrePositionY(), rightBreastPhysics.getPositionY());
+				rTotalX = Mth.lerp(partialTicks, rightBreastPhysics.getPrePositionX(), rightBreastPhysics.getPositionX());
 				rightBounceRotation = Mth.lerp(partialTicks, rightBreastPhysics.getPreBounceRotation(), rightBreastPhysics.getBounceRotation());
 			}
 			float breastSize = bSize * 1.5f;
@@ -186,49 +219,33 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 			breastSize = bSize + 0.5f * Math.abs(bSize - 0.7f) * 2f;
 
 			//If the armor physics is overridden ignore resistance
-			float resistance = plr.getArmorPhysicsOverride() ? 0 : Mth.clamp(genderArmor.physicsResistance(), 0, 1);
+			float resistance = entityConfig.getArmorPhysicsOverride() ? 0 : Mth.clamp(genderArmor.physicsResistance(), 0, 1);
 			//Note: We only check if the breathing animation should be enabled if the chestplate's physics resistance
 			// is less than or equal to 0.5 so that if we won't be rendering it we can avoid doing extra calculations
-			boolean breathingAnimation = resistance <= 0.5F &&
-										 (!ent.isUnderWater() || MobEffectUtil.hasWaterBreathing(ent) ||
-										  ent.level().getBlockState(BlockPos.containing(ent.getX(), ent.getEyeY(), ent.getZ())).is(Blocks.BUBBLE_COLUMN));
-			boolean bounceEnabled = plr.hasBreastPhysics() && (!isChestplateOccupied || resistance < 1); //oh, you found this?
+			boolean breathingAnimation = entityConfig.canBreathe() && resistance <= 0.5F &&
+                                         (!entity.isUnderWater() || MobEffectUtil.hasWaterBreathing(entity) ||
+										  entity.level().getBlockState(BlockPos.containing(entity.getX(), entity.getEyeY(), entity.getZ())).is(Blocks.BUBBLE_COLUMN));
+			boolean bounceEnabled = entityConfig.hasBreastPhysics() && (!isChestplateOccupied || resistance < 1); //oh, you found this?
 
-			int combineTex = LivingEntityRenderer.getOverlayCoords(ent, 0);
-			ResourceLocation entityTexture = ent.getSkin().texture();
-			//RenderType selection copied from LivingEntityRenderer#getRenderType
-			RenderType type;
-			boolean bodyVisible = !ent.isInvisible();
-			boolean translucent = !bodyVisible && minecraft.player != null && !ent.isInvisibleTo(minecraft.player);
-			if (translucent) {
-				type = RenderType.itemEntityTranslucentCull(entityTexture);
-			} else if (bodyVisible) {
-				type = RenderType.entityTranslucent(entityTexture);
-			} else if (minecraft.shouldEntityAppearGlowing(ent)) {
-				type = RenderType.outline(entityTexture);
-			} else {
-				if (!isChestplateOccupied) {
-					//Exit early if we don't need to render the breasts, and we don't need to render the armor
-					return;
-				}
-				type = null;
-			}
-			renderBreastWithTransforms(ent, model.body, armorStack, matrixStack, bufferSource, type, packedLightIn, combineTex, overlayAlpha, bounceEnabled,
+			int combineTex = LivingEntityRenderer.getOverlayCoords(entity, 0);
+			HumanoidModel<ENTITY> model = getParentModel();
+			boolean hasJacketLayer = entity instanceof Player player ? player.isModelPartShown(PlayerModelPart.JACKET) : entityConfig.hasJacketLayer();
+			renderBreastWithTransforms(entity, model.body, armorStack, matrixStack, bufferSource, breastRenderType, packedLightIn, combineTex, overlayAlpha, bounceEnabled,
 				lTotalX, lTotal, leftBounceRotation, breastSize, breastOffsetX, breastOffsetY, breastOffsetZ, zOff, outwardAngle, breasts.isUniboob(),
-				isChestplateOccupied, breathingAnimation, true);
-			renderBreastWithTransforms(ent, model.body, armorStack, matrixStack, bufferSource, type, packedLightIn, combineTex, overlayAlpha, bounceEnabled,
+				isChestplateOccupied, breathingAnimation, true, hasJacketLayer);
+			renderBreastWithTransforms(entity, model.body, armorStack, matrixStack, bufferSource, breastRenderType, packedLightIn, combineTex, overlayAlpha, bounceEnabled,
 				rTotalX, rTotal, rightBounceRotation, breastSize, -breastOffsetX, breastOffsetY, breastOffsetZ, zOff, -outwardAngle, breasts.isUniboob(),
-				isChestplateOccupied, breathingAnimation, false);
+				isChestplateOccupied, breathingAnimation, false, hasJacketLayer);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		} catch(Exception e) {
-			WildfireGender.logger.error("Failed to render gender layer", e);
+			WildfireGender.LOGGER.error("Failed to render gender layer", e);
 		}
 	}
 
-	private void renderBreastWithTransforms(AbstractClientPlayer entity, ModelPart body, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource,
+	private void renderBreastWithTransforms(ENTITY entity, ModelPart body, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource,
 		@Nullable RenderType breastRenderType, int packedLightIn, int combineTex, float alpha, boolean bounceEnabled, float totalX, float total, float bounceRotation,
 		float breastSize, float breastOffsetX, float breastOffsetY, float breastOffsetZ, float zOff, float outwardAngle, boolean uniboob, boolean isChestplateOccupied,
-		boolean breathingAnimation, boolean left) {
+		boolean breathingAnimation, boolean left, boolean hasJacketLayer) {
 		matrixStack.pushPose();
 		//Surround with a try/catch to fix for essential mod.
 		try {
@@ -288,24 +305,35 @@ public class GenderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
 
 			matrixStack.scale(0.9995f, 1f, 1f); //z-fighting FIXXX
 
-			renderBreast(entity, armorStack, matrixStack, bufferSource, breastRenderType, packedLightIn, combineTex, alpha, left);
+			renderBreast(entity, armorStack, matrixStack, bufferSource, breastRenderType, packedLightIn, combineTex, alpha, left, hasJacketLayer);
 		} catch(Exception e) {
-			WildfireGender.logger.error("Failed to render breast", e);
+			WildfireGender.LOGGER.error("Failed to render breast", e);
 		}
 		matrixStack.popPose();
 	}
 
-	private void renderBreast(AbstractClientPlayer entity, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource,
-		@Nullable RenderType breastRenderType, int packedLightIn, int packedOverlayIn, float alpha, boolean left) {
+	@Nullable
+	private ResourceLocation getBreastTexture(ENTITY entity) {
+		return entity instanceof AbstractClientPlayer player ? player.getSkin().texture() : null;
+	}
+
+	private void shiftForJacket(PoseStack matrixStack) {
+		matrixStack.translate(0, 0, -0.015f);
+		matrixStack.scale(1.05f, 1.05f, 1.05f);
+	}
+
+	private void renderBreast(ENTITY entity, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource,
+		@Nullable RenderType breastRenderType, int packedLightIn, int packedOverlayIn, float alpha, boolean left, boolean hasJacketLayer) {
 		if (breastRenderType != null) {
 			//Only render the breasts if we have a render type for them
 			VertexConsumer vertexConsumer = bufferSource.getBuffer(breastRenderType);
 			renderBox(left ? lBreast : rBreast, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1F, 1F, 1F, alpha);
-			if (entity.isModelPartShown(PlayerModelPart.JACKET)) {
-				matrixStack.translate(0, 0, -0.015f);
-				matrixStack.scale(1.05f, 1.05f, 1.05f);
+			if (hasJacketLayer) {
+				shiftForJacket(matrixStack);
 				renderBox(left ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1F, 1F, 1F, alpha);
 			}
+		} else if (hasJacketLayer) {//Copy exact size
+			shiftForJacket(matrixStack);
 		}
 		//TODO: Eventually we may want to expose a way via the API for mods to be able to override rendering
 		// be it because they are not an armor item or the way they render their armor item is custom

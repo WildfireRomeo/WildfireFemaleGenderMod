@@ -27,7 +27,7 @@
 
 	"wildfire_gender.breast_customization.dual_physics": "Dvojí fyzika: %s",
 
-	"wildfire_gender.player_list.bounce_multiplier": "Houpání: %sx",
+	"wildfire_gender.player_list.bounce_multiplier": "Houpání: %s%%",
 	"wildfire_gender.player_list.breast_momentum": "Hybnost: %s%%",
 	"wildfire_gender.player_list.female_sounds": "Ženské zvuky: %s",
 

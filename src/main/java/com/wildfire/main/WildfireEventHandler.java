@@ -18,9 +18,10 @@
 
 package com.wildfire.main;
 
-import com.wildfire.api.IGenderArmor;
 import com.wildfire.gui.screen.WardrobeBrowserScreen;
 import com.wildfire.main.config.GeneralClientConfig;
+import com.wildfire.main.entitydata.EntityConfig;
+import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.networking.PacketSendGenderInfo;
 import com.wildfire.render.GenderLayer;
 
@@ -29,28 +30,33 @@ import java.util.UUID;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.ArmorStandRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.PlayLevelSoundEvent;
 import net.neoforged.neoforge.event.TickEvent;
-import net.neoforged.neoforge.event.TickEvent.PlayerTickEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
@@ -76,10 +82,12 @@ public class WildfireEventHandler {
 		@SubscribeEvent
 		public static void entityLayers(EntityRenderersEvent.AddLayers event) {
 			for (PlayerSkin.Model model : event.getSkins()) {
-				LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> renderer = event.getSkin(model);
-				if (renderer != null) {
-					renderer.addLayer(new GenderLayer(renderer, event.getContext().getModelManager()));
+				if (event.getSkin(model) instanceof PlayerRenderer renderer) {
+					renderer.addLayer(new GenderLayer<>(renderer, event.getContext().getModelManager()));
 				}
+			}
+			if (event.getRenderer(EntityType.ARMOR_STAND) instanceof ArmorStandRenderer renderer) {
+				renderer.addLayer(new GenderLayer<>(renderer, event.getContext().getModelManager()));
 			}
 		}
 
@@ -101,7 +109,6 @@ public class WildfireEventHandler {
 	public void onGUI(TickEvent.ClientTickEvent evt) {
 		Player player = Minecraft.getInstance().player;
  		if (Minecraft.getInstance().level == null || player == null) {
-			WildfireGender.CLOTHING_PLAYERS.clear();
 			toastTick = 0;
 			return;
 		}/* else if (!showedToast && toastTick++ > 100) {
@@ -125,7 +132,7 @@ public class WildfireEventHandler {
 		if (connection != null) {
 			//20 ticks per second / 5 = 4 times per second
 			if (connection.isConnected(PacketSendGenderInfo.ID) && timer++ % 5 == 0) {
-				GenderPlayer plr = WildfireGender.getPlayerById(player.getUUID());
+				PlayerConfig plr = WildfireGender.getPlayerById(player.getUUID());
 				if (plr != null && plr.needsSync) {
 					PacketDistributor.SERVER.noArg().send(new PacketSendGenderInfo(plr));
 					plr.needsSync = false;
@@ -134,30 +141,47 @@ public class WildfireEventHandler {
 		}
 	}
 
- 	@SubscribeEvent
-	public void onPlayerTick(PlayerTickEvent evt) {
-		if(evt.phase == TickEvent.Phase.END && evt.side.isClient()) {
-			GenderPlayer aPlr = WildfireGender.getPlayerById(evt.player.getUUID());
-			if(aPlr == null) return;
-			IGenderArmor armor = WildfireHelper.getArmorConfig(evt.player.getItemBySlot(EquipmentSlot.CHEST));
-			aPlr.getLeftBreastPhysics().update(evt.player, armor);
-			aPlr.getRightBreastPhysics().update(evt.player, armor);
-		}
- 	}
+	@SubscribeEvent
+	public void onEntityTick(LivingEvent.LivingTickEvent evt) {
+		LivingEntity entity = evt.getEntity();
+		if (entity.level().isClientSide && (entity instanceof Player || entity instanceof ArmorStand)) {
+			EntityConfig cfg = EntityConfig.getEntity(entity);
+            if (cfg != null) {
+                if (entity instanceof ArmorStand) {
+                    cfg.readFromStack(entity.getItemBySlot(EquipmentSlot.CHEST));
+                }
+                cfg.tickBreastPhysics(entity);
+            }
+        }
+	}
 
 	@SubscribeEvent
 	public void onPlayerJoin(EntityJoinLevelEvent evt) {
 		if (evt.getLevel().isClientSide && evt.getEntity() instanceof AbstractClientPlayer plr) {
 			UUID uuid = plr.getUUID();
-			GenderPlayer aPlr = WildfireGender.getPlayerById(uuid);
+			PlayerConfig aPlr = WildfireGender.getPlayerById(uuid);
 			if (aPlr == null) {
-				aPlr = new GenderPlayer(uuid);
-				WildfireGender.CLOTHING_PLAYERS.put(uuid, aPlr);
+				aPlr = new PlayerConfig(uuid);
+				WildfireGender.PLAYER_CACHE.put(uuid, aPlr);
 				//Mark the player as needing sync if it is the client's own player
 				Player player = Minecraft.getInstance().player;
-				WildfireGender.loadGenderInfoAsync(uuid, player != null && uuid.equals(player.getUUID()));
+				WildfireGender.loadGenderInfo(uuid, player != null && uuid.equals(player.getUUID()));
 			}
 		}
+	}
+
+	@SubscribeEvent
+	public void onEntityLeave(EntityLeaveLevelEvent evt) {
+		if (evt.getLevel().isClientSide) {
+			// note that we don't attempt to unload players; they're instead only ever unloaded once we leave a world
+			EntityConfig.ENTITY_CACHE.remove(evt.getEntity().getUUID());
+		}
+	}
+
+	@SubscribeEvent
+	public void disconnect(ClientPlayerNetworkEvent.LoggingOut event) {
+		WildfireGender.PLAYER_CACHE.clear();
+		EntityConfig.ENTITY_CACHE.clear();
 	}
 
 	//TODO: Eventually we may want to replace this with a map or something and replace things like drowning sounds with other drowning sounds
@@ -183,7 +207,7 @@ public class WildfireEventHandler {
 				if (p.hurtTime == p.hurtDuration && p.hurtTime > 0) {
 					//Note: We check hurtTime == hurtDuration and hurtTime > 0 or otherwise when the server sends a hurt sound to the client
 					// and the client will check itself instead of the player who was damaged.
-					GenderPlayer plr = WildfireGender.getPlayerById(p.getUUID());
+					PlayerConfig plr = WildfireGender.getPlayerById(p.getUUID());
 					if (plr != null && plr.hasHurtSounds()) {
 						SoundEvent soundOverride = plr.getGender().getHurtSound();
 						if (soundOverride != null) {

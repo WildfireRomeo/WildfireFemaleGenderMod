@@ -17,10 +17,9 @@ package com.wildfire.gui;
 
 import com.wildfire.gui.WildfireBreastPresetList.BreastPresetListEntry;
 import com.wildfire.gui.screen.WildfireBreastCustomizationScreen;
-import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.config.BreastPresetConfiguration;
-import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -29,6 +28,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 public class WildfireBreastPresetList extends AbstractSelectionList<BreastPresetListEntry> {
 
@@ -56,7 +56,7 @@ public class WildfireBreastPresetList extends AbstractSelectionList<BreastPreset
     }
 
     @Override
-    protected void renderSelection(@Nonnull GuiGraphics context, int y, int entryWidth, int entryHeight, int borderColor, int fillColor) {
+    protected void renderSelection(@NotNull GuiGraphics context, int y, int entryWidth, int entryHeight, int borderColor, int fillColor) {
     }
 
     @Override
@@ -91,7 +91,7 @@ public class WildfireBreastPresetList extends AbstractSelectionList<BreastPreset
     }
 
     @Override
-    protected void updateWidgetNarration(@Nonnull NarrationElementOutput output) {
+    protected void updateWidgetNarration(@NotNull NarrationElementOutput output) {
     }
 
     public class BreastPresetListEntry extends AbstractSelectionList.Entry<BreastPresetListEntry> {
@@ -101,14 +101,14 @@ public class WildfireBreastPresetList extends AbstractSelectionList<BreastPreset
 
         private BreastPresetListEntry(BreastPresetConfiguration data) {
             this(MissingTextureAtlasSprite.getLocation(), data.get(BreastPresetConfiguration.PRESET_NAME), data);
-            WildfireGender.logger.debug("Preset Name: {}", name);
+            WildfireGender.LOGGER.debug("Preset Name: {}", name);
         }
 
         private BreastPresetListEntry(ResourceLocation thumbnail, String name, BreastPresetConfiguration data) {
             this.name = name;
             this.thumbnail = thumbnail;
             btnOpenGUI = new WildfireButton(0, 0, getRowWidth() - 6, itemHeight, Component.empty(), button -> {
-                GenderPlayer player = parent.getPlayer();
+                PlayerConfig player = parent.getPlayer();
                 player.updateBustSize(data);
                 player.getBreasts().copyFrom(data);
                 //TODO: I think we may need to save the gender info after loading and then update the settings to ensure it renders properly?
@@ -120,7 +120,7 @@ public class WildfireBreastPresetList extends AbstractSelectionList<BreastPreset
         }
 
         @Override
-        public void render(@Nonnull GuiGraphics graphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float partialTicks) {
+        public void render(@NotNull GuiGraphics graphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float partialTicks) {
             if (!visible) return;
 
             Font font = Minecraft.getInstance().font;

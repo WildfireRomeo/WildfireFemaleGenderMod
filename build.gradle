@@ -169,3 +169,11 @@ tasks.withType(JavaCompile).configureEach({
     options.encoding = 'UTF-8'
     options.compilerArgs.addAll(["-Xmaxerrs", "100000"])
 })
+
+tasks.withType(Javadoc).configureEach({
+    options.tags = [
+            'apiNote:a:<em>API Note:</em>',
+            'implSpec:a:<em>Implementation Requirements:</em>',
+            'implNote:a:<em>Implementation Note:</em>'
+    ]
+})

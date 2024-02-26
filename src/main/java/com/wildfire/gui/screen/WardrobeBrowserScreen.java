@@ -18,14 +18,13 @@
 
 package com.wildfire.gui.screen;
 
-import com.wildfire.main.GenderPlayer.Gender;
+import com.wildfire.main.Gender;
 import com.wildfire.main.WildfireGender;
 import java.util.Calendar;
 import java.util.UUID;
 
 import com.wildfire.gui.WildfireButton;
-import com.wildfire.main.GenderPlayer;
-import javax.annotation.Nonnull;
+import com.wildfire.main.entitydata.PlayerConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -55,7 +54,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
   	public void init() {
 	    int y = this.height / 2;
 
-		GenderPlayer plr = getPlayer();
+		PlayerConfig plr = getPlayer();
 
 		int buttonX = this.width / 2 - 42;
 		this.addRenderableWidget(new WildfireButton(buttonX, y - 52, 158, 20, getGenderLabel(plr.getGender()), button -> {
@@ -66,7 +65,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			};
 			if (plr.updateGender(gender)) {
 				button.setMessage(getGenderLabel(gender));
-				GenderPlayer.saveGenderInfo(plr);
+				PlayerConfig.saveGenderInfo(plr);
 				rebuildWidgets();
 			}
 		}));
@@ -91,7 +90,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	}
 
 	@Override
-	public void renderBackground(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void renderBackground(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 		super.renderBackground(graphics, mouseX, mouseY, partialTick);
 		ResourceLocation backgroundTexture = getPlayer().getGender().canHaveBreasts() ? BACKGROUND_FEMALE : BACKGROUND;
 		graphics.blit(backgroundTexture, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156);

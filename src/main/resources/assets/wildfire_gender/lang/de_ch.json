@@ -27,7 +27,7 @@
 
 	"wildfire_gender.breast_customization.dual_physics": "Dualphysik: %s",
 
-	"wildfire_gender.player_list.bounce_multiplier": "Wackel Multiplikator: %sx",
+	"wildfire_gender.player_list.bounce_multiplier": "Wackel Multiplikator: %s%%",
 	"wildfire_gender.player_list.breast_momentum": "Brust Schwung: %s%%",
 	"wildfire_gender.player_list.female_sounds": "Wiibliche Soundeffekte: %s",
 

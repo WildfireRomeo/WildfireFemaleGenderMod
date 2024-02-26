@@ -34,4 +34,9 @@ public class EmptyGenderArmor implements IGenderArmor {
     public boolean coversBreasts() {
         return false;
     }
+
+    @Override
+    public boolean armorStandsCopySettings() {
+        return false;
+    }
 }

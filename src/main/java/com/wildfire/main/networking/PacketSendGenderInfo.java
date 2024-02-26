@@ -18,7 +18,7 @@
 
 package com.wildfire.main.networking;
 
-import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireGender;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -31,7 +31,7 @@ public class PacketSendGenderInfo extends PacketGenderInfo {
 
     public static final ResourceLocation ID = WildfireGender.rl("send_gender_info");
 
-    public PacketSendGenderInfo(GenderPlayer plr) {
+    public PacketSendGenderInfo(PlayerConfig plr) {
         super(plr);
     }
 
@@ -45,7 +45,7 @@ public class PacketSendGenderInfo extends PacketGenderInfo {
               //Validate the uuid matches the player who sent it
               .filter(player -> player.getUUID().equals(uuid))
               .ifPresent(player -> {
-                  GenderPlayer plr = WildfireGender.getOrAddPlayerById(uuid);
+                  PlayerConfig plr = WildfireGender.getOrAddPlayerById(uuid);
                   updatePlayerFromPacket(plr);
                   //WildfireGender.logger.debug("Received data from player {}", plr.uuid);
                   //Sync changes to other online players that are tracking us

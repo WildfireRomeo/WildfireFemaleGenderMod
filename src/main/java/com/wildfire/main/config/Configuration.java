@@ -107,7 +107,7 @@ public class Configuration {
 			ADAPTER.write(jsonWriter, SAVE_VALUES);
 			//WildfireGender.logger.debug("[Configuration] Saved New File!");
 		} catch (IOException e) {
-			WildfireGender.logger.error("Failed to save Configuration", e);
+			WildfireGender.LOGGER.error("Failed to save Configuration", e);
 		}
 	}
 	
@@ -123,7 +123,7 @@ public class Configuration {
 			}
 		    //WildfireGender.logger.debug("[Configuration] Loaded!");
 		} catch(Exception e) {
-			WildfireGender.logger.error("Failed to load Configuration", e);
+			WildfireGender.LOGGER.error("Failed to load Configuration", e);
 		}
 	}
 }

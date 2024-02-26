@@ -22,15 +22,13 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.gui.WildfireBreastPresetList;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfireSlider;
-import com.wildfire.main.Breasts;
-import com.wildfire.main.GenderPlayer;
+import com.wildfire.main.entitydata.Breasts;
+import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireHelper;
 import com.wildfire.main.config.BreastPresetConfiguration;
 import com.wildfire.main.config.ClientConfiguration;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import java.util.UUID;
-import java.util.function.Consumer;
-import javax.annotation.Nonnull;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -39,10 +37,9 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.loading.FMLLoader;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -70,11 +67,11 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
     public void init() {
         int j = this.height / 2 - 11;
 
-        GenderPlayer plr = getPlayer();
+        PlayerConfig plr = getPlayer();
         Breasts breasts = plr.getBreasts();
         FloatConsumer onSave = value -> {
             //Just save as we updated the actual value in value change
-            GenderPlayer.saveGenderInfo(plr);
+            PlayerConfig.saveGenderInfo(plr);
         };
 
         this.addRenderableWidget(new WildfireButton(this.width / 2 + 178, j - 72, 9, 9, Component.literal("X"),
@@ -132,7 +129,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             boolean isUniboob = !breasts.isUniboob();
             if (breasts.updateUniboob(isUniboob)) {
                 button.setMessage(Component.translatable("wildfire_gender.breast_customization.dual_physics", Component.translatable(isUniboob ? "wildfire_gender.label.no" : "wildfire_gender.label.yes")));
-                GenderPlayer.saveGenderInfo(plr);
+                PlayerConfig.saveGenderInfo(plr);
             }
         }));
 
@@ -152,7 +149,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
     private void createNewPreset(String presetName) {
         BreastPresetConfiguration cfg = new BreastPresetConfiguration(presetName);
         cfg.set(BreastPresetConfiguration.PRESET_NAME, presetName);
-        GenderPlayer player = this.getPlayer();
+        PlayerConfig player = this.getPlayer();
         cfg.set(BreastPresetConfiguration.BUST_SIZE, player.getBustSize());
         cfg.set(BreastPresetConfiguration.BREASTS_UNIBOOB, player.getBreasts().isUniboob());
         cfg.set(BreastPresetConfiguration.BREASTS_CLEAVAGE, player.getBreasts().getCleavage());
@@ -181,7 +178,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
     }
 
     @Override
-    public void renderBackground(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void renderBackground(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         super.renderBackground(graphics, mouseX, mouseY, partialTick);
         int x = this.width / 2;
         int y = this.height / 2;
@@ -194,7 +191,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
     }
 
     @Override
-    public void render(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         super.render(graphics, mouseX, mouseY, partialTick);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         int x = this.width / 2;
