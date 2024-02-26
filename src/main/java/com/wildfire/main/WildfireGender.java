@@ -34,16 +34,18 @@ import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -70,7 +72,8 @@ public class WildfireGender {
         modEventBus.addListener(WildfireHelper::registerPackets);
         NeoForge.EVENT_BUS.addListener(this::onStartTracking);
         NeoForge.EVENT_BUS.addListener(this::onStopTracking);
-        NeoForge.EVENT_BUS.addListener(this::onRightClickArmorStand);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, this::onEntitySpawn);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::onRightClickArmorStand);
 
         if (FMLEnvironment.dist.isClient()) {
             GeneralClientConfig.register(modContainer);
@@ -121,21 +124,76 @@ public class WildfireGender {
         }
     }
 
+    private void onEntitySpawn(EntityJoinLevelEvent event) {
+        if (!event.getLevel().isClientSide && event.getEntity() instanceof ItemEntity entity && LivingEntity.getEquipmentSlotForItem(entity.getItem()) == EquipmentSlot.CHEST) {
+            //Remove our tag if it is present when an item drops (such as from an armor stand being broken)
+            if (entity.getItem().getTagElement("WildfireGender") != null) {
+                ItemStack stack = entity.getItem();
+                stack.removeTagKey("WildfireGender");
+                entity.setItem(stack);
+            }
+        }
+    }
+
     private void onRightClickArmorStand(PlayerInteractEvent.EntityInteractSpecific event) {
-        if (event.getTarget() instanceof ArmorStand armorStand && !armorStand.level().isClientSide) {
-            Player player = event.getEntity();
+        Player player = event.getEntity();
+        //Copy of various checks from ArmorStand#interactAt, so that we can only apply it if a stack is being transferred
+        if (!player.level().isClientSide && event.getTarget() instanceof ArmorStand armorStand && !armorStand.isMarker() && !player.isSpectator()) {
             ItemStack stack = player.getItemInHand(event.getHand());
             // Only apply to chestplates
-            if (!stack.isEmpty() && stack.getItem() instanceof ArmorItem armorItem && armorItem.getEquipmentSlot() == EquipmentSlot.CHEST) {
+            if (stack.isEmpty()) {
+                EquipmentSlot clickedSlot = armorStand.getClickedSlot(event.getLocalPos());
+                EquipmentSlot equipmentslot2 = armorStand.isDisabled(clickedSlot) ? LivingEntity.getEquipmentSlotForItem(stack) : clickedSlot;
+                if (equipmentslot2 == EquipmentSlot.CHEST) {
+                    //Copy of logic from ArmorStand#swapItem
+                    ItemStack itemstack = armorStand.getItemBySlot(equipmentslot2);
+                    if (!itemstack.isEmpty()) {
+                        if ((armorStand.disabledSlots & 1 << equipmentslot2.getFilterFlag() + 8) == 0) {
+                            //Stack is being removed from the armor stand, remove the corresponding tag key we added if it is present
+                            itemstack.removeTagKey("WildfireGender");
+                        }
+                    }
+                }
+            } else if (LivingEntity.getEquipmentSlotForItem(stack) == EquipmentSlot.CHEST && WildfireHelper.getArmorConfig(stack).armorStandsCopySettings() &&
+                       !armorStand.isDisabled(EquipmentSlot.CHEST)) {
+                //Copy of logic from ArmorStand#swapItem
+                ItemStack itemstack = armorStand.getItemBySlot(EquipmentSlot.CHEST);
+                if (!itemstack.isEmpty() && (armorStand.disabledSlots & 1 << EquipmentSlot.CHEST.getFilterFlag() + 8) != 0) {
+                    return;
+                } else if (itemstack.isEmpty() && (armorStand.disabledSlots & 1 << EquipmentSlot.CHEST.getFilterFlag() + 16) != 0) {
+                    return;
+                } else if (player.getAbilities().instabuild && itemstack.isEmpty()) {
+                    //Copy the stack and set it in the armor stand manually, cancelling the event so that it doesn't go through
+                    // so that we can apply it but not set nbt on the held stack
+                    stack = stack.copyWithCount(1);
+                    event.setCanceled(true);
+                } else if (!itemstack.isEmpty()) {
+                    //Stack is being removed from the armor stand remove the corresponding tag key we added if it is present
+                    itemstack.removeTagKey("WildfireGender");
+                    if (stack.getCount() > 1) {
+                        //If the held stack has a size greater than one, we are only removing so can exit. Otherwise we are swapping
+                        // so need to add to the held stack
+                        return;
+                    }
+                } else {
+                    //Copy the stack and set it in the armor stand manually, cancelling the event so that it doesn't go through
+                    // so that we can apply it but not set nbt on the held stack
+                    stack = stack.split(1);
+                    event.setCanceled(true);
+                }
+
                 PlayerConfig playerConfig = WildfireGender.getPlayerById(player.getUUID());
                 if (playerConfig == null) {
                     stack.removeTagKey("WildfireGender");
                 } else {
                     IGenderArmor armorConfig = WildfireHelper.getArmorConfig(stack);
                     if (armorConfig.armorStandsCopySettings()) {
-                        //TODO: Figure out how to remove the NBT from the stack when it is removed from the armor stand
                         WildfireHelper.writeToNbt(player, playerConfig, stack);
                     }
+                }
+                if (event.isCanceled()) {
+                    //We cancelled it, so we need to now actually set it as well
+                    armorStand.setItemSlot(EquipmentSlot.CHEST, stack);
                 }
             }
         }
