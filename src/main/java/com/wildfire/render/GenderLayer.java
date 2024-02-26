@@ -230,10 +230,10 @@ public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidMode
 			int combineTex = LivingEntityRenderer.getOverlayCoords(entity, 0);
 			HumanoidModel<ENTITY> model = getParentModel();
 			boolean hasJacketLayer = entity instanceof Player player ? player.isModelPartShown(PlayerModelPart.JACKET) : entityConfig.hasJacketLayer();
-			renderBreastWithTransforms(entity, model.body, armorStack, matrixStack, bufferSource, breastRenderType, packedLightIn, combineTex, overlayAlpha, bounceEnabled,
+			renderBreastWithTransforms(entity, model, armorStack, matrixStack, bufferSource, breastRenderType, packedLightIn, combineTex, overlayAlpha, bounceEnabled,
 				lTotalX, lTotal, leftBounceRotation, breastSize, breastOffsetX, breastOffsetY, breastOffsetZ, zOff, outwardAngle, breasts.isUniboob(),
 				isChestplateOccupied, breathingAnimation, true, hasJacketLayer);
-			renderBreastWithTransforms(entity, model.body, armorStack, matrixStack, bufferSource, breastRenderType, packedLightIn, combineTex, overlayAlpha, bounceEnabled,
+			renderBreastWithTransforms(entity, model, armorStack, matrixStack, bufferSource, breastRenderType, packedLightIn, combineTex, overlayAlpha, bounceEnabled,
 				rTotalX, rTotal, rightBounceRotation, breastSize, -breastOffsetX, breastOffsetY, breastOffsetZ, zOff, -outwardAngle, breasts.isUniboob(),
 				isChestplateOccupied, breathingAnimation, false, hasJacketLayer);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -242,13 +242,19 @@ public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidMode
 		}
 	}
 
-	private void renderBreastWithTransforms(ENTITY entity, ModelPart body, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource,
+	private void renderBreastWithTransforms(ENTITY entity, HumanoidModel<ENTITY> model, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource,
 		@Nullable RenderType breastRenderType, int packedLightIn, int combineTex, float alpha, boolean bounceEnabled, float totalX, float total, float bounceRotation,
 		float breastSize, float breastOffsetX, float breastOffsetY, float breastOffsetZ, float zOff, float outwardAngle, boolean uniboob, boolean isChestplateOccupied,
 		boolean breathingAnimation, boolean left, boolean hasJacketLayer) {
 		matrixStack.pushPose();
 		//Surround with a try/catch to fix for essential mod.
 		try {
+			if (entity.isBaby()) {
+				float f1 = 1.0F / model.babyBodyScale;
+				matrixStack.scale(f1, f1, f1);
+				matrixStack.translate(0.0D, model.bodyYOffset / 16.0F, 0.0D);
+			}
+			ModelPart body = model.body;
 			matrixStack.translate(body.x * 0.0625f, body.y * 0.0625f, body.z * 0.0625f);
 			if (body.zRot != 0.0F) {
 				matrixStack.mulPose(new Quaternionf().rotationXYZ(0f, 0f, body.zRot));

@@ -133,6 +133,7 @@ public class WildfireGender {
                 } else {
                     IGenderArmor armorConfig = WildfireHelper.getArmorConfig(stack);
                     if (armorConfig.armorStandsCopySettings()) {
+                        //TODO: Figure out how to remove the NBT from the stack when it is removed from the armor stand
                         WildfireHelper.writeToNbt(player, playerConfig, stack);
                     }
                 }

@@ -91,16 +91,12 @@ public class EntityConfig {
 	/**
 	 * Get the configuration for a given entity
 	 *
-	 * @return {@link EntityConfig}, {@link PlayerConfig} if given a {@link Player player},
-	 *         or {@code null} if given a baby entity
+	 * @return {@link EntityConfig} or {@link PlayerConfig} if given a {@link Player player}
 	 */
-	public static @Nullable EntityConfig getEntity(@NotNull LivingEntity entity) {
+	@Nullable
+	public static EntityConfig getEntity(@NotNull LivingEntity entity) {
 		if (entity instanceof Player) {
 			return WildfireGender.getPlayerById(entity.getUUID());
-		}
-		if (entity.isBaby()) {
-			// rendering breaks quite spectacularly on baby mobs, so just immediately give up
-			return null;
 		}
 		return ENTITY_CACHE.computeIfAbsent(entity.getUUID(), EntityConfig::new);
 	}
