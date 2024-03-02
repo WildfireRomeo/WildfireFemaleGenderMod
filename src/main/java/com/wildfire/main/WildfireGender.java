@@ -23,13 +23,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Future;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.mojang.logging.LogUtils;
 import com.wildfire.main.entitydata.PlayerConfig;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.util.Util;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 public class WildfireGender implements ClientModInitializer {
@@ -47,7 +47,7 @@ public class WildfireGender implements ClientModInitializer {
 		  return PLAYER_CACHE.get(id);
 	}
 
-	public static @Nonnull PlayerConfig getOrAddPlayerById(UUID id) {
+	public static @NotNull PlayerConfig getOrAddPlayerById(UUID id) {
 		return PLAYER_CACHE.computeIfAbsent(id, PlayerConfig::new);
 	}
 

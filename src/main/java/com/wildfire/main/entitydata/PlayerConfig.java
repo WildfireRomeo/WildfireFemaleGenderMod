@@ -24,8 +24,8 @@ import com.wildfire.main.config.ConfigKey;
 import com.wildfire.main.config.Configuration;
 import com.wildfire.main.Gender;
 import net.minecraft.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -70,7 +70,7 @@ public class PlayerConfig extends EntityConfig {
 
 	// this shouldn't ever be called on players, but just to be safe, override with a noop.
 	@Override
-	public void readFromStack(@Nonnull ItemStack chestplate) {}
+	public void readFromStack(@NotNull ItemStack chestplate) {}
 
 	public Configuration getConfig() {
 		return cfg;

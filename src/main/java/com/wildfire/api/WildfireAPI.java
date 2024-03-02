@@ -24,9 +24,9 @@ import com.wildfire.main.WildfireGender;
 import com.wildfire.main.Gender;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -65,7 +65,7 @@ public class WildfireAPI {
      * @param  uuid  the uuid of the target {@link PlayerEntity}.
      * @see    Gender
      */
-    public static @Nonnull Gender getPlayerGender(UUID uuid) {
+    public static @NotNull Gender getPlayerGender(UUID uuid) {
         PlayerConfig cfg = WildfireGender.getPlayerById(uuid);
         if(cfg == null) return Configuration.GENDER.getDefault();
         return cfg.getGender();

@@ -30,8 +30,6 @@ import com.wildfire.render.WildfireModelRenderer.PositionTextureVertex;
 
 import java.lang.Math;
 import java.util.ConcurrentModificationException;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -52,6 +50,8 @@ import net.minecraft.entity.effect.StatusEffectUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.*;
 
 @Environment(EnvType.CLIENT)
@@ -100,7 +100,7 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 	}
 
 	@Override
-	public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, @Nonnull T ent, float limbAngle,
+	public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, @NotNull T ent, float limbAngle,
 					   float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if(client.player == null) {
