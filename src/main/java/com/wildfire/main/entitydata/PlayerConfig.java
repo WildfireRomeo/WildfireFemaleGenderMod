@@ -20,9 +20,7 @@ package com.wildfire.main.entitydata;
 
 import com.google.gson.JsonObject;
 import com.wildfire.main.WildfireGender;
-import com.wildfire.main.config.ClientConfiguration;
-import com.wildfire.main.config.ConfigKey;
-import com.wildfire.main.config.Configuration;
+import com.wildfire.main.config.*;
 import com.wildfire.main.Gender;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -53,7 +51,10 @@ public class PlayerConfig extends EntityConfig {
 		this.gender = gender;
 		this.cfg = new Configuration(this.uuid.toString());
 		this.cfg.set(Configuration.USERNAME, this.uuid);
-		this.cfg.setDefaults();
+		this.cfg.setDefaults(Configuration.GENDER, Configuration.BUST_SIZE, Configuration.HURT_SOUNDS,
+				Configuration.BREASTS_OFFSET_X, Configuration.BREASTS_OFFSET_Y, Configuration.BREASTS_OFFSET_Z,
+				Configuration.BREASTS_UNIBOOB, Configuration.BREASTS_CLEAVAGE, Configuration.BREAST_PHYSICS,
+				Configuration.SHOW_IN_ARMOR, Configuration.BOUNCE_MULTIPLIER, Configuration.FLOPPY_MULTIPLIER);
 	}
 
 	// this shouldn't ever be called on players, but just to be safe, override with a noop.

@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -89,18 +88,8 @@ public abstract class AbstractConfiguration {
 		}
 	}
 
-	public void setDefaults() {
-		Arrays.stream(this.getClass().getFields())
-				.filter(field -> ConfigKey.class.isAssignableFrom(field.getType()))
-				.filter(field -> Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers()))
-				.map(field -> {
-					try {
-						return (ConfigKey<?>) field.get(null);
-					} catch(ReflectiveOperationException e) {
-						throw new RuntimeException(e);
-					}
-				})
-				.forEach(this::setDefault);
+	public final void setDefaults(ConfigKey<?>... keys) {
+		Arrays.stream(keys).forEach(this::setDefault);
 	}
 
 	public void removeParameter(ConfigKey<?> key) {

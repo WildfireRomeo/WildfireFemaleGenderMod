@@ -39,7 +39,7 @@ public final class ClientConfiguration extends AbstractConfiguration {
 
 	static {
 		INSTANCE = new ClientConfiguration(Configuration.CONFIG_DIR, "client.json");
-		INSTANCE.setDefaults();
+		INSTANCE.setDefaults(COMMENT, ARMOR_PHYSICS_OVERRIDE, ENABLE_BREAST_RENDERING, ENABLE_GENDER_HURT_SOUNDS);
 		if(INSTANCE.configFile.exists()) {
 			INSTANCE.load();
 		} else {
