@@ -31,6 +31,7 @@ import java.util.function.Function;
 
 public class ClientSettingsScreen extends DynamicallySizedScreen {
 
+	private static final Text LOCAL_ONLY = Text.translatable("wildfire_gender.tooltip.local_only");
 	private static final Text ENABLED = Text.translatable("wildfire_gender.label.enabled").formatted(Formatting.GREEN);
 	private static final Text DISABLED = Text.translatable("wildfire_gender.label.disabled").formatted(Formatting.RED);
 
@@ -47,7 +48,9 @@ public class ClientSettingsScreen extends DynamicallySizedScreen {
 						ClientConfiguration.INSTANCE.get(ClientConfiguration.ARMOR_PHYSICS_OVERRIDE) ? ENABLED : DISABLED))
 				.tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.client_options.override_armor_physics.line1")
 						.append("\n\n")
-						.append(Text.translatable("wildfire_gender.tooltip.client_options.override_armor_physics.line2"))))
+						.append(Text.translatable("wildfire_gender.tooltip.client_options.override_armor_physics.line2"))
+						.append("\n\n")
+						.append(LOCAL_ONLY)))
 				.size(WIDTH, HEIGHT)
 				.onClick(button -> set(ClientConfiguration.ARMOR_PHYSICS_OVERRIDE, current -> !current))
 				.build());
@@ -55,7 +58,9 @@ public class ClientSettingsScreen extends DynamicallySizedScreen {
 		this.addDrawableChild(new WildfireButton.Builder()
 				.text(() -> Text.translatable("wildfire_gender.client_options.breast_rendering",
 						ClientConfiguration.INSTANCE.get(ClientConfiguration.ENABLE_BREAST_RENDERING) ? ENABLED : DISABLED))
-				.tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.client_options.breast_rendering")))
+				.tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.client_options.breast_rendering")
+						.append("\n\n")
+						.append(LOCAL_ONLY)))
 				.size(WIDTH, HEIGHT)
 				.onClick(button -> set(ClientConfiguration.ENABLE_BREAST_RENDERING, current -> !current))
 				.build());
@@ -63,7 +68,9 @@ public class ClientSettingsScreen extends DynamicallySizedScreen {
 		this.addDrawableChild(new WildfireButton.Builder()
 				.text(() -> Text.translatable("wildfire_gender.client_options.hurt_sounds",
 						ClientConfiguration.INSTANCE.get(ClientConfiguration.ENABLE_GENDER_HURT_SOUNDS) ? ENABLED : DISABLED))
-				.tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.client_options.hurt_sounds")))
+				.tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.client_options.hurt_sounds")
+						.append("\n\n")
+						.append(LOCAL_ONLY)))
 				.size(WIDTH, HEIGHT)
 				.onClick(button -> set(ClientConfiguration.ENABLE_GENDER_HURT_SOUNDS, current -> !current))
 				.build());
