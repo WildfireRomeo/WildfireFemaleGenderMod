@@ -18,8 +18,6 @@
 
 package com.wildfire.main.config;
 
-import net.fabricmc.loader.api.FabricLoader;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -43,7 +41,7 @@ public class BreastPresetConfiguration extends AbstractConfiguration {
 
 	public static BreastPresetConfiguration[] getBreastPresetConfigurationFiles() {
 		ArrayList<BreastPresetConfiguration> presets = new ArrayList<>();
-		File saveDir = FabricLoader.getInstance().getConfigDir().resolve(PRESETS_DIR).toFile();
+		File saveDir = PRESETS_DIR.toFile();
 
 		if(!saveDir.exists()) {
 			saveDir.mkdirs();
