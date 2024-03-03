@@ -21,12 +21,12 @@ package com.wildfire.main.networking;
 import com.wildfire.main.entitydata.Breasts;
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.Gender;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.minecraft.network.PacketByteBuf;
 
 import java.util.UUID;
 
-class SyncPacket {
+abstract class SyncPacket implements FabricPacket {
     protected final UUID uuid;
     private final Gender gender;
     private final float bust_size;
@@ -83,7 +83,8 @@ class SyncPacket {
         this.cleavage = buffer.readFloat();
     }
 
-    protected void encode(PacketByteBuf buffer) {
+    @Override
+    public void write(PacketByteBuf buffer) {
         buffer.writeUuid(this.uuid);
         buffer.writeEnumConstant(this.gender);
         buffer.writeFloat(this.bust_size);
@@ -118,14 +119,5 @@ class SyncPacket {
         breasts.updateZOffset(zOffset);
         breasts.updateUniboob(uniboob);
         breasts.updateCleavage(cleavage);
-    }
-
-    /**
-     * Convenience method for creating a sync packet to send over the network
-     */
-    protected PacketByteBuf getPacket() {
-        PacketByteBuf packet = PacketByteBufs.create();
-        this.encode(packet);
-        return packet;
     }
 }

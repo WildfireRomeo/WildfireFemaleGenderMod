@@ -19,9 +19,11 @@
 package com.wildfire.main;
 
 import com.wildfire.main.entitydata.PlayerConfig;
+import com.wildfire.main.networking.SyncToServerPacket;
 import com.wildfire.main.networking.WildfireSync;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -32,7 +34,7 @@ public class WildfireGenderServer implements ModInitializer {
         // while this class is named 'Server', this is actually a common code path,
         // so we can safely register here for both sides.
         WildfireSounds.register();
-        ServerPlayNetworking.registerGlobalReceiver(WildfireSync.SEND_GENDER_IDENTIFIER, WildfireSync::handle);
+        ServerPlayConnectionEvents.INIT.register((handler, server) -> ServerPlayNetworking.registerReceiver(handler, SyncToServerPacket.PACKET_TYPE, (packet, player, responseSender) -> packet.handle(player)));
         EntityTrackingEvents.START_TRACKING.register(this::onBeginTracking);
     }
 
