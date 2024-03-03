@@ -23,7 +23,7 @@ import java.util.UUID;
 
 public class Configuration extends AbstractConfiguration {
 
-	private static final String CONFIG_DIR = "WildfireGender";
+	static final String CONFIG_DIR = "WildfireGender";
 
 	public static final UUIDConfigKey USERNAME = new UUIDConfigKey("username", UUID.nameUUIDFromBytes("UNKNOWN".getBytes(StandardCharsets.UTF_8)));
 	public static final GenderConfigKey GENDER = new GenderConfigKey("gender");
@@ -37,12 +37,11 @@ public class Configuration extends AbstractConfiguration {
 	public static final FloatConfigKey BREASTS_CLEAVAGE = new FloatConfigKey("breasts_cleavage", 0, 0, 0.1F);
 
 	public static final BooleanConfigKey BREAST_PHYSICS = new BooleanConfigKey("breast_physics", true);
-	public static final BooleanConfigKey ARMOR_PHYSICS_OVERRIDE = new BooleanConfigKey("armor_physics_override", false);
 	public static final BooleanConfigKey SHOW_IN_ARMOR = new BooleanConfigKey("show_in_armor", true);
 	public static final FloatConfigKey BOUNCE_MULTIPLIER = new FloatConfigKey("bounce_multiplier", 0.34F, 0, 0.5f);
 	public static final FloatConfigKey FLOPPY_MULTIPLIER = new FloatConfigKey("floppy_multiplier", 0.75F, 0.25f, 1);
 
 	public Configuration(String cfgName) {
-		super(CONFIG_DIR, cfgName);
+		super(CONFIG_DIR, cfgName + ".json");
 	}
 }

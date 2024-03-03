@@ -20,9 +20,12 @@ package com.wildfire.main.entitydata;
 
 import com.google.gson.JsonObject;
 import com.wildfire.main.WildfireGender;
+import com.wildfire.main.config.ClientConfiguration;
 import com.wildfire.main.config.ConfigKey;
 import com.wildfire.main.config.Configuration;
 import com.wildfire.main.Gender;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,7 +42,7 @@ public class PlayerConfig extends EntityConfig {
 
 	private final Configuration cfg;
 	private boolean hurtSounds = Configuration.HURT_SOUNDS.getDefault();
-	private boolean armorPhysOverride = Configuration.ARMOR_PHYSICS_OVERRIDE.getDefault();
+	private boolean showBreastsInArmor = Configuration.SHOW_IN_ARMOR.getDefault();
 
 	public PlayerConfig(UUID uuid) {
 		this(uuid, Configuration.GENDER.getDefault());
@@ -50,22 +53,7 @@ public class PlayerConfig extends EntityConfig {
 		this.gender = gender;
 		this.cfg = new Configuration(this.uuid.toString());
 		this.cfg.set(Configuration.USERNAME, this.uuid);
-		this.cfg.setDefault(Configuration.GENDER);
-		this.cfg.setDefault(Configuration.BUST_SIZE);
-		this.cfg.setDefault(Configuration.HURT_SOUNDS);
-
-		this.cfg.setDefault(Configuration.BREASTS_OFFSET_X);
-		this.cfg.setDefault(Configuration.BREASTS_OFFSET_Y);
-		this.cfg.setDefault(Configuration.BREASTS_OFFSET_Z);
-		this.cfg.setDefault(Configuration.BREASTS_UNIBOOB);
-		this.cfg.setDefault(Configuration.BREASTS_CLEAVAGE);
-
-		this.cfg.setDefault(Configuration.BREAST_PHYSICS);
-		this.cfg.setDefault(Configuration.ARMOR_PHYSICS_OVERRIDE);
-		this.cfg.setDefault(Configuration.SHOW_IN_ARMOR);
-		this.cfg.setDefault(Configuration.BOUNCE_MULTIPLIER);
-		this.cfg.setDefault(Configuration.FLOPPY_MULTIPLIER);
-		this.cfg.load();
+		this.cfg.setDefaults();
 	}
 
 	// this shouldn't ever be called on players, but just to be safe, override with a noop.
@@ -104,12 +92,12 @@ public class PlayerConfig extends EntityConfig {
 		return updateValue(Configuration.BREAST_PHYSICS, value, v -> this.breastPhysics = v);
 	}
 
+	/**
+	 * @implNote Convenience method, this simply returns the current value of {@link ClientConfiguration#ARMOR_PHYSICS_OVERRIDE}
+	 */
+	@Environment(EnvType.CLIENT)
 	public boolean getArmorPhysicsOverride() {
-		return armorPhysOverride;
-	}
-
-	public boolean updateArmorPhysicsOverride(boolean value) {
-		return updateValue(Configuration.ARMOR_PHYSICS_OVERRIDE, value, v -> this.armorPhysOverride = v);
+		return ClientConfiguration.INSTANCE.get(ClientConfiguration.ARMOR_PHYSICS_OVERRIDE);
 	}
 
 	public boolean showBreastsInArmor() {
@@ -141,7 +129,6 @@ public class PlayerConfig extends EntityConfig {
 
 		Configuration.BREAST_PHYSICS.save(obj, plr.hasBreastPhysics());
 		Configuration.SHOW_IN_ARMOR.save(obj, plr.showBreastsInArmor());
-		Configuration.ARMOR_PHYSICS_OVERRIDE.save(obj, plr.getArmorPhysicsOverride());
 		Configuration.BOUNCE_MULTIPLIER.save(obj, plr.getBounceMultiplier());
 		Configuration.FLOPPY_MULTIPLIER.save(obj, plr.getFloppiness());
 
@@ -159,6 +146,7 @@ public class PlayerConfig extends EntityConfig {
 		if (plr != null) {
 			plr.syncStatus = SyncStatus.CACHED;
 			Configuration config = plr.getConfig();
+			config.load();
 			plr.updateGender(config.get(Configuration.GENDER));
 			plr.updateBustSize(config.get(Configuration.BUST_SIZE));
 			plr.updateHurtSounds(config.get(Configuration.HURT_SOUNDS));
@@ -166,7 +154,6 @@ public class PlayerConfig extends EntityConfig {
 			//physics
 			plr.updateBreastPhysics(config.get(Configuration.BREAST_PHYSICS));
 			plr.updateShowBreastsInArmor(config.get(Configuration.SHOW_IN_ARMOR));
-			plr.updateArmorPhysicsOverride(config.get(Configuration.ARMOR_PHYSICS_OVERRIDE));
 			plr.updateBounceMultiplier(config.get(Configuration.BOUNCE_MULTIPLIER));
 			plr.updateFloppiness(config.get(Configuration.FLOPPY_MULTIPLIER));
 
@@ -194,7 +181,6 @@ public class PlayerConfig extends EntityConfig {
 		//physics
 		config.set(Configuration.BREAST_PHYSICS, plr.hasBreastPhysics());
 		config.set(Configuration.SHOW_IN_ARMOR, plr.showBreastsInArmor());
-		config.set(Configuration.ARMOR_PHYSICS_OVERRIDE, plr.getArmorPhysicsOverride());
 		config.set(Configuration.BOUNCE_MULTIPLIER, plr.getBounceMultiplier());
 		config.set(Configuration.FLOPPY_MULTIPLIER, plr.getFloppiness());
 

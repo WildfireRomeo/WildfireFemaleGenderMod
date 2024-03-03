@@ -21,18 +21,23 @@ package com.wildfire.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.gui.screen.BaseWildfireScreen;
 import com.wildfire.main.WildfireHelper;
+import com.wildfire.main.config.BooleanConfigKey;
+import com.wildfire.main.config.ClientConfiguration;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
 import net.minecraft.util.Formatting;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
@@ -44,7 +49,7 @@ public class WildfireButton extends ButtonWidget {
    private boolean shouldScroll = true;
 
    // TODO remove these public constructors and convert buttons to using a Builder
-   public WildfireButton(int x, int y, int w, int h, Text text, ButtonWidget.PressAction onPress, NarrationSupplier narrationSupplier) {
+   public WildfireButton(int x, int y, int w, int h, Text text, ButtonWidget.PressAction onPress, @NotNull NarrationSupplier narrationSupplier) {
       super(x, y, w, h, text, onPress, narrationSupplier);
       this.textSupplier = null;
    }
@@ -57,8 +62,8 @@ public class WildfireButton extends ButtonWidget {
       setTooltip(tooltip);
    }
 
-   private WildfireButton(int x, int y, int w, int h, Supplier<Text> textSupplier, PressAction onPress, @Nullable NarrationSupplier narrationSupplier) {
-      super(x, y, w, h, textSupplier.get(), onPress, narrationSupplier != null ? narrationSupplier : DEFAULT_NARRATION_SUPPLIER);
+   private WildfireButton(int x, int y, int w, int h, Supplier<Text> textSupplier, PressAction onPress, @NotNull NarrationSupplier narrationSupplier) {
+      super(x, y, w, h, textSupplier.get(), onPress, narrationSupplier);
       this.textSupplier = textSupplier;
    }
 
@@ -123,6 +128,7 @@ public class WildfireButton extends ButtonWidget {
       private @Nullable Tooltip tooltip;
       private boolean isClose = false;
       private boolean shouldScroll = true;
+      private boolean active = true;
 
       /**
        * Set a static {@link Text} to be used for this button
@@ -154,14 +160,20 @@ public class WildfireButton extends ButtonWidget {
       }
 
       /**
+       * Convenience method for opening a screen on click
+       */
+      public Builder openScreen(Supplier<Screen> screen) {
+         return this.onClick(button -> MinecraftClient.getInstance().setScreen(screen.get()));
+      }
+
+      /**
        * Marks this button as a close button for the provided screen
        *
-       * @apiNote This also implicitly adds a {@link net.minecraft.client.gui.widget.ButtonWidget.PressAction PressAction} for
-       *          closing the current screen for you.
+       * @apiNote This also adds a {@link #openScreen screen opener} for you, referencing the provided screen's parent
        */
       public Builder close(BaseWildfireScreen screen) {
          this.isClose = true;
-         return this.onClick(button -> MinecraftClient.getInstance().setScreen(screen.parent));
+         return this.openScreen(() -> screen.parent);
       }
 
       /**
@@ -215,8 +227,44 @@ public class WildfireButton extends ButtonWidget {
          return this;
       }
 
+      /**
+       * Require that the provided {@link BooleanConfigKey} from {@link ClientConfiguration} is {@code true}
+       */
+      public Builder require(BooleanConfigKey clientConfigOption) {
+         if(!ClientConfiguration.INSTANCE.get(clientConfigOption)) {
+            return this
+                    .active(false)
+                    .tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.disabled_client_setting")));
+         }
+         return this;
+      }
+
+      /**
+       * Require at least one of the provided {@link BooleanConfigKey}s from {@link ClientConfiguration} is {@code true}
+       */
+      public Builder require(List<BooleanConfigKey> clientConfigOptions) {
+         if(clientConfigOptions.stream().noneMatch(ClientConfiguration.INSTANCE::get)) {
+            return this
+                    .active(false)
+                    .tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.disabled_client_setting")));
+         }
+         return this;
+      }
+
+      /**
+       * Set the built button as being active or inactive
+       */
+      public Builder active(boolean active) {
+         this.active = active;
+         return this;
+      }
+
       public WildfireButton build() {
          WildfireButton button;
+         NarrationSupplier narrationSupplier = this.narrationSupplier;
+         if(narrationSupplier == null) {
+            narrationSupplier = DEFAULT_NARRATION_SUPPLIER;
+         }
          if(this.textSupplier != null) {
             button = new WildfireButton(x, y, width, height, textSupplier, onClick, narrationSupplier);
          } else if(this.text != null) {
@@ -226,6 +274,9 @@ public class WildfireButton extends ButtonWidget {
          }
          if(tooltip != null) {
             button.setTooltip(tooltip);
+         }
+         if(!active) {
+            button.setActive(false);
          }
          button.isCloseButton = this.isClose;
          button.shouldScroll = this.shouldScroll;

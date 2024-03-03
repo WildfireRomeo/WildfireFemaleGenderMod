@@ -3,6 +3,17 @@
 	"key.wildfire_gender.gender_menu": "Female Gender Menu",
 	"toast.wildfire_gender.get_started": "Press '%s' to get started!",
 
+	"wildfire_gender.client_options": "Client Settings",
+	"wildfire_gender.tooltip.client_options": "Configure client-side settings",
+	"wildfire_gender.client_options.breast_rendering": "Breast Rendering: %s",
+	"wildfire_gender.tooltip.client_options.breast_rendering": "If turned off, breasts will not be rendered on any player or entity",
+	"wildfire_gender.client_options.hurt_sounds": "Hurt Sounds: %s",
+	"wildfire_gender.tooltip.client_options.hurt_sounds": "If turned off, players will not have a female hurt sound played upon taking damage",
+	"wildfire_gender.client_options.override_armor_physics": "Armor Physics: %s",
+	"wildfire_gender.tooltip.client_options.override_armor_physics.line1": "Breast physics will no longer be modified by a player's equipped armor while enabled",
+	"wildfire_gender.tooltip.client_options.override_armor_physics.line2": "This is intended for use with resource packs that hide armor, or any similar minimal armor packs",
+	"wildfire_gender.tooltip.disabled_client_setting": "This setting is unavailable because the relevant client setting has been turned off",
+
 	"wildfire_gender.player_list.title": "Female Gender Mod",
 	"wildfire_gender.player_list.settings_button": "Settings",
 	"wildfire_gender.player_list.sync_status": "Sync Status",
@@ -28,10 +39,6 @@
 	"wildfire_gender.appearance_settings.title": "Appearance Settings",
 	"wildfire_gender.char_settings.title": "Character Settings",
 	"wildfire_gender.char_settings.physics": "Breast Physics: %s",
-
-	"wildfire_gender.char_settings.override_armor_physics": "Armor Physics: %s",
-	"wildfire_gender.tooltip.override_armor_physics.line1": "Breast physics will no longer be reduced/suppressed by your equipped armor while enabled",
-	"wildfire_gender.tooltip.override_armor_physics.line2": "This is intended for use with resource packs that hide armor, or any similar minimal armor packs",
 
 	"wildfire_gender.char_settings.hide_in_armor": "Hide In Armor: %s",
 	"wildfire_gender.char_settings.hurt_sounds": "Female Hurt Sounds: %s",

@@ -21,11 +21,12 @@ package com.wildfire.main.config;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 public class BreastPresetConfiguration extends AbstractConfiguration {
 
-	private static final String PRESETS_DIR = "WildfireGender/presets";
+	private static final Path PRESETS_DIR = resolve(Configuration.CONFIG_DIR, "presets");
 
 	public static final StringConfigKey PRESET_NAME = new StringConfigKey("preset_name", "");
 	public static final FloatConfigKey BUST_SIZE = new FloatConfigKey("bust_size", 0.6F, 0, 0.8f);
@@ -37,7 +38,7 @@ public class BreastPresetConfiguration extends AbstractConfiguration {
 	public static final FloatConfigKey BREASTS_CLEAVAGE = new FloatConfigKey("breasts_cleavage", 0, 0, 0.1F);
 
 	public BreastPresetConfiguration(String cfgName) {
-		super(PRESETS_DIR, cfgName);
+		super(PRESETS_DIR, cfgName + ".json");
 	}
 
 	public static BreastPresetConfiguration[] getBreastPresetConfigurationFiles() {

@@ -19,14 +19,13 @@
 package com.wildfire.mixins;
 
 import com.wildfire.main.WildfireGender;
+import com.wildfire.main.config.ClientConfiguration;
 import com.wildfire.main.entitydata.PlayerConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -44,6 +43,10 @@ public abstract class LivingEntityMixin {
 		)
 	)
 	public void wildfiregender$playGenderHurtSound(DamageSource damageSource, CallbackInfo ci) {
+		if(!ClientConfiguration.INSTANCE.get(ClientConfiguration.ENABLE_GENDER_HURT_SOUNDS)) {
+			return;
+		}
+
 		if((LivingEntity)(Object)this instanceof AbstractClientPlayerEntity player) {
 			PlayerConfig genderPlayer = WildfireGender.getPlayerById(player.getUuid());
 			if(genderPlayer == null || !genderPlayer.hasHurtSounds()) return;

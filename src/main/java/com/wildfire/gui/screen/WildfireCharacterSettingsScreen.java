@@ -51,6 +51,7 @@ public class WildfireCharacterSettingsScreen extends DynamicallySizedScreen {
 
     @Override
     public void init() {
+        // NOTE: buttons/sliders do not need to have a set X/Y position, as super.init() will automatically reposition them
         PlayerConfig aPlr = getPlayer();
 
         this.addDrawableChild(new WildfireButton(0, 0, WIDTH, HEIGHT,
@@ -71,18 +72,6 @@ public class WildfireCharacterSettingsScreen extends DynamicallySizedScreen {
             }
         }));
 
-        this.addDrawableChild(new WildfireButton(0, 0, 157, 20,
-                Text.translatable("wildfire_gender.char_settings.override_armor_physics", aPlr.getArmorPhysicsOverride() ? ENABLED : DISABLED), button -> {
-            boolean enableArmorPhysicsOverride = !aPlr.getArmorPhysicsOverride();
-            if (aPlr.updateArmorPhysicsOverride(enableArmorPhysicsOverride )) {
-                button.setMessage(Text.translatable("wildfire_gender.char_settings.override_armor_physics", aPlr.getArmorPhysicsOverride() ? ENABLED : DISABLED));
-                PlayerConfig.saveGenderInfo(aPlr);
-            }
-        }, Tooltip.of(Text.translatable("wildfire_gender.tooltip.override_armor_physics.line1")
-                .append("\n\n")
-                .append(Text.translatable("wildfire_gender.tooltip.override_armor_physics.line2")))
-        ));
-
         this.addDrawableChild(this.bounceSlider = new WildfireSlider(0, 0, WIDTH + 1, HEIGHT, Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplier(), value -> {
         }, value -> {
             float bounceText = 3 * value;
@@ -102,14 +91,16 @@ public class WildfireCharacterSettingsScreen extends DynamicallySizedScreen {
             }
         }));
 
-        this.addDrawableChild(new WildfireButton(0, 0, 157, 20,
-                Text.translatable("wildfire_gender.char_settings.hurt_sounds", aPlr.hasHurtSounds() ? ENABLED : DISABLED), button -> {
-            boolean enableHurtSounds = !aPlr.hasHurtSounds();
-            if (aPlr.updateHurtSounds(enableHurtSounds)) {
-                button.setMessage(Text.translatable("wildfire_gender.char_settings.hurt_sounds", enableHurtSounds ? ENABLED : DISABLED));
-                PlayerConfig.saveGenderInfo(aPlr);
-            }
-        }, Tooltip.of(Text.translatable("wildfire_gender.tooltip.hurt_sounds")));
+        this.addDrawableChild(new WildfireButton.Builder()
+                .text(() -> Text.translatable("wildfire_gender.char_settings.hurt_sounds", aPlr.hasHurtSounds() ? ENABLED : DISABLED))
+                .size(WIDTH, HEIGHT)
+                .onClick(button -> {
+                    aPlr.updateHurtSounds(!aPlr.hasHurtSounds());
+                    PlayerConfig.saveGenderInfo(aPlr);
+                })
+                .tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.hurt_sounds")))
+                .require(ClientConfiguration.ENABLE_GENDER_HURT_SOUNDS)
+                .build());
 
         this.addDrawableChild(new WildfireButton.Builder()
                 .text(Text.literal("X"))
@@ -127,7 +118,7 @@ public class WildfireCharacterSettingsScreen extends DynamicallySizedScreen {
         ctx.drawText(textRenderer, getTitle(), x, y, 4473924, false);
         if(client != null && client.world != null) {
             PlayerEntity plrEntity = client.world.getPlayerByUuid(this.playerUUID);
-            if (plrEntity != null) {
+            if(plrEntity != null) {
                 WildfireHelper.drawCenteredText(ctx, this.textRenderer, plrEntity.getDisplayName(), this.width / 2, getTopY() - 30, 0xFFFFFF);
             }
         }
