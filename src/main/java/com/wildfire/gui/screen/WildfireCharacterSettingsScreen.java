@@ -19,30 +19,28 @@
 package com.wildfire.gui.screen;
 
 import com.wildfire.gui.WildfireSlider;
-import com.wildfire.main.WildfireGender;
 import com.wildfire.main.WildfireHelper;
+import com.wildfire.main.config.ClientConfiguration;
 import com.wildfire.main.config.Configuration;
+
 import java.util.UUID;
 
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.entitydata.PlayerConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
-public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
+public class WildfireCharacterSettingsScreen extends DynamicallySizedScreen {
 
     private static final Text ENABLED = Text.translatable("wildfire_gender.label.enabled").formatted(Formatting.GREEN);
     private static final Text DISABLED = Text.translatable("wildfire_gender.label.disabled").formatted(Formatting.RED);
-    private static final Identifier BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/settings_bg.png");
 
     private WildfireSlider bounceSlider, floppySlider;
     private boolean bounceWarning;
@@ -54,15 +52,8 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
     @Override
     public void init() {
         PlayerConfig aPlr = getPlayer();
-        int x = this.width / 2;
-        int y = this.height / 2;
-        int yPos = y - 47;
-        int xPos = x - 156 / 2 - 1;
 
-        this.addDrawableChild(new WildfireButton(this.width / 2 + 73, yPos - 11, 9, 9, Text.literal("X"),
-                button -> MinecraftClient.getInstance().setScreen(parent)));
-
-        this.addDrawableChild(new WildfireButton(xPos, yPos, 157, 20,
+        this.addDrawableChild(new WildfireButton(0, 0, WIDTH, HEIGHT,
                 Text.translatable("wildfire_gender.char_settings.physics", aPlr.hasBreastPhysics() ? ENABLED : DISABLED), button -> {
             boolean enablePhysics = !aPlr.hasBreastPhysics();
             if (aPlr.updateBreastPhysics(enablePhysics)) {
@@ -71,7 +62,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             }
         }));
 
-        this.addDrawableChild(new WildfireButton(xPos, yPos + 20, 157, 20,
+        this.addDrawableChild(new WildfireButton(0, 0, WIDTH, HEIGHT,
                 Text.translatable("wildfire_gender.char_settings.hide_in_armor", aPlr.showBreastsInArmor() ? DISABLED : ENABLED), button -> {
             boolean enableShowInArmor = !aPlr.showBreastsInArmor();
             if (aPlr.updateShowBreastsInArmor(enableShowInArmor)) {
@@ -80,7 +71,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             }
         }));
 
-        this.addDrawableChild(new WildfireButton(xPos, yPos + 40, 157, 20,
+        this.addDrawableChild(new WildfireButton(0, 0, 157, 20,
                 Text.translatable("wildfire_gender.char_settings.override_armor_physics", aPlr.getArmorPhysicsOverride() ? ENABLED : DISABLED), button -> {
             boolean enableArmorPhysicsOverride = !aPlr.getArmorPhysicsOverride();
             if (aPlr.updateArmorPhysicsOverride(enableArmorPhysicsOverride )) {
@@ -92,7 +83,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
                 .append(Text.translatable("wildfire_gender.tooltip.override_armor_physics.line2")))
         ));
 
-        this.addDrawableChild(this.bounceSlider = new WildfireSlider(xPos, yPos + 60, 158, 20, Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplier(), value -> {
+        this.addDrawableChild(this.bounceSlider = new WildfireSlider(0, 0, WIDTH + 1, HEIGHT, Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplier(), value -> {
         }, value -> {
             float bounceText = 3 * value;
             int v = Math.round(bounceText * 100);
@@ -104,46 +95,49 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
             }
         }));
 
-        this.addDrawableChild(this.floppySlider = new WildfireSlider(xPos, yPos + 80, 158, 20, Configuration.FLOPPY_MULTIPLIER, aPlr.getFloppiness(), value -> {
+        this.addDrawableChild(this.floppySlider = new WildfireSlider(0, 0, WIDTH + 1, HEIGHT, Configuration.FLOPPY_MULTIPLIER, aPlr.getFloppiness(), value -> {
         }, value -> Text.translatable("wildfire_gender.slider.floppy", Math.round(value * 100)), value -> {
             if (aPlr.updateFloppiness(value)) {
                 PlayerConfig.saveGenderInfo(aPlr);
             }
         }));
 
-        this.addDrawableChild(new WildfireButton(xPos, yPos + 100, 157, 20,
+        this.addDrawableChild(new WildfireButton(0, 0, 157, 20,
                 Text.translatable("wildfire_gender.char_settings.hurt_sounds", aPlr.hasHurtSounds() ? ENABLED : DISABLED), button -> {
             boolean enableHurtSounds = !aPlr.hasHurtSounds();
             if (aPlr.updateHurtSounds(enableHurtSounds)) {
                 button.setMessage(Text.translatable("wildfire_gender.char_settings.hurt_sounds", enableHurtSounds ? ENABLED : DISABLED));
                 PlayerConfig.saveGenderInfo(aPlr);
             }
-        }, Tooltip.of(Text.translatable("wildfire_gender.tooltip.hurt_sounds"))));
+        }, Tooltip.of(Text.translatable("wildfire_gender.tooltip.hurt_sounds")));
+
+        this.addDrawableChild(new WildfireButton.Builder()
+                .text(Text.literal("X"))
+                .noScrollingText()
+                .narration(narrationText -> Text.translatable("gui.narrate.button", Text.translatable("gui.back")))
+                .size(9, 9)
+                .close(this)
+                .build());
 
         super.init();
     }
 
     @Override
-    public void renderBackground(DrawContext ctx, int mouseX, int mouseY, float delta) {
-        super.renderBackground(ctx, mouseX, mouseY, delta);
-        ctx.drawTexture(BACKGROUND, (this.width - 172) / 2, (this.height - 124) / 2, 0, 0, 172, 144);
+    protected void drawTitle(DrawContext ctx, int x, int y) {
+        ctx.drawText(textRenderer, getTitle(), x, y, 4473924, false);
+        if(client != null && client.world != null) {
+            PlayerEntity plrEntity = client.world.getPlayerByUuid(this.playerUUID);
+            if (plrEntity != null) {
+                WildfireHelper.drawCenteredText(ctx, this.textRenderer, plrEntity.getDisplayName(), this.width / 2, getTopY() - 30, 0xFFFFFF);
+            }
+        }
     }
 
     @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
-        if(client == null || client.world == null) return;
         super.render(ctx, mouseX, mouseY, delta);
-        PlayerEntity plrEntity = client.world.getPlayerByUuid(this.playerUUID);
-        int x = this.width / 2;
-        int y = this.height / 2;
-        int yPos = y - 47;
-        ctx.drawText(textRenderer, getTitle(), x - 79, yPos - 10, 4473924, false);
-        if(plrEntity != null) {
-            WildfireHelper.drawCenteredText(ctx, this.textRenderer, plrEntity.getDisplayName(), x, yPos - 30, 0xFFFFFF);
-        }
-
         if(bounceWarning) {
-            WildfireHelper.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.tooltip.bounce_warning").formatted(Formatting.ITALIC), x, y + 90, 0xFF6666);
+            WildfireHelper.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.tooltip.bounce_warning").formatted(Formatting.ITALIC), this.width / 2, getBottomY() + 30, 0xFF6666);
         }
     }
 
