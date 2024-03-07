@@ -15,7 +15,7 @@ tasks.named('wrapper', Wrapper).configure {
 }
 
 archivesBaseName = project.archives_base_name
-version = "neoforge-${mod_version}"
+version = "neoforge-${minecraft_version}-${mod_version}"
 group = project.maven_group
 
 ext {
