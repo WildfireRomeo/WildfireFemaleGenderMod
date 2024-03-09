@@ -43,8 +43,8 @@ public class ClientSettingsScreen extends DynamicallySizedScreen {
 	protected void init() {
 		// NOTE: buttons/sliders do not need to have a set X/Y position, as super.init() will automatically reposition them
 
-		this.addDrawableChild(new WildfireButton.Builder()
-				.text(() -> Text.translatable("wildfire_gender.client_options.override_armor_physics",
+		this.addDrawableChild(WildfireButton.builder()
+				.textSupplier(() -> Text.translatable("wildfire_gender.client_options.override_armor_physics",
 						ClientConfiguration.INSTANCE.get(ClientConfiguration.ARMOR_PHYSICS_OVERRIDE) ? ENABLED : DISABLED))
 				.tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.client_options.override_armor_physics.line1")
 						.append("\n\n")
@@ -55,8 +55,8 @@ public class ClientSettingsScreen extends DynamicallySizedScreen {
 				.onClick(button -> set(ClientConfiguration.ARMOR_PHYSICS_OVERRIDE, current -> !current))
 				.build());
 
-		this.addDrawableChild(new WildfireButton.Builder()
-				.text(() -> Text.translatable("wildfire_gender.client_options.breast_rendering",
+		this.addDrawableChild(WildfireButton.builder()
+				.textSupplier(() -> Text.translatable("wildfire_gender.client_options.breast_rendering",
 						ClientConfiguration.INSTANCE.get(ClientConfiguration.ENABLE_BREAST_RENDERING) ? ENABLED : DISABLED))
 				.tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.client_options.breast_rendering")
 						.append("\n\n")
@@ -65,8 +65,8 @@ public class ClientSettingsScreen extends DynamicallySizedScreen {
 				.onClick(button -> set(ClientConfiguration.ENABLE_BREAST_RENDERING, current -> !current))
 				.build());
 
-		this.addDrawableChild(new WildfireButton.Builder()
-				.text(() -> Text.translatable("wildfire_gender.client_options.hurt_sounds",
+		this.addDrawableChild(WildfireButton.builder()
+				.textSupplier(() -> Text.translatable("wildfire_gender.client_options.hurt_sounds",
 						ClientConfiguration.INSTANCE.get(ClientConfiguration.ENABLE_GENDER_HURT_SOUNDS) ? ENABLED : DISABLED))
 				.tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.client_options.hurt_sounds")
 						.append("\n\n")
@@ -75,12 +75,12 @@ public class ClientSettingsScreen extends DynamicallySizedScreen {
 				.onClick(button -> set(ClientConfiguration.ENABLE_GENDER_HURT_SOUNDS, current -> !current))
 				.build());
 
-		this.addDrawableChild(new WildfireButton.Builder()
+		this.addDrawableChild(WildfireButton.builder()
 				.text(Text.literal("X"))
-				.noScrollingText()
-				.narration(narrationText -> Text.translatable("gui.narrate.button", Text.translatable("gui.back")))
+				.scrollableText(false)
+				.narrationSupplier(narrationText -> Text.translatable("gui.narrate.button", Text.translatable("gui.back")))
 				.size(9, 9)
-				.close(this)
+				.closes(this)
 				.build());
 
 		super.init();

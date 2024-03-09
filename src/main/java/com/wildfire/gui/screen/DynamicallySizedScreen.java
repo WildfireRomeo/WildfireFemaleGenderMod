@@ -28,10 +28,12 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Dynamically resized GUI screen based on how many elements are displayed, rendered in a vertical list.
+ *
+ * @apiNote Elements added to this screen type do not need to have a set X/Y value, as they will automatically be
+ *          repositioned once either {@link #init()} or {@link #repositionElements()} are called.
  */
 public abstract class DynamicallySizedScreen extends BaseWildfireScreen {
 
@@ -76,7 +78,7 @@ public abstract class DynamicallySizedScreen extends BaseWildfireScreen {
 	 * @implNote This returns {@code false} on any {@link WildfireButton#isCloseButton() close buttons},
 	 *           {@link ClickableWidget non-clickable} and/or {@link ClickableWidget#visible invisible widgets}
 	 */
-	public static boolean shouldBeInList(Element element) {
+	public boolean shouldBeInList(Element element) {
 		if(element instanceof WildfireButton button && button.isCloseButton()) {
 			return false;
 		}
@@ -90,8 +92,8 @@ public abstract class DynamicallySizedScreen extends BaseWildfireScreen {
 	 */
 	public int getListElementCount() {
 		return Math.toIntExact(this.children().stream()
-				.filter(DynamicallySizedScreen::shouldBeInList)
-				.count()) + 1;
+				.filter(this::shouldBeInList)
+				.count());
 	}
 
 	/**
@@ -120,17 +122,22 @@ public abstract class DynamicallySizedScreen extends BaseWildfireScreen {
 	 * {@link WildfireButton#isCloseButton() close button} on the top of the UI
 	 */
 	protected void repositionElements() {
-		final AtomicInteger count = new AtomicInteger(0);
+		int count = 0;
+		boolean foundClose = false;
 		final int top = getTopY();
-		children().forEach(element -> {
+		for(Element element : children()) {
 			if(element instanceof WildfireButton button && button.isCloseButton()) {
+				if(foundClose) {
+					throw new IllegalStateException("Found more than one close button on the current screen!");
+				}
+				foundClose = true;
 				button.setY(top - 11);
 				button.setX(this.width / 2 + 73);
 			} else if(element instanceof ClickableWidget clickable && clickable.visible) {
-				clickable.setY(top + (HEIGHT * count.getAndIncrement()));
+				clickable.setY(top + (HEIGHT * count++));
 				clickable.setX((this.width / 2) - (WIDTH / 2) - 1);
 			}
-		});
+		}
 	}
 
 	@Override
@@ -140,7 +147,7 @@ public abstract class DynamicallySizedScreen extends BaseWildfireScreen {
 		final int x = (this.width - width) / 2;
 		final int topY = getTopY();
 		ctx.drawTexture(BACKGROUND, x, topY - TOP_HEIGHT, 0, 0, width, TOP_HEIGHT);
-		final int elements = listElements - 1;
+		final int elements = listElements;
 		int y = topY;
 		for(int count = 0; count < elements; count++) {
 			ctx.drawTexture(BACKGROUND, x, y, 0, TOP_HEIGHT, width, HEIGHT);

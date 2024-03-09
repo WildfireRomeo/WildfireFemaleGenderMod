@@ -63,24 +63,17 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             PlayerConfig.saveGenderInfo(plr);
         };
 
-        this.addDrawableChild(new WildfireButton.Builder()
-                .text(Text.literal("X"))
-                .noScrollingText()
-                .position(this.width / 2 + 178, j - 72)
-                .size(9, 9)
-                .close(this)
-                .build());
-
         //Customization Tab
         this.addDrawableChild(btnCustomization = new WildfireButton(this.width / 2 + 30, j - 60, 158 / 2 - 1, 10,
                 Text.translatable("wildfire_gender.breast_customization.tab_customization"), button -> {
             currentTab = 0;
+            // TODO refactor to use #clearAndInit()
             btnCustomization.active = false;
             btnPresets.active = true;
             btnAddPreset.visible = false;
             btnDeletePreset.visible = false;
-
-        })).setActive(false);
+        }));
+        btnCustomization.active = false;
         //Presets Tab
         this.addDrawableChild(btnPresets = new WildfireButton(this.width / 2 + 31 + 158/2, j - 60, 158 / 2 - 1, 10,
                 Text.translatable("wildfire_gender.breast_customization.tab_presets"), button -> {
@@ -97,6 +90,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         if(!FabricLoader.getInstance().isDevelopmentEnvironment()) {
             btnPresets.setTooltip(Tooltip.of(Text.translatable("wildfire_gender.coming_soon")));
         }
+
         this.addDrawableChild(btnAddPreset = new WildfireButton(this.width / 2 + 31 + 158/2, j + 80, 158 / 2 - 1, 12,
                 Text.translatable("wildfire_gender.breast_customization.presets.add_new"), button -> {
             createNewPreset("Test Preset");
@@ -105,9 +99,9 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
         this.addDrawableChild(btnDeletePreset = new WildfireButton(this.width / 2 + 30, j + 80, 158 / 2 - 1, 12,
                 Text.translatable("wildfire_gender.breast_customization.presets.delete"), button -> {
-
-        })).setActive(false);
-        btnDeletePreset.visible = false;
+            // TODO
+        }));
+        btnDeletePreset.active = btnDeletePreset.visible = false;
 
         //Customization Tab Below
 
@@ -143,11 +137,21 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
         this.addSelectableChild(this.PRESET_LIST);
 
+        this.addDrawableChild(WildfireButton.builder()
+                .text(Text.literal("X"))
+                .narrationSupplier(narration -> Text.translatable("gui.narrate.button", Text.translatable("gui.back")))
+                .scrollableText(false)
+                .position(this.width / 2 + 178, j - 72)
+                .size(9, 9)
+                .closes(this)
+                .build());
+
         this.currentTab = 0;
 
         super.init();
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void createNewPreset(String presetName) {
         BreastPresetConfiguration cfg = new BreastPresetConfiguration(presetName);
         cfg.set(BreastPresetConfiguration.PRESET_NAME, presetName);

@@ -91,8 +91,8 @@ public class WildfireCharacterSettingsScreen extends DynamicallySizedScreen {
             }
         }));
 
-        this.addDrawableChild(new WildfireButton.Builder()
-                .text(() -> Text.translatable("wildfire_gender.char_settings.hurt_sounds", aPlr.hasHurtSounds() ? ENABLED : DISABLED))
+        this.addDrawableChild(WildfireButton.builder()
+                .textSupplier(() -> Text.translatable("wildfire_gender.char_settings.hurt_sounds", aPlr.hasHurtSounds() ? ENABLED : DISABLED))
                 .size(WIDTH, HEIGHT)
                 .onClick(button -> {
                     aPlr.updateHurtSounds(!aPlr.hasHurtSounds());
@@ -102,12 +102,12 @@ public class WildfireCharacterSettingsScreen extends DynamicallySizedScreen {
                 .require(ClientConfiguration.ENABLE_GENDER_HURT_SOUNDS)
                 .build());
 
-        this.addDrawableChild(new WildfireButton.Builder()
+        this.addDrawableChild(WildfireButton.builder()
                 .text(Text.literal("X"))
-                .noScrollingText()
-                .narration(narrationText -> Text.translatable("gui.narrate.button", Text.translatable("gui.back")))
+                .narrationSupplier(narrationText -> Text.translatable("gui.narrate.button", Text.translatable("gui.back")))
+                .scrollableText(false)
                 .size(9, 9)
-                .close(this)
+                .closes(this)
                 .build());
 
         super.init();

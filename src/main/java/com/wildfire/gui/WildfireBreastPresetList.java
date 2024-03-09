@@ -3,6 +3,7 @@ package com.wildfire.gui;
 import com.wildfire.gui.screen.WildfireBreastCustomizationScreen;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.config.BreastPresetConfiguration;
+import com.wildfire.main.entitydata.PlayerConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -121,14 +122,23 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
         private Entry(final BreastPresetListEntry nInfo) {
             this.nInfo = nInfo;
             this.thumbnail = nInfo.ident;
-            btnOpenGUI = new WildfireButton(0, 0, getRowWidth() - 6, itemHeight, Text.empty(), button -> {
-                parent.getPlayer().updateBustSize(nInfo.data.get(BreastPresetConfiguration.BUST_SIZE));
-                parent.getPlayer().getBreasts().updateXOffset(nInfo.data.get(BreastPresetConfiguration.BREASTS_OFFSET_X));
-                parent.getPlayer().getBreasts().updateYOffset(nInfo.data.get(BreastPresetConfiguration.BREASTS_OFFSET_Y));
-                parent.getPlayer().getBreasts().updateZOffset(nInfo.data.get(BreastPresetConfiguration.BREASTS_OFFSET_Z));
-                parent.getPlayer().getBreasts().updateCleavage(nInfo.data.get(BreastPresetConfiguration.BREASTS_CLEAVAGE));
-                parent.getPlayer().getBreasts().updateUniboob(nInfo.data.get(BreastPresetConfiguration.BREASTS_UNIBOOB));
-            });
+            btnOpenGUI = WildfireButton.builder()
+                    .position(0, 0)
+                    .size(getRowWidth() - 6, itemHeight)
+                    .text(Text.empty())
+                    .onClick(button -> apply(parent.getPlayer()))
+                    .build();
+        }
+
+        private void apply(PlayerConfig config) {
+            BreastPresetConfiguration data = nInfo.data;
+            config.updateBustSize(data.get(BreastPresetConfiguration.BUST_SIZE));
+            config.getBreasts().updateXOffset(data.get(BreastPresetConfiguration.BREASTS_OFFSET_X));
+            config.getBreasts().updateYOffset(data.get(BreastPresetConfiguration.BREASTS_OFFSET_Y));
+            config.getBreasts().updateZOffset(data.get(BreastPresetConfiguration.BREASTS_OFFSET_Z));
+            config.getBreasts().updateCleavage(data.get(BreastPresetConfiguration.BREASTS_CLEAVAGE));
+            config.getBreasts().updateUniboob(data.get(BreastPresetConfiguration.BREASTS_UNIBOOB));
+            PlayerConfig.saveGenderInfo(config);
         }
 
         @Override

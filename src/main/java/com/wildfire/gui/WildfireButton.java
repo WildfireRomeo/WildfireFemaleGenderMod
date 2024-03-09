@@ -23,6 +23,9 @@ import com.wildfire.gui.screen.BaseWildfireScreen;
 import com.wildfire.main.WildfireHelper;
 import com.wildfire.main.config.BooleanConfigKey;
 import com.wildfire.main.config.ClientConfiguration;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -38,15 +41,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
 public class WildfireButton extends ButtonWidget {
 
-   public boolean transparent = false;
    private final @Nullable Supplier<Text> textSupplier;
-   private boolean isCloseButton = false;
-   private boolean shouldScroll = true;
+
+   private @Getter @Setter boolean transparent = false;
+   private @Getter @Setter boolean closeButton = false;
+   private @Getter @Setter boolean textScrollable = true;
 
    // TODO remove these public constructors and convert buttons to using a Builder
    public WildfireButton(int x, int y, int w, int h, Text text, ButtonWidget.PressAction onPress, @NotNull NarrationSupplier narrationSupplier) {
@@ -55,11 +60,6 @@ public class WildfireButton extends ButtonWidget {
    }
    public WildfireButton(int x, int y, int w, int h, Text text, ButtonWidget.PressAction onPress) {
       this(x, y, w, h, text, onPress, DEFAULT_NARRATION_SUPPLIER);
-
-   }
-   public WildfireButton(int x, int y, int w, int h, Text text, ButtonWidget.PressAction onPress, Tooltip tooltip) {
-      this(x, y, w, h, text, onPress, DEFAULT_NARRATION_SUPPLIER);
-      setTooltip(tooltip);
    }
 
    private WildfireButton(int x, int y, int w, int h, Supplier<Text> textSupplier, PressAction onPress, @NotNull NarrationSupplier narrationSupplier) {
@@ -75,17 +75,13 @@ public class WildfireButton extends ButtonWidget {
       return super.getMessage();
    }
 
-   public boolean isCloseButton() {
-      return this.isCloseButton;
-   }
-
    @Override
    protected void renderWidget(DrawContext ctx, int mouseX, int mouseY, float partialTicks) {
       MinecraftClient minecraft = MinecraftClient.getInstance();
       TextRenderer font = minecraft.textRenderer;
       int clr = 0x444444 + (84 << 24);
-      if(this.isHovered()) clr = 0x666666 + (84 << 24);
-      if(!this.active) clr = 0x222222 + (84 << 24);
+      if(isSelected()) clr = 0x666666 + (84 << 24);
+      if(!active) clr = 0x222222 + (84 << 24);
       if(!transparent) ctx.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), clr);
 
       int textColor = active ? 0xFFFFFF : 0x666666;
@@ -101,130 +97,100 @@ public class WildfireButton extends ButtonWidget {
                  Text.empty());
       }
 
-      if(this.shouldScroll) {
+      if(isTextScrollable()) {
          WildfireHelper.drawScrollableTextWithoutShadow(ctx, font, message, i, this.getY(), j, this.getY() + this.getHeight(), textColor);
       } else {
          ctx.drawText(font, message, i, this.getY(), textColor, false);
       }
-      RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
    }
 
-   public WildfireButton setTransparent(boolean b) {
-      this.transparent = b;
-      return this;
-   }
-   public WildfireButton setActive(boolean b) {
-      this.active = b;
-      return this;
+   public static Builder builder() {
+      return new Builder();
    }
 
+   @Setter
+   @Accessors(fluent = true)
    public static final class Builder {
-      private int x = 0, y = 0;
+      private Builder() {}
+
+      // Button placement
+      private int x = 0, y = 0; // defaults to 0 to explicitly support DynamicallySizedScreen not requiring this to be set
       private int width, height;
+
+      // Appearance
+      /**
+       * The {@link Text} to render on this button; this has no effect if {@link #textSupplier} is set.
+       */
       private @Nullable Text text;
+      /**
+       * Optional supplier to use instead of {@link #text}; this takes priority over the aforementioned value if
+       * both are set.
+       *
+       * @apiNote This supplier may be called multiple times per frame, and as such you should avoid performing any
+       *          computationally expensive operations in this supplier.
+       */
       private @Nullable Supplier<Text> textSupplier;
-      private PressAction onClick;
+      /**
+       * Optional {@link Text} supplier for the narrator to read instead of the provided {@link #text}.
+       * If not set, {@link #DEFAULT_NARRATION_SUPPLIER} is used instead.
+       */
       private @Nullable NarrationSupplier narrationSupplier;
+      /**
+       * Optional {@link Tooltip} to render whenever the player hovers over this button.
+       */
       private @Nullable Tooltip tooltip;
-      private boolean isClose = false;
-      private boolean shouldScroll = true;
+
+      // User interaction
+      /**
+       * Called when the player interacts with the button
+       */
+      private PressAction onClick;
+      /**
+       * Variation of {@link #onClick}; opens the provided {@link Screen} when clicked.
+       */
+      private @Nullable Supplier<Screen> opens = null;
+      /**
+       * Variation of {@link #onClick}; opens the {@link BaseWildfireScreen#parent parent} of the current screen
+       * when clicked.<br>
+       *
+       * If set, the built button will also be marked as {@link WildfireButton#isCloseButton() a close button}, which
+       * is used by {@link com.wildfire.gui.screen.DynamicallySizedScreen DynamicallySizedScreen} to place it
+       * at the top of the rendered UI.<br>
+       *
+       * This will also attach a {@link #narrationSupplier} if you don't already have one set.
+       *
+       * @apiNote There should only ever be one close button on a given screen; {@link com.wildfire.gui.screen.DynamicallySizedScreen DynamicallySizedScreen}
+       *          in particular will throw an error if more than one close button is discovered on a screen when repositioning elements.
+       */
+      private @Nullable BaseWildfireScreen closes = null;
+
+      // Button behavior
+      /**
+       * If {@code false}, the built button will not have its text scroll; this is designed for single-character labels
+       * on small buttons, where it doesn't really matter if the text slightly spills out of bounds.
+       */
+      private boolean scrollableText = true;
+      /**
+       * Sets {@link ButtonWidget#active} on the built button
+       */
       private boolean active = true;
-
-      /**
-       * Set a static {@link Text} to be used for this button
-       *
-       * @apiNote If both this and {@link #text(Supplier)} are used, the supplier takes priority over this.
-       */
-      public Builder text(Text text) {
-         this.text = text;
-         return this;
-      }
-
-      /**
-       * Set the text supplier to be used for the button message
-       *
-       * @apiNote This supplier is called once per frame, and as such you should avoid any computationally expensive
-       *          calls in this supplier. If both this and {@link #text(Text)} are used, this supplier takes priority.
-       */
-      public Builder text(Supplier<Text> textSupplier) {
-         this.textSupplier = textSupplier;
-         return this;
-      }
-
-      /**
-       * Set the callback to be executed when this button is clicked
-       */
-      public Builder onClick(PressAction onClick) {
-         this.onClick = onClick;
-         return this;
-      }
-
-      /**
-       * Convenience method for opening a screen on click
-       */
-      public Builder openScreen(Supplier<Screen> screen) {
-         return this.onClick(button -> MinecraftClient.getInstance().setScreen(screen.get()));
-      }
-
-      /**
-       * Marks this button as a close button for the provided screen
-       *
-       * @apiNote This also adds a {@link #openScreen screen opener} for you, referencing the provided screen's parent
-       */
-      public Builder close(BaseWildfireScreen screen) {
-         this.isClose = true;
-         return this.openScreen(() -> screen.parent);
-      }
 
       /**
        * Sets the X and Y coordinates of the button drawn on screen
        *
-       * @apiNote If this button is used in a {@link com.wildfire.gui.screen.DynamicallySizedScreen DynamicallySizedScreen},
-       *          this doesn't need to be set, as your button will automatically be repositioned based on its creation
-       *          order, and whether its {@link #close a close button} or not.
+       * @implNote This is shorthand for {@link #x(int)}.{@link #y(int)}
        */
       public Builder position(int x, int y) {
-         this.x = x;
-         this.y = y;
-         return this;
+         return this.x(x).y(y);
       }
 
       /**
        * Sets the width and height for the built button
+       *
+       * @implNote This is shorthand for {@link #height(int)}.{@link #width(int)}
        */
       public Builder size(int width, int height) {
-         this.height = height;
-         this.width = width;
-         return this;
-      }
-
-      /**
-       * Set the narration text supplier, intended for use with buttons with text that doesn't properly describe
-       * what they do, such as {@link #close a close button}.<br>
-       * If this isn't set, the default narration supplier is used instead, which simply reads the button text.
-       */
-      public Builder narration(NarrationSupplier supplier) {
-         this.narrationSupplier = supplier;
-         return this;
-      }
-
-      /**
-       * Add a tooltip to the built button
-       *
-       * @param tooltip The {@link Tooltip} to render, or {@code null} to remove any previously set tooltip
-       */
-      public Builder tooltip(@Nullable Tooltip tooltip) {
-         this.tooltip = tooltip;
-         return this;
-      }
-
-      /**
-       * Prevents this button's text from scrolling; this is intended for very small buttons where the text
-       * slightly spilling out of the button's rendered region doesn't really matter.
-       */
-      public Builder noScrollingText() {
-         this.shouldScroll = false;
-         return this;
+         return this.height(height).width(width);
       }
 
       /**
@@ -251,20 +217,24 @@ public class WildfireButton extends ButtonWidget {
          return this;
       }
 
-      /**
-       * Set the built button as being active or inactive
-       */
-      public Builder active(boolean active) {
-         this.active = active;
-         return this;
-      }
-
       public WildfireButton build() {
-         WildfireButton button;
+         final WildfireButton button;
+         final PressAction onClick;
          NarrationSupplier narrationSupplier = this.narrationSupplier;
          if(narrationSupplier == null) {
-            narrationSupplier = DEFAULT_NARRATION_SUPPLIER;
+            narrationSupplier = closes == null
+                    ? DEFAULT_NARRATION_SUPPLIER
+                    : (narration -> Text.translatable("gui.narrate.button", Text.translatable("gui.done")));
          }
+
+         if(this.closes != null) {
+            onClick = (ignored) -> MinecraftClient.getInstance().setScreen(closes.parent);
+         } else if(this.opens != null) {
+            onClick = (ignored) -> MinecraftClient.getInstance().setScreen(opens.get());
+         } else {
+            onClick = Objects.requireNonNull(this.onClick);
+         }
+
          if(this.textSupplier != null) {
             button = new WildfireButton(x, y, width, height, textSupplier, onClick, narrationSupplier);
          } else if(this.text != null) {
@@ -272,14 +242,11 @@ public class WildfireButton extends ButtonWidget {
          } else {
             throw new IllegalStateException("neither #text(Supplier<Text>) nor #text(Text) were called!");
          }
-         if(tooltip != null) {
-            button.setTooltip(tooltip);
-         }
-         if(!active) {
-            button.setActive(false);
-         }
-         button.isCloseButton = this.isClose;
-         button.shouldScroll = this.shouldScroll;
+
+         button.active = active;
+         button.setTooltip(tooltip);
+         button.setCloseButton(closes != null);
+         button.setTextScrollable(scrollableText);
          return button;
       }
    }

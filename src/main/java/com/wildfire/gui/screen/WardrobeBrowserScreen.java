@@ -64,7 +64,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	    int y = this.height / 2;
 		PlayerConfig plr = getPlayer();
 
-		this.addDrawableChild(new WildfireButton.Builder()
+		this.addDrawableChild(WildfireButton.builder()
 				.text(Text.translatable("wildfire_gender.label.gender").append(" - ").append(plr.getGender().getDisplayName()))
 				.position(this.width / 2 - 42, y - 52)
 				.size(158, 20)
@@ -80,42 +80,41 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 				.build());
 
 		if(plr.getGender().canHaveBreasts()) {
-			this.addDrawableChild(new WildfireButton.Builder()
+			this.addDrawableChild(WildfireButton.builder()
 					.text(Text.translatable("wildfire_gender.appearance_settings.title").append("..."))
 					.position(this.width / 2 - 42, y - 32)
 					.size(158, 20)
-					.openScreen(() -> new WildfireBreastCustomizationScreen(this, playerUUID))
+					.opens(() -> new WildfireBreastCustomizationScreen(this, playerUUID))
 					.require(ClientConfiguration.ENABLE_BREAST_RENDERING)
 					.build());
 		} else {
 			y -= 20;
 		}
 
-		this.addDrawableChild(new WildfireButton.Builder()
+		this.addDrawableChild(WildfireButton.builder()
 				.text(Text.translatable("wildfire_gender.char_settings.title").append("..."))
 				.position(this.width / 2 - 42, y - 12)
 				.size(158, 20)
-				.openScreen(() -> new WildfireCharacterSettingsScreen(this, playerUUID))
+				.opens(() -> new WildfireCharacterSettingsScreen(this, playerUUID))
 				.require(List.of(ClientConfiguration.ENABLE_BREAST_RENDERING, ClientConfiguration.ENABLE_GENDER_HURT_SOUNDS))
 				.build());
 
-		this.addDrawableChild(new WildfireButton.Builder()
+		this.addDrawableChild(WildfireButton.builder()
 				.text(Text.literal("\uD83D\uDD27")) // wrench icon
-				.noScrollingText()
+				.scrollableText(false)
 				.tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.client_options")))
-				.narration(narrationText -> Text.translatable("gui.narrate.button", Text.translatable("wildfire_gender.client_options")))
+				.narrationSupplier(narrationText -> Text.translatable("gui.narrate.button", Text.translatable("wildfire_gender.client_options")))
 				.position(this.width / 2 + 97, this.height / 2 - 63)
 				.size(11, 9)
-				.openScreen(() -> new ClientSettingsScreen(this))
+				.opens(() -> new ClientSettingsScreen(this))
 				.build());
 
-		this.addDrawableChild(new WildfireButton.Builder()
+		this.addDrawableChild(WildfireButton.builder()
 				.text(Text.literal("X"))
-				.noScrollingText()
-				.narration(narrationText -> Text.translatable("gui.narrate.button", Text.translatable("gui.done")))
+				.scrollableText(false)
 				.position(this.width / 2 + 111, this.height / 2 - 63)
 				.size(9, 9)
-				.close(this)
+				.closes(this)
 				.build());
 
 	    super.init();

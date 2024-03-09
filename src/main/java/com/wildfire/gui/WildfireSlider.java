@@ -108,9 +108,8 @@ public class WildfireSlider extends ClickableWidget {
 
 	@Override
 	protected void renderWidget(DrawContext ctx, int mouseX, int mouseY, float delta) {
-		if (this.visible) {
+		if (visible) {
 			RenderSystem.disableDepthTest();
-			this.hovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
 
 			int xP = getX() + 2;
 			ctx.fill(xP - 2, getY(), getX() + this.width - 1, getY() + this.height, 0x222222 + (128 << 24));
@@ -123,7 +122,7 @@ public class WildfireSlider extends ClickableWidget {
 			TextRenderer font = MinecraftClient.getInstance().textRenderer;
 			int i = this.getX() + 2;
 			int j = this.getX() + this.getWidth() - 2;
-			WildfireHelper.drawScrollableTextWithoutShadow(ctx, font, this.getMessage(), i, this.getY(), j, this.getY() + this.getHeight(), this.hovered || changed ? 0xFFFF55 : 0xFFFFFF);
+			WildfireHelper.drawScrollableTextWithoutShadow(ctx, font, this.getMessage(), i, this.getY(), j, this.getY() + this.getHeight(), isSelected() || changed ? 0xFFFF55 : 0xFFFFFF);
 		}
 	}
 
