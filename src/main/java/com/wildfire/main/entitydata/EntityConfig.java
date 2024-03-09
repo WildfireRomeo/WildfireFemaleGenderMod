@@ -55,7 +55,6 @@ public class EntityConfig {
 	protected boolean breastPhysics = Configuration.BREAST_PHYSICS.getDefault();
 	protected float bounceMultiplier = Configuration.BOUNCE_MULTIPLIER.getDefault();
 	protected float floppyMultiplier = Configuration.FLOPPY_MULTIPLIER.getDefault();
-	protected boolean showBreastsInArmor = Configuration.SHOW_IN_ARMOR.getDefault();
 	// note: hurt sounds and armor physics override are not defined here, as they have no relevance
 	// to entities, and are instead entirely in PlayerConfig
 	protected final BreastPhysics lBreastPhysics, rBreastPhysics;
@@ -123,6 +122,7 @@ public class EntityConfig {
 		return breastPhysics;
 	}
 
+	@Environment(EnvType.CLIENT)
 	public boolean getArmorPhysicsOverride() {
 		return false;
 	}

@@ -20,6 +20,7 @@ package com.wildfire.gui.screen;
 
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireGender;
+
 import java.util.UUID;
 
 import net.fabricmc.api.EnvType;
@@ -31,7 +32,7 @@ import net.minecraft.text.Text;
 public abstract class BaseWildfireScreen extends Screen {
 
     protected final UUID playerUUID;
-    protected final Screen parent;
+    public final Screen parent;
 
     protected BaseWildfireScreen(Text title, Screen parent, UUID uuid) {
         super(title);
@@ -46,5 +47,13 @@ public abstract class BaseWildfireScreen extends Screen {
     @Override
     public boolean shouldPause() {
         return false;
+    }
+
+    protected void save() {
+        PlayerConfig.saveGenderInfo(getPlayer());
+    }
+
+    protected void save(Object ignored) {
+        save();
     }
 }

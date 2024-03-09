@@ -18,16 +18,18 @@
 
 package com.wildfire.gui.screen;
 
+import com.wildfire.gui.GuiUtils;
 import com.wildfire.main.Gender;
 import com.wildfire.main.WildfireGender;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
 import com.wildfire.gui.WildfireButton;
+import com.wildfire.main.config.ClientConfiguration;
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.wildfire.main.WildfireHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -38,6 +40,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -61,35 +64,62 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	    int y = this.height / 2;
 		PlayerConfig plr = getPlayer();
 
-		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, y - 52, 158, 20, getGenderLabel(plr.getGender()), button -> {
-			Gender gender = switch (plr.getGender()) {
-				case MALE -> Gender.FEMALE;
-				case FEMALE -> Gender.OTHER;
-				case OTHER -> Gender.MALE;
-			};
-			if (plr.updateGender(gender)) {
-				button.setMessage(getGenderLabel(gender));
-				PlayerConfig.saveGenderInfo(plr);
-				clearAndInit();
-			}
-		}));
+		this.addDrawableChild(WildfireButton.builder()
+				.text(Text.translatable("wildfire_gender.label.gender").append(" - ").append(plr.getGender().getDisplayName()))
+				.position(this.width / 2 - 42, y - 52)
+				.size(158, 20)
+				.onClick(button -> {
+					Gender gender = switch(plr.getGender()) {
+						case MALE -> Gender.FEMALE;
+						case FEMALE -> Gender.OTHER;
+						case OTHER -> Gender.MALE;
+					};
+					plr.updateGender(gender);
+					PlayerConfig.saveGenderInfo(plr);
+					clearAndInit();
+				})
+				.build());
 
-		if (plr.getGender().canHaveBreasts()) {
-			this.addDrawableChild(new WildfireButton(this.width / 2 - 42, y - 32, 158, 20, Text.translatable("wildfire_gender.appearance_settings.title").append("..."),
-					button -> MinecraftClient.getInstance().setScreen(new WildfireBreastCustomizationScreen(WardrobeBrowserScreen.this, this.playerUUID))));
+		if(plr.getGender().canHaveBreasts()) {
+			this.addDrawableChild(WildfireButton.builder()
+					.text(Text.translatable("wildfire_gender.appearance_settings.title").append("..."))
+					.position(this.width / 2 - 42, y - 32)
+					.size(158, 20)
+					.opens(() -> new WildfireBreastCustomizationScreen(this, playerUUID))
+					.require(ClientConfiguration.ENABLE_BREAST_RENDERING)
+					.build());
+		} else {
+			y -= 20;
 		}
-		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, y - (plr.getGender().canHaveBreasts() ? 12 : 32), 158, 20, Text.translatable("wildfire_gender.char_settings.title").append("..."),
-				button -> MinecraftClient.getInstance().setScreen(new WildfireCharacterSettingsScreen(WardrobeBrowserScreen.this, this.playerUUID))));
 
-		this.addDrawableChild(new WildfireButton(this.width / 2 + 111, y - 63, 9, 9, Text.literal("X"),
-			button -> MinecraftClient.getInstance().setScreen(parent)));
+		this.addDrawableChild(WildfireButton.builder()
+				.text(Text.translatable("wildfire_gender.char_settings.title").append("..."))
+				.position(this.width / 2 - 42, y - 12)
+				.size(158, 20)
+				.opens(() -> new WildfireCharacterSettingsScreen(this, playerUUID))
+				.requireAny(List.of(ClientConfiguration.ENABLE_BREAST_RENDERING, ClientConfiguration.ENABLE_GENDER_HURT_SOUNDS))
+				.build());
+
+		this.addDrawableChild(WildfireButton.builder()
+				.text(Text.literal("\uD83D\uDD27")) // wrench icon
+				.scrollableText(false)
+				.tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.client_options")))
+				.narrationSupplier(narrationText -> Text.translatable("gui.narrate.button", Text.translatable("wildfire_gender.client_options")))
+				.position(this.width / 2 + 97, this.height / 2 - 63)
+				.size(11, 9)
+				.opens(() -> new ClientSettingsScreen(this))
+				.build());
+
+		this.addDrawableChild(WildfireButton.builder()
+				.text(Text.literal("X"))
+				.scrollableText(false)
+				.position(this.width / 2 + 111, this.height / 2 - 63)
+				.size(9, 9)
+				.closes(this)
+				.build());
 
 	    super.init();
   	}
-
-	private Text getGenderLabel(Gender gender) {
-		return Text.translatable("wildfire_gender.label.gender").append(" - ").append(gender.getDisplayName());
-	}
 
 	@Override
 	public void renderBackground(DrawContext ctx, int mouseX, int mouseY, float delta) {
@@ -119,7 +149,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 				int creatorY = y + 65;
 				// move down so we don't overlap with the breast cancer awareness month banner
 				if(isBreastCancerAwarenessMonth) creatorY += 30;
-				WildfireHelper.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, creatorY, 0xFF00FF);
+				GuiUtils.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, creatorY, 0xFF00FF);
 			}
 		}
 

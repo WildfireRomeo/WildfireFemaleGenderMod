@@ -19,6 +19,7 @@
 package com.wildfire.render;
 
 import com.wildfire.api.IGenderArmor;
+import com.wildfire.main.config.ClientConfiguration;
 import com.wildfire.main.entitydata.Breasts;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.WildfireHelper;
@@ -105,6 +106,9 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		MinecraftClient client = MinecraftClient.getInstance();
 		if(client.player == null) {
 			// we're currently in a menu, give up rendering before we crash the game
+			return;
+		}
+		if(!ClientConfiguration.INSTANCE.get(ClientConfiguration.ENABLE_BREAST_RENDERING)) {
 			return;
 		}
 
