@@ -18,6 +18,7 @@
 
 package com.wildfire.gui.screen;
 
+import com.wildfire.gui.GuiUtils;
 import com.wildfire.main.Gender;
 import com.wildfire.main.WildfireGender;
 
@@ -148,7 +149,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 				int creatorY = y + 65;
 				// move down so we don't overlap with the breast cancer awareness month banner
 				if(isBreastCancerAwarenessMonth) creatorY += 30;
-				WildfireHelper.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, creatorY, 0xFF00FF);
+				GuiUtils.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, creatorY, 0xFF00FF);
 			}
 		}
 

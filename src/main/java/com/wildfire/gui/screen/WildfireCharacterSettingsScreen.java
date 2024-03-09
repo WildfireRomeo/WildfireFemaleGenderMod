@@ -18,6 +18,7 @@
 
 package com.wildfire.gui.screen;
 
+import com.wildfire.gui.GuiUtils;
 import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.WildfireHelper;
 import com.wildfire.main.config.ClientConfiguration;
@@ -42,9 +43,6 @@ public class WildfireCharacterSettingsScreen extends DynamicallySizedScreen {
     private static final Text ENABLED = Text.translatable("wildfire_gender.label.enabled").formatted(Formatting.GREEN);
     private static final Text DISABLED = Text.translatable("wildfire_gender.label.disabled").formatted(Formatting.RED);
 
-    private WildfireSlider bounceSlider, floppySlider;
-    private boolean bounceWarning;
-
     protected WildfireCharacterSettingsScreen(Screen parent, UUID uuid) {
         super(Text.translatable("wildfire_gender.char_settings.title"), parent, uuid);
     }
@@ -54,42 +52,45 @@ public class WildfireCharacterSettingsScreen extends DynamicallySizedScreen {
         // NOTE: buttons/sliders do not need to have a set X/Y position, as super.init() will automatically reposition them
         PlayerConfig aPlr = getPlayer();
 
-        this.addDrawableChild(new WildfireButton(0, 0, WIDTH, HEIGHT,
-                Text.translatable("wildfire_gender.char_settings.physics", aPlr.hasBreastPhysics() ? ENABLED : DISABLED), button -> {
-            boolean enablePhysics = !aPlr.hasBreastPhysics();
-            if (aPlr.updateBreastPhysics(enablePhysics)) {
-                button.setMessage(Text.translatable("wildfire_gender.char_settings.physics", enablePhysics ? ENABLED : DISABLED));
-                PlayerConfig.saveGenderInfo(aPlr);
-            }
-        }));
+        this.addDrawableChild(WildfireButton.builder()
+                .size(WIDTH, HEIGHT)
+                .textSupplier(() -> Text.translatable("wildfire_gender.char_settings.physics", aPlr.hasBreastPhysics() ? ENABLED : DISABLED))
+                .onClick(button -> {
+                    aPlr.updateBreastPhysics(!aPlr.hasBreastPhysics());
+                    save();
+                })
+                .require(ClientConfiguration.ENABLE_BREAST_RENDERING)
+                .build());
 
-        this.addDrawableChild(new WildfireButton(0, 0, WIDTH, HEIGHT,
-                Text.translatable("wildfire_gender.char_settings.hide_in_armor", aPlr.showBreastsInArmor() ? DISABLED : ENABLED), button -> {
-            boolean enableShowInArmor = !aPlr.showBreastsInArmor();
-            if (aPlr.updateShowBreastsInArmor(enableShowInArmor)) {
-                button.setMessage(Text.translatable("wildfire_gender.char_settings.hide_in_armor", enableShowInArmor ? DISABLED : ENABLED));
-                PlayerConfig.saveGenderInfo(aPlr);
-            }
-        }));
+        this.addDrawableChild(WildfireButton.builder()
+                .size(WIDTH, HEIGHT)
+                .textSupplier(() -> Text.translatable("wildfire_gender.char_settings.hide_in_armor", aPlr.showBreastsInArmor() ? DISABLED : ENABLED))
+                .onClick(button -> {
+                    aPlr.updateShowBreastsInArmor(!aPlr.showBreastsInArmor());
+                    save();
+                })
+                .require(ClientConfiguration.ENABLE_BREAST_RENDERING)
+                .build());
 
-        this.addDrawableChild(this.bounceSlider = new WildfireSlider(0, 0, WIDTH + 1, HEIGHT, Configuration.BOUNCE_MULTIPLIER, aPlr.getBounceMultiplier(), value -> {
-        }, value -> {
-            float bounceText = 3 * value;
-            int v = Math.round(bounceText * 100);
-            bounceWarning = v > 100;
-            return Text.translatable("wildfire_gender.slider.bounce", v);
-        }, value -> {
-            if (aPlr.updateBounceMultiplier(value)) {
-                PlayerConfig.saveGenderInfo(aPlr);
-            }
-        }));
+        this.addDrawableChild(WildfireSlider.builder()
+                .size(WIDTH + 1, HEIGHT)
+                .configKey(Configuration.BOUNCE_MULTIPLIER)
+                .current(aPlr.getBounceMultiplier())
+                .text(value -> Text.translatable("wildfire_gender.slider.bounce", Math.round(3 * value * 100)))
+                .update(aPlr::updateBounceMultiplier)
+                .save(this::save)
+                .require(ClientConfiguration.ENABLE_BREAST_RENDERING)
+                .build());
 
-        this.addDrawableChild(this.floppySlider = new WildfireSlider(0, 0, WIDTH + 1, HEIGHT, Configuration.FLOPPY_MULTIPLIER, aPlr.getFloppiness(), value -> {
-        }, value -> Text.translatable("wildfire_gender.slider.floppy", Math.round(value * 100)), value -> {
-            if (aPlr.updateFloppiness(value)) {
-                PlayerConfig.saveGenderInfo(aPlr);
-            }
-        }));
+        this.addDrawableChild(WildfireSlider.builder()
+                .size(WIDTH + 1, HEIGHT)
+                .configKey(Configuration.FLOPPY_MULTIPLIER)
+                .current(aPlr.getFloppiness())
+                .text(value -> Text.translatable("wildfire_gender.slider.floppy", Math.round(value * 100)))
+                .update(aPlr::updateFloppiness)
+                .save(this::save)
+                .require(ClientConfiguration.ENABLE_BREAST_RENDERING)
+                .build());
 
         this.addDrawableChild(WildfireButton.builder()
                 .textSupplier(() -> Text.translatable("wildfire_gender.char_settings.hurt_sounds", aPlr.hasHurtSounds() ? ENABLED : DISABLED))
@@ -119,7 +120,7 @@ public class WildfireCharacterSettingsScreen extends DynamicallySizedScreen {
         if(client != null && client.world != null) {
             PlayerEntity plrEntity = client.world.getPlayerByUuid(this.playerUUID);
             if(plrEntity != null) {
-                WildfireHelper.drawCenteredText(ctx, this.textRenderer, plrEntity.getDisplayName(), this.width / 2, getTopY() - 30, 0xFFFFFF);
+                GuiUtils.drawCenteredText(ctx, this.textRenderer, plrEntity.getDisplayName(), this.width / 2, getTopY() - 30, 0xFFFFFF);
             }
         }
     }
@@ -127,16 +128,26 @@ public class WildfireCharacterSettingsScreen extends DynamicallySizedScreen {
     @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
         super.render(ctx, mouseX, mouseY, delta);
-        if(bounceWarning) {
-            WildfireHelper.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.tooltip.bounce_warning").formatted(Formatting.ITALIC), this.width / 2, getBottomY() + 30, 0xFF6666);
+        if(3 * getPlayer().getBounceMultiplier() * 100 > 100) {
+            GuiUtils.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.tooltip.bounce_warning").formatted(Formatting.ITALIC), this.width / 2, getBottomY() + 30, 0xFF6666);
         }
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int state) {
-        //Ensure all sliders are saved
-        bounceSlider.save();
-        floppySlider.save();
+        children().forEach(element -> {
+            if(element instanceof WildfireSlider slider) {
+                slider.save();
+            }
+        });
         return super.mouseReleased(mouseX, mouseY, state);
+    }
+
+    private void save() {
+        PlayerConfig.saveGenderInfo(getPlayer());
+    }
+
+    private void save(Object ignored) {
+        save();
     }
 }

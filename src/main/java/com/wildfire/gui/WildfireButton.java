@@ -18,11 +18,7 @@
 
 package com.wildfire.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.gui.screen.BaseWildfireScreen;
-import com.wildfire.main.WildfireHelper;
-import com.wildfire.main.config.BooleanConfigKey;
-import com.wildfire.main.config.ClientConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -35,12 +31,9 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
-import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -90,15 +83,11 @@ public class WildfireButton extends ButtonWidget {
 
       Text message = getMessage();
       if(!this.active) {
-         message = Texts.join(
-                 message.copy().withoutStyle().stream()
-                         .map(x -> x.copy().formatted(Formatting.RESET))
-                         .toList(),
-                 Text.empty());
+         message = GuiUtils.removeTextFormatting(message);
       }
 
       if(isTextScrollable()) {
-         WildfireHelper.drawScrollableTextWithoutShadow(ctx, font, message, i, this.getY(), j, this.getY() + this.getHeight(), textColor);
+         GuiUtils.drawScrollableTextWithoutShadow(ctx, font, message, i, this.getY(), j, this.getY() + this.getHeight(), textColor);
       } else {
          ctx.drawText(font, message, i, this.getY(), textColor, false);
       }
@@ -110,7 +99,7 @@ public class WildfireButton extends ButtonWidget {
 
    @Setter
    @Accessors(fluent = true)
-   public static final class Builder {
+   public static final class Builder implements IWildfireWidgetBuilder<WildfireButton, Builder> {
       private Builder() {}
 
       // Button placement
@@ -174,48 +163,6 @@ public class WildfireButton extends ButtonWidget {
        * Sets {@link ButtonWidget#active} on the built button
        */
       private boolean active = true;
-
-      /**
-       * Sets the X and Y coordinates of the button drawn on screen
-       *
-       * @implNote This is shorthand for {@link #x(int)}.{@link #y(int)}
-       */
-      public Builder position(int x, int y) {
-         return this.x(x).y(y);
-      }
-
-      /**
-       * Sets the width and height for the built button
-       *
-       * @implNote This is shorthand for {@link #height(int)}.{@link #width(int)}
-       */
-      public Builder size(int width, int height) {
-         return this.height(height).width(width);
-      }
-
-      /**
-       * Require that the provided {@link BooleanConfigKey} from {@link ClientConfiguration} is {@code true}
-       */
-      public Builder require(BooleanConfigKey clientConfigOption) {
-         if(!ClientConfiguration.INSTANCE.get(clientConfigOption)) {
-            return this
-                    .active(false)
-                    .tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.disabled_client_setting")));
-         }
-         return this;
-      }
-
-      /**
-       * Require at least one of the provided {@link BooleanConfigKey}s from {@link ClientConfiguration} is {@code true}
-       */
-      public Builder require(List<BooleanConfigKey> clientConfigOptions) {
-         if(clientConfigOptions.stream().noneMatch(ClientConfiguration.INSTANCE::get)) {
-            return this
-                    .active(false)
-                    .tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.disabled_client_setting")));
-         }
-         return this;
-      }
 
       public WildfireButton build() {
          final WildfireButton button;

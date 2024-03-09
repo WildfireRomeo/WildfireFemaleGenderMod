@@ -19,20 +19,24 @@
 package com.wildfire.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.wildfire.main.WildfireHelper;
 import com.wildfire.main.config.FloatConfigKey;
 import it.unimi.dsi.fastutil.floats.Float2ObjectFunction;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.screen.narration.NarrationPart;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
@@ -107,8 +111,18 @@ public class WildfireSlider extends ClickableWidget {
 	}
 
 	@Override
+	public void appendClickableNarrations(NarrationMessageBuilder builder) {
+		builder.put(NarrationPart.TITLE, this.getNarrationMessage());
+		if(this.active) {
+			// TODO support arrow keys
+			builder.put(NarrationPart.USAGE, Text.translatable("narration.slider.usage.hovered"));
+		}
+	}
+
+	@Override
 	protected void renderWidget(DrawContext ctx, int mouseX, int mouseY, float delta) {
 		if (visible) {
+			boolean selected = active && (isSelected() || changed);
 			RenderSystem.disableDepthTest();
 
 			int xP = getX() + 2;
@@ -122,7 +136,14 @@ public class WildfireSlider extends ClickableWidget {
 			TextRenderer font = MinecraftClient.getInstance().textRenderer;
 			int i = this.getX() + 2;
 			int j = this.getX() + this.getWidth() - 2;
-			WildfireHelper.drawScrollableTextWithoutShadow(ctx, font, this.getMessage(), i, this.getY(), j, this.getY() + this.getHeight(), isSelected() || changed ? 0xFFFF55 : 0xFFFFFF);
+
+			Text message = getMessage();
+			if(!this.active) {
+				message = GuiUtils.removeTextFormatting(message);
+			}
+
+			GuiUtils.drawScrollableTextWithoutShadow(ctx, font, message, i, this.getY(), j, this.getY() + this.getHeight(),
+					!active ? 0x666666 : selected ? 0xFFFF55 : 0xFFFFFF);
 		}
 	}
 
@@ -151,9 +172,6 @@ public class WildfireSlider extends ClickableWidget {
 		super.onDrag(mouseX, mouseY, deltaX, deltaY);
 	}
 
-	@Override
-	public void appendClickableNarrations(NarrationMessageBuilder builder) {}
-
 	private void setValueFromMouse(double mouseX) {
 		this.value = ((mouseX - (double)(this.getX() + 4)) / (double)(this.getWidth() - 8));
 		if (this.value < 0.0F) {
@@ -165,5 +183,74 @@ public class WildfireSlider extends ClickableWidget {
 		}
 		applyValue();
 		updateMessage();
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	@Setter
+	@Accessors(fluent = true)
+	public static final class Builder implements IWildfireWidgetBuilder<WildfireSlider, Builder> {
+		private Builder() {}
+
+		// Button placement
+		private int x = 0, y = 0; // defaults to 0 to explicitly support DynamicallySizedScreen not requiring this to be set
+		private int width, height;
+
+		/**
+		 * Minimum allowable value for this slider
+		 */
+		private double min;
+		/**
+		 * Maximum allowable value for this slider
+		 */
+		private double max;
+		/**
+		 * Current value for the slider upon being built
+		 */
+		private double current;
+
+		/**
+		 * A supplier for the {@link Text} to be rendered on this slider.
+		 *
+		 * @apiNote This supplier may be called multiple times per frame, and as such you should avoid performing any
+		 *          computationally expensive operations in this supplier.
+		 */
+		private @Nullable Float2ObjectFunction<Text> text;
+		/**
+		 * Optional {@link Tooltip} to render whenever the player hovers over this button.
+		 */
+		private @Nullable Tooltip tooltip = null;
+
+		/**
+		 * Called when the slider value is updated
+		 *
+		 * @apiNote This may be called many times within a short time frame, and as such you should avoid performing any
+		 *          computationally expensive operations.
+		 */
+		private FloatConsumer update;
+		/**
+		 * Called when the player releases their mouse button after updating the slider value
+		 */
+		private FloatConsumer save;
+		/**
+		 * Sets {@link ClickableWidget#active} on the built slider
+		 */
+		private boolean active = true;
+
+		/**
+		 * Set the {@link #min} and {@link #max} values for this slider from the provided {@link FloatConfigKey}
+		 */
+		public Builder configKey(FloatConfigKey key) {
+			return this.min(key.getMinInclusive()).max(key.getMaxInclusive());
+		}
+
+		public WildfireSlider build() {
+			WildfireSlider slider = new WildfireSlider(x, y, width, height, min, max, current, update, text, save);
+			slider.setTooltip(tooltip);
+			slider.active = active;
+			return slider;
+		}
 	}
 }
