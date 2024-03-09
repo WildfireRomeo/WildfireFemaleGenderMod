@@ -30,7 +30,6 @@ import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.config.ClientConfiguration;
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.wildfire.main.WildfireHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -76,6 +75,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 						case OTHER -> Gender.MALE;
 					};
 					plr.updateGender(gender);
+					PlayerConfig.saveGenderInfo(plr);
 					clearAndInit();
 				})
 				.build());
