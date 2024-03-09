@@ -57,7 +57,7 @@ public abstract class DynamicallySizedScreen extends BaseWildfireScreen {
 
 	/**
 	 * How many elements there are, not including any {@link WildfireButton#isCloseButton() close buttons}; this is set
-	 * when {@link #init()} is called
+	 * when {@link #init()} is called, and should be used instead of calling {@link #getListElementCount()}
 	 */
 	protected int listElements;
 
@@ -76,7 +76,7 @@ public abstract class DynamicallySizedScreen extends BaseWildfireScreen {
 	 * Predicate method checking if the provided {@link Element} should be rendered in the drawn list of widgets
 	 *
 	 * @implNote This returns {@code false} on any {@link WildfireButton#isCloseButton() close buttons},
-	 *           {@link ClickableWidget non-clickable} and/or {@link ClickableWidget#visible invisible widgets}
+	 *           {@link ClickableWidget non-clickable} and/or {@link ClickableWidget#visible hidden widgets}
 	 */
 	public boolean shouldBeInList(Element element) {
 		if(element instanceof WildfireButton button && button.isCloseButton()) {
@@ -88,7 +88,10 @@ public abstract class DynamicallySizedScreen extends BaseWildfireScreen {
 	/**
 	 * Returns the count of all applicable elements that should be rendered in the drawn list
 	 *
-	 * @apiNote This is a relatively expensive method call; you should instead use the cached {@link #listElements} field.
+	 * @apiNote This is also stored in a cached form in the {@link #listElements} field to avoid the need to recompute
+	 *          this value several times every frame.
+	 *
+	 * @see #shouldBeInList(Element)
 	 */
 	public int getListElementCount() {
 		return Math.toIntExact(this.children().stream()

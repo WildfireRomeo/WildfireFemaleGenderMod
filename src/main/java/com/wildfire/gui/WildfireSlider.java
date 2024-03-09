@@ -194,10 +194,11 @@ public class WildfireSlider extends ClickableWidget {
 	public static final class Builder implements IWildfireWidgetBuilder<WildfireSlider, Builder> {
 		private Builder() {}
 
-		// Button placement
-		private int x = 0, y = 0; // defaults to 0 to explicitly support DynamicallySizedScreen not requiring this to be set
+		// Slider position
+		private int x = 0, y = 0;
 		private int width, height;
 
+		// Slider values
 		/**
 		 * Minimum allowable value for this slider
 		 */
@@ -211,6 +212,7 @@ public class WildfireSlider extends ClickableWidget {
 		 */
 		private double current;
 
+		// Appearance
 		/**
 		 * A supplier for the {@link Text} to be rendered on this slider.
 		 *
@@ -223,6 +225,7 @@ public class WildfireSlider extends ClickableWidget {
 		 */
 		private @Nullable Tooltip tooltip = null;
 
+		// User interaction
 		/**
 		 * Called when the slider value is updated
 		 *
@@ -234,8 +237,10 @@ public class WildfireSlider extends ClickableWidget {
 		 * Called when the player releases their mouse button after updating the slider value
 		 */
 		private FloatConsumer save;
+
+		// Slider behavior
 		/**
-		 * Sets {@link ClickableWidget#active} on the built slider
+		 * @see ClickableWidget#active
 		 */
 		private boolean active = true;
 

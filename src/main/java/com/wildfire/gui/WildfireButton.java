@@ -38,20 +38,44 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
+@Accessors(chain = true)
 public class WildfireButton extends ButtonWidget {
 
    private final @Nullable Supplier<Text> textSupplier;
 
-   private @Getter @Setter boolean transparent = false;
+   /**
+    * If {@code true}, this button's text will be rendered slightly darkened (provided that it isn't
+    * also {@link #active inactive}).
+    */
+   private @Setter boolean deselected = false;
+   /**
+    * If {@code true}, this button's rendered background will be rendered as if the button was being
+    * {@link #isSelected() hovered over}.
+    */
+   private @Setter boolean highlightBackground = false;
+   /**
+    * If {@code true}, this button won't render its typical background.
+    */
+   private @Setter boolean transparent = false;
+   /**
+    * If {@code true}, this button will be considered as a close button; this is primarily used by
+    * {@link com.wildfire.gui.screen.DynamicallySizedScreen DynamicallySizedScreen} to position such
+    * buttons at the top of the rendered UI.
+    */
    private @Getter @Setter boolean closeButton = false;
-   private @Getter @Setter boolean textScrollable = true;
+   /**
+    * If {@code false}, this button's text won't scroll to fit within its bounds, and will instead stay in a fixed
+    * position. This is intended for small buttons that only have icon-like text, which don't have any reason to care
+    * about if its text spills slightly out of bounds.
+    */
+   private @Setter boolean textScrollable = true;
 
-   private WildfireButton(int x, int y, int w, int h, Text text, ButtonWidget.PressAction onPress, @NotNull NarrationSupplier narrationSupplier) {
+   protected WildfireButton(int x, int y, int w, int h, Text text, ButtonWidget.PressAction onPress, @NotNull NarrationSupplier narrationSupplier) {
       super(x, y, w, h, text, onPress, narrationSupplier);
       this.textSupplier = null;
    }
 
-   private WildfireButton(int x, int y, int w, int h, Supplier<Text> textSupplier, PressAction onPress, @NotNull NarrationSupplier narrationSupplier) {
+   protected WildfireButton(int x, int y, int w, int h, Supplier<Text> textSupplier, PressAction onPress, @NotNull NarrationSupplier narrationSupplier) {
       super(x, y, w, h, textSupplier.get(), onPress, narrationSupplier);
       this.textSupplier = textSupplier;
    }
@@ -69,11 +93,11 @@ public class WildfireButton extends ButtonWidget {
       MinecraftClient minecraft = MinecraftClient.getInstance();
       TextRenderer font = minecraft.textRenderer;
       int clr = 0x444444 + (84 << 24);
-      if(isSelected()) clr = 0x666666 + (84 << 24);
+      if(isSelected() || highlightBackground) clr = 0x666666 + (84 << 24);
       if(!active) clr = 0x222222 + (84 << 24);
       if(!transparent) ctx.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), clr);
 
-      int textColor = active ? 0xFFFFFF : 0x666666;
+      int textColor = active ? (deselected ? 0x888888 : 0xFFFFFF) : 0x666666;
       int i = this.getX() + 2;
       int j = this.getX() + this.getWidth() - 2;
 
@@ -82,7 +106,7 @@ public class WildfireButton extends ButtonWidget {
          message = GuiUtils.removeTextFormatting(message);
       }
 
-      if(isTextScrollable()) {
+      if(textScrollable) {
          GuiUtils.drawScrollableTextWithoutShadow(ctx, font, message, i, this.getY(), j, this.getY() + this.getHeight(), textColor);
       } else {
          ctx.drawText(font, message, i, this.getY(), textColor, false);
@@ -99,7 +123,7 @@ public class WildfireButton extends ButtonWidget {
       private Builder() {}
 
       // Button placement
-      private int x = 0, y = 0; // defaults to 0 to explicitly support DynamicallySizedScreen not requiring this to be set
+      private int x = 0, y = 0;
       private int width, height;
 
       // Appearance
@@ -116,8 +140,8 @@ public class WildfireButton extends ButtonWidget {
        */
       private @Nullable Supplier<Text> textSupplier;
       /**
-       * Optional {@link Text} supplier for the narrator to read instead of the provided {@link #text}.
-       * If not set, {@link #DEFAULT_NARRATION_SUPPLIER} is used instead.
+       * Optional {@link Text} supplier for the narrator to read instead of the provided {@link #text}
+       * (or {@link #textSupplier}). If not set, {@link #DEFAULT_NARRATION_SUPPLIER} is used instead.
        */
       private @Nullable NarrationSupplier narrationSupplier;
       /**
@@ -131,34 +155,41 @@ public class WildfireButton extends ButtonWidget {
        */
       private PressAction onClick;
       /**
-       * Variation of {@link #onClick}; opens the provided {@link Screen} when clicked.
+       * Variation of {@link #onClick(PressAction)}; opens the provided {@link Screen} when clicked.
        */
       private @Nullable Supplier<Screen> opens = null;
       /**
-       * Variation of {@link #onClick}; opens the {@link BaseWildfireScreen#parent parent} of the current screen
-       * when clicked.<br>
+       * <p>Further variation of {@link #opens(Supplier)}; instead opens the {@link BaseWildfireScreen#parent parent} of
+       * the provided {@link BaseWildfireScreen} when clicked.</p>
        *
-       * If set, the built button will also be marked as {@link WildfireButton#isCloseButton() a close button}, which
-       * is used by {@link com.wildfire.gui.screen.DynamicallySizedScreen DynamicallySizedScreen} to place it
-       * at the top of the rendered UI.<br>
+       * <p>This will also attach a {@link #narrationSupplier} if you don't already have one set, which simply reads
+       * (in English) Done button.</p>
        *
-       * This will also attach a {@link #narrationSupplier} if you don't already have one set.
+       * @apiNote There should only ever be one close button on a given screen;
+       *          {@link com.wildfire.gui.screen.DynamicallySizedScreen DynamicallySizedScreen} in particular will
+       *          throw an error if more than one close button is discovered on a screen when repositioning elements.
        *
-       * @apiNote There should only ever be one close button on a given screen; {@link com.wildfire.gui.screen.DynamicallySizedScreen DynamicallySizedScreen}
-       *          in particular will throw an error if more than one close button is discovered on a screen when repositioning elements.
+       * @see WildfireButton#setCloseButton(boolean)
        */
       private @Nullable BaseWildfireScreen closes = null;
 
       // Button behavior
       /**
-       * If {@code false}, the built button will not have its text scroll; this is designed for single-character labels
-       * on small buttons, where it doesn't really matter if the text slightly spills out of bounds.
+       * @see WildfireButton#setTextScrollable(boolean)
        */
       private boolean scrollableText = true;
       /**
-       * Sets {@link ButtonWidget#active} on the built button
+       * @see ButtonWidget#active
        */
       private boolean active = true;
+      /**
+       * @see WildfireButton#setDeselected(boolean)
+       */
+      private boolean deselected = false;
+      /**
+       * @see WildfireButton#setHighlightBackground(boolean)
+       */
+      private boolean highlightBackground = false;
 
       public WildfireButton build() {
          final WildfireButton button;
@@ -183,14 +214,16 @@ public class WildfireButton extends ButtonWidget {
          } else if(this.text != null) {
             button = new WildfireButton(x, y, width, height, text, onClick, narrationSupplier);
          } else {
-            throw new IllegalStateException("neither #text(Supplier<Text>) nor #text(Text) were called!");
+            throw new IllegalStateException("Required one of either textSupplier or text, but neither were set");
          }
 
          button.active = active;
          button.setTooltip(tooltip);
-         button.setCloseButton(closes != null);
-         button.setTextScrollable(scrollableText);
-         return button;
+
+         return button.setCloseButton(closes != null)
+                 .setTextScrollable(scrollableText)
+                 .setDeselected(deselected)
+                 .setHighlightBackground(highlightBackground);
       }
    }
 }

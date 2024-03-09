@@ -65,7 +65,8 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
                     currentTab = Tab.CUSTOMIZATION;
                     clearAndInit();
                 })
-                .active(currentTab != Tab.CUSTOMIZATION)
+                .deselected(currentTab != Tab.CUSTOMIZATION)
+                .highlightBackground(currentTab == Tab.CUSTOMIZATION)
                 .build());
 
         this.addDrawableChild(WildfireButton.builder()
@@ -80,6 +81,8 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
                     clearAndInit();
                 })
                 .require(FabricLoader.getInstance().isDevelopmentEnvironment(), Tooltip.of(Text.translatable("wildfire_gender.coming_soon")))
+                .deselected(currentTab != Tab.PRESETS)
+                .highlightBackground(currentTab == Tab.PRESETS)
                 .build());
 
         if(currentTab == Tab.CUSTOMIZATION) initCustomization();
