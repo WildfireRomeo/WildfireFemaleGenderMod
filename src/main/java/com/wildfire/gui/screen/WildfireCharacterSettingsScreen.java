@@ -20,7 +20,6 @@ package com.wildfire.gui.screen;
 
 import com.wildfire.gui.GuiUtils;
 import com.wildfire.gui.WildfireSlider;
-import com.wildfire.main.WildfireHelper;
 import com.wildfire.main.config.ClientConfiguration;
 import com.wildfire.main.config.Configuration;
 
@@ -135,19 +134,7 @@ public class WildfireCharacterSettingsScreen extends DynamicallySizedScreen {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int state) {
-        children().forEach(element -> {
-            if(element instanceof WildfireSlider slider) {
-                slider.save();
-            }
-        });
-        return super.mouseReleased(mouseX, mouseY, state);
-    }
-
-    private void save() {
         PlayerConfig.saveGenderInfo(getPlayer());
-    }
-
-    private void save(Object ignored) {
-        save();
+        return super.mouseReleased(mouseX, mouseY, state);
     }
 }

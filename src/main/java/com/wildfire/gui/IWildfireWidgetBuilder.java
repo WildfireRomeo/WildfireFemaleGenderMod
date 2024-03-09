@@ -57,22 +57,25 @@ public interface IWildfireWidgetBuilder<WIDGET extends ClickableWidget, BUILDER 
 	 * Require that the provided {@link BooleanConfigKey} from {@link ClientConfiguration} is {@code true}
 	 */
 	default BUILDER require(BooleanConfigKey clientConfigOption) {
-		if(!ClientConfiguration.INSTANCE.get(clientConfigOption)) {
-			return (BUILDER) this
-					.active(false)
-					.tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.disabled_client_setting")));
-		}
-		return (BUILDER) this;
+		return this.require(ClientConfiguration.INSTANCE.get(clientConfigOption),
+				Tooltip.of(Text.translatable("wildfire_gender.tooltip.disabled_client_setting")));
 	}
 
 	/**
 	 * Require at least one of the provided {@link BooleanConfigKey}s from {@link ClientConfiguration} is {@code true}
 	 */
-	default BUILDER require(List<BooleanConfigKey> clientConfigOptions) {
-		if(clientConfigOptions.stream().noneMatch(ClientConfiguration.INSTANCE::get)) {
-			return (BUILDER) this
-					.active(false)
-					.tooltip(Tooltip.of(Text.translatable("wildfire_gender.tooltip.disabled_client_setting")));
+	default BUILDER requireAny(List<BooleanConfigKey> clientConfigOptions) {
+		return this.require(clientConfigOptions.stream().anyMatch(ClientConfiguration.INSTANCE::get),
+				Tooltip.of(Text.translatable("wildfire_gender.tooltip.disabled_client_setting")));
+	}
+
+	/**
+	 * Require that the provided boolean value is {@code true}, making the built widget {@link #active inactive}
+	 * and setting the provided tooltip if not.
+	 */
+	default BUILDER require(boolean value, Tooltip tooltip) {
+		if(!value) {
+			return (BUILDER) this.active(false).tooltip(tooltip);
 		}
 		return (BUILDER) this;
 	}

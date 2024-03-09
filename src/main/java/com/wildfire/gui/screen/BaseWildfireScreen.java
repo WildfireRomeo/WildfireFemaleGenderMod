@@ -48,4 +48,12 @@ public abstract class BaseWildfireScreen extends Screen {
     public boolean shouldPause() {
         return false;
     }
+
+    protected void save() {
+        PlayerConfig.saveGenderInfo(getPlayer());
+    }
+
+    protected void save(Object ignored) {
+        save();
+    }
 }

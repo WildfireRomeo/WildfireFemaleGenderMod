@@ -97,7 +97,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 				.position(this.width / 2 - 42, y - 12)
 				.size(158, 20)
 				.opens(() -> new WildfireCharacterSettingsScreen(this, playerUUID))
-				.require(List.of(ClientConfiguration.ENABLE_BREAST_RENDERING, ClientConfiguration.ENABLE_GENDER_HURT_SOUNDS))
+				.requireAny(List.of(ClientConfiguration.ENABLE_BREAST_RENDERING, ClientConfiguration.ENABLE_GENDER_HURT_SOUNDS))
 				.build());
 
 		this.addDrawableChild(WildfireButton.builder()

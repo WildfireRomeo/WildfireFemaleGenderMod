@@ -46,13 +46,9 @@ public class WildfireButton extends ButtonWidget {
    private @Getter @Setter boolean closeButton = false;
    private @Getter @Setter boolean textScrollable = true;
 
-   // TODO remove these public constructors and convert buttons to using a Builder
-   public WildfireButton(int x, int y, int w, int h, Text text, ButtonWidget.PressAction onPress, @NotNull NarrationSupplier narrationSupplier) {
+   private WildfireButton(int x, int y, int w, int h, Text text, ButtonWidget.PressAction onPress, @NotNull NarrationSupplier narrationSupplier) {
       super(x, y, w, h, text, onPress, narrationSupplier);
       this.textSupplier = null;
-   }
-   public WildfireButton(int x, int y, int w, int h, Text text, ButtonWidget.PressAction onPress) {
-      this(x, y, w, h, text, onPress, DEFAULT_NARRATION_SUPPLIER);
    }
 
    private WildfireButton(int x, int y, int w, int h, Supplier<Text> textSupplier, PressAction onPress, @NotNull NarrationSupplier narrationSupplier) {
