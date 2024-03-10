@@ -1,26 +1,36 @@
-﻿name: Build Fabric mod with Gradle
+﻿name: Build Fabric
 on:
   push:
 jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-    - name: Get the repository contents.
-      uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
       with:
         clean: false
+    - name: Extract build version information
+      id: ref
+      run: .github/extract_refs.sh
     - name: Set up JDK 17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: 21
-    - name: Attempt to compile using Gradle
-      run: |
-       chmod +x gradlew
-       ./gradlew build
-    # we do not want -sources and -dev files, also this needs a github account to be downloaded via summary page.
-    - name: Upload compiled mod jars.
-      uses: actions/upload-artifact@v3
+    - name: Initialize caches
+      uses: actions/cache@v4
       with:
-        name: WFGM-artifacts
-        path: build/libs/*[0-9].jar
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/loom-cache
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-build-fabric-${{ steps.ref.outputs.minecraft_version }}
+        restore-keys: |
+          ${{ runner.os }}-build-fabric-
+    - name: Compile
+      run: ./gradlew build
+    - name: Upload compiled artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: WFGM-artifacts-${{ steps.ref.outputs.branch }}
+        path: build/libs/*.jar
