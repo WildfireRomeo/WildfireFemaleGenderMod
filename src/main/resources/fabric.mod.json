@@ -37,7 +37,7 @@
     "wildfire_gender.mixins.json"
   ],
   "depends": {
-    "fabricloader": "*",
+    "fabricloader": ">=0.15",
     "fabric-networking-api-v1": "*",
     "fabric-key-binding-api-v1": "*",
     "fabric-lifecycle-events-v1": "*",

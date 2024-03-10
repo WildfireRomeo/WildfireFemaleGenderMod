@@ -18,27 +18,31 @@
 
 package com.wildfire.mixins;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireHelper;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(ArmorStandEntity.class)
-public abstract class ArmorStandEntityMixin {
+public abstract class ArmorStandEntityMixin extends LivingEntity {
+	protected ArmorStandEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
+		super(entityType, world);
+	}
+
 	@Unique
 	private void wildfiregender$removeBreastDataFromStack(ItemStack stack) {
 		NbtComponent component = stack.get(DataComponentTypes.CUSTOM_DATA);
@@ -47,30 +51,65 @@ public abstract class ArmorStandEntityMixin {
 		}
 	}
 
-	@Inject(
+	@ModifyArg(
 		method = "equip",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/entity/decoration/ArmorStandEntity;equipStack(Lnet/minecraft/entity/EquipmentSlot;Lnet/minecraft/item/ItemStack;)V",
-			shift = At.Shift.BEFORE
-		)
+			target = "Lnet/minecraft/entity/decoration/ArmorStandEntity;equipStack(Lnet/minecraft/entity/EquipmentSlot;Lnet/minecraft/item/ItemStack;)V"
+		),
+		index = 1
 	)
-	public void wildfiregender$equipArmorStandChestplate(PlayerEntity player, EquipmentSlot slot, ItemStack stack, Hand hand, CallbackInfoReturnable<Boolean> cir) {
-		if(player == null || player.getWorld().isClient()) return;
-
-		Item item = stack.getItem();
-		// Only apply to chestplates
-		if(!(item instanceof ArmorItem armorItem) || armorItem.getSlotType() != EquipmentSlot.CHEST) return;
+	public ItemStack wildfiregender$attachBreastData(ItemStack stack, @Local(argsOnly = true) EquipmentSlot slot,
+	                                                 @Local(argsOnly = true) PlayerEntity player) {
+		if(player == null || player.getWorld().isClient() || slot != EquipmentSlot.CHEST) {
+			return stack;
+		}
 
 		PlayerConfig playerConfig = WildfireGender.getPlayerById(player.getUuid());
 		if(playerConfig == null) {
+			// while we shouldn't have our tag on the stack still, we're still checking to catch any armor
+			// that may still have the tag from older versions, or from potential cross-mod interactions
+			// which allow for removing items from armor stands without calling the vanilla
+			// #equip and/or #onBreak methods
 			wildfiregender$removeBreastDataFromStack(stack);
-			return;
+			return stack;
 		}
 
 		IGenderArmor armorConfig = WildfireHelper.getArmorConfig(stack);
 		if(armorConfig.armorStandsCopySettings()) {
 			WildfireHelper.writeToNbt(player, playerConfig, stack);
 		}
+
+		return stack;
+	}
+
+	@ModifyArg(
+		method = "equip",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/entity/player/PlayerEntity;setStackInHand(Lnet/minecraft/util/Hand;Lnet/minecraft/item/ItemStack;)V"
+		),
+		index = 1
+	)
+	public ItemStack wildfiregender$removeBreastDataOnReplace(ItemStack stack, @Local(argsOnly = true) PlayerEntity player) {
+		if(!player.getWorld().isClient()) {
+			wildfiregender$removeBreastDataFromStack(stack);
+		}
+		return stack;
+	}
+
+	@ModifyArg(
+		method = "onBreak",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/block/Block;dropStack(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/item/ItemStack;)V"
+		),
+		index = 2
+	)
+	public ItemStack wildfiregender$removeBreastDataOnBreak(ItemStack stack) {
+		if(!getWorld().isClient()) {
+			wildfiregender$removeBreastDataFromStack(stack);
+		}
+		return stack;
 	}
 }
