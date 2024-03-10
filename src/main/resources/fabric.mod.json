@@ -36,6 +36,7 @@
   "mixins": [
     "wildfire_gender.mixins.json"
   ],
+  "accessWidener": "wildfire_gender.accesswidener",
   "depends": {
     "fabricloader": ">=0.15",
     "fabric-networking-api-v1": "*",

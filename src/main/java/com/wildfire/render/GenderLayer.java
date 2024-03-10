@@ -48,7 +48,6 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectUtil;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -58,6 +57,7 @@ import org.joml.*;
 public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> extends FeatureRenderer<T, M> {
 
 	private BreastModelBox lBreast, rBreast;
+	private final FeatureRendererContext<T, M> context;
 	private static final OverlayModelBox lBreastWear, rBreastWear;
 
 	private float preBreastSize = 0f, preBreastOffsetZ;
@@ -75,23 +75,21 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 
 	public GenderLayer(FeatureRendererContext<T, M> render) {
 		super(render);
+		this.context = render;
 		// this can't be static or final as we need the ability to resize this during render time
 		lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, 4, 0.0F, false);
 		rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, 4, 0.0F, false);
 	}
 
 	private @Nullable RenderLayer getRenderLayer(T entity) {
-		boolean bodyVisible = !entity.isInvisible();
-		boolean translucent = !bodyVisible && !entity.isInvisibleTo(MinecraftClient.getInstance().player);
-		Identifier texture = getTexture(entity);
-		if(translucent) {
-			return RenderLayer.getItemEntityTranslucentCull(texture);
-		} else if(bodyVisible) {
-			return RenderLayer.getEntityTranslucent(texture);
-		} else if(entity.isGlowing()) {
-			return RenderLayer.getOutline(texture);
+		if(context instanceof LivingEntityRenderer<T, M> renderer) {
+			MinecraftClient client = MinecraftClient.getInstance();
+			boolean bodyVisible = !entity.isInvisible();
+			boolean translucent = !bodyVisible && client.player != null && !entity.isInvisibleTo(client.player);
+			boolean glowing = client.hasOutline(entity);
+			return renderer.getRenderLayer(entity, bodyVisible, translucent, glowing);
 		}
-		return null;
+		throw new IllegalStateException("context renderer is not a LivingEntityRenderer");
 	}
 
 	@Override
@@ -99,7 +97,7 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 					   float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if(client.player == null) {
-			// we're currently in a menu, give up rendering before we crash the game
+			// we're currently in a menu; we won't have any data loaded to begin with, so just give up early
 			return;
 		}
 

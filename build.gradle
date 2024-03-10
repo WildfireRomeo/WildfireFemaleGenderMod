@@ -51,6 +51,10 @@ java {
 	targetCompatibility = JavaVersion.VERSION_21
 }
 
+loom {
+	accessWidenerPath = file("src/main/resources/wildfire_gender.accesswidener")
+}
+
 jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archivesBaseName}"}
