@@ -132,8 +132,8 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 	}
 
 	@Override
-	protected void setupTransformations(T entity, ModelPart body, MatrixStack matrixStack, BreastSide side) {
-		super.setupTransformations(entity, body, matrixStack, side);
+	protected void setupTransformations(T entity, M model, MatrixStack matrixStack, BreastSide side) {
+		super.setupTransformations(entity, model, matrixStack, side);
 		if((entity instanceof AbstractClientPlayerEntity player && player.isPartVisible(PlayerModelPart.JACKET)) ||
 				(entity instanceof ArmorStandEntity && entityConfig.hasJacketLayer())) {
 			matrixStack.translate(0, 0, -0.015f);

@@ -123,10 +123,6 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 	 */
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	protected boolean setupRender(T entity, EntityConfig entityConfig, float partialTicks) {
-		// Rendering breaks quite spectacularly on baby mobs, so just immediately give up before we even
-		// attempt rendering on such an entity.
-		if(entity.isBaby()) return false;
-
 		armorStack = entity.getEquippedStack(EquipmentSlot.CHEST);
 		//Note: When the stack is empty the helper will fall back to an implementation that returns the proper data
 		genderArmor = WildfireHelper.getArmorConfig(armorStack);
@@ -199,7 +195,14 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		}
 	}
 
-	protected void setupTransformations(T entity, ModelPart body, MatrixStack matrixStack, BreastSide side) {
+	protected void setupTransformations(T entity, M model, MatrixStack matrixStack, BreastSide side) {
+		if(entity.isBaby()) {
+			float f1 = 1f / model.invertedChildBodyScale;
+			matrixStack.scale(f1, f1, f1);
+			matrixStack.translate(0f, model.childBodyYOffset / 16f, 0f);
+		}
+
+		ModelPart body = model.body;
 		matrixStack.translate(body.pivotX * 0.0625f, body.pivotY * 0.0625f, body.pivotZ * 0.0625f);
 		if(body.roll != 0.0F) {
 			matrixStack.multiply(new Quaternionf().rotationXYZ(0f, 0f, body.roll));
@@ -273,7 +276,7 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 	protected void renderSides(T entity, M model, MatrixStack matrixStack, Consumer<BreastSide> renderer) {
 		matrixStack.push();
 		try {
-			setupTransformations(entity, model.body, matrixStack, BreastSide.LEFT);
+			setupTransformations(entity, model, matrixStack, BreastSide.LEFT);
 			renderer.accept(BreastSide.LEFT);
 		} finally {
 			matrixStack.pop();
@@ -281,7 +284,7 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 
 		matrixStack.push();
 		try {
-			setupTransformations(entity, model.body, matrixStack, BreastSide.RIGHT);
+			setupTransformations(entity, model, matrixStack, BreastSide.RIGHT);
 			renderer.accept(BreastSide.RIGHT);
 		} finally {
 			matrixStack.pop();
