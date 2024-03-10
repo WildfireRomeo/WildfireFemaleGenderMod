@@ -58,9 +58,9 @@ import org.joml.*;
 public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> extends FeatureRenderer<T, M> {
 
 	private BreastModelBox lBreast, rBreast;
-	private final OverlayModelBox lBreastWear, rBreastWear;
+	private static final OverlayModelBox lBreastWear, rBreastWear;
 
-	private float preBreastSize = 0f;
+	private float preBreastSize = 0f, preBreastOffsetZ;
 	private Breasts breasts;
 	protected ItemStack armorStack;
 	protected IGenderArmor genderArmor;
@@ -68,12 +68,16 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 	protected float breastOffsetX, breastOffsetY, breastOffsetZ, lPhysPositionY, lPhysPositionX, rPhysPositionY, rTotalX,
 			lPhysBounceRotation, rPhysBounceRotation, breastSize, zOffset, outwardAngle;
 
+	static {
+		lBreastWear = new OverlayModelBox(true, 64, 64, 17, 34, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+		rBreastWear = new OverlayModelBox(false, 64, 64, 21, 34, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+	}
+
 	public GenderLayer(FeatureRendererContext<T, M> render) {
 		super(render);
+		// this can't be static or final as we need the ability to resize this during render time
 		lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, 4, 0.0F, false);
 		rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, 4, 0.0F, false);
-		lBreastWear = new OverlayModelBox(true,64, 64, 17, 34, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
-		rBreastWear = new OverlayModelBox(false,64, 64, 21, 34, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 	}
 
 	private @Nullable RenderLayer getRenderLayer(T entity) {
@@ -151,15 +155,7 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		outwardAngle = (Math.round(breasts.getCleavage() * 100f) / 100f) * 100f;
 		outwardAngle = Math.min(outwardAngle, 10);
 
-		float reducer = -1;
-		if(bSize < 0.84f) reducer++;
-		if(bSize < 0.72f) reducer++;
-
-		if(preBreastSize != bSize) {
-			lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
-			rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
-			preBreastSize = bSize;
-		}
+		resizeBox(bSize);
 
 		lPhysPositionY = MathHelper.lerp(partialTicks, leftBreastPhysics.getPrePositionY(), leftBreastPhysics.getPositionY());
 		lPhysPositionX = MathHelper.lerp(partialTicks, leftBreastPhysics.getPrePositionX(), leftBreastPhysics.getPositionX());
@@ -190,6 +186,19 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 						entity.getWorld().getBlockState(new BlockPos(entity.getBlockX(), entity.getBlockY(), entity.getBlockZ())).isOf(Blocks.BUBBLE_COLUMN)));
 		bounceEnabled = entityConfig.hasBreastPhysics() && (!isChestplateOccupied || resistance < 1); //oh, you found this?
 		return true;
+	}
+
+	protected void resizeBox(float breastSize) {
+		float reducer = -1;
+		if(breastSize < 0.84f) reducer++;
+		if(breastSize < 0.72f) reducer++;
+
+		if(preBreastSize != breastSize || preBreastOffsetZ != breastOffsetZ) {
+			lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
+			rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
+			preBreastSize = breastSize;
+			preBreastOffsetZ = breastOffsetZ;
+		}
 	}
 
 	protected void setupTransformations(T entity, ModelPart body, MatrixStack matrixStack, BreastSide side) {

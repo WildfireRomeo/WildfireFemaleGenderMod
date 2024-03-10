@@ -56,19 +56,21 @@ import org.jetbrains.annotations.NotNull;
 public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel<T>> extends GenderLayer<T, M> {
 
 	private final SpriteAtlasTexture armorTrimsAtlas;
-	protected final BreastModelBox lBoobArmor, rBoobArmor;
-	protected final BreastModelBox lTrim, rTrim;
+	protected static final BreastModelBox lBoobArmor, rBoobArmor;
+	protected static final BreastModelBox lTrim, rTrim;
 	private EntityConfig entityConfig;
 
-	public GenderArmorLayer(FeatureRendererContext<T, M> render, BakedModelManager bakery) {
-		super(render);
-		armorTrimsAtlas = bakery.getAtlas(TexturedRenderLayers.ARMOR_TRIMS_ATLAS_TEXTURE);
-
+	static {
 		lBoobArmor = new BreastModelBox(64, 32, 16, 17, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 		rBoobArmor = new BreastModelBox(64, 32, 20, 17, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 		// apply a very slight delta to fix z-fighting with the armor
 		lTrim = new BreastModelBox(64, 32, 16, 17, -4F, 0.0F, 0F, 4, 5, 4, 0.001F, false);
 		rTrim = new BreastModelBox(64, 32, 20, 17, 0, 0.0F, 0F, 4, 5, 4, 0.001F, false);
+	}
+
+	public GenderArmorLayer(FeatureRendererContext<T, M> render, BakedModelManager bakery) {
+		super(render);
+		armorTrimsAtlas = bakery.getAtlas(TexturedRenderLayers.ARMOR_TRIMS_ATLAS_TEXTURE);
 	}
 
 	@Override
@@ -98,8 +100,8 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 			if(ent instanceof ArmorStandEntity && !genderArmor.armorStandsCopySettings()) return;
 
 			final RegistryEntry<ArmorMaterial> material = ((ArmorItem) chestplate.getItem()).getMaterial();
-			final int color = armorStack.isIn(ItemTags.DYEABLE) ? DyedColorComponent.getColor(armorStack, -6265536) : Colors.WHITE;
-			final boolean glint = armorStack.hasGlint();
+			final int color = chestplate.isIn(ItemTags.DYEABLE) ? DyedColorComponent.getColor(chestplate, -6265536) : Colors.WHITE;
+			final boolean glint = chestplate.hasGlint();
 
 			renderSides(ent, getContextModel(), matrixStack, side -> {
 				material.value().layers().forEach(layer -> {
@@ -122,6 +124,11 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 		} catch(Exception e) {
 			WildfireGender.LOGGER.error("Failed to render breast armor", e);
 		}
+	}
+
+	@Override
+	protected void resizeBox(float breastSize) {
+		// this has no relevance to armor
 	}
 
 	@Override
