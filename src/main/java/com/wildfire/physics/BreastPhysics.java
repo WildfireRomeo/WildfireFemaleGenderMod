@@ -23,7 +23,6 @@ import com.wildfire.main.entitydata.EntityConfig;
 import com.wildfire.main.WildfireHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
@@ -62,9 +61,18 @@ public class BreastPhysics {
 	// as such, the best we can get here is marking this method as such.
 	@Environment(EnvType.CLIENT)
 	public void update(LivingEntity entity, IGenderArmor armor) {
-		if(entity instanceof ArmorStandEntity && !armor.armorStandsCopySettings()) {
-			// optimization: skip physics on armor stands that either don't have a chestplate,
-			// or have a chestplate we wouldn't copy player settings to
+		// always suppress the full physics calculations on armor stands
+		if(entity instanceof ArmorStandEntity) {
+			if(entityConfig.getGender().canHaveBreasts()) {
+				this.breastSize = entityConfig.getBustSize();
+				if(!entityConfig.getArmorPhysicsOverride()) {
+					float tightness = MathHelper.clamp(armor.tightness(), 0, 1);
+					this.breastSize *= 1 - 0.15F * tightness;
+				}
+				this.preBreastSize = this.breastSize;
+			} else {
+				this.breastSize = 0f;
+			}
 			return;
 		}
 
