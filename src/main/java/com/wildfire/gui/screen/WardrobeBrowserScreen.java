@@ -26,23 +26,16 @@ import java.util.UUID;
 
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.entitydata.PlayerConfig;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.wildfire.main.WildfireHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import org.joml.Quaternionf;
 
 @Environment(EnvType.CLIENT)
 public class WardrobeBrowserScreen extends BaseWildfireScreen {
@@ -96,6 +89,17 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 		super.renderBackground(ctx, mouseX, mouseY, delta);
 		Identifier backgroundTexture = getPlayer().getGender().canHaveBreasts() ? BACKGROUND_FEMALE : BACKGROUND;
 		ctx.drawTexture(backgroundTexture, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156);
+
+		if(client != null && client.world != null) {
+			int xP = this.width / 2 - 82;
+			int yP = this.height / 2 + 40;
+			PlayerEntity ent = client.world.getPlayerByUuid(this.playerUUID);
+			if(ent != null) {
+				ctx.enableScissor(xP - 35, yP - 95, xP + 35, yP + 7);
+				drawEntityOnScreen(ctx, xP, yP, 45, (xP - mouseX), (yP - 76 - mouseY), ent);
+				ctx.disableScissor();
+			}
+		}
 	}
 
 	@Override
@@ -104,15 +108,6 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 		int x = this.width / 2;
 	    int y = this.height / 2;
 		ctx.drawText(textRenderer, title, x - 118, y - 62, 4473924, false);
-
-		if(client != null && client.world != null) {
-		    int xP = this.width / 2 - 82;
-		    int yP = this.height / 2 + 40;
-		    PlayerEntity ent = client.world.getPlayerByUuid(this.playerUUID);
-		    if(ent != null) {
-			    drawEntityOnScreen(ctx, xP, yP, 45, (xP - mouseX), (yP - 76 - mouseY), ent);
-		    }
-		}
 
 		if(client != null && client.player != null) {
 			boolean withCreator = client.player.networkHandler.getPlayerList().stream()
