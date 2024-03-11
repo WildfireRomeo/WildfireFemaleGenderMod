@@ -65,7 +65,6 @@ public class PlayerConfig extends EntityConfig {
 		this.cfg.setDefault(Configuration.SHOW_IN_ARMOR);
 		this.cfg.setDefault(Configuration.BOUNCE_MULTIPLIER);
 		this.cfg.setDefault(Configuration.FLOPPY_MULTIPLIER);
-		this.cfg.load();
 	}
 
 	// this shouldn't ever be called on players, but just to be safe, override with a noop.
@@ -159,6 +158,7 @@ public class PlayerConfig extends EntityConfig {
 		if (plr != null) {
 			plr.syncStatus = SyncStatus.CACHED;
 			Configuration config = plr.getConfig();
+			config.load();
 			plr.updateGender(config.get(Configuration.GENDER));
 			plr.updateBustSize(config.get(Configuration.BUST_SIZE));
 			plr.updateHurtSounds(config.get(Configuration.HURT_SOUNDS));

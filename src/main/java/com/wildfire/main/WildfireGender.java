@@ -18,9 +18,10 @@
 
 package com.wildfire.main;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.mojang.logging.LogUtils;
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.networking.WildfireSync;
@@ -36,7 +37,7 @@ import org.slf4j.Logger;
 public class WildfireGender implements ModInitializer {
 	public static final String MODID = "wildfire_gender";
 	public static final Logger LOGGER = LogUtils.getLogger();
-	public static final Map<UUID, PlayerConfig> PLAYER_CACHE = new HashMap<>();
+	public static final Map<UUID, PlayerConfig> PLAYER_CACHE = new ConcurrentHashMap<>();
 
 	@Override
 	public void onInitialize() {

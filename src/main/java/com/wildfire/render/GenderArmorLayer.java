@@ -91,7 +91,7 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 		if(ArmorRendererRegistryImpl.get(chestplate.getItem()) != null) return;
 
 		try {
-			entityConfig = getConfig(ent);
+			entityConfig = EntityConfig.getEntity(ent);
 			if(entityConfig == null) return;
 
 			if(!setupRender(ent, entityConfig, partialTicks)) return;

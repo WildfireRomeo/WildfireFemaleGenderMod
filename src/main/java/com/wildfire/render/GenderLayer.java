@@ -29,7 +29,6 @@ import com.wildfire.render.WildfireModelRenderer.OverlayModelBox;
 import com.wildfire.render.WildfireModelRenderer.PositionTextureVertex;
 
 import java.lang.Math;
-import java.util.ConcurrentModificationException;
 import java.util.function.Consumer;
 
 import net.fabricmc.api.EnvType;
@@ -91,15 +90,6 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		return null;
 	}
 
-	protected @Nullable EntityConfig getConfig(T entity) {
-		try {
-			return EntityConfig.getEntity(entity);
-		} catch(ConcurrentModificationException e) {
-			// likely a temporary failure, try again later
-			return null;
-		}
-	}
-
 	@Override
 	public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, @NotNull T ent, float limbAngle,
 					   float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
@@ -109,7 +99,7 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 			return;
 		}
 
-		EntityConfig entityConfig = getConfig(ent);
+		EntityConfig entityConfig = EntityConfig.getEntity(ent);
 		if(entityConfig == null) return;
 
 		try {
