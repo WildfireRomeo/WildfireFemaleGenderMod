@@ -58,12 +58,8 @@ public class WildfireEventHandler {
 		if(!world.isClient() || MinecraftClient.getInstance().player == null) return;
 		if(entity instanceof AbstractClientPlayerEntity plr) {
 			UUID uuid = plr.getUuid();
-			PlayerConfig aPlr = WildfireGender.getPlayerById(plr.getUuid());
-			if(aPlr == null) {
-				aPlr = new PlayerConfig(uuid);
-				WildfireGender.PLAYER_CACHE.put(uuid, aPlr);
-				WildfireGender.loadGenderInfo(uuid, uuid.equals(MinecraftClient.getInstance().player.getUuid()));
-			}
+			boolean isClientPlayer = uuid.equals(MinecraftClient.getInstance().player.getUuid());
+			WildfireGenderClient.loadPlayerIfMissing(uuid, isClientPlayer);
 		}
 	}
 

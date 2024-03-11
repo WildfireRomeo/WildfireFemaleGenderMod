@@ -27,10 +27,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.wildfire.main.WildfireGenderServer"
+      "com.wildfire.main.WildfireGender"
     ],
     "client": [
-      "com.wildfire.main.WildfireGender"
+      "com.wildfire.main.WildfireGenderClient"
     ]
   },
   "mixins": [

@@ -18,6 +18,7 @@
 
 package com.wildfire.api;
 
+import com.wildfire.main.WildfireGenderClient;
 import com.wildfire.main.config.Configuration;
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireGender;
@@ -80,7 +81,7 @@ public class WildfireAPI {
      * @param  markForSync true if you want to send the gender settings to the server upon loading.
      */
     public static Future<Optional<PlayerConfig>> loadGenderInfo(UUID uuid, boolean markForSync) {
-        return WildfireGender.loadGenderInfo(uuid, markForSync);
+        return WildfireGenderClient.loadGenderInfo(uuid, markForSync);
     }
 
     /**
