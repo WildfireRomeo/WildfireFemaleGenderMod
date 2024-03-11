@@ -231,33 +231,32 @@ public class BreastPhysics {
 				if(rotationL < -1 || rotationR < -0.6f) {
 					this.targetBounceY = bounceIntensity / 3.25f;
 				}
-			}
-
-			if(entity.getVehicle() instanceof MinecartEntity cart) {
+			} else if(entity.getVehicle() instanceof MinecartEntity cart) {
 				float speed = (float) cart.getVelocity().lengthSquared();
 				if(Math.random() * speed < 0.5f && speed > 0.2f) {
 					this.targetBounceY = (Math.random() > 0.5 ? -bounceIntensity : bounceIntensity) / 6f;
+					this.targetBounceY += breastWeight;
 				}
-			}
-			if(entity.getVehicle() instanceof HorseEntity horse) {
+			} else if(entity.getVehicle() instanceof HorseEntity horse) {
 				float movement = (float) horse.getVelocity().lengthSquared();
-				if(horse.age % clampMovement(movement) == 5 && movement > 0.1f) {
+				if(horse.age % clampMovement(movement) == 5 && movement > 0.05f) {
 					this.targetBounceY = bounceIntensity / 4f;
+					this.targetBounceY += breastWeight;
 				}
-			}
-			if(entity.getVehicle() instanceof PigEntity pig) {
+			} else if(entity.getVehicle() instanceof PigEntity pig) {
 				float movement = (float) pig.getVelocity().lengthSquared();
-				if(pig.age % clampMovement(movement) == 5 && movement > 0.08f) {
-					this.targetBounceY = bounceIntensity / 4f;
+				if(pig.age % clampMovement(movement) == 5 && movement > 0.002f) {
+					this.targetBounceY = (bounceIntensity * MathHelper.clamp(movement * 75, 0.1f, 1f)) / 4f;
+					this.targetBounceY += breastWeight;
 				}
-			}
-			if(entity.getVehicle() instanceof StriderEntity strider) {
+			} else if(entity.getVehicle() instanceof StriderEntity strider) {
 				double heightOffset = (double)strider.getHeight() - 0.19
 						+ (double)(0.12F * MathHelper.cos(strider.limbAnimator.getPos() * 1.5f)
 						* 2F * Math.min(0.25F, strider.limbAnimator.getSpeed()));
 				this.targetBounceY += ((float) (heightOffset * 3f) - 4.5f) * bounceIntensity;
 			}
 		}
+
 		if(entity.handSwinging && entity.age % 5 == 0 && entity.getPose() != EntityPose.SLEEPING) {
 			this.targetBounceY += (Math.random() > 0.5 ? -0.25f : 0.25f) * bounceIntensity;
 		}
