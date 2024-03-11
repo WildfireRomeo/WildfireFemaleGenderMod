@@ -19,6 +19,7 @@
 package com.wildfire.main;
 
 import com.wildfire.main.entitydata.PlayerConfig;
+import com.wildfire.main.networking.WildfireSync;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -33,6 +34,7 @@ public class WildfireGenderClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		WildfireSounds.register();
+		WildfireSync.registerClient();
 		WildfireEventHandler.registerClientEvents();
 	}
 
