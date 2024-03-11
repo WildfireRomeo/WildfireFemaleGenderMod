@@ -30,6 +30,8 @@ import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.passive.*;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
+import net.minecraft.util.Arm;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
@@ -257,8 +259,21 @@ public class BreastPhysics {
 			}
 		}
 
-		if(entity.handSwinging && entity.age % 5 == 0 && entity.getPose() != EntityPose.SLEEPING) {
-			this.targetBounceY += (Math.random() > 0.5 ? -0.25f : 0.25f) * bounceIntensity;
+		int swingDuration = entity.getHandSwingDuration();
+		if(entity.handSwinging && swingDuration > 1 && entity.age % 5 == 0 && pose != EntityPose.SLEEPING) {
+			float amplifier = 0f;
+			if(swingDuration < 6) {
+				amplifier = 0.15f * (6 - swingDuration);
+			} else if(swingDuration > 6) {
+				amplifier = 0.067f * -(swingDuration - 6);
+			}
+			// Cap our amplifier at the swing durations of Mining Fatigue III/Haste II
+			amplifier = MathHelper.clamp(1 + amplifier, 0.6f, 1.3f);
+			this.targetBounceY += (Math.random() > 0.5 ? -0.25f : 0.25f) * bounceIntensity * amplifier;
+
+			Arm swingingArm = entity.preferredHand == Hand.MAIN_HAND ? entity.getMainArm() :
+					entity.getMainArm() == Arm.RIGHT ? Arm.LEFT : Arm.RIGHT;
+			this.targetRotVel += (swingingArm == Arm.RIGHT ? 1.185f : -1.185f) * bounceIntensity * amplifier;
 		}
 		/*if(plr.getPose() == EntityPose.SWIMMING) {
 			//System.out.println(1 - plr.getRotationVec(tickDelta).getY());
@@ -281,10 +296,9 @@ public class BreastPhysics {
 		if(bounceVel > 2.5f) {
 			targetBounceY -= distanceFromMax;
 		}
-		if(targetBounceY < -1.5f) targetBounceY = -1.5f;
-		if(targetBounceY > 2.5f) targetBounceY = 2.5f;
-		if(targetRotVel < -25f) targetRotVel = -25f;
-		if(targetRotVel > 25f) targetRotVel = 25f;
+
+		targetBounceY = MathHelper.clamp(targetBounceY, -1.5f, 2.5f);
+		targetRotVel = MathHelper.clamp(targetRotVel, -25f, 25f);
 
 		this.velocity = MathHelper.lerp(bounceAmount, this.velocity, (this.targetBounceY - this.bounceVel) * delta);
 		this.bounceVel += this.velocity * percent * 1.1625f;
