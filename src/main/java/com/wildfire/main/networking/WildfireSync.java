@@ -29,8 +29,13 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
-public class WildfireSync {
+public final class WildfireSync {
+	private WildfireSync() {
+		throw new UnsupportedOperationException();
+	}
+
 	@ApiStatus.Internal
 	public static void register() {
 		// note that each packet has to be registered on both sides for receiving and sending, regardless
@@ -60,8 +65,8 @@ public class WildfireSync {
 	 * @param toSync       The {@link ServerPlayerEntity player} to sync
 	 * @param playerConfig The {@link PlayerConfig configuration} for the target player
 	 */
-	public static void sendToAllClients(ServerPlayerEntity toSync, PlayerConfig playerConfig) {
-		if(playerConfig == null || toSync.getServer() == null) return;
+	public static void sendToAllClients(@NotNull ServerPlayerEntity toSync, @NotNull PlayerConfig playerConfig) {
+		if(toSync.getServer() == null) return;
 
 		PlayerLookup.tracking(toSync).stream()
 				.filter(player -> !player.equals(toSync))
@@ -75,7 +80,7 @@ public class WildfireSync {
 	 * @param sendTo The {@link ServerPlayerEntity player} to send the sync to
 	 * @param toSync The {@link PlayerConfig configuration} for the player being synced
 	 */
-	public static void sendToClient(ServerPlayerEntity sendTo, PlayerConfig toSync) {
+	public static void sendToClient(@NotNull ServerPlayerEntity sendTo, @NotNull PlayerConfig toSync) {
 		if(ClientboundSyncPacket.canSend(sendTo)) {
 			ServerPlayNetworking.send(sendTo, new ClientboundSyncPacket(toSync));
 		}
@@ -87,10 +92,8 @@ public class WildfireSync {
 	 * @param plr The {@link PlayerConfig configuration} for the client player
 	 */
 	@Environment(EnvType.CLIENT)
-	public static void sendToServer(PlayerConfig plr) {
-		if(plr == null || !plr.needsSync || !ServerboundSyncPacket.canSend()) {
-			return;
-		}
+	public static void sendToServer(@NotNull PlayerConfig plr) {
+		if(!plr.needsSync || !ServerboundSyncPacket.canSend()) return;
 
 		ClientPlayNetworking.send(new ServerboundSyncPacket(plr));
 		plr.needsSync = false;

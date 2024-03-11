@@ -41,7 +41,11 @@ import org.lwjgl.glfw.GLFW;
 import java.util.UUID;
 
 @Environment(EnvType.CLIENT)
-public class WildfireEventHandler {
+public final class WildfireEventHandler {
+	private WildfireEventHandler() {
+		throw new UnsupportedOperationException();
+	}
+
 	public static final KeyBinding toggleEditGUI = KeyBindingHelper.registerKeyBinding(
 			new KeyBinding("key.wildfire_gender.gender_menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_G, "category.wildfire_gender.generic"));
 	private static long timer = 0;

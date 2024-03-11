@@ -40,7 +40,11 @@ import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 
-public class WildfireHelper {
+public final class WildfireHelper {
+    private WildfireHelper() {
+        throw new UnsupportedOperationException();
+    }
+
     public static int randInt(int min, int max) {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
