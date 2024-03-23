@@ -47,6 +47,7 @@ public class BreastPhysics {
 	private float breastSize = 0, preBreastSize = 0;
 
 	private EntityPose lastPose;
+	private int lastSwingDuration = 6, lastSwingTick = 0;
 	private Vec3d prePos;
 
 	private final EntityConfig entityConfig;
@@ -68,7 +69,7 @@ public class BreastPhysics {
 				// physics, despite acting similarly to other entities where the rider's body yaw is allowed to
 				// (somewhat) freely move around
 				|| vehicle instanceof AbstractHorseEntity horseLike && !horseLike.isSaddled()
-				// camels also suffer from largely the same issue as unsaddled horses when sitting or rising
+				// camels also suffer from largely the same issue as unsaddled horses when sitting or standing up
 				|| vehicle instanceof CamelEntity camel && camel.isStationary();
 	}
 
@@ -204,7 +205,7 @@ public class BreastPhysics {
 		this.targetBounceY += breastWeight;
 		float horizVel = (float) Math.sqrt(Math.pow(motion.x, 2) + Math.pow(motion.z, 2)) * (bounceIntensity);
 
-		this.targetRotVel = this.calcRotation(entity, bounceIntensity);
+		this.targetRotVel = calcRotation(entity, bounceIntensity);
 		this.targetRotVel += (float) motion.y * bounceIntensity * randomB;
 
 		float f2 = (float) entity.getVelocity().lengthSquared() / 0.2F;
@@ -260,21 +261,47 @@ public class BreastPhysics {
 		}
 
 		int swingDuration = entity.getHandSwingDuration();
-		if(entity.handSwinging && swingDuration > 1 && entity.age % 5 == 0 && pose != EntityPose.SLEEPING) {
+		// Require that either the current swing duration is 2 ticks, or the swing duration from the previous tick is,
+		// as any faster and the arm effectively doesn't swing at all; we check the previous tick's swing duration for
+		// reasons explained later on in this block
+		if((swingDuration > 1 || lastSwingDuration > 1) && pose != EntityPose.SLEEPING) {
 			float amplifier = 0f;
 			if(swingDuration < 6) {
 				amplifier = 0.15f * (6 - swingDuration);
 			} else if(swingDuration > 6) {
-				amplifier = 0.067f * -(swingDuration - 6);
+				amplifier = -0.067f * (swingDuration - 6);
 			}
 			// Cap our amplifier at the swing durations of Mining Fatigue III/Haste II
 			amplifier = MathHelper.clamp(1 + amplifier, 0.6f, 1.3f);
-			this.targetBounceY += (Math.random() > 0.5 ? -0.25f : 0.25f) * bounceIntensity * amplifier;
 
-			Arm swingingArm = entity.preferredHand == Hand.MAIN_HAND ? entity.getMainArm() :
-					entity.getMainArm() == Arm.RIGHT ? Arm.LEFT : Arm.RIGHT;
-			this.targetRotVel += (swingingArm == Arm.RIGHT ? 1.185f : -1.185f) * bounceIntensity * amplifier;
+			if(entity.handSwinging && entity.age % 5 == 0) {
+				this.targetBounceY += (Math.random() > 0.5 ? -0.25f : 0.25f) * amplifier * bounceIntensity;
+			}
+
+			int swingTickDelta = entity.handSwingTicks - lastSwingTick;
+			float swingProgress = distanceFromMedian(0, lastSwingDuration, MathHelper.clamp(lastSwingTick, 0, lastSwingDuration));
+			Arm swingingArm = entity.preferredHand == Hand.MAIN_HAND ? entity.getMainArm() : entity.getMainArm().getOpposite();
+
+			if(swingTickDelta < 0 && lastSwingTick != lastSwingDuration - 1) {
+				// Add a bit of counter-rotation back toward the currently swinging arm if the previous arm swing
+				// animation is interrupted
+				// Note that we don't check if the player's arm is currently swinging here to account for cases like
+				// haste being used to reset a player's swing; one notable example of this is Wynncraft's spell casting,
+				// which applies haste to the player when a spell is successfully cast.
+				this.targetRotVel += (swingingArm == Arm.RIGHT ? -2.5f : 2.5f) * Math.abs(swingProgress) * bounceIntensity;
+			} else if(entity.handSwinging && swingDuration > 1) {
+				// Otherwise if the swing animation isn't interrupted, attempt to rotate slightly in the direction
+				// that the body is currently moving
+				Arm swingingToward = swingProgress > 0f ? swingingArm.getOpposite() : swingingArm;
+				this.targetRotVel += (swingingToward == Arm.RIGHT ? 0.2f : -0.2f) * amplifier * bounceIntensity;
+			}
+			lastSwingTick = entity.handSwingTicks;
 		}
+		if(!entity.handSwinging) {
+			lastSwingTick = 0;
+		}
+		lastSwingDuration = Math.max(swingDuration, 1);
+
 		/*if(plr.getPose() == EntityPose.SWIMMING) {
 			//System.out.println(1 - plr.getRotationVec(tickDelta).getY());
 			rotationMultiplier = 1 - (float) plr.getRotationVec(tickDelta).getY();
@@ -351,5 +378,38 @@ public class BreastPhysics {
 		int val = (int) (10 - movement*2f);
 		if(val < 1) val = 1;
 		return val;
+	}
+
+	/**
+	 * Return the distance from the median of the two provided boundary points from a given point
+	 *
+	 * @param p1    Lower boundary point
+	 * @param p2    Upper boundary point
+	 * @param point The target point within the range of {@code p1} and {@code p2} to get the distance from the median of
+	 *
+	 * @return A {@code float} of how far the provided point is from the median of the two boundary points, with
+	 *         {@code 1f} being at the median exactly, and {@code 0f} being at either of the two provided boundary
+	 *         points.<br>
+	 *         If the provided point is in the latter half of the range between the two boundary points, the returned
+	 *         float will be negative.
+	 *
+	 * @throws IllegalArgumentException If {@code p2} is greater than {@code p1}, or if {@code atPoint} is out of bounds
+	 */
+	@SuppressWarnings("SameParameterValue")
+	private static float distanceFromMedian(final int p1, final int p2, float point) {
+		// sanity checks
+		if(p1 >= p2) {
+			throw new IllegalArgumentException("p2 must be greater than p1");
+		}
+		if(point < p1 || point > p2) {
+			throw new IllegalArgumentException("point must be within bounds of p1 and p2");
+		}
+
+		if(point == p1 || point == p2) {
+			return 0;
+		}
+		float median = (p2 - p1) / 2f;
+		if(point > median) point = -(median - point);
+		return point / median;
 	}
 }
