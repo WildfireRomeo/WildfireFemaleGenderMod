@@ -33,11 +33,11 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -63,6 +63,7 @@ public class EntityConfig {
 	protected final BreastPhysics lBreastPhysics, rBreastPhysics;
 	protected final Breasts breasts;
 	protected boolean jacketLayer = true;
+	protected @Nullable BreastDataComponent fromComponent;
 
 	EntityConfig(UUID uuid) {
 		this.uuid = uuid;
@@ -74,31 +75,33 @@ public class EntityConfig {
 	/**
 	 * Copy gender settings included in the given {@link ItemStack item NBT} to the current entity
 	 *
-	 * @see WildfireHelper#writeToNbt
+	 * @see BreastDataComponent
 	 */
 	public void readFromStack(@NotNull ItemStack chestplate) {
 		NbtComponent component = chestplate.get(DataComponentTypes.CUSTOM_DATA);
+		if(chestplate.isEmpty() || component == null) {
+			this.fromComponent = null;
+			this.gender = Gender.MALE;
+			return;
+		} else if(fromComponent != null && fromComponent.nbtComponent() != null
+				&& Objects.equals(fromComponent.nbtComponent(), component)) {
+			// nothing's changed since the last time we checked, so there's no need to read from the
+			// underlying nbt tag again
+			return;
+		}
 
-		// #getNbt() is already marked as deprecated, despite the only other option (#copyNbt())
-		// being a less performant option for what we need, which is simply a read-only view of
-		// the underlying nbt compound.
-		@SuppressWarnings("deprecation")
-		NbtCompound nbt = component != null && component.contains("WildfireGender")
-				? component.getNbt().getCompound("WildfireGender")
-				: null;
-
-		if(nbt == null) {
+		fromComponent = BreastDataComponent.fromComponent(component);
+		if(fromComponent == null) {
 			this.gender = Gender.MALE;
 			return;
 		}
-		this.pBustSize = nbt.contains("BreastSize") ? nbt.getFloat("BreastSize") : 0f;
-		this.gender = this.pBustSize > 0.02f ? Gender.FEMALE : Gender.MALE;
-		if(nbt.contains("Cleavage")) breasts.updateCleavage(nbt.getFloat("Cleavage"));
-		if(nbt.contains("Uniboob")) breasts.updateUniboob(nbt.getBoolean("Uniboob"));
-		if(nbt.contains("XOffset")) breasts.updateXOffset(nbt.getFloat("XOffset"));
-		if(nbt.contains("YOffset")) breasts.updateYOffset(nbt.getFloat("YOffset"));
-		if(nbt.contains("ZOffset")) breasts.updateZOffset(nbt.getFloat("ZOffset"));
-		if(nbt.contains("Jacket")) jacketLayer = nbt.getBoolean("Jacket");
+
+		breastPhysics = false;
+		pBustSize = fromComponent.breastSize();
+		gender = pBustSize >= 0.02f ? Gender.FEMALE : Gender.MALE;
+		breasts.updateCleavage(fromComponent.cleavage());
+		breasts.updateOffsets(fromComponent.offsets());
+		this.jacketLayer = fromComponent.jacket();
 	}
 
 	/**

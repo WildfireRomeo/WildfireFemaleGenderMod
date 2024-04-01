@@ -21,6 +21,7 @@ package com.wildfire.mixins;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.WildfireGender;
+import com.wildfire.main.entitydata.BreastDataComponent;
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireHelper;
 import net.minecraft.component.DataComponentTypes;
@@ -77,7 +78,10 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
 
 		IGenderArmor armorConfig = WildfireHelper.getArmorConfig(stack);
 		if(armorConfig.armorStandsCopySettings()) {
-			WildfireHelper.writeToNbt(player, playerConfig, stack);
+			BreastDataComponent component = BreastDataComponent.fromPlayer(player, playerConfig);
+			if(component != null) {
+				component.write(stack);
+			}
 		}
 
 		return stack;
