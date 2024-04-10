@@ -21,64 +21,59 @@ package com.wildfire.main.networking;
 import com.wildfire.main.entitydata.Breasts;
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.Gender;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.network.PacketByteBuf;
+import org.joml.Vector3f;
 
 import java.util.UUID;
 
-class SyncPacket {
+abstract class AbstractSyncPacket {
     protected final UUID uuid;
     private final Gender gender;
-    private final float bust_size;
+    private final float bustSize;
 
     //physics variables
-    private final boolean breast_physics;
-    private final boolean show_in_armor;
+    private final boolean breastPhysics;
+    private final boolean showInArmor;
     private final float bounceMultiplier;
     private final float floppyMultiplier;
 
-    private final float xOffset, yOffset, zOffset;
+    private final Vector3f offsets;
     private final boolean uniboob;
     private final float cleavage;
 
     private final boolean hurtSounds;
 
-    protected SyncPacket(PlayerConfig plr) {
+    protected AbstractSyncPacket(PlayerConfig plr) {
         this.uuid = plr.uuid;
         this.gender = plr.getGender();
-        this.bust_size = plr.getBustSize();
+        this.bustSize = plr.getBustSize();
         this.hurtSounds = plr.hasHurtSounds();
 
         //physics variables
-        this.breast_physics = plr.hasBreastPhysics();
-        this.show_in_armor = plr.showBreastsInArmor();
+        this.breastPhysics = plr.hasBreastPhysics();
+        this.showInArmor = plr.showBreastsInArmor();
         this.bounceMultiplier = plr.getBounceMultiplier();
         this.floppyMultiplier = plr.getFloppiness();
 
         Breasts breasts = plr.getBreasts();
-        this.xOffset = breasts.getXOffset();
-        this.yOffset = breasts.getYOffset();
-        this.zOffset = breasts.getZOffset();
-
+        this.offsets = breasts.getOffsets();
         this.uniboob = breasts.isUniboob();
         this.cleavage = breasts.getCleavage();
     }
 
-    protected SyncPacket(PacketByteBuf buffer) {
+    protected AbstractSyncPacket(PacketByteBuf buffer) {
         this.uuid = buffer.readUuid();
         this.gender = buffer.readEnumConstant(Gender.class);
-        this.bust_size = buffer.readFloat();
+        this.bustSize = buffer.readFloat();
         this.hurtSounds = buffer.readBoolean();
 
         //physics variables
-        this.breast_physics = buffer.readBoolean();
-        this.show_in_armor = buffer.readBoolean();
+        this.breastPhysics = buffer.readBoolean();
+        this.showInArmor = buffer.readBoolean();
         this.bounceMultiplier = buffer.readFloat();
         this.floppyMultiplier = buffer.readFloat();
 
-        this.xOffset = buffer.readFloat();
-        this.yOffset = buffer.readFloat();
-        this.zOffset = buffer.readFloat();
+        this.offsets = buffer.readVector3f();
         this.uniboob = buffer.readBoolean();
         this.cleavage = buffer.readFloat();
     }
@@ -86,46 +81,33 @@ class SyncPacket {
     protected void encode(PacketByteBuf buffer) {
         buffer.writeUuid(this.uuid);
         buffer.writeEnumConstant(this.gender);
-        buffer.writeFloat(this.bust_size);
+        buffer.writeFloat(this.bustSize);
         buffer.writeBoolean(this.hurtSounds);
-        buffer.writeBoolean(this.breast_physics);
-        buffer.writeBoolean(this.show_in_armor);
+        buffer.writeBoolean(this.breastPhysics);
+        buffer.writeBoolean(this.showInArmor);
         buffer.writeFloat(this.bounceMultiplier);
         buffer.writeFloat(this.floppyMultiplier);
 
-        buffer.writeFloat(this.xOffset);
-        buffer.writeFloat(this.yOffset);
-        buffer.writeFloat(this.zOffset);
+        buffer.writeVector3f(offsets);
         buffer.writeBoolean(this.uniboob);
         buffer.writeFloat(this.cleavage);
     }
 
     protected void updatePlayerFromPacket(PlayerConfig plr) {
         plr.updateGender(gender);
-        plr.updateBustSize(bust_size);
+        plr.updateBustSize(bustSize);
         plr.updateHurtSounds(hurtSounds);
 
         //physics
-        plr.updateBreastPhysics(breast_physics);
-        plr.updateShowBreastsInArmor(show_in_armor);
+        plr.updateBreastPhysics(breastPhysics);
+        plr.updateShowBreastsInArmor(showInArmor);
         plr.updateBounceMultiplier(bounceMultiplier);
         plr.updateFloppiness(floppyMultiplier);
         //System.out.println(plr.username + " - " + plr.gender);
 
         Breasts breasts = plr.getBreasts();
-        breasts.updateXOffset(xOffset);
-        breasts.updateYOffset(yOffset);
-        breasts.updateZOffset(zOffset);
+        breasts.updateOffsets(offsets);
         breasts.updateUniboob(uniboob);
         breasts.updateCleavage(cleavage);
-    }
-
-    /**
-     * Convenience method for creating a sync packet to send over the network
-     */
-    protected PacketByteBuf getPacket() {
-        PacketByteBuf packet = PacketByteBufs.create();
-        this.encode(packet);
-        return packet;
     }
 }

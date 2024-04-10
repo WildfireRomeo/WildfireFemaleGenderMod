@@ -109,7 +109,9 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 		    int xP = this.width / 2 - 82;
 		    int yP = this.height / 2 + 40;
 		    PlayerEntity ent = client.world.getPlayerByUuid(this.playerUUID);
-		    if(ent != null) drawEntityOnScreen(xP, yP, 45, (xP - mouseX), (yP - 76 - mouseY), ent);
+		    if(ent != null) {
+			    drawEntityOnScreen(ctx, xP, yP, 45, (xP - mouseX), (yP - 76 - mouseY), ent);
+		    }
 		}
 
 		if(client != null && client.player != null) {
@@ -129,51 +131,5 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			ctx.drawTextWithShadow(textRenderer, Text.translatable("wildfire_gender.cancer_awareness.title").formatted(Formatting.BOLD, Formatting.ITALIC), this.width / 2 - 148, bcaY + 117, 0xFFFFFF);
 			ctx.drawTexture(TXTR_RIBBON, x + 130, bcaY + 109, 26, 26, 0, 0, 20, 20, 20, 20);
 		}
-	}
-
-	public static void drawEntityOnScreen(int x, int y, int size, float mouseX, float mouseY, LivingEntity entity) {
-		float f = (float)Math.atan(mouseX / 40.0F);
-		float g = (float)Math.atan(mouseY / 40.0F);
-		MatrixStack matrixStack = RenderSystem.getModelViewStack();
-		matrixStack.push();
-		matrixStack.translate((float)x, (float)y, 1050.0F);
-		matrixStack.scale(1.0F, 1.0F, -1.0F);
-		RenderSystem.applyModelViewMatrix();
-		MatrixStack matrixStack2 = new MatrixStack();
-		matrixStack2.translate(0.0F, 0.0F, 1000.0F);
-		matrixStack2.scale((float)size, (float)size, (float)size);
-		Quaternionf quaternionf = (new Quaternionf()).rotateZ(3.1415927F);
-		Quaternionf quaternionf2 = (new Quaternionf()).rotateX(g * 20.0F * 0.017453292F);
-		quaternionf.mul(quaternionf2);
-		matrixStack2.multiply(quaternionf);
-		float h = entity.bodyYaw;
-		float i = entity.getYaw();
-		float j = entity.getPitch();
-		float k = entity.prevHeadYaw;
-		float l = entity.headYaw;
-		entity.bodyYaw = 180.0F + f * 20.0F;
-		entity.setYaw(180.0F + f * 40.0F);
-		entity.setPitch(-g * 20.0F);
-		entity.headYaw = entity.getYaw();
-		entity.prevHeadYaw = entity.getYaw();
-		DiffuseLighting.method_34742();
-		EntityRenderDispatcher entityRenderDispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
-		quaternionf2.conjugate();
-		entityRenderDispatcher.setRotation(quaternionf2);
-		entityRenderDispatcher.setRenderShadows(false);
-		VertexConsumerProvider.Immediate immediate = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
-		RenderSystem.runAsFancy(() -> {
-			entityRenderDispatcher.render(entity, 0.0, 0.0, 0.0, 0.0F, 1.0F, matrixStack2, immediate, 15728880);
-		});
-		immediate.draw();
-		entityRenderDispatcher.setRenderShadows(true);
-		entity.bodyYaw = h;
-		entity.setYaw(i);
-		entity.setPitch(j);
-		entity.prevHeadYaw = k;
-		entity.headYaw = l;
-		matrixStack.pop();
-		RenderSystem.applyModelViewMatrix();
-		DiffuseLighting.enableGuiDepthLighting();
 	}
 }

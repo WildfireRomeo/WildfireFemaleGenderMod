@@ -47,7 +47,6 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
     public WildfireBreastPresetList(WildfireBreastCustomizationScreen parent, int listWidth, int top) {
         super(MinecraftClient.getInstance(), 156, parent.height, top, 32);
         this.setRenderHeader(false, 0);
-        this.setRenderBackground(false);
         this.parent = parent;
         this.listWidth = listWidth;
         this.refreshList();
@@ -61,17 +60,20 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
     protected void drawSelectionHighlight(DrawContext context, int y, int entryWidth, int entryHeight, int borderColor, int fillColor) {}
 
     @Override
-    protected void renderList(DrawContext context, int mouseX, int mouseY, float delta) {
-        int i = this.getRowLeft();
-        int j = this.getRowWidth();
-        int k = this.itemHeight;
-        int l = this.getEntryCount();
+    protected void drawMenuListBackground(DrawContext context) {}
 
-        for(int m = 0; m < l; ++m) {
-            int n = this.getRowTop(m);
-            int o = this.getRowBottom(m);
-            if (o >= this.getY() && n <= this.getBottom()) {
-                this.renderEntry(context, mouseX, mouseY, delta, m, i, n, j, k);
+    // copy of EntryListWidget#renderList without the added margin between entries
+    @Override
+    protected void renderList(DrawContext context, int mouseX, int mouseY, float delta) {
+        int left = this.getRowLeft();
+        int width = this.getRowWidth();
+	    int count = this.getEntryCount();
+
+        for(int index = 0; index < count; ++index) {
+            int top = this.getRowTop(index);
+            int bottom = this.getRowBottom(index);
+            if(bottom >= this.getY() && top <= this.getBottom()) {
+                this.renderEntry(context, mouseX, mouseY, delta, index, left, top, width, itemHeight);
             }
         }
     }
@@ -80,8 +82,9 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
     protected int getRowTop(int index) {
         return this.getY() - (int)this.getScrollAmount() + index * this.itemHeight + this.headerHeight;
     }
+
     @Override
-    protected int getScrollbarPositionX() {
+    protected int getScrollbarX() {
         return parent.width / 2 + 181;
     }
 
@@ -135,6 +138,7 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
         public void render(DrawContext ctx, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float partialTicks) {
             if(!visible) return;
 
+            btnOpenGUI.active = WildfireBreastPresetList.this.active;
             TextRenderer font = MinecraftClient.getInstance().textRenderer;
             //ctx.fill(x, y, x + entryWidth, y + entryHeight, 0x55005555);
 

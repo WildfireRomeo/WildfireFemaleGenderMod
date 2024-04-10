@@ -24,8 +24,13 @@ import java.util.UUID;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.text.Text;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 @Environment(EnvType.CLIENT)
 public abstract class BaseWildfireScreen extends Screen {
@@ -46,5 +51,34 @@ public abstract class BaseWildfireScreen extends Screen {
     @Override
     public boolean shouldPause() {
         return false;
+    }
+
+    // this is adapted from InventoryScreen#drawEntity to allow for applying our own scissor calls, and instead
+    // simply accept an origin point to render from
+    public static void drawEntityOnScreen(DrawContext ctx, int x, int y, int size, float mouseX, float mouseY, LivingEntity entity) {
+        float i = (float) Math.atan(mouseX / 40.0F);
+        float j = (float) Math.atan(mouseY / 40.0F);
+        Quaternionf quaternionf = new Quaternionf().rotateZ((float) Math.PI);
+        Quaternionf quaternionf2 = new Quaternionf().rotateX(j * 20.0F * (float) (Math.PI / 180.0));
+        quaternionf.mul(quaternionf2);
+        float k = entity.bodyYaw;
+        float l = entity.getYaw();
+        float m = entity.getPitch();
+        float n = entity.prevHeadYaw;
+        float o = entity.headYaw;
+        entity.bodyYaw = 180.0F + i * 20.0F;
+        entity.setYaw(180.0F + i * 40.0F);
+        entity.setPitch(-j * 20.0F);
+        entity.headYaw = entity.getYaw();
+        entity.prevHeadYaw = entity.getYaw();
+        // divide by entity scale to ensure that we always draw the entity at a constant size, avoiding the entity
+        // being either too small or far too large for the gui
+        float renderSize = size / entity.getScale();
+        InventoryScreen.drawEntity(ctx, x, y, renderSize, new Vector3f(0f), quaternionf, quaternionf2, entity);
+        entity.bodyYaw = k;
+        entity.setYaw(l);
+        entity.setPitch(m);
+        entity.prevHeadYaw = n;
+        entity.headYaw = o;
     }
 }

@@ -30,6 +30,7 @@ import com.wildfire.render.WildfireModelRenderer.PositionTextureVertex;
 
 import java.lang.Math;
 import java.util.ConcurrentModificationException;
+import java.util.function.Consumer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -114,25 +115,10 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		try {
 			if(!setupRender(ent, entityConfig, partialTicks)) return;
 			int combineTex = LivingEntityRenderer.getOverlay(ent, 0);
-			BipedEntityModel<T> model = getContextModel();
 
-			// Render left
-			matrixStack.push();
-			try {
-				setupTransformations(ent, model.body, matrixStack, BreastSide.LEFT);
-				renderBreast(ent, matrixStack, vertexConsumerProvider, packedLightIn, combineTex, BreastSide.LEFT);
-			} finally {
-				matrixStack.pop();
-			}
-
-			// Render right
-			matrixStack.push();
-			try {
-				setupTransformations(ent, model.body, matrixStack, BreastSide.RIGHT);
-				renderBreast(ent, matrixStack, vertexConsumerProvider, packedLightIn, combineTex, BreastSide.RIGHT);
-			} finally {
-				matrixStack.pop();
-			}
+			renderSides(ent, getContextModel(), matrixStack, side -> {
+				renderBreast(ent, matrixStack, vertexConsumerProvider, packedLightIn, combineTex, side);
+			});
 		} catch(Exception e) {
 			WildfireGender.LOGGER.error("Failed to render breast layer", e);
 		}
@@ -284,6 +270,24 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 			matrixStack.translate(0, 0, -0.015f);
 			matrixStack.scale(1.05f, 1.05f, 1.05f);
 			renderBox(side.isLeft ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
+		}
+	}
+
+	protected void renderSides(T entity, M model, MatrixStack matrixStack, Consumer<BreastSide> renderer) {
+		matrixStack.push();
+		try {
+			setupTransformations(entity, model.body, matrixStack, BreastSide.LEFT);
+			renderer.accept(BreastSide.LEFT);
+		} finally {
+			matrixStack.pop();
+		}
+
+		matrixStack.push();
+		try {
+			setupTransformations(entity, model.body, matrixStack, BreastSide.RIGHT);
+			renderer.accept(BreastSide.RIGHT);
+		} finally {
+			matrixStack.pop();
 		}
 	}
 

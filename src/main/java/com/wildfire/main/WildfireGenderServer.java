@@ -32,7 +32,7 @@ public class WildfireGenderServer implements ModInitializer {
         // while this class is named 'Server', this is actually a common code path,
         // so we can safely register here for both sides.
         WildfireSounds.register();
-        ServerPlayNetworking.registerGlobalReceiver(WildfireSync.SEND_GENDER_IDENTIFIER, WildfireSync::handle);
+        WildfireSync.register();
         EntityTrackingEvents.START_TRACKING.register(this::onBeginTracking);
     }
 

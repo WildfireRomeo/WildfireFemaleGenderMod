@@ -78,7 +78,7 @@ public class BreastPhysics {
 			return;
 		}
 
-		{
+		/*{
 			float h = 0; //tickDelta
 			float i = entity.getLeaningPitch(0);
 			float j;
@@ -114,7 +114,7 @@ public class BreastPhysics {
 			} else if (entity.getPose() == EntityPose.CROUCHING) {
 				bodyXRotation = -15f;
 			}
-		} //unused currently, might be later
+		}*/ //unused currently, might be later
 
 		float breastWeight = entityConfig.getBustSize() * 1.25f;
 		float targetBreastSize = entityConfig.getBustSize();

@@ -30,10 +30,13 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.entity.PlayerModelPart;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
@@ -63,7 +66,7 @@ public class WildfireHelper {
                 //Start by checking if it is a vanilla chestplate as we have custom configurations for those we check against
                 // the armor material instead of the item instance in case any mods define custom armor items using vanilla
                 // materials as then we can make a better guess at what we want the default implementation to be
-                ArmorMaterial material = armorItem.getMaterial();
+                RegistryEntry<ArmorMaterial> material = armorItem.getMaterial();
                 if (material == ArmorMaterials.LEATHER) {
                     return SimpleGenderArmor.LEATHER;
                 } else if (material == ArmorMaterials.CHAIN) {
@@ -140,6 +143,6 @@ public class WildfireHelper {
         // note that we also copy this to properly copy the exact size, as the player model will push the breast armor
         // layer out a bit if they have a visible jacket layer
         nbt.putBoolean("Jacket", player.isPartVisible(PlayerModelPart.JACKET));
-        armor.setSubNbt("WildfireGender", nbt);
+        NbtComponent.set(DataComponentTypes.CUSTOM_DATA, armor, armorNbt -> armorNbt.put("WildfireGender", nbt));
     }
 }

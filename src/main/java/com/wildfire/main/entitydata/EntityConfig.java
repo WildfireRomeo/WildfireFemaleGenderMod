@@ -26,6 +26,8 @@ import com.wildfire.main.Gender;
 import com.wildfire.physics.BreastPhysics;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
@@ -75,7 +77,16 @@ public class EntityConfig {
 	 * @see WildfireHelper#writeToNbt
 	 */
 	public void readFromStack(@NotNull ItemStack chestplate) {
-		NbtCompound nbt = !chestplate.isEmpty() ? chestplate.getSubNbt("WildfireGender") : null;
+		NbtComponent component = chestplate.get(DataComponentTypes.CUSTOM_DATA);
+
+		// #getNbt() is already marked as deprecated, despite the only other option (#copyNbt())
+		// being a less performant option for what we need, which is simply a read-only view of
+		// the underlying nbt compound.
+		@SuppressWarnings("deprecation")
+		NbtCompound nbt = component != null && component.contains("WildfireGender")
+				? component.getNbt().getCompound("WildfireGender")
+				: null;
+
 		if(nbt == null) {
 			this.gender = Gender.MALE;
 			return;

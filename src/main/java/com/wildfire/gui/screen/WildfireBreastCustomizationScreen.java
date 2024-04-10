@@ -193,7 +193,9 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         int xP = this.width / 2 - 102;
         int yP = this.height / 2 + 275;
         PlayerEntity ent = client.world.getPlayerByUuid(this.playerUUID);
-        if(ent != null) WardrobeBrowserScreen.drawEntityOnScreen(xP, yP, 200, -20, -20, ent);
+        if(ent != null) {
+            drawEntityOnScreen(ctx, xP, yP, 200, -20, -20, ent);
+        }
 
         int x = this.width / 2;
         int y = this.height / 2;

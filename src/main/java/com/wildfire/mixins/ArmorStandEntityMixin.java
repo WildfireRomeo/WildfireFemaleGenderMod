@@ -22,6 +22,8 @@ import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireHelper;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,12 +32,21 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ArmorStandEntity.class)
 public abstract class ArmorStandEntityMixin {
+	@Unique
+	private void wildfiregender$removeBreastDataFromStack(ItemStack stack) {
+		NbtComponent component = stack.get(DataComponentTypes.CUSTOM_DATA);
+		if(component != null && component.contains("WildfireGender")) {
+			NbtComponent.set(DataComponentTypes.CUSTOM_DATA, stack, nbt -> nbt.remove("WildfireGender"));
+		}
+	}
+
 	@Inject(
 		method = "equip",
 		at = @At(
@@ -53,9 +64,7 @@ public abstract class ArmorStandEntityMixin {
 
 		PlayerConfig playerConfig = WildfireGender.getPlayerById(player.getUuid());
 		if(playerConfig == null) {
-			if(stack.getSubNbt("WildfireGender") != null) {
-				stack.removeSubNbt("WildfireGender");
-			}
+			wildfiregender$removeBreastDataFromStack(stack);
 			return;
 		}
 
