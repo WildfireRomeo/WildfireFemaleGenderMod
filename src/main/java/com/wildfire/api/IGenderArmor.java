@@ -35,8 +35,11 @@ public interface IGenderArmor {
     }
 
     /**
-     * Determines if this {@link IGenderArmor} should always hide the wearer's breasts when worn even if they have {@code showBreastsInArmor} set to {@code true}. This is
-     * useful for armors that may have custom rendering that is not compatible with how the breasts render and would just lead to clipping.
+     * <p>Determines if this {@link IGenderArmor} should always hide the wearer's breasts when worn even if they have
+     * {@code showBreastsInArmor} set to {@code true}.</p>
+     *
+     * <p>This is intended for armors that may have custom rendering that is not compatible with how breasts render
+     * and would just lead to clipping or other unintended behavior.</p>
      *
      * @return {@code true} to hide the breasts regardless of what {@code showBreastsInArmor} is set to.
      *
@@ -47,7 +50,8 @@ public interface IGenderArmor {
     }
 
     /**
-     * The percent of physical resistance this {@link IGenderArmor} provides to the wearer's breasts when calculating the corresponding physics.
+     * The percent of physical resistance this {@link IGenderArmor} provides to the wearer's breasts when calculating
+     * the corresponding physics.
      *
      * @return Value between {@code 0} (no resistance, full physics) and {@code 1} (total resistance, no physics).
      *
@@ -58,8 +62,8 @@ public interface IGenderArmor {
     }
 
     /**
-     * Value representing how "tight" this {@link IGenderArmor} is. Tightness "compresses" the breasts against the wearer causing the breasts to appear up to {@code 15%}
-     * smaller.
+     * Value representing how "tight" this {@link IGenderArmor} is. Tightness "compresses" the breasts against the wearer,
+     * causing the breasts to appear up to 15% smaller.
      *
      * @return Value between {@code 0} (no tightness, no size reduction) and {@code 1} (full tightness, {@code 15%} size reduction).
      *
@@ -70,15 +74,24 @@ public interface IGenderArmor {
     }
 
     /**
-     * Determines whether armor stands should copy the breast settings of the player equipping this chestplate
-     * onto it.
+     * <p>Determines whether armor stands should copy the breast settings of the player equipping this chestplate
+     * onto it.</p>
      *
-     * @implNote If this returns {@code true}, any time a player equips this chestplate onto an armor stand, their
-     *           breast settings will be copied onto the item stack's NBT under the key {@code WildfireGender}.
+     * <p>If this returns {@code true}, an equipping player's breast settings will be copied onto the
+     * item stack's {@link net.minecraft.component.DataComponentTypes#CUSTOM_DATA custom NBT data component}
+     * under the tag {@code WildfireGender}.</p>
      *
-     * @return   Defaults to returning {@code true} if this armor {@link #coversBreasts() covers the breasts}
+     * <p>This is designed for armor types that are metallic in nature, and not armor types that would (realistically)
+     * be flexible enough to accommodate for a player's breasts on their own (such as Leather and Chain).</p>
+     *
+     * @return {@code true} to copy the equipping player's breast settings onto this armor type when equipped onto
+     *         armor stands, and render the relevant breast settings on the armor stand.
+     *
+     * @implNote Defaults to returning {@code true} if this armor {@link #coversBreasts() covers the breasts}
      *           (and {@link #alwaysHidesBreasts() doesn't hide them}), and {@link #physicsResistance() has
      *           complete physics resistance}.
+     *
+     * @see com.wildfire.main.entitydata.BreastDataComponent
      */
     default boolean armorStandsCopySettings() {
         return !alwaysHidesBreasts() && coversBreasts() && physicsResistance() == 1f;
