@@ -19,7 +19,6 @@
 package com.wildfire.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.wildfire.main.WildfireHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -58,7 +57,7 @@ public class WildfireButton extends ButtonWidget {
       int textColor = active ? 0xFFFFFF : 0x666666;
       int i = this.getX() + 2;
       int j = this.getX() + this.getWidth() - 2;
-      WildfireHelper.drawScrollableTextWithoutShadow(ctx, font, this.getMessage(), i, this.getY(), j, this.getY() + this.getHeight(), textColor);
+      GuiUtils.drawScrollableTextWithoutShadow(ctx, font, this.getMessage(), i, this.getY(), j, this.getY() + this.getHeight(), textColor);
       RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
    }
 

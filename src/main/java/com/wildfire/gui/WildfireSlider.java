@@ -19,7 +19,6 @@
 package com.wildfire.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.wildfire.main.WildfireHelper;
 import com.wildfire.main.config.FloatConfigKey;
 import it.unimi.dsi.fastutil.floats.Float2ObjectFunction;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
@@ -123,7 +122,7 @@ public class WildfireSlider extends ClickableWidget {
 			TextRenderer font = MinecraftClient.getInstance().textRenderer;
 			int i = this.getX() + 2;
 			int j = this.getX() + this.getWidth() - 2;
-			WildfireHelper.drawScrollableTextWithoutShadow(ctx, font, this.getMessage(), i, this.getY(), j, this.getY() + this.getHeight(), this.hovered || changed ? 0xFFFF55 : 0xFFFFFF);
+			GuiUtils.drawScrollableTextWithoutShadow(ctx, font, this.getMessage(), i, this.getY(), j, this.getY() + this.getHeight(), this.hovered || changed ? 0xFFFF55 : 0xFFFFFF);
 		}
 	}
 

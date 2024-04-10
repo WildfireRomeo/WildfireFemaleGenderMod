@@ -18,6 +18,7 @@
 
 package com.wildfire.gui.screen;
 
+import com.wildfire.gui.GuiUtils;
 import com.wildfire.main.Gender;
 import com.wildfire.main.WildfireGender;
 
@@ -26,7 +27,6 @@ import java.util.UUID;
 
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.entitydata.PlayerConfig;
-import com.wildfire.main.WildfireHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -95,8 +95,8 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			int yP = this.height / 2 + 40;
 			PlayerEntity ent = client.world.getPlayerByUuid(this.playerUUID);
 			if(ent != null) {
-				ctx.enableScissor(xP - 35, yP - 95, xP + 35, yP + 7);
-				drawEntityOnScreen(ctx, xP, yP, 45, (xP - mouseX), (yP - 76 - mouseY), ent);
+				ctx.enableScissor(xP - 35, yP - 93, xP + 35, yP + 6);
+				GuiUtils.drawEntityOnScreen(ctx, xP, yP, 45, (xP - mouseX), (yP - 76 - mouseY), ent);
 				ctx.disableScissor();
 			}
 		}
@@ -116,7 +116,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 				int creatorY = y + 65;
 				// move down so we don't overlap with the breast cancer awareness month banner
 				if(isBreastCancerAwarenessMonth) creatorY += 30;
-				WildfireHelper.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, creatorY, 0xFF00FF);
+				GuiUtils.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, creatorY, 0xFF00FF);
 			}
 		}
 

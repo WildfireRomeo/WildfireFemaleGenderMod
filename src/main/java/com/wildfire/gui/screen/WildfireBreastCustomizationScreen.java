@@ -18,6 +18,7 @@
 
 package com.wildfire.gui.screen;
 
+import com.wildfire.gui.GuiUtils;
 import com.wildfire.gui.WildfireBreastPresetList;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfireSlider;
@@ -186,7 +187,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             int xP = this.width / 2 - 102;
             int yP = this.height / 2 + 275;
             ctx.enableScissor(this.width / 2 - 235, this.height / 2 - 150, this.width / 2 + 25, yP + 35);
-            drawEntityOnScreen(ctx, xP, yP, 200, -20, -20, ent);
+            GuiUtils.drawEntityOnScreen(ctx, xP, yP, 200, -20, -20, ent);
             ctx.disableScissor();
         }
     }

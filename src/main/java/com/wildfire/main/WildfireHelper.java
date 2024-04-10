@@ -22,20 +22,13 @@ import com.wildfire.api.IGenderArmor;
 import com.wildfire.api.WildfireAPI;
 import com.wildfire.render.armor.SimpleGenderArmor;
 import com.wildfire.render.armor.EmptyGenderArmor;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
 import com.wildfire.main.config.FloatConfigKey;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.text.Text;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
@@ -87,33 +80,6 @@ public final class WildfireHelper {
             // close to the truth of if it should render or not. This covers cases such as the elytra and
             // other wearables
             return EmptyGenderArmor.INSTANCE;
-        }
-    }
-
-    @Environment(EnvType.CLIENT)
-    public static void drawCenteredText(DrawContext ctx, TextRenderer textRenderer, Text text, int x, int y, int color) {
-        int centeredX = x - textRenderer.getWidth(text) / 2;
-        ctx.drawText(textRenderer, text, centeredX, y, color, false);
-    }
-
-    @Environment(EnvType.CLIENT)
-    public static void drawScrollableTextWithoutShadow(DrawContext context, TextRenderer textRenderer, Text text, int left, int top, int right, int bottom, int color) {
-        int i = textRenderer.getWidth(text);
-        int var10000 = top + bottom;
-        Objects.requireNonNull(textRenderer);
-        int j = (var10000 - 9) / 2 + 1;
-        int k = right - left;
-        if (i > k) {
-            int l = i - k;
-            double d = (double) Util.getMeasuringTimeMs() / 1000.0;
-            double e = Math.max((double)l * 0.5, 3.0);
-            double f = Math.sin(1.5707963267948966 * Math.cos(6.283185307179586 * d / e)) / 2.0 + 0.5;
-            double g = MathHelper.lerp(f, 0.0, (double)l);
-            context.enableScissor(left, top, right, bottom);
-            context.drawText(textRenderer, text, left - (int)g, j, color, false);
-            context.disableScissor();
-        } else {
-            drawCenteredText(context, textRenderer, text, (left + right) / 2, j, color);
         }
     }
 
