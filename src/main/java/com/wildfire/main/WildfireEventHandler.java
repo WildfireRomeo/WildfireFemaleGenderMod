@@ -23,12 +23,15 @@ import com.wildfire.main.entitydata.EntityConfig;
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.networking.ServerboundSyncPacket;
 import com.wildfire.main.networking.WildfireSync;
+import com.wildfire.render.GenderArmorLayer;
+import com.wildfire.render.GenderLayer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -36,7 +39,13 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.render.entity.ArmorStandEntityRenderer;
+import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.client.render.entity.LivingEntityRenderer;
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -86,6 +95,22 @@ public final class WildfireEventHandler {
 		ClientEntityEvents.ENTITY_UNLOAD.register(WildfireEventHandler::onEntityUnload);
 		ClientTickEvents.END_CLIENT_TICK.register(WildfireEventHandler::onClientTick);
 		ClientPlayConnectionEvents.DISCONNECT.register(WildfireEventHandler::clientDisconnect);
+		LivingEntityFeatureRendererRegistrationCallback.EVENT.register(WildfireEventHandler::registerRenderLayers);
+	}
+
+	/**
+	 * Attach breast render layers to players and armor stands
+	 */
+	@Environment(EnvType.CLIENT)
+	private static void registerRenderLayers(EntityType<? extends LivingEntity> entityType, LivingEntityRenderer<?, ?> entityRenderer,
+	                                         LivingEntityFeatureRendererRegistrationCallback.RegistrationHelper registrationHelper,
+	                                         EntityRendererFactory.Context context) {
+		if(entityRenderer instanceof PlayerEntityRenderer playerRenderer) {
+			registrationHelper.register(new GenderLayer<>(playerRenderer));
+			registrationHelper.register(new GenderArmorLayer<>(playerRenderer, context.getModelManager()));
+		} else if(entityRenderer instanceof ArmorStandEntityRenderer armorStandRenderer) {
+			registrationHelper.register(new GenderArmorLayer<>(armorStandRenderer, context.getModelManager()));
+		}
 	}
 
 	/**
@@ -102,7 +127,7 @@ public final class WildfireEventHandler {
 	}
 
 	/**
-	 * Remove (non-player) entities from the cache when they're unloaded
+	 * Remove (non-player) entities from the client cache when they're unloaded
 	 */
 	@Environment(EnvType.CLIENT)
 	private static void onEntityUnload(Entity entity, World world) {

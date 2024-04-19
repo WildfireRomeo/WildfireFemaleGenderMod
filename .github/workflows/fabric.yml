@@ -12,7 +12,7 @@ jobs:
     - name: Extract build version information
       id: ref
       run: .github/extract_refs.sh
-    - name: Set up JDK 17
+    - name: Setup JDK
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'

@@ -7,8 +7,6 @@
     "ArmorStandEntityMixin"
   ],
   "client": [
-    "ArmorStandEntityRendererMixin",
-    "PlayerRenderMixin",
     "BreastPhysicsTickMixin",
     "LivingEntityMixin"
   ],
