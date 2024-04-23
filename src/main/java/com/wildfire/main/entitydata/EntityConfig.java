@@ -84,8 +84,7 @@ public class EntityConfig {
 			this.fromComponent = null;
 			this.gender = Gender.MALE;
 			return;
-		} else if(fromComponent != null && fromComponent.nbtComponent() != null
-				&& Objects.equals(fromComponent.nbtComponent(), component)) {
+		} else if(fromComponent != null && Objects.equals(component, fromComponent.nbtComponent())) {
 			// nothing's changed since the last time we checked, so there's no need to read from the
 			// underlying nbt tag again
 			return;
