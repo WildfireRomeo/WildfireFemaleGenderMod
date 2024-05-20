@@ -1,0 +1,5 @@
+accessWidener v2 named
+
+accessible method net/minecraft/client/render/entity/LivingEntityRenderer getRenderLayer (Lnet/minecraft/entity/LivingEntity;ZZZ)Lnet/minecraft/client/render/RenderLayer;
+accessible field net/minecraft/client/render/entity/model/AnimalModel invertedChildBodyScale F
+accessible field net/minecraft/client/render/entity/model/AnimalModel childBodyYOffset F

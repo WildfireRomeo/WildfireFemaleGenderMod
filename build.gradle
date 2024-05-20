@@ -1,12 +1,9 @@
 plugins {
-	id 'fabric-loom' version '1.4-SNAPSHOT'
+	id 'fabric-loom' version '1.6-SNAPSHOT'
 	id 'maven-publish'
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
-version = "fabric-${project.minecraft_version}-${project.mod_version}"
+version = "fabric-${project.mod_version}+${project.minecraft_version}"
 group = project.maven_group
 
 base {
@@ -14,6 +11,7 @@ base {
 }
 
 repositories {
+	maven { url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1" }
 }
 
 dependencies {
@@ -21,12 +19,17 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
 	modImplementation fabricApi.module("fabric-networking-api-v1", project.fabric_version)
 	modImplementation fabricApi.module("fabric-key-binding-api-v1", project.fabric_version)
 	modImplementation fabricApi.module("fabric-lifecycle-events-v1", project.fabric_version)
 	modImplementation fabricApi.module("fabric-rendering-v1", project.fabric_version)
 	modRuntimeOnly fabricApi.module("fabric-resource-loader-v0", project.fabric_version)
 	modRuntimeOnly fabricApi.module("fabric-registry-sync-v0", project.fabric_version)
+
+	// Allow logging into an actual Minecraft account in a dev env
+	// See https://github.com/DJtheRedstoner/DevAuth
+	modLocalRuntime "me.djtheredstoner:DevAuth-fabric:1.2.0"
 }
 
 processResources {
@@ -39,8 +42,17 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	// Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
-	it.options.release = 17
+	// Minecraft 1.20.5 (24w14a) upwards uses Java 21.
+	it.options.release = 21
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+loom {
+	accessWidenerPath = file("src/main/resources/wildfire_gender.accesswidener")
 }
 
 jar {

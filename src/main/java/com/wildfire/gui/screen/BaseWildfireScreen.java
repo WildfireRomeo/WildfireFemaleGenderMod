@@ -24,8 +24,13 @@ import java.util.UUID;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.text.Text;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 @Environment(EnvType.CLIENT)
 public abstract class BaseWildfireScreen extends Screen {

@@ -24,7 +24,10 @@ import net.minecraft.util.math.Direction;
 import org.joml.Vector3f;
 
 @Environment(EnvType.CLIENT)
-public class WildfireModelRenderer {
+public final class WildfireModelRenderer {
+	private WildfireModelRenderer() {
+		throw new UnsupportedOperationException();
+	}
 
 	public static class ModelBox {
 		public final WildfireModelRenderer.TexturedQuad[] quads;

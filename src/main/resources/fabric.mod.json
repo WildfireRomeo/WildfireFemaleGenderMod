@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "wildfire_gender",
-  "version": "${minecraft_version}-${version}",
+  "version": "${version}+${minecraft_version}",
   "name": "Wildfire's Female Gender Mod",
   "description": "Allows players to choose what gender they want to be.",
   "authors": [
@@ -27,25 +27,26 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.wildfire.main.WildfireGenderServer"
+      "com.wildfire.main.WildfireGender"
     ],
     "client": [
-      "com.wildfire.main.WildfireGender"
+      "com.wildfire.main.WildfireGenderClient"
     ]
   },
   "mixins": [
     "wildfire_gender.mixins.json"
   ],
+  "accessWidener": "wildfire_gender.accesswidener",
   "depends": {
-    "fabricloader": "*",
+    "fabricloader": ">=0.15",
     "fabric-networking-api-v1": "*",
     "fabric-key-binding-api-v1": "*",
     "fabric-lifecycle-events-v1": "*",
     "fabric-rendering-v1": "*",
     "fabric-resource-loader-v0": "*",
     "fabric-registry-sync-v0": "*",
-    "minecraft": ">=1.20.3 <=1.20.4",
-    "java": ">=17"
+    "minecraft": ">=1.20.5 <1.21",
+    "java": ">=21"
   },
   "conflicts": {
     "skinlayers": "*",

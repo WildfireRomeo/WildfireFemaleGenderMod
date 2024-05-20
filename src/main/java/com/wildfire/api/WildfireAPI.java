@@ -18,10 +18,13 @@
 
 package com.wildfire.api;
 
+import com.wildfire.main.WildfireGenderClient;
 import com.wildfire.main.config.Configuration;
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.Gender;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import org.jetbrains.annotations.NotNull;
@@ -79,8 +82,9 @@ public class WildfireAPI {
      * @param  uuid  the uuid of the target {@link PlayerEntity}
      * @param  markForSync true if you want to send the gender settings to the server upon loading.
      */
+    @Environment(EnvType.CLIENT)
     public static Future<Optional<PlayerConfig>> loadGenderInfo(UUID uuid, boolean markForSync) {
-        return WildfireGender.loadGenderInfo(uuid, markForSync);
+        return WildfireGenderClient.loadGenderInfo(uuid, markForSync);
     }
 
     /**

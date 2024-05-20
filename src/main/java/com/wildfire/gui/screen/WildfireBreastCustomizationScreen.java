@@ -18,7 +18,7 @@
 
 package com.wildfire.gui.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.wildfire.gui.GuiUtils;
 import com.wildfire.gui.WildfireBreastPresetList;
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.gui.WildfireSlider;
@@ -180,6 +180,16 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
         if(currentTab == 1) {
             ctx.fill(PRESET_LIST.getX(), PRESET_LIST.getY(), PRESET_LIST.getRight(), PRESET_LIST.getBottom(), 0x55000000);
         }
+
+        @SuppressWarnings("DataFlowIssue")
+        PlayerEntity ent = client.world.getPlayerByUuid(this.playerUUID);
+        if(ent != null) {
+            int xP = this.width / 2 - 102;
+            int yP = this.height / 2 + 275;
+            ctx.enableScissor(this.width / 2 - 235, this.height / 2 - 150, this.width / 2 + 25, yP + 35);
+            GuiUtils.drawEntityOnScreen(ctx, xP, yP, 200, -20, -20, ent);
+            ctx.disableScissor();
+        }
     }
 
     @Override
@@ -188,12 +198,6 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
         updatePresetTab();
         super.render(ctx, mouseX, mouseY, delta);
-        RenderSystem.setShaderColor(1f, 1.0F, 1.0F, 1.0F);
-
-        int xP = this.width / 2 - 102;
-        int yP = this.height / 2 + 275;
-        PlayerEntity ent = client.world.getPlayerByUuid(this.playerUUID);
-        if(ent != null) WardrobeBrowserScreen.drawEntityOnScreen(xP, yP, 200, -20, -20, ent);
 
         int x = this.width / 2;
         int y = this.height / 2;

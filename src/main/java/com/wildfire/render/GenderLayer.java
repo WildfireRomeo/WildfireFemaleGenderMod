@@ -29,7 +29,7 @@ import com.wildfire.render.WildfireModelRenderer.OverlayModelBox;
 import com.wildfire.render.WildfireModelRenderer.PositionTextureVertex;
 
 import java.lang.Math;
-import java.util.ConcurrentModificationException;
+import java.util.function.Consumer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -48,7 +48,6 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectUtil;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -58,9 +57,10 @@ import org.joml.*;
 public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> extends FeatureRenderer<T, M> {
 
 	private BreastModelBox lBreast, rBreast;
-	private final OverlayModelBox lBreastWear, rBreastWear;
+	private final FeatureRendererContext<T, M> context;
+	private static final OverlayModelBox lBreastWear, rBreastWear;
 
-	private float preBreastSize = 0f;
+	private float preBreastSize = 0f, preBreastOffsetZ;
 	private Breasts breasts;
 	protected ItemStack armorStack;
 	protected IGenderArmor genderArmor;
@@ -68,35 +68,28 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 	protected float breastOffsetX, breastOffsetY, breastOffsetZ, lPhysPositionY, lPhysPositionX, rPhysPositionY, rTotalX,
 			lPhysBounceRotation, rPhysBounceRotation, breastSize, zOffset, outwardAngle;
 
+	static {
+		lBreastWear = new OverlayModelBox(true, 64, 64, 17, 34, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+		rBreastWear = new OverlayModelBox(false, 64, 64, 21, 34, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+	}
+
 	public GenderLayer(FeatureRendererContext<T, M> render) {
 		super(render);
+		this.context = render;
+		// this can't be static or final as we need the ability to resize this during render time
 		lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, 4, 0.0F, false);
 		rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, 4, 0.0F, false);
-		lBreastWear = new OverlayModelBox(true,64, 64, 17, 34, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
-		rBreastWear = new OverlayModelBox(false,64, 64, 21, 34, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 	}
 
 	private @Nullable RenderLayer getRenderLayer(T entity) {
-		boolean bodyVisible = !entity.isInvisible();
-		boolean translucent = !bodyVisible && !entity.isInvisibleTo(MinecraftClient.getInstance().player);
-		Identifier texture = getTexture(entity);
-		if(translucent) {
-			return RenderLayer.getItemEntityTranslucentCull(texture);
-		} else if(bodyVisible) {
-			return RenderLayer.getEntityTranslucent(texture);
-		} else if(entity.isGlowing()) {
-			return RenderLayer.getOutline(texture);
+		if(context instanceof LivingEntityRenderer<T, M> renderer) {
+			MinecraftClient client = MinecraftClient.getInstance();
+			boolean bodyVisible = !entity.isInvisible();
+			boolean translucent = !bodyVisible && client.player != null && !entity.isInvisibleTo(client.player);
+			boolean glowing = client.hasOutline(entity);
+			return renderer.getRenderLayer(entity, bodyVisible, translucent, glowing);
 		}
-		return null;
-	}
-
-	protected @Nullable EntityConfig getConfig(T entity) {
-		try {
-			return EntityConfig.getEntity(entity);
-		} catch(ConcurrentModificationException e) {
-			// likely a temporary failure, try again later
-			return null;
-		}
+		throw new IllegalStateException("context renderer is not a LivingEntityRenderer");
 	}
 
 	@Override
@@ -104,35 +97,20 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 					   float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if(client.player == null) {
-			// we're currently in a menu, give up rendering before we crash the game
+			// we're currently in a menu; we won't have any data loaded to begin with, so just give up early
 			return;
 		}
 
-		EntityConfig entityConfig = getConfig(ent);
+		EntityConfig entityConfig = EntityConfig.getEntity(ent);
 		if(entityConfig == null) return;
 
 		try {
 			if(!setupRender(ent, entityConfig, partialTicks)) return;
 			int combineTex = LivingEntityRenderer.getOverlay(ent, 0);
-			BipedEntityModel<T> model = getContextModel();
 
-			// Render left
-			matrixStack.push();
-			try {
-				setupTransformations(ent, model.body, matrixStack, BreastSide.LEFT);
-				renderBreast(ent, matrixStack, vertexConsumerProvider, packedLightIn, combineTex, BreastSide.LEFT);
-			} finally {
-				matrixStack.pop();
-			}
-
-			// Render right
-			matrixStack.push();
-			try {
-				setupTransformations(ent, model.body, matrixStack, BreastSide.RIGHT);
-				renderBreast(ent, matrixStack, vertexConsumerProvider, packedLightIn, combineTex, BreastSide.RIGHT);
-			} finally {
-				matrixStack.pop();
-			}
+			renderSides(ent, getContextModel(), matrixStack, side -> {
+				renderBreast(ent, matrixStack, vertexConsumerProvider, packedLightIn, combineTex, side);
+			});
 		} catch(Exception e) {
 			WildfireGender.LOGGER.error("Failed to render breast layer", e);
 		}
@@ -145,10 +123,6 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 	 */
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	protected boolean setupRender(T entity, EntityConfig entityConfig, float partialTicks) {
-		// Rendering breaks quite spectacularly on baby mobs, so just immediately give up before we even
-		// attempt rendering on such an entity.
-		if(entity.isBaby()) return false;
-
 		armorStack = entity.getEquippedStack(EquipmentSlot.CHEST);
 		//Note: When the stack is empty the helper will fall back to an implementation that returns the proper data
 		genderArmor = WildfireHelper.getArmorConfig(armorStack);
@@ -175,15 +149,7 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		outwardAngle = (Math.round(breasts.getCleavage() * 100f) / 100f) * 100f;
 		outwardAngle = Math.min(outwardAngle, 10);
 
-		float reducer = -1;
-		if(bSize < 0.84f) reducer++;
-		if(bSize < 0.72f) reducer++;
-
-		if(preBreastSize != bSize) {
-			lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
-			rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
-			preBreastSize = bSize;
-		}
+		resizeBox(bSize);
 
 		lPhysPositionY = MathHelper.lerp(partialTicks, leftBreastPhysics.getPrePositionY(), leftBreastPhysics.getPositionY());
 		lPhysPositionX = MathHelper.lerp(partialTicks, leftBreastPhysics.getPrePositionX(), leftBreastPhysics.getPositionX());
@@ -216,7 +182,27 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		return true;
 	}
 
-	protected void setupTransformations(T entity, ModelPart body, MatrixStack matrixStack, BreastSide side) {
+	protected void resizeBox(float breastSize) {
+		float reducer = -1;
+		if(breastSize < 0.84f) reducer++;
+		if(breastSize < 0.72f) reducer++;
+
+		if(preBreastSize != breastSize || preBreastOffsetZ != breastOffsetZ) {
+			lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
+			rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
+			preBreastSize = breastSize;
+			preBreastOffsetZ = breastOffsetZ;
+		}
+	}
+
+	protected void setupTransformations(T entity, M model, MatrixStack matrixStack, BreastSide side) {
+		if(entity.isBaby()) {
+			float f1 = 1f / model.invertedChildBodyScale;
+			matrixStack.scale(f1, f1, f1);
+			matrixStack.translate(0f, model.childBodyYOffset / 16f, 0f);
+		}
+
+		ModelPart body = model.body;
 		matrixStack.translate(body.pivotX * 0.0625f, body.pivotY * 0.0625f, body.pivotZ * 0.0625f);
 		if(body.roll != 0.0F) {
 			matrixStack.multiply(new Quaternionf().rotationXYZ(0f, 0f, body.roll));
@@ -284,6 +270,24 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 			matrixStack.translate(0, 0, -0.015f);
 			matrixStack.scale(1.05f, 1.05f, 1.05f);
 			renderBox(side.isLeft ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
+		}
+	}
+
+	protected void renderSides(T entity, M model, MatrixStack matrixStack, Consumer<BreastSide> renderer) {
+		matrixStack.push();
+		try {
+			setupTransformations(entity, model, matrixStack, BreastSide.LEFT);
+			renderer.accept(BreastSide.LEFT);
+		} finally {
+			matrixStack.pop();
+		}
+
+		matrixStack.push();
+		try {
+			setupTransformations(entity, model, matrixStack, BreastSide.RIGHT);
+			renderer.accept(BreastSide.RIGHT);
+		} finally {
+			matrixStack.pop();
 		}
 	}
 

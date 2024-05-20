@@ -20,29 +20,24 @@ package com.wildfire.main;
 
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.api.WildfireAPI;
-import com.wildfire.main.entitydata.Breasts;
-import com.wildfire.main.entitydata.EntityConfig;
-import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.render.armor.SimpleGenderArmor;
 import com.wildfire.render.armor.EmptyGenderArmor;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.entity.PlayerModelPart;
+import com.wildfire.main.config.FloatConfigKey;
 import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.text.Text;
-import net.minecraft.util.Util;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.MathHelper;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 
-public class WildfireHelper {
+public final class WildfireHelper {
+    private WildfireHelper() {
+        throw new UnsupportedOperationException();
+    }
+
     public static int randInt(int min, int max) {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
@@ -63,7 +58,7 @@ public class WildfireHelper {
                 //Start by checking if it is a vanilla chestplate as we have custom configurations for those we check against
                 // the armor material instead of the item instance in case any mods define custom armor items using vanilla
                 // materials as then we can make a better guess at what we want the default implementation to be
-                ArmorMaterial material = armorItem.getMaterial();
+                RegistryEntry<ArmorMaterial> material = armorItem.getMaterial();
                 if (material == ArmorMaterials.LEATHER) {
                     return SimpleGenderArmor.LEATHER;
                 } else if (material == ArmorMaterials.CHAIN) {
@@ -88,58 +83,21 @@ public class WildfireHelper {
         }
     }
 
-    @Environment(EnvType.CLIENT)
-    public static void drawCenteredText(DrawContext ctx, TextRenderer textRenderer, Text text, int x, int y, int color) {
-        int centeredX = x - textRenderer.getWidth(text) / 2;
-        ctx.drawText(textRenderer, text, centeredX, y, color, false);
-    }
-
-    @Environment(EnvType.CLIENT)
-    public static void drawScrollableTextWithoutShadow(DrawContext context, TextRenderer textRenderer, Text text, int left, int top, int right, int bottom, int color) {
-        int i = textRenderer.getWidth(text);
-        int var10000 = top + bottom;
-        Objects.requireNonNull(textRenderer);
-        int j = (var10000 - 9) / 2 + 1;
-        int k = right - left;
-        if (i > k) {
-            int l = i - k;
-            double d = (double) Util.getMeasuringTimeMs() / 1000.0;
-            double e = Math.max((double)l * 0.5, 3.0);
-            double f = Math.sin(1.5707963267948966 * Math.cos(6.283185307179586 * d / e)) / 2.0 + 0.5;
-            double g = MathHelper.lerp(f, 0.0, (double)l);
-            context.enableScissor(left, top, right, bottom);
-            context.drawText(textRenderer, text, left - (int)g, j, color, false);
-            context.disableScissor();
-        } else {
-            drawCenteredText(context, textRenderer, text, (left + right) / 2, j, color);
+    /**
+     * Utility method returning an {@link Optional} containing the requested value from the provided {@link NbtCompound}
+     */
+    public static <T> Optional<T> readNbt(NbtCompound compound, String key, Function<String, T> reader) {
+        if(!compound.contains(key)) {
+            return Optional.empty();
         }
+        return Optional.of(reader.apply(key));
     }
 
     /**
-     * <p>Write a player's gender config to NBT on the given item stack.</p>
-     *
-     * <p>This only copies enough data to render breasts similarly to how they'd appear on the given player, which includes:</p>
-     * <ul>
-     *     <li>{@link EntityConfig#getBustSize() Breast size}</li>
-     *     <li>{@link Breasts#getCleavage() Cleavage}</li>
-     *     <li>{@link Breasts#isUniboob() Uniboob}</li>
-     *     <li>{@link Breasts#getXOffset() X}, {@link Breasts#getYOffset() Y}, and {@link Breasts#getZOffset() Z} offsets</li>
-     *     <li>Whether the {@link PlayerEntity#isPartVisible player's jacket layer is visible}</li>
-     * </ul>
-     *
-     * @see EntityConfig#readFromStack
+     * Variant of {@link #readNbt}, clamping a {@code float} value to the allowed range by the provided config key.
      */
-    public static void writeToNbt(@NotNull PlayerEntity player, @NotNull PlayerConfig config, @NotNull ItemStack armor) {
-        NbtCompound nbt = new NbtCompound();
-        nbt.putFloat("BreastSize", config.getGender().canHaveBreasts() && config.showBreastsInArmor() ? config.getBustSize() : 0f);
-        nbt.putFloat("Cleavage", config.getBreasts().getCleavage());
-        nbt.putBoolean("Uniboob", config.getBreasts().isUniboob());
-        nbt.putFloat("XOffset", config.getBreasts().getXOffset());
-        nbt.putFloat("YOffset", config.getBreasts().getYOffset());
-        nbt.putFloat("ZOffset", config.getBreasts().getZOffset());
-        // note that we also copy this to properly copy the exact size, as the player model will push the breast armor
-        // layer out a bit if they have a visible jacket layer
-        nbt.putBoolean("Jacket", player.isPartVisible(PlayerModelPart.JACKET));
-        armor.setSubNbt("WildfireGender", nbt);
+    public static Optional<Float> readNbt(NbtCompound compound, String key, FloatConfigKey configKey) {
+        return readNbt(compound, key, compound::getFloat)
+                .map(v -> MathHelper.clamp(v, configKey.getMinInclusive(), configKey.getMaxInclusive()));
     }
 }

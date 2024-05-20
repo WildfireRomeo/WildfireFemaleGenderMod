@@ -18,6 +18,7 @@
 
 package com.wildfire.gui.screen;
 
+import com.wildfire.gui.GuiUtils;
 import com.wildfire.main.Gender;
 import com.wildfire.main.WildfireGender;
 
@@ -26,23 +27,15 @@ import java.util.UUID;
 
 import com.wildfire.gui.WildfireButton;
 import com.wildfire.main.entitydata.PlayerConfig;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.wildfire.main.WildfireHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import org.joml.Quaternionf;
 
 @Environment(EnvType.CLIENT)
 public class WardrobeBrowserScreen extends BaseWildfireScreen {
@@ -96,6 +89,17 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 		super.renderBackground(ctx, mouseX, mouseY, delta);
 		Identifier backgroundTexture = getPlayer().getGender().canHaveBreasts() ? BACKGROUND_FEMALE : BACKGROUND;
 		ctx.drawTexture(backgroundTexture, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156);
+
+		if(client != null && client.world != null) {
+			int xP = this.width / 2 - 82;
+			int yP = this.height / 2 + 40;
+			PlayerEntity ent = client.world.getPlayerByUuid(this.playerUUID);
+			if(ent != null) {
+				ctx.enableScissor(xP - 35, yP - 93, xP + 35, yP + 6);
+				GuiUtils.drawEntityOnScreen(ctx, xP, yP, 45, (xP - mouseX), (yP - 76 - mouseY), ent);
+				ctx.disableScissor();
+			}
+		}
 	}
 
 	@Override
@@ -105,13 +109,6 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	    int y = this.height / 2;
 		ctx.drawText(textRenderer, title, x - 118, y - 62, 4473924, false);
 
-		if(client != null && client.world != null) {
-		    int xP = this.width / 2 - 82;
-		    int yP = this.height / 2 + 40;
-		    PlayerEntity ent = client.world.getPlayerByUuid(this.playerUUID);
-		    if(ent != null) drawEntityOnScreen(xP, yP, 45, (xP - mouseX), (yP - 76 - mouseY), ent);
-		}
-
 		if(client != null && client.player != null) {
 			boolean withCreator = client.player.networkHandler.getPlayerList().stream()
 					.anyMatch((player) -> player.getProfile().getId().equals(CREATOR_UUID));
@@ -119,7 +116,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 				int creatorY = y + 65;
 				// move down so we don't overlap with the breast cancer awareness month banner
 				if(isBreastCancerAwarenessMonth) creatorY += 30;
-				WildfireHelper.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, creatorY, 0xFF00FF);
+				GuiUtils.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.label.with_creator"), this.width / 2, creatorY, 0xFF00FF);
 			}
 		}
 
@@ -129,51 +126,5 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			ctx.drawTextWithShadow(textRenderer, Text.translatable("wildfire_gender.cancer_awareness.title").formatted(Formatting.BOLD, Formatting.ITALIC), this.width / 2 - 148, bcaY + 117, 0xFFFFFF);
 			ctx.drawTexture(TXTR_RIBBON, x + 130, bcaY + 109, 26, 26, 0, 0, 20, 20, 20, 20);
 		}
-	}
-
-	public static void drawEntityOnScreen(int x, int y, int size, float mouseX, float mouseY, LivingEntity entity) {
-		float f = (float)Math.atan(mouseX / 40.0F);
-		float g = (float)Math.atan(mouseY / 40.0F);
-		MatrixStack matrixStack = RenderSystem.getModelViewStack();
-		matrixStack.push();
-		matrixStack.translate((float)x, (float)y, 1050.0F);
-		matrixStack.scale(1.0F, 1.0F, -1.0F);
-		RenderSystem.applyModelViewMatrix();
-		MatrixStack matrixStack2 = new MatrixStack();
-		matrixStack2.translate(0.0F, 0.0F, 1000.0F);
-		matrixStack2.scale((float)size, (float)size, (float)size);
-		Quaternionf quaternionf = (new Quaternionf()).rotateZ(3.1415927F);
-		Quaternionf quaternionf2 = (new Quaternionf()).rotateX(g * 20.0F * 0.017453292F);
-		quaternionf.mul(quaternionf2);
-		matrixStack2.multiply(quaternionf);
-		float h = entity.bodyYaw;
-		float i = entity.getYaw();
-		float j = entity.getPitch();
-		float k = entity.prevHeadYaw;
-		float l = entity.headYaw;
-		entity.bodyYaw = 180.0F + f * 20.0F;
-		entity.setYaw(180.0F + f * 40.0F);
-		entity.setPitch(-g * 20.0F);
-		entity.headYaw = entity.getYaw();
-		entity.prevHeadYaw = entity.getYaw();
-		DiffuseLighting.method_34742();
-		EntityRenderDispatcher entityRenderDispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
-		quaternionf2.conjugate();
-		entityRenderDispatcher.setRotation(quaternionf2);
-		entityRenderDispatcher.setRenderShadows(false);
-		VertexConsumerProvider.Immediate immediate = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
-		RenderSystem.runAsFancy(() -> {
-			entityRenderDispatcher.render(entity, 0.0, 0.0, 0.0, 0.0F, 1.0F, matrixStack2, immediate, 15728880);
-		});
-		immediate.draw();
-		entityRenderDispatcher.setRenderShadows(true);
-		entity.bodyYaw = h;
-		entity.setYaw(i);
-		entity.setPitch(j);
-		entity.prevHeadYaw = k;
-		entity.headYaw = l;
-		matrixStack.pop();
-		RenderSystem.applyModelViewMatrix();
-		DiffuseLighting.enableGuiDepthLighting();
 	}
 }

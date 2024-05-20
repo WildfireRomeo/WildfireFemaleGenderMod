@@ -23,10 +23,14 @@ import net.minecraft.registry.Registry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 
-public class WildfireSounds {
+public final class WildfireSounds {
+	private WildfireSounds() {
+		throw new UnsupportedOperationException();
+	}
+
 	public static final SoundEvent FEMALE_HURT = SoundEvent.of(new Identifier(WildfireGender.MODID, "female_hurt"));
 
-	protected static void register() {
+	static void register() {
 		Registry.register(Registries.SOUND_EVENT, FEMALE_HURT.getId(), FEMALE_HURT);
 	}
 }

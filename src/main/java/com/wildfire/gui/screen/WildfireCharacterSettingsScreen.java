@@ -18,9 +18,9 @@
 
 package com.wildfire.gui.screen;
 
+import com.wildfire.gui.GuiUtils;
 import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.WildfireGender;
-import com.wildfire.main.WildfireHelper;
 import com.wildfire.main.config.Configuration;
 import java.util.UUID;
 
@@ -139,11 +139,11 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
         int yPos = y - 47;
         ctx.drawText(textRenderer, getTitle(), x - 79, yPos - 10, 4473924, false);
         if(plrEntity != null) {
-            WildfireHelper.drawCenteredText(ctx, this.textRenderer, plrEntity.getDisplayName(), x, yPos - 30, 0xFFFFFF);
+            GuiUtils.drawCenteredText(ctx, this.textRenderer, plrEntity.getDisplayName(), x, yPos - 30, 0xFFFFFF);
         }
 
         if(bounceWarning) {
-            WildfireHelper.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.tooltip.bounce_warning").formatted(Formatting.ITALIC), x, y + 90, 0xFF6666);
+            GuiUtils.drawCenteredText(ctx, this.textRenderer, Text.translatable("wildfire_gender.tooltip.bounce_warning").formatted(Formatting.ITALIC), x, y + 90, 0xFF6666);
         }
     }
 

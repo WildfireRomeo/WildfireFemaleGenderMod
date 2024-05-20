@@ -26,17 +26,20 @@ import com.wildfire.main.Gender;
 import com.wildfire.physics.BreastPhysics;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
+import java.util.Objects;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>A stripped down version of a {@link PlayerConfig player's config}, intended for use with non-player entities.</p>
@@ -47,7 +50,7 @@ import java.util.UUID;
  */
 public class EntityConfig {
 
-	public static final HashMap<UUID, EntityConfig> ENTITY_CACHE = new HashMap<>();
+	public static final Map<UUID, EntityConfig> ENTITY_CACHE = new ConcurrentHashMap<>();
 
 	public final UUID uuid;
 	protected Gender gender = Configuration.GENDER.getDefault();
@@ -61,6 +64,7 @@ public class EntityConfig {
 	protected final BreastPhysics lBreastPhysics, rBreastPhysics;
 	protected final Breasts breasts;
 	protected boolean jacketLayer = true;
+	protected @Nullable BreastDataComponent fromComponent;
 
 	EntityConfig(UUID uuid) {
 		this.uuid = uuid;
@@ -72,37 +76,42 @@ public class EntityConfig {
 	/**
 	 * Copy gender settings included in the given {@link ItemStack item NBT} to the current entity
 	 *
-	 * @see WildfireHelper#writeToNbt
+	 * @see BreastDataComponent
 	 */
 	public void readFromStack(@NotNull ItemStack chestplate) {
-		NbtCompound nbt = !chestplate.isEmpty() ? chestplate.getSubNbt("WildfireGender") : null;
-		if(nbt == null) {
+		NbtComponent component = chestplate.get(DataComponentTypes.CUSTOM_DATA);
+		if(chestplate.isEmpty() || component == null) {
+			this.fromComponent = null;
+			this.gender = Gender.MALE;
+			return;
+		} else if(fromComponent != null && Objects.equals(component, fromComponent.nbtComponent())) {
+			// nothing's changed since the last time we checked, so there's no need to read from the
+			// underlying nbt tag again
+			return;
+		}
+
+		fromComponent = BreastDataComponent.fromComponent(component);
+		if(fromComponent == null) {
 			this.gender = Gender.MALE;
 			return;
 		}
-		this.pBustSize = nbt.contains("BreastSize") ? nbt.getFloat("BreastSize") : 0f;
-		this.gender = this.pBustSize > 0.02f ? Gender.FEMALE : Gender.MALE;
-		if(nbt.contains("Cleavage")) breasts.updateCleavage(nbt.getFloat("Cleavage"));
-		if(nbt.contains("Uniboob")) breasts.updateUniboob(nbt.getBoolean("Uniboob"));
-		if(nbt.contains("XOffset")) breasts.updateXOffset(nbt.getFloat("XOffset"));
-		if(nbt.contains("YOffset")) breasts.updateYOffset(nbt.getFloat("YOffset"));
-		if(nbt.contains("ZOffset")) breasts.updateZOffset(nbt.getFloat("ZOffset"));
-		if(nbt.contains("Jacket")) jacketLayer = nbt.getBoolean("Jacket");
+
+		breastPhysics = false;
+		pBustSize = fromComponent.breastSize();
+		gender = pBustSize >= 0.02f ? Gender.FEMALE : Gender.MALE;
+		breasts.updateCleavage(fromComponent.cleavage());
+		breasts.updateOffsets(fromComponent.offsets());
+		this.jacketLayer = fromComponent.jacket();
 	}
 
 	/**
 	 * Get the configuration for a given entity
 	 *
-	 * @return {@link EntityConfig}, {@link PlayerConfig} if given a {@link PlayerEntity player},
-	 *         or {@code null} if given a baby entity
+	 * @return The relevant {@link EntityConfig}, or {@link PlayerConfig} if given a {@link PlayerEntity player}
 	 */
 	public static @Nullable EntityConfig getEntity(@NotNull LivingEntity entity) {
 		if(entity instanceof PlayerEntity) {
 			return WildfireGender.getPlayerById(entity.getUuid());
-		}
-		if(entity.isBaby()) {
-			// rendering breaks quite spectacularly on baby mobs, so just immediately give up
-			return null;
 		}
 		return ENTITY_CACHE.computeIfAbsent(entity.getUuid(), EntityConfig::new);
 	}

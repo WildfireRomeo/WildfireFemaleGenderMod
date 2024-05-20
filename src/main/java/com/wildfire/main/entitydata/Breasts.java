@@ -20,13 +20,15 @@ package com.wildfire.main.entitydata;
 
 import com.wildfire.main.config.ConfigKey;
 import com.wildfire.main.config.Configuration;
+import org.joml.Vector3f;
+
 import java.util.function.Consumer;
 
 /**
  * Data class representing an entity's breast appearance settings
  */
 @SuppressWarnings("UnusedReturnValue")
-public class Breasts {
+public final class Breasts {
 
     private float xOffset = Configuration.BREASTS_OFFSET_X.getDefault(), yOffset = Configuration.BREASTS_OFFSET_Y.getDefault(), zOffset = Configuration.BREASTS_OFFSET_Z.getDefault();
     private float cleavage = Configuration.BREASTS_CLEAVAGE.getDefault();
@@ -38,6 +40,16 @@ public class Breasts {
             return true;
         }
         return false;
+    }
+
+    public Vector3f getOffsets() {
+        return new Vector3f(xOffset, yOffset, zOffset);
+    }
+
+    public void updateOffsets(Vector3f offsets) {
+        updateXOffset(offsets.x);
+        updateYOffset(offsets.y);
+        updateZOffset(offsets.z);
     }
 
     /**
