@@ -28,7 +28,7 @@ public final class WildfireSounds {
 		throw new UnsupportedOperationException();
 	}
 
-	public static final SoundEvent FEMALE_HURT = SoundEvent.of(new Identifier(WildfireGender.MODID, "female_hurt"));
+	public static final SoundEvent FEMALE_HURT = SoundEvent.of(Identifier.of(WildfireGender.MODID, "female_hurt"));
 
 	static void register() {
 		Registry.register(Registries.SOUND_EVENT, FEMALE_HURT.getId(), FEMALE_HURT);

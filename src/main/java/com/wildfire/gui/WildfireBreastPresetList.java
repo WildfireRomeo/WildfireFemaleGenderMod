@@ -30,7 +30,7 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
         public BreastPresetListEntry(String name, BreastPresetConfiguration data) {
             this.name = name;
             this.data = data;
-            this.ident = new Identifier(WildfireGender.MODID, "textures/presets/iknowthisisnull.png");
+            this.ident = Identifier.of(WildfireGender.MODID, "textures/presets/iknowthisisnull.png");
         }
 
     }
@@ -38,9 +38,9 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
     private BreastPresetListEntry[] BREAST_PRESETS = new BreastPresetListEntry[] {
 
     };
-    private static final Identifier TXTR_SYNC = new Identifier(WildfireGender.MODID, "textures/sync.png");
-    private static final Identifier TXTR_UNKNOWN = new Identifier(WildfireGender.MODID, "textures/unknown.png");
-    private static final Identifier TXTR_CACHED = new Identifier(WildfireGender.MODID, "textures/cached.png");
+    private static final Identifier TXTR_SYNC = Identifier.of(WildfireGender.MODID, "textures/sync.png");
+    private static final Identifier TXTR_UNKNOWN = Identifier.of(WildfireGender.MODID, "textures/unknown.png");
+    private static final Identifier TXTR_CACHED = Identifier.of(WildfireGender.MODID, "textures/cached.png");
     private final int listWidth;
     private final WildfireBreastCustomizationScreen parent;
 

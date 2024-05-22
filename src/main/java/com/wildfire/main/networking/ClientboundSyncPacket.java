@@ -29,10 +29,11 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
 
 public final class ClientboundSyncPacket extends AbstractSyncPacket implements CustomPayload {
 
-	public static final CustomPayload.Id<ClientboundSyncPacket> ID = CustomPayload.id("wildfire_gender:sync");
+	public static final Id<ClientboundSyncPacket> ID = new CustomPayload.Id<>(Identifier.of(WildfireGender.MODID, "sync"));
 	public static final PacketCodec<RegistryByteBuf, ClientboundSyncPacket> CODEC = PacketCodec.of(ClientboundSyncPacket::encode, ClientboundSyncPacket::new);
 
 	ClientboundSyncPacket(PlayerConfig plr) {

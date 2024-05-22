@@ -42,7 +42,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
     private static final Text ENABLED = Text.translatable("wildfire_gender.label.enabled").formatted(Formatting.GREEN);
     private static final Text DISABLED = Text.translatable("wildfire_gender.label.disabled").formatted(Formatting.RED);
-    private static final Identifier BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/settings_bg.png");
+    private static final Identifier BACKGROUND = Identifier.of(WildfireGender.MODID, "textures/gui/settings_bg.png");
 
     private WildfireSlider bounceSlider, floppySlider;
     private boolean bounceWarning;

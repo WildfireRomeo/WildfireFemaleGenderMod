@@ -61,6 +61,11 @@ public class EntityConfig {
 	protected boolean showBreastsInArmor = Configuration.SHOW_IN_ARMOR.getDefault();
 	// note: hurt sounds and armor physics override are not defined here, as they have no relevance
 	// to entities, and are instead entirely in PlayerConfig
+
+	// TODO ideally these physics objects would be made entirely client-sided, but this class is
+	//      used on both the client and server (primarily through PlayerConfig), making it very
+	//      difficult to do so without some major changes to split this up further into a common class
+	//      with a client extension class (e.g. the PlayerEntity & AbstractClientPlayerEntity classes)
 	protected final BreastPhysics lBreastPhysics, rBreastPhysics;
 	protected final Breasts breasts;
 	protected boolean jacketLayer = true;
