@@ -72,7 +72,7 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 	}
 
 	@Override
-	public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, @NotNull T ent, float limbAngle,
+	public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light, @NotNull T ent, float limbAngle,
 	                   float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if(client.player == null) {
@@ -105,12 +105,12 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 			renderSides(ent, getContextModel(), matrixStack, side -> {
 				material.value().layers().forEach(layer -> {
 					int layerColor = layer.isDyeable() ? color : -1;
-					renderBreastArmor(layer.getTexture(false), matrixStack, vertexConsumerProvider, packedLightIn, side, layerColor, glint);
+					renderBreastArmor(layer.getTexture(false), matrixStack, vertexConsumerProvider, light, side, layerColor, glint);
 				});
 
 				ArmorTrim trim = armorStack.get(DataComponentTypes.TRIM);
 				if(trim != null) {
-					renderArmorTrim(material, matrixStack, vertexConsumerProvider, packedLightIn, trim, glint, side);
+					renderArmorTrim(material, matrixStack, vertexConsumerProvider, light, trim, glint, side);
 				}
 			});
 		} catch(Exception e) {
