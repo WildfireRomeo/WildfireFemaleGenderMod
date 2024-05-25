@@ -274,8 +274,11 @@ public class BreastPhysics {
 			// Cap our amplifier at the swing durations of Mining Fatigue III/Haste II
 			amplifier = MathHelper.clamp(1 + amplifier, 0.6f, 1.3f);
 
-			if(entity.handSwinging && entity.age % 5 == 0) {
-				this.targetBounceY += (Math.random() > 0.5 ? -0.25f : 0.25f) * amplifier * bounceIntensity;
+			// consistently apply even with short swing durations, such as with haste
+			int everyNthTick = MathHelper.clamp(swingDuration - 1, 1, 5);
+			if(entity.handSwinging && entity.age % everyNthTick == 0) {
+				float hasteMult = MathHelper.clamp(everyNthTick / 5f, 0.4f, 1f);
+				this.targetBounceY += (Math.random() > 0.5 ? -0.25f : 0.25f) * amplifier * bounceIntensity * hasteMult;
 			}
 
 			int swingTickDelta = entity.handSwingTicks - lastSwingTick;
@@ -290,10 +293,10 @@ public class BreastPhysics {
 				// which applies haste to the player when a spell is successfully cast.
 				this.targetRotVel += (swingingArm == Arm.RIGHT ? -2.5f : 2.5f) * Math.abs(swingProgress) * bounceIntensity;
 			} else if(entity.handSwinging && swingDuration > 1) {
-				// Otherwise if the swing animation isn't interrupted, attempt to rotate slightly in the direction
-				// that the body is currently moving
+				// Otherwise if the swing animation isn't interrupted, attempt to rotate slightly counter to the
+				// direction that the body is currently moving
 				Arm swingingToward = swingProgress > 0f ? swingingArm.getOpposite() : swingingArm;
-				this.targetRotVel += (swingingToward == Arm.RIGHT ? 0.2f : -0.2f) * amplifier * bounceIntensity;
+				this.targetRotVel += (swingingToward == Arm.RIGHT ? -0.2f : 0.2f) * amplifier * bounceIntensity;
 			}
 			lastSwingTick = entity.handSwingTicks;
 		}
@@ -409,7 +412,7 @@ public class BreastPhysics {
 			return 0;
 		}
 		float median = (p2 - p1) / 2f;
-		if(point > median) point = -(median - point);
+		if(point > median) point = -(point - median);
 		return point / median;
 	}
 }
