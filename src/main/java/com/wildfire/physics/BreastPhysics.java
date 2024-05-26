@@ -23,14 +23,15 @@ import com.wildfire.main.entitydata.EntityConfig;
 import com.wildfire.main.WildfireHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.entity.passive.HorseEntity;
-import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.entity.passive.StriderEntity;
+import net.minecraft.entity.passive.*;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
+import net.minecraft.util.Arm;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
@@ -43,19 +44,61 @@ public class BreastPhysics {
 	//Rotation
 	private float bounceRotVel = 0, targetRotVel = 0, rotVelocity = 0, wfg_bounceRotation, wfg_preBounceRotation;
 
-	private boolean justSneaking = false, alreadySleeping = false;
-
 	private float breastSize = 0, preBreastSize = 0;
 
+	private EntityPose lastPose;
+	private int lastSwingDuration = 6, lastSwingTick = 0;
 	private Vec3d prePos;
+
 	private final EntityConfig entityConfig;
+	private int randomB = 1;
+	private boolean alreadyFalling = false;
 
 	public BreastPhysics(EntityConfig entityConfig) {
 		this.entityConfig = entityConfig;
 	}
 
-	private int randomB = 1;
-	private boolean alreadyFalling = false;
+	private static boolean vehicleSuppressesRotation(Entity vehicle) {
+		return
+				// while you aren't able to normally ride chickens in vanilla, it is still possible through
+				// means like /ride, and as chickens attempt to force the rider's body yaw to the same yaw
+				// as the chicken (which is likely intended only for baby zombies), this results in unintended
+				// behavior with what we're doing
+				vehicle instanceof ChickenEntity
+				// unsaddled horses (and llamas, which also extend AbstractDonkeyEntity?) also break rotation
+				// physics, despite acting similarly to other entities where the rider's body yaw is allowed to
+				// (somewhat) freely move around
+				|| vehicle instanceof AbstractHorseEntity horseLike && !horseLike.isSaddled()
+				// camels also suffer from largely the same issue as unsaddled horses when sitting or standing up
+				|| vehicle instanceof CamelEntity camel && camel.isStationary();
+	}
+
+	private static boolean shouldUseVehicleYaw(LivingEntity rider, Entity vehicle) {
+		return vehicle.hasControllingPassenger()
+				// boats will typically be caught by the above #hasControllingPassenger() check, but still
+				// special case these to catch any weird modded cases that might arise
+				|| vehicle instanceof BoatEntity
+				// general catch-all for other entities that force the rider's body yaw to match theirs,
+				// such as horses
+				|| vehicle.getBodyYaw() == rider.getBodyYaw();
+	}
+
+	private static float calcRotation(LivingEntity entity, float bounceIntensity) {
+		Entity vehicle = entity.getVehicle();
+		if(vehicle != null) {
+			if(vehicleSuppressesRotation(vehicle)) {
+				return 0f;
+			} else if(shouldUseVehicleYaw(entity, vehicle)) {
+				if(vehicle instanceof LivingEntity livingVehicle) {
+					return -((livingVehicle.bodyYaw - livingVehicle.prevBodyYaw) / 15f) * bounceIntensity;
+				} else {
+					return -((vehicle.getYaw() - vehicle.prevYaw) / 15f) * bounceIntensity;
+				}
+			}
+		}
+
+		return -((entity.bodyYaw - entity.prevBodyYaw) / 15f) * bounceIntensity;
+	}
 
 	// this class cannot be blanket marked as client-side only, as this is referenced in the constructor for EntityConfig;
 	// as such, the best we can get here is marking this method as such.
@@ -161,24 +204,23 @@ public class BreastPhysics {
 		this.targetBounceY = (float) motion.y * bounceIntensity;
 		this.targetBounceY += breastWeight;
 		float horizVel = (float) Math.sqrt(Math.pow(motion.x, 2) + Math.pow(motion.z, 2)) * (bounceIntensity);
-		this.targetRotVel = -((entity.bodyYaw - entity.prevBodyYaw) / 15f) * bounceIntensity;
+
+		this.targetRotVel = calcRotation(entity, bounceIntensity);
+		this.targetRotVel += (float) motion.y * bounceIntensity * randomB;
 
 		float f2 = (float) entity.getVelocity().lengthSquared() / 0.2F;
 		f2 = f2 * f2 * f2;
 		if(f2 < 1.0F) f2 = 1.0F;
-
 		this.targetBounceY += MathHelper.cos(entity.limbAnimator.getPos() * 0.6662F + (float)Math.PI) * 0.5F * entity.limbAnimator.getSpeed() * 0.5F / f2;
 
-		this.targetRotVel += (float) motion.y * bounceIntensity * randomB;
-
-
-		if(entity.getPose() == EntityPose.CROUCHING && !this.justSneaking) {
-			this.justSneaking = true;
-			this.targetBounceY += bounceIntensity;
-		}
-		if(entity.getPose() != EntityPose.CROUCHING && this.justSneaking) {
-			this.justSneaking = false;
-			this.targetBounceY += bounceIntensity;
+		EntityPose pose = entity.getPose();
+		if(pose != lastPose) {
+			if(pose == EntityPose.CROUCHING || lastPose == EntityPose.CROUCHING) {
+				this.targetBounceY += bounceIntensity;
+			} else if(pose == EntityPose.SLEEPING || lastPose == EntityPose.SLEEPING) {
+				this.targetBounceY = bounceIntensity;
+			}
+			lastPose = pose;
 		}
 
 		//button option for extra entities
@@ -192,44 +234,77 @@ public class BreastPhysics {
 				if(rotationL < -1 || rotationR < -0.6f) {
 					this.targetBounceY = bounceIntensity / 3.25f;
 				}
-			}
-
-			if(entity.getVehicle() instanceof MinecartEntity cart) {
+			} else if(entity.getVehicle() instanceof MinecartEntity cart) {
 				float speed = (float) cart.getVelocity().lengthSquared();
 				if(Math.random() * speed < 0.5f && speed > 0.2f) {
 					this.targetBounceY = (Math.random() > 0.5 ? -bounceIntensity : bounceIntensity) / 6f;
+					this.targetBounceY += breastWeight;
 				}
-			}
-			if(entity.getVehicle() instanceof HorseEntity horse) {
+			} else if(entity.getVehicle() instanceof HorseEntity horse) {
 				float movement = (float) horse.getVelocity().lengthSquared();
-				if(horse.age % clampMovement(movement) == 5 && movement > 0.1f) {
+				if(horse.age % clampMovement(movement) == 5 && movement > 0.05f) {
 					this.targetBounceY = bounceIntensity / 4f;
+					this.targetBounceY += breastWeight;
 				}
-			}
-			if(entity.getVehicle() instanceof PigEntity pig) {
+			} else if(entity.getVehicle() instanceof PigEntity pig) {
 				float movement = (float) pig.getVelocity().lengthSquared();
-				if(pig.age % clampMovement(movement) == 5 && movement > 0.08f) {
-					this.targetBounceY = bounceIntensity / 4f;
+				if(pig.age % clampMovement(movement) == 5 && movement > 0.002f) {
+					this.targetBounceY = (bounceIntensity * MathHelper.clamp(movement * 75, 0.1f, 1f)) / 4f;
+					this.targetBounceY += breastWeight;
 				}
-			}
-			if(entity.getVehicle() instanceof StriderEntity strider) {
+			} else if(entity.getVehicle() instanceof StriderEntity strider) {
 				double heightOffset = (double)strider.getHeight() - 0.19
 						+ (double)(0.12F * MathHelper.cos(strider.limbAnimator.getPos() * 1.5f)
 						* 2F * Math.min(0.25F, strider.limbAnimator.getSpeed()));
 				this.targetBounceY += ((float) (heightOffset * 3f) - 4.5f) * bounceIntensity;
 			}
 		}
-		if(entity.handSwinging && entity.age % 5 == 0 && entity.getPose() != EntityPose.SLEEPING) {
-			this.targetBounceY += (Math.random() > 0.5 ? -0.25f : 0.25f) * bounceIntensity;
+
+		int swingDuration = entity.getHandSwingDuration();
+		// Require that either the current swing duration is 2 ticks, or the swing duration from the previous tick is,
+		// as any faster and the arm effectively doesn't swing at all; we check the previous tick's swing duration for
+		// reasons explained later on in this block
+		if((swingDuration > 1 || lastSwingDuration > 1) && pose != EntityPose.SLEEPING) {
+			float amplifier = 0f;
+			if(swingDuration < 6) {
+				amplifier = 0.15f * (6 - swingDuration);
+			} else if(swingDuration > 6) {
+				amplifier = -0.067f * (swingDuration - 6);
+			}
+			// Cap our amplifier at the swing durations of Mining Fatigue III/Haste II
+			amplifier = MathHelper.clamp(1 + amplifier, 0.6f, 1.3f);
+
+			// consistently apply even with short swing durations, such as with haste
+			int everyNthTick = MathHelper.clamp(swingDuration - 1, 1, 5);
+			if(entity.handSwinging && entity.age % everyNthTick == 0) {
+				float hasteMult = MathHelper.clamp(everyNthTick / 5f, 0.4f, 1f);
+				this.targetBounceY += (Math.random() > 0.5 ? -0.25f : 0.25f) * amplifier * bounceIntensity * hasteMult;
+			}
+
+			int swingTickDelta = entity.handSwingTicks - lastSwingTick;
+			float swingProgress = distanceFromMedian(0, lastSwingDuration, MathHelper.clamp(lastSwingTick, 0, lastSwingDuration));
+			Arm swingingArm = entity.preferredHand == Hand.MAIN_HAND ? entity.getMainArm() : entity.getMainArm().getOpposite();
+
+			if(swingTickDelta < 0 && lastSwingTick != lastSwingDuration - 1) {
+				// Add a bit of counter-rotation back toward the currently swinging arm if the previous arm swing
+				// animation is interrupted
+				// Note that we don't check if the player's arm is currently swinging here to account for cases like
+				// haste being used to reset a player's swing; one notable example of this is Wynncraft's spell casting,
+				// which applies haste to the player when a spell is successfully cast.
+				this.targetRotVel += (swingingArm == Arm.RIGHT ? -2.5f : 2.5f) * Math.abs(swingProgress) * bounceIntensity;
+			} else if(entity.handSwinging && swingDuration > 1) {
+				// Otherwise if the swing animation isn't interrupted, attempt to rotate slightly counter to the
+				// direction that the body is currently moving
+				Arm swingingToward = swingProgress > 0f ? swingingArm.getOpposite() : swingingArm;
+				this.targetRotVel += (swingingToward == Arm.RIGHT ? -0.2f : 0.2f) * amplifier * bounceIntensity;
+			}
+			lastSwingTick = entity.handSwingTicks;
 		}
-		if(entity.getPose() == EntityPose.SLEEPING && !this.alreadySleeping) {
-			this.targetBounceY = bounceIntensity;
-			this.alreadySleeping = true;
+		if(!entity.handSwinging) {
+			lastSwingTick = 0;
 		}
-		if(entity.getPose() != EntityPose.SLEEPING && this.alreadySleeping) {
-			this.targetBounceY = bounceIntensity;
-			this.alreadySleeping = false;
-		}
+		lastSwingDuration = Math.max(swingDuration, 1);
+
 		/*if(plr.getPose() == EntityPose.SWIMMING) {
 			//System.out.println(1 - plr.getRotationVec(tickDelta).getY());
 			rotationMultiplier = 1 - (float) plr.getRotationVec(tickDelta).getY();
@@ -251,10 +326,9 @@ public class BreastPhysics {
 		if(bounceVel > 2.5f) {
 			targetBounceY -= distanceFromMax;
 		}
-		if(targetBounceY < -1.5f) targetBounceY = -1.5f;
-		if(targetBounceY > 2.5f) targetBounceY = 2.5f;
-		if(targetRotVel < -25f) targetRotVel = -25f;
-		if(targetRotVel > 25f) targetRotVel = 25f;
+
+		targetBounceY = MathHelper.clamp(targetBounceY, -1.5f, 2.5f);
+		targetRotVel = MathHelper.clamp(targetRotVel, -25f, 25f);
 
 		this.velocity = MathHelper.lerp(bounceAmount, this.velocity, (this.targetBounceY - this.bounceVel) * delta);
 		this.bounceVel += this.velocity * percent * 1.1625f;
@@ -307,5 +381,38 @@ public class BreastPhysics {
 		int val = (int) (10 - movement*2f);
 		if(val < 1) val = 1;
 		return val;
+	}
+
+	/**
+	 * Return the distance from the median of the two provided boundary points from a given point
+	 *
+	 * @param p1    Lower boundary point
+	 * @param p2    Upper boundary point
+	 * @param point The target point within the range of {@code p1} and {@code p2} to get the distance from the median of
+	 *
+	 * @return A {@code float} of how far the provided point is from the median of the two boundary points, with
+	 *         {@code 1f} being at the median exactly, and {@code 0f} being at either of the two provided boundary
+	 *         points.<br>
+	 *         If the provided point is in the latter half of the range between the two boundary points, the returned
+	 *         float will be negative.
+	 *
+	 * @throws IllegalArgumentException If {@code p2} is greater than {@code p1}, or if {@code atPoint} is out of bounds
+	 */
+	@SuppressWarnings("SameParameterValue")
+	private static float distanceFromMedian(final int p1, final int p2, float point) {
+		// sanity checks
+		if(p1 >= p2) {
+			throw new IllegalArgumentException("p2 must be greater than p1");
+		}
+		if(point < p1 || point > p2) {
+			throw new IllegalArgumentException("point must be within bounds of p1 and p2");
+		}
+
+		if(point == p1 || point == p2) {
+			return 0;
+		}
+		float median = (p2 - p1) / 2f;
+		if(point > median) point = -(point - median);
+		return point / median;
 	}
 }
