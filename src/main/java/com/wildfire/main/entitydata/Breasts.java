@@ -30,7 +30,9 @@ import java.util.function.Consumer;
 @SuppressWarnings("UnusedReturnValue")
 public final class Breasts {
 
-    private float xOffset = Configuration.BREASTS_OFFSET_X.getDefault(), yOffset = Configuration.BREASTS_OFFSET_Y.getDefault(), zOffset = Configuration.BREASTS_OFFSET_Z.getDefault();
+    private float xOffset = Configuration.BREASTS_OFFSET_X.getDefault(),
+            yOffset = Configuration.BREASTS_OFFSET_Y.getDefault(),
+            zOffset = Configuration.BREASTS_OFFSET_Z.getDefault();
     private float cleavage = Configuration.BREASTS_CLEAVAGE.getDefault();
     private boolean uniboob = Configuration.BREASTS_UNIBOOB.getDefault();
 
