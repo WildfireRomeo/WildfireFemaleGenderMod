@@ -64,7 +64,7 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
     @Override
     protected void drawMenuListBackground(DrawContext context) {}
 
-    // copy of EntryListWidget#renderList without the added margin between entries
+    // copy of super without the added margin between entries
     @Override
     protected void renderList(DrawContext context, int mouseX, int mouseY, float delta) {
         int left = this.getRowLeft();

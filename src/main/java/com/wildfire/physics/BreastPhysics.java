@@ -378,9 +378,7 @@ public class BreastPhysics {
 	}
 
 	private int clampMovement(float movement) {
-		int val = (int) (10 - movement*2f);
-		if(val < 1) val = 1;
-		return val;
+		return Math.max((int) (10 - movement*2f), 1);
 	}
 
 	/**
