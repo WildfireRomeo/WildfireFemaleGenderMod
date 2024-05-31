@@ -24,13 +24,9 @@ import java.util.UUID;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ingame.InventoryScreen;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.text.Text;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
+import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public abstract class BaseWildfireScreen extends Screen {
@@ -44,7 +40,7 @@ public abstract class BaseWildfireScreen extends Screen {
         this.playerUUID = uuid;
     }
 
-    public PlayerConfig getPlayer() {
+    public @Nullable PlayerConfig getPlayer() {
         return WildfireGender.getPlayerById(this.playerUUID);
     }
 

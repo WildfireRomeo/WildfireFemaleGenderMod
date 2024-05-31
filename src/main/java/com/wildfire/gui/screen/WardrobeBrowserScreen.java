@@ -23,6 +23,7 @@ import com.wildfire.main.Gender;
 import com.wildfire.main.WildfireGender;
 
 import java.util.Calendar;
+import java.util.Objects;
 import java.util.UUID;
 
 import com.wildfire.gui.WildfireButton;
@@ -52,7 +53,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	@Override
   	public void init() {
 	    int y = this.height / 2;
-		PlayerConfig plr = getPlayer();
+		PlayerConfig plr = Objects.requireNonNull(getPlayer(), "getPlayer()");
 
 		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, y - 52, 158, 20, getGenderLabel(plr.getGender()), button -> {
 			Gender gender = switch (plr.getGender()) {
@@ -87,7 +88,9 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	@Override
 	public void renderBackground(DrawContext ctx, int mouseX, int mouseY, float delta) {
 		super.renderBackground(ctx, mouseX, mouseY, delta);
-		Identifier backgroundTexture = getPlayer().getGender().canHaveBreasts() ? BACKGROUND_FEMALE : BACKGROUND;
+		PlayerConfig plr = getPlayer();
+		if(plr == null) return;
+		Identifier backgroundTexture = plr.getGender().canHaveBreasts() ? BACKGROUND_FEMALE : BACKGROUND;
 		ctx.drawTexture(backgroundTexture, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156);
 
 		if(client != null && client.world != null) {

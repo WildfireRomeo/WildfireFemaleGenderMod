@@ -22,6 +22,8 @@ import com.wildfire.gui.GuiUtils;
 import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.config.Configuration;
+
+import java.util.Objects;
 import java.util.UUID;
 
 import com.wildfire.gui.WildfireButton;
@@ -53,7 +55,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
     @Override
     public void init() {
-        PlayerConfig aPlr = getPlayer();
+        PlayerConfig aPlr = Objects.requireNonNull(getPlayer(), "getPlayer()");
         int x = this.width / 2;
         int y = this.height / 2;
         int yPos = y - 47;
