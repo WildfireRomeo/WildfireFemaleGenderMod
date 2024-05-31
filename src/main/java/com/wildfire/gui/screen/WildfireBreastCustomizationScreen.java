@@ -162,7 +162,8 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
     }
 
     private void updatePresetTab() {
-        boolean displayBreastSettings = getPlayer().getGender().canHaveBreasts() && currentTab == Tab.CUSTOMIZATION;
+        PlayerConfig player = getPlayer();
+        boolean displayBreastSettings = player != null && player.getGender().canHaveBreasts() && currentTab == Tab.CUSTOMIZATION;
         breastSlider.visible = displayBreastSettings;
         xOffsetBoobSlider.visible = displayBreastSettings;
         yOffsetBoobSlider.visible = displayBreastSettings;

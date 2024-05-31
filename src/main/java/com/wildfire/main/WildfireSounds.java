@@ -21,7 +21,11 @@ package com.wildfire.main;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 
-public class WildfireSounds {
+public final class WildfireSounds {
+
+	private WildfireSounds() {
+	}
+
 	private static final ResourceLocation femaleHurt = WildfireGender.rl("female_hurt");
 	public static SoundEvent FEMALE_HURT = SoundEvent.createVariableRangeEvent(femaleHurt);
 	//Note: We don't register the sound event as that isn't necessary for it to play, and I believe the registry would sync

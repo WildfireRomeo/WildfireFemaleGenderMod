@@ -45,7 +45,6 @@ public class WildfireBreastPresetList extends AbstractSelectionList<BreastPreset
     public WildfireBreastPresetList(WildfireBreastCustomizationScreen parent, int listWidth, int top, int height) {
         super(Minecraft.getInstance(), 156, height, top, 32);
         setRenderHeader(false, 0);
-        setRenderBackground(false);
         this.parent = parent;
         this.listWidth = listWidth;
         this.refreshList();
@@ -56,7 +55,27 @@ public class WildfireBreastPresetList extends AbstractSelectionList<BreastPreset
     }
 
     @Override
-    protected void renderSelection(@NotNull GuiGraphics context, int y, int entryWidth, int entryHeight, int borderColor, int fillColor) {
+    protected void renderSelection(@NotNull GuiGraphics graphics, int y, int entryWidth, int entryHeight, int borderColor, int fillColor) {
+    }
+
+    @Override
+    protected void renderListBackground(@NotNull GuiGraphics graphics) {
+    }
+
+    // copy of super without the added margin between entries
+    @Override
+    protected void renderListItems(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        int left = getRowLeft();
+        int width = getRowWidth();
+        int count = this.getItemCount();
+
+        for(int index = 0; index < count; ++index) {
+            int top = this.getRowTop(index);
+            int bottom = this.getRowBottom(index);
+            if(bottom >= this.getY() && top <= this.getBottom()) {
+                this.renderItem(graphics, mouseX, mouseY, partialTick, index, left, top, width, itemHeight);
+            }
+        }
     }
 
     @Override
@@ -123,6 +142,7 @@ public class WildfireBreastPresetList extends AbstractSelectionList<BreastPreset
         public void render(@NotNull GuiGraphics graphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float partialTicks) {
             if (!visible) return;
 
+            btnOpenGUI.active = WildfireBreastPresetList.this.active;
             Font font = Minecraft.getInstance().font;
             //graphics.fill(x, y, x + entryWidth, y + entryHeight, 0x55005555);
 

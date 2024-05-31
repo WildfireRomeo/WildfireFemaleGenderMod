@@ -20,26 +20,19 @@ package com.wildfire.main;
 
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.api.WildfireAPI;
-import com.wildfire.main.entitydata.Breasts;
-import com.wildfire.main.entitydata.EntityConfig;
-import com.wildfire.main.entitydata.PlayerConfig;
-import com.wildfire.main.networking.PacketSendGenderInfo;
-import com.wildfire.main.networking.PacketSync;
+import com.wildfire.main.networking.ClientboundSyncPacket;
+import com.wildfire.main.networking.ServerboundSyncPacket;
 import com.wildfire.render.armor.EmptyGenderArmor;
 import com.wildfire.render.armor.SimpleGenderArmor;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
-import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class WildfireHelper {
 
@@ -77,13 +70,12 @@ public class WildfireHelper {
         event.registerItem(WildfireAPI.GENDER_ARMOR_CAPABILITY, (stack, context) -> SimpleGenderArmor.NETHERITE, Items.NETHERITE_CHESTPLATE);
     }
 
-    public static void registerPackets(RegisterPayloadHandlerEvent event) {
-        //TODO: We can accept packets from fabric but for some reason it doesn't seem like NeoForge is properly letting fabric know we exist?
-        IPayloadRegistrar registrar = event.registrar(WildfireGender.MODID).optional();
+    public static void registerPackets(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar(WildfireGender.MODID).optional();
         //Client to server
-        registrar.play(PacketSendGenderInfo.ID, PacketSendGenderInfo::new, builder -> builder.server(PacketSendGenderInfo::handleMainThread));
+        registrar.playToServer(ServerboundSyncPacket.TYPE, ServerboundSyncPacket.STREAM_CODEC, ServerboundSyncPacket::handle);
         //Server to client
-        registrar.play(PacketSync.ID, PacketSync::new, builder -> builder.client(PacketSync::handleMainThread));
+        registrar.playToClient(ClientboundSyncPacket.TYPE, ClientboundSyncPacket.STREAM_CODEC, ClientboundSyncPacket::handle);
     }
 
     public static <ENTITY extends LivingEntity> void withEntityAngles(ENTITY entity, float yBodyRot, float yRot, float xRot, Consumer<ENTITY> runnable) {
@@ -105,34 +97,5 @@ public class WildfireHelper {
         entity.setXRot(oldXRot);
         entity.yHeadRotO = oldYHeadRot0;
         entity.yHeadRot = oldYHeadRot;
-    }
-
-    /**
-     * <p>Write a player's gender config to NBT on the given item stack.</p>
-     *
-     * <p>This only copies enough data to render breasts similarly to how they'd appear on the given player, which includes:</p>
-     * <ul>
-     *     <li>{@link EntityConfig#getBustSize() Breast size}</li>
-     *     <li>{@link Breasts#getCleavage() Cleavage}</li>
-     *     <li>{@link Breasts#isUniboob() Uniboob}</li>
-     *     <li>{@link Breasts#getXOffset() X}, {@link Breasts#getYOffset() Y}, and {@link Breasts#getZOffset() Z} offsets</li>
-     *     <li>Whether the {@link Player#isModelPartShown player's jacket layer is visible}</li>
-     * </ul>
-     *
-     * @see EntityConfig#readFromStack
-     */
-    public static void writeToNbt(@NotNull Player player, @NotNull PlayerConfig config, @NotNull ItemStack armor) {
-        //Note: We use NBT rather than attachments to maintain compatibility with Fabric
-        CompoundTag nbt = new CompoundTag();
-        nbt.putFloat("BreastSize", config.getGender().canHaveBreasts() && config.showBreastsInArmor() ? config.getBustSize() : 0f);
-        nbt.putFloat("Cleavage", config.getBreasts().getCleavage());
-        nbt.putBoolean("Uniboob", config.getBreasts().isUniboob());
-        nbt.putFloat("XOffset", config.getBreasts().getXOffset());
-        nbt.putFloat("YOffset", config.getBreasts().getYOffset());
-        nbt.putFloat("ZOffset", config.getBreasts().getZOffset());
-        // note that we also copy this to properly copy the exact size, as the player model will push the breast armor
-        // layer out a bit if they have a visible jacket layer
-        nbt.putBoolean("Jacket", player.isModelPartShown(PlayerModelPart.JACKET));
-        armor.addTagElement("WildfireGender", nbt);
     }
 }

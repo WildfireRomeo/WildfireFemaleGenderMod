@@ -30,8 +30,6 @@ import com.wildfire.physics.BreastPhysics;
 import com.wildfire.render.WildfireModelRenderer.BreastModelBox;
 import com.wildfire.render.WildfireModelRenderer.OverlayModelBox;
 import com.wildfire.render.WildfireModelRenderer.PositionTextureVertex;
-import java.util.ConcurrentModificationException;
-import java.util.Locale;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -47,19 +45,23 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
-import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireGender;
 import net.minecraft.world.effect.MobEffectUtil;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.*;
 
+import net.minecraft.world.item.ArmorMaterial.Layer;
 import net.minecraft.world.item.armortrim.ArmorTrim;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.client.ClientHooks;
 import org.jetbrains.annotations.NotNull;
@@ -71,53 +73,23 @@ import org.joml.Vector3f;
 
 public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidModel<ENTITY>> extends RenderLayer<ENTITY, MODEL> {
 
+	private static final OverlayModelBox lBreastWear = new OverlayModelBox(true,64, 64, 17, 34, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+	private static final OverlayModelBox rBreastWear = new OverlayModelBox(false,64, 64, 21, 34, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+	private static final BreastModelBox lBoobArmor = new BreastModelBox(64, 32, 16, 17, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+	private static final BreastModelBox rBoobArmor = new BreastModelBox(64, 32, 20, 17, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
+
 	private final TextureAtlas armorTrimAtlas;
 
 	private BreastModelBox lBreast, rBreast;
-	private final OverlayModelBox lBreastWear, rBreastWear;
-	private final BreastModelBox lBoobArmor, rBoobArmor;
-
-	private float preBreastSize = 0f;
+	private float preBreastSize, preBreastOffsetZ;
 
 	public GenderLayer(RenderLayerParent<ENTITY, MODEL> renderer, ModelManager modelManager) {
 		super(renderer);
 
 		armorTrimAtlas = modelManager.getAtlas(Sheets.ARMOR_TRIMS_SHEET);
-
+		// this can't be static or final as we need the ability to resize this during render time
 		lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, 4, 0.0F, false);
 		rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, 4, 0.0F, false);
-		lBreastWear = new OverlayModelBox(true,64, 64, 17, 34, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
-		rBreastWear = new OverlayModelBox(false,64, 64, 21, 34, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
-
-		lBoobArmor = new BreastModelBox(64, 32, 16, 17, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
-		rBoobArmor = new BreastModelBox(64, 32, 20, 17, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
-	}
-
-	//Copy of Forge's patched in HumanoidArmorLayer#getArmorResource but with the removal of the string to rl map lookup
-	public ResourceLocation getArmorResource(Entity entity, ItemStack stack, EquipmentSlot slot, @Nullable String type) {
-		ArmorItem item = (ArmorItem) stack.getItem();
-		String texture = item.getMaterial().getName();
-		String domain = "minecraft";
-		int idx = texture.indexOf(':');
-		if (idx != -1) {
-			domain = texture.substring(0, idx);
-			texture = texture.substring(idx + 1);
-		}
-		String s1 = String.format(Locale.ROOT, "%s:textures/models/armor/%s_layer_%d%s.png", domain, texture,
-			(slot == EquipmentSlot.LEGS ? 2 : 1), type == null ? "" : String.format(Locale.ROOT, "_%s", type));
-
-		s1 = ClientHooks.getArmorTexture(entity, stack, s1, slot, type);
-		return new ResourceLocation(s1);
-	}
-
-	@Nullable
-	protected EntityConfig getConfig(ENTITY entity) {
-		try {
-			return EntityConfig.getEntity(entity);
-		} catch(ConcurrentModificationException e) {
-			// likely a temporary failure, try again later
-			return null;
-		}
 	}
 
 	@Override
@@ -129,7 +101,7 @@ public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidMode
 		}
 		//Surround with a try/catch to fix for essential mod.
 		try {
-            EntityConfig entityConfig = getConfig(entity);
+            EntityConfig entityConfig = EntityConfig.getEntity(entity);
 			if(entityConfig == null) return;
 
 			ItemStack armorStack = entity.getItemBySlot(EquipmentSlot.CHEST);
@@ -175,16 +147,7 @@ public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidMode
 			float outwardAngle = (Math.round(breasts.getCleavage() * 100f) / 100f) * 100f;
 			outwardAngle = Math.min(outwardAngle, 10);
 
-
-			float reducer = 0;
-			if (bSize < 0.84f) reducer++;
-			if (bSize < 0.72f) reducer++;
-
-			if (preBreastSize != bSize) {
-				lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
-				rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
-				preBreastSize = bSize;
-			}
+			resizeBox(bSize, breastOffsetZ);
 
 			//Note: We only render if the entity is not visible to the player, so we can assume it is visible to the player
 			float overlayAlpha = entity.isInvisible() ? 0.15F : 1;
@@ -239,6 +202,19 @@ public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidMode
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		} catch(Exception e) {
 			WildfireGender.LOGGER.error("Failed to render gender layer", e);
+		}
+	}
+
+	protected void resizeBox(float breastSize, float breastOffsetZ) {
+		float reducer = -1;
+		if (breastSize < 0.84f) reducer++;
+		if (breastSize < 0.72f) reducer++;
+
+		if (preBreastSize != breastSize || preBreastOffsetZ != breastOffsetZ) {
+			lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
+			rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, (int) (4 - breastOffsetZ - reducer), 0.0F, false);
+			preBreastSize = breastSize;
+			preBreastOffsetZ = breastOffsetZ;
 		}
 	}
 
@@ -345,36 +321,40 @@ public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidMode
 		// be it because they are not an armor item or the way they render their armor item is custom
 		//Render Breast Armor
 		if (!armorStack.isEmpty() && armorStack.getItem() instanceof ArmorItem armorItem) {
-			ResourceLocation armorTexture = getArmorResource(entity, armorStack, EquipmentSlot.CHEST, null);
-			ResourceLocation overlayTexture = null;
-			float armorR = 1f;
-			float armorG = 1f;
-			float armorB = 1f;
-			if (armorItem instanceof DyeableLeatherItem dyeableItem) {
-				overlayTexture = getArmorResource(entity, armorStack, EquipmentSlot.CHEST, "overlay");
-				int color = dyeableItem.getColor(armorStack);
-				armorR = (float) (color >> 16 & 255) / 255.0F;
-				armorG = (float) (color >> 8 & 255) / 255.0F;
-				armorB = (float) (color & 255) / 255.0F;
-			}
 			matrixStack.pushPose();
 			matrixStack.translate(left ? 0.001f : -0.001f, 0.015f, -0.015f);
 			matrixStack.scale(1.05f, 1, 1);
 			WildfireModelRenderer.BreastModelBox armor = left ? lBoobArmor : rBoobArmor;
-			RenderType armorType = RenderType.armorCutoutNoCull(armorTexture);
-			VertexConsumer armorVertexConsumer = bufferSource.getBuffer(armorType);
-			renderBox(armor, matrixStack, armorVertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, armorR, armorG, armorB, 1);
-			if (overlayTexture != null) {
-				RenderType overlayType = RenderType.armorCutoutNoCull(overlayTexture);
-				VertexConsumer overlayVertexConsumer = bufferSource.getBuffer(overlayType);
-				renderBox(armor, matrixStack, overlayVertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+
+			Holder<ArmorMaterial> material = armorItem.getMaterial();
+			int color = armorStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(armorStack, 0xFFA06540) : -1;
+			for (Layer layer : material.value().layers()) {
+				float armorR;
+				float armorG;
+				float armorB;
+				if (layer.dyeable() && color != -1) {
+					armorR = FastColor.ARGB32.red(color) / 255.0F;
+					armorG = FastColor.ARGB32.green(color) / 255.0F;
+					armorB = FastColor.ARGB32.blue(color) / 255.0F;
+				} else {
+					armorR = 1.0F;
+					armorG = 1.0F;
+					armorB = 1.0F;
+				}
+
+				ResourceLocation armorTexture = ClientHooks.getArmorTexture(entity, armorStack, layer, false, EquipmentSlot.CHEST);
+
+				RenderType armorType = RenderType.armorCutoutNoCull(armorTexture);
+				VertexConsumer armorVertexConsumer = bufferSource.getBuffer(armorType);
+				renderBox(armor, matrixStack, armorVertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, armorR, armorG, armorB, 1);
 			}
-			ArmorTrim.getTrim(entity.level().registryAccess(), armorStack, true).ifPresent(trim -> {
-				ArmorMaterial armorMaterial = armorItem.getMaterial();
-				TextureAtlasSprite sprite = this.armorTrimAtlas.getSprite(trim.outerTexture(armorMaterial));
+
+			ArmorTrim trim = armorStack.get(DataComponents.TRIM);
+			if (trim != null) {
+				TextureAtlasSprite sprite = this.armorTrimAtlas.getSprite(trim.outerTexture(material));
 				VertexConsumer trimVertexConsumer = sprite.wrap(bufferSource.getBuffer(Sheets.armorTrimsSheet(trim.pattern().value().decal())));
 				renderBox(armor, matrixStack, trimVertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
-			});
+			}
 
 			if (armorStack.hasFoil()) {
 				renderBox(armor, matrixStack, bufferSource.getBuffer(RenderType.armorEntityGlint()), packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);

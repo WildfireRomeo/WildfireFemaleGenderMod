@@ -20,7 +20,6 @@ package com.wildfire.physics;
 
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.entitydata.EntityConfig;
-import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,7 +28,6 @@ import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.monster.Strider;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.phys.Vec3;
@@ -60,9 +58,18 @@ public class BreastPhysics {
 	 * @apiNote Only call on the client
 	 */
 	public void update(LivingEntity entity, IGenderArmor armor) {
-		if (entity instanceof ArmorStand && !armor.armorStandsCopySettings()) {
-			// optimization: skip physics on armor stands that either don't have a chestplate,
-			// or have a chestplate we wouldn't copy player settings to
+		// always suppress the full physics calculations on armor stands
+		if (entity instanceof ArmorStand) {
+			if (entityConfig.getGender().canHaveBreasts()) {
+				this.breastSize = entityConfig.getBustSize();
+				if (!entityConfig.getArmorPhysicsOverride()) {
+					float tightness = Mth.clamp(armor.tightness(), 0, 1);
+					this.breastSize *= 1 - 0.15F * tightness;
+				}
+				this.preBreastSize = this.breastSize;
+			} else {
+				this.breastSize = 0f;
+			}
 			return;
 		}
 

@@ -22,7 +22,7 @@ import com.wildfire.gui.screen.WardrobeBrowserScreen;
 import com.wildfire.main.config.GeneralClientConfig;
 import com.wildfire.main.entitydata.EntityConfig;
 import com.wildfire.main.entitydata.PlayerConfig;
-import com.wildfire.main.networking.PacketSendGenderInfo;
+import com.wildfire.main.networking.ServerboundSyncPacket;
 import com.wildfire.render.GenderLayer;
 
 import java.util.Set;
@@ -38,6 +38,7 @@ import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -46,17 +47,17 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.PlayLevelSoundEvent;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
@@ -77,7 +78,7 @@ public class WildfireEventHandler {
 		}
 	};
 
-	@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD, modid = WildfireGender.MODID)
+	@EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD, modid = WildfireGender.MODID)
 	private static class ClientModEventBusListeners {
 		@SubscribeEvent
 		public static void entityLayers(EntityRenderersEvent.AddLayers event) {
@@ -106,7 +107,7 @@ public class WildfireEventHandler {
 	private int toastTick = 0;
 	private boolean showedToast = false;
  	@SubscribeEvent
-	public void onGUI(TickEvent.ClientTickEvent evt) {
+	public void onGUI(ClientTickEvent.Post evt) {
 		Player player = Minecraft.getInstance().player;
  		if (Minecraft.getInstance().level == null || player == null) {
 			toastTick = 0;
@@ -131,10 +132,10 @@ public class WildfireEventHandler {
 		ClientPacketListener connection = Minecraft.getInstance().getConnection();
 		if (connection != null) {
 			//20 ticks per second / 5 = 4 times per second
-			if (connection.isConnected(PacketSendGenderInfo.ID) && timer++ % 5 == 0) {
+			if (connection.hasChannel(ServerboundSyncPacket.TYPE) && timer++ % 5 == 0) {
 				PlayerConfig plr = WildfireGender.getPlayerById(player.getUUID());
 				if (plr != null && plr.needsSync) {
-					PacketDistributor.SERVER.noArg().send(new PacketSendGenderInfo(plr));
+					PacketDistributor.sendToServer(new ServerboundSyncPacket(plr));
 					plr.needsSync = false;
 				}
 			}
@@ -142,15 +143,15 @@ public class WildfireEventHandler {
 	}
 
 	@SubscribeEvent
-	public void onEntityTick(LivingEvent.LivingTickEvent evt) {
-		LivingEntity entity = evt.getEntity();
-		if (entity.level().isClientSide && (entity instanceof Player || entity instanceof ArmorStand)) {
-			EntityConfig cfg = EntityConfig.getEntity(entity);
+	public void onEntityTick(EntityTickEvent.Post evt) {
+		Entity entity = evt.getEntity();
+		if (entity.level().isClientSide && entity instanceof LivingEntity living && (living instanceof Player || living instanceof ArmorStand)) {
+			EntityConfig cfg = EntityConfig.getEntity(living);
             if (cfg != null) {
                 if (entity instanceof ArmorStand) {
-                    cfg.readFromStack(entity.getItemBySlot(EquipmentSlot.CHEST));
+                    cfg.readFromStack(living.getItemBySlot(EquipmentSlot.CHEST));
                 }
-                cfg.tickBreastPhysics(entity);
+                cfg.tickBreastPhysics(living);
             }
         }
 	}

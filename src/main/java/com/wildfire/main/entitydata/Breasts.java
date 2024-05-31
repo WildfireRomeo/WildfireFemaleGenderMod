@@ -21,13 +21,35 @@ package com.wildfire.main.entitydata;
 import com.wildfire.main.config.ClientConfiguration;
 import com.wildfire.main.config.ConfigKey;
 import com.wildfire.main.config.Configuration;
+import io.netty.buffer.ByteBuf;
 import java.util.function.Consumer;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import org.joml.Vector3f;
 
 /**
  * Data class representing an entity's breast appearance settings
  */
 @SuppressWarnings("UnusedReturnValue")
-public class Breasts {
+public final class Breasts {
+
+    public static final StreamCodec<ByteBuf, Breasts> STREAM_CODEC = StreamCodec.composite(
+          ByteBufCodecs.FLOAT, Breasts::getXOffset,
+          ByteBufCodecs.FLOAT, Breasts::getYOffset,
+          ByteBufCodecs.FLOAT, Breasts::getZOffset,
+          ByteBufCodecs.BOOL, Breasts::isUniboob,
+          ByteBufCodecs.FLOAT, Breasts::getCleavage,
+          (xOffset, yOffset, zOffset, uniboob, cleavage) -> {
+              //Store raw values when read from server
+              Breasts breasts = new Breasts();
+              breasts.xOffset = xOffset;
+              breasts.yOffset = yOffset;
+              breasts.zOffset = zOffset;
+              breasts.cleavage = cleavage;
+              breasts.uniboob = uniboob;
+              return breasts;
+          }
+    );
 
     private float xOffset = ClientConfiguration.BREASTS_OFFSET_X.getDefault(), yOffset = ClientConfiguration.BREASTS_OFFSET_Y.getDefault(), zOffset = ClientConfiguration.BREASTS_OFFSET_Z.getDefault();
     private float cleavage = ClientConfiguration.BREASTS_CLEAVAGE.getDefault();
@@ -47,6 +69,24 @@ public class Breasts {
             return false;
         }
         return updateValue(key, value, setter);
+    }
+
+    public void updateFrom(Breasts other) {
+        updateXOffset(other.getXOffset());
+        updateYOffset(other.getYOffset());
+        updateZOffset(other.getZOffset());
+        updateUniboob(other.isUniboob());
+        updateCleavage(other.getCleavage());
+    }
+
+    public Vector3f getOffsets() {
+        return new Vector3f(xOffset, yOffset, zOffset);
+    }
+
+    public void updateOffsets(Vector3f offsets) {
+        updateXOffset(offsets.x);
+        updateYOffset(offsets.y);
+        updateZOffset(offsets.z);
     }
 
     /**

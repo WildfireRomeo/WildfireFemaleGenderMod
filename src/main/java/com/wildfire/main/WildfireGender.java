@@ -21,14 +21,16 @@ package com.wildfire.main;
 import com.mojang.logging.LogUtils;
 import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.config.GeneralClientConfig;
+import com.wildfire.main.entitydata.BreastDataComponent;
 import com.wildfire.main.entitydata.PlayerConfig;
-import com.wildfire.main.networking.PacketSync;
+import com.wildfire.main.networking.ClientboundSyncPacket;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
@@ -55,11 +57,10 @@ import org.slf4j.Logger;
 @Mod(WildfireGender.MODID)
 public class WildfireGender {
 
-    public static final String VERSION = "3.0.1";
     public static final String MODID = "wildfire_gender";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public static Map<UUID, PlayerConfig> PLAYER_CACHE = new HashMap<>();
+    public static Map<UUID, PlayerConfig> PLAYER_CACHE = new ConcurrentHashMap<>();
     private static WildfireGender instance;
 
     //Tracked player to the set of tracking players
@@ -98,7 +99,7 @@ public class WildfireGender {
     }
 
     private void onStartTracking(PlayerEvent.StartTracking evt) {
-        if (evt.getTarget() instanceof Player toSync && evt.getEntity() instanceof ServerPlayer sendTo && sendTo.connection.isConnected(PacketSync.ID)) {
+        if (evt.getTarget() instanceof Player toSync && evt.getEntity() instanceof ServerPlayer sendTo && sendTo.connection.hasChannel(ClientboundSyncPacket.TYPE)) {
             trackedPlayers.computeIfAbsent(toSync.getUUID(), uuid -> new HashSet<>()).add(sendTo);
 
             PlayerConfig genderToSync = WildfireGender.getPlayerById(toSync.getUUID());
@@ -110,7 +111,7 @@ public class WildfireGender {
             // tracking distance of another, change their settings, and then re-enter their tracking distance;
             // we wouldn't sync while they're out of tracking distance, and as such, their settings would be out
             // of sync until they relog.
-            PacketDistributor.PLAYER.with(sendTo).send(new PacketSync(genderToSync));
+            PacketDistributor.sendToPlayer(sendTo, new ClientboundSyncPacket(genderToSync));
         }
     }
 
@@ -127,9 +128,8 @@ public class WildfireGender {
     private void onEntitySpawn(EntityJoinLevelEvent event) {
         if (!event.getLevel().isClientSide && event.getEntity() instanceof ItemEntity entity && LivingEntity.getEquipmentSlotForItem(entity.getItem()) == EquipmentSlot.CHEST) {
             //Remove our tag if it is present when an item drops (such as from an armor stand being broken)
-            if (entity.getItem().getTagElement("WildfireGender") != null) {
-                ItemStack stack = entity.getItem();
-                stack.removeTagKey("WildfireGender");
+            ItemStack stack = entity.getItem();
+            if (BreastDataComponent.removeFromStack(stack)) {
                 entity.setItem(stack);
             }
         }
@@ -150,7 +150,7 @@ public class WildfireGender {
                     if (!itemstack.isEmpty()) {
                         if ((armorStand.disabledSlots & 1 << equipmentslot2.getFilterFlag() + 8) == 0) {
                             //Stack is being removed from the armor stand, remove the corresponding tag key we added if it is present
-                            itemstack.removeTagKey("WildfireGender");
+                            BreastDataComponent.removeFromStack(itemstack);
                         }
                     }
                 }
@@ -169,7 +169,7 @@ public class WildfireGender {
                     event.setCanceled(true);
                 } else if (!itemstack.isEmpty()) {
                     //Stack is being removed from the armor stand remove the corresponding tag key we added if it is present
-                    itemstack.removeTagKey("WildfireGender");
+                    BreastDataComponent.removeFromStack(itemstack);
                     if (stack.getCount() > 1) {
                         //If the held stack has a size greater than one, we are only removing so can exit. Otherwise we are swapping
                         // so need to add to the held stack
@@ -184,11 +184,14 @@ public class WildfireGender {
 
                 PlayerConfig playerConfig = WildfireGender.getPlayerById(player.getUUID());
                 if (playerConfig == null) {
-                    stack.removeTagKey("WildfireGender");
+                    BreastDataComponent.removeFromStack(itemstack);
                 } else {
                     IGenderArmor armorConfig = WildfireHelper.getArmorConfig(stack);
                     if (armorConfig.armorStandsCopySettings()) {
-                        WildfireHelper.writeToNbt(player, playerConfig, stack);
+                        BreastDataComponent component = BreastDataComponent.fromPlayer(player, playerConfig);
+                        if (component != null) {
+                            component.write(stack);
+                        }
                     }
                 }
                 if (event.isCanceled()) {

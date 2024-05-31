@@ -35,8 +35,9 @@ public interface IGenderArmor {
     }
 
     /**
-     * Determines if this {@link IGenderArmor} should always hide the wearer's breasts when worn even if they have {@code showBreastsInArmor} set to {@code true}. This is
-     * useful for armors that may have custom rendering that is not compatible with how the breasts render and would just lead to clipping.
+     * Determines if this {@link IGenderArmor} should always hide the wearer's breasts when worn even if they have {@code showBreastsInArmor} set to {@code true}.
+     *
+     * <p>This is useful for armors that may have custom rendering that is not compatible with how the breasts render and would just lead to clipping.
      *
      * @return {@code true} to hide the breasts regardless of what {@code showBreastsInArmor} is set to.
      *
@@ -58,7 +59,7 @@ public interface IGenderArmor {
     }
 
     /**
-     * Value representing how "tight" this {@link IGenderArmor} is. Tightness "compresses" the breasts against the wearer causing the breasts to appear up to {@code 15%}
+     * Value representing how "tight" this {@link IGenderArmor} is. Tightness "compresses" the breasts against the wearer, causing the breasts to appear up to {@code 15%}
      * smaller.
      *
      * @return Value between {@code 0} (no tightness, no size reduction) and {@code 1} (full tightness, {@code 15%} size reduction).
@@ -70,16 +71,20 @@ public interface IGenderArmor {
     }
 
     /**
-     * Determines whether armor stands should copy the breast settings of the player equipping this chestplate
-     * onto it.
+     * Determines whether armor stands should copy the breast settings of the player equipping this chestplate onto it.
      *
-     * @implNote If this returns {@code true}, any time a player equips this chestplate onto an armor stand, their
-     *           breast settings will be copied onto the item stack's NBT under the key {@code WildfireGender}.
+     * <p>If this returns {@code true}, an equipping player's breast settings will be copied onto the item stack's
+     * {@link net.minecraft.core.component.DataComponents#CUSTOM_DATA custom NBT data component} under the tag {@code WildfireGender}.
      *
-     * @return   Defaults to returning {@code true} if this armor {@link #coversBreasts() covers the breasts}
-     *           (and {@link #alwaysHidesBreasts() doesn't hide them}), and {@link #physicsResistance() has
-     *           complete physics resistance}.
+     * <p>This is designed for armor types that are metallic in nature, and not armor types that would (realistically) be flexible enough to accommodate for a player's
+     * breasts on their own (such as Leather and Chain).</p>
      *
+     * @return {@code true} to copy the equipping player's breast settings onto this armor type when equipped onto armor stands, and render the relevant breast settings
+     * on the armor stand.
+     *
+     * @implNote Defaults to returning {@code true} if this armor {@link #coversBreasts() covers the breasts} (and {@link #alwaysHidesBreasts() doesn't hide them}), and
+     * {@link #physicsResistance() has complete physics resistance}.
+     * @see com.wildfire.main.entitydata.BreastDataComponent
      * @since 3.2.0
      */
     default boolean armorStandsCopySettings() {

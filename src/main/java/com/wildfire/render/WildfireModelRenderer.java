@@ -21,7 +21,10 @@ package com.wildfire.render;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 
-public class WildfireModelRenderer {
+public final class WildfireModelRenderer {
+
+	private WildfireModelRenderer() {
+	}
 
 	public static class ModelBox {
 		public final WildfireModelRenderer.TexturedQuad[] quads;

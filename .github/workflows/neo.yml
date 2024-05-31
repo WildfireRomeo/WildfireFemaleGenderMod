@@ -1,27 +1,27 @@
-name: Build forge mod with Gradle
+name: Build NeoForge
 on:
   push:
-    branches: [ forge-1.19.x ]
+    branches: [ neo-1.20.6 ]
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-    - name: Get the repository contents.
-      uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
       with:
         clean: false
-    - name: Set up JDK 17
-      uses: actions/setup-java@v2
+    - name: Setup JDK
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: 17
+        java-version: 21
     - name: Attempt to compile using Gradle
       run: |
        chmod +x gradlew
        ./gradlew build
     # we do not want -sources and -dev files, also this needs a github account to be downloaded via summary page.
     - name: Upload compiled mod jars.
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: WFGM-artifacts
         path: build/libs/*[0-9].jar

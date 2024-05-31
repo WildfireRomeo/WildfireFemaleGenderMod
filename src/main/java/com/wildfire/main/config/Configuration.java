@@ -45,15 +45,6 @@ public class Configuration {
 		CFG_FILE = saveDir.resolve(cfgName + ".json").toFile();
 	}
 
-	public void finish() {
-		if(CFG_FILE.exists()) {
-			load(); //load file
-			updateConfig();
-		} else {
-			//save(); //save all values to default in new file.
-		}
-	}
-
 	public <TYPE> void set(ConfigKey<TYPE> key, TYPE value) {
 		key.save(SAVE_VALUES, value);
 	}
@@ -82,44 +73,25 @@ public class Configuration {
 		SAVE_VALUES.remove(key);
 	}
 	
-	public void updateConfig() {
-		JsonObject obj;
-		try (FileReader configurationFile = new FileReader(CFG_FILE)) {
-			obj = GsonHelper.parse(configurationFile);
-			//Merge with existing values
-			for (Map.Entry<String, JsonElement> entry : SAVE_VALUES.entrySet()) {
-				obj.add(entry.getKey(), entry.getValue());
-			}
-		} catch(Exception ignored) {
-			return;
-		}
-		try (FileWriter writer = new FileWriter(CFG_FILE);
-			 JsonWriter jsonWriter = new JsonWriter(writer)) {
-			ADAPTER.write(jsonWriter, obj);
-			//WildfireGender.logger.debug("[Configuration] Saved Existing File!");
-		} catch(Exception ignored) {}
-	}
-	
 	public void save() {
 		try (FileWriter writer = new FileWriter(CFG_FILE);
 			 JsonWriter jsonWriter = new JsonWriter(writer)) {
-			jsonWriter.setIndent("		");
+			jsonWriter.setIndent("\t");
 			ADAPTER.write(jsonWriter, SAVE_VALUES);
 			//WildfireGender.logger.debug("[Configuration] Saved New File!");
 		} catch (IOException e) {
 			WildfireGender.LOGGER.error("Failed to save Configuration", e);
 		}
 	}
-	
-	//load file values to this class for use in the program
+
 	public void load() {
-		 //WildfireGender.logger.debug("[Configuration] Loading...");
-		
+		if (!CFG_FILE.exists()) {
+			return;
+		}
 		try (FileReader configurationFile = new FileReader(CFG_FILE)) {
 			JsonObject obj = GsonHelper.parse(configurationFile);
 			for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-				String key = entry.getKey();
-				SAVE_VALUES.add(key, entry.getValue());
+				SAVE_VALUES.add(entry.getKey(), entry.getValue());
 			}
 		    //WildfireGender.logger.debug("[Configuration] Loaded!");
 		} catch(Exception e) {

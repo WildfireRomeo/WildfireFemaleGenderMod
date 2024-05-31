@@ -23,7 +23,6 @@ import com.wildfire.main.WildfireGender;
 import com.wildfire.main.config.ConfigKey;
 import com.wildfire.main.config.ClientConfiguration;
 import com.wildfire.main.config.Configuration;
-import com.wildfire.physics.BreastPhysics;
 import java.util.UUID;
 import java.util.function.Consumer;
 import net.minecraft.world.item.ItemStack;
@@ -50,7 +49,7 @@ public class PlayerConfig extends EntityConfig {
 	public PlayerConfig(UUID uuid, Gender gender) {
 		super(uuid);
 		this.gender = gender;
-		this.cfg = new ClientConfiguration("WildfireGender", this.uuid.toString());
+		this.cfg = new ClientConfiguration(this.uuid.toString());
 		this.cfg.set(ClientConfiguration.USERNAME, this.uuid);
 		this.cfg.setDefaults(
 			ClientConfiguration.GENDER,
@@ -69,7 +68,6 @@ public class PlayerConfig extends EntityConfig {
 			ClientConfiguration.BOUNCE_MULTIPLIER,
 			ClientConfiguration.FLOPPY_MULTIPLIER
 		);
-		this.cfg.finish();
 	}
 
 	// this shouldn't ever be called on players, but just to be safe, override with a noop.
@@ -162,6 +160,7 @@ public class PlayerConfig extends EntityConfig {
 		if (plr != null) {
 			plr.syncStatus = SyncStatus.CACHED;
 			ClientConfiguration config = plr.getConfig();
+			config.load();
 			plr.updateGender(config.get(ClientConfiguration.GENDER));
 			plr.updateBustSize(config);
 			plr.updateHurtSounds(config.get(ClientConfiguration.HURT_SOUNDS));

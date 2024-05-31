@@ -23,17 +23,18 @@ import com.wildfire.main.Gender;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.WildfireHelper;
 import com.wildfire.main.config.ClientConfiguration;
-import com.wildfire.main.config.Configuration;
 import com.wildfire.physics.BreastPhysics;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
-import net.minecraft.nbt.CompoundTag;
+import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,7 +47,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class EntityConfig {
 
-	public static final Map<UUID, EntityConfig> ENTITY_CACHE = new HashMap<>();
+	public static final Map<UUID, EntityConfig> ENTITY_CACHE = new ConcurrentHashMap<>();
 
 	public final UUID uuid;
 	protected Gender gender = ClientConfiguration.GENDER.getDefault();
@@ -59,6 +60,7 @@ public class EntityConfig {
 	protected final BreastPhysics lBreastPhysics, rBreastPhysics;
 	protected final Breasts breasts;
 	protected boolean jacketLayer = true;
+	protected @Nullable BreastDataComponent fromComponent;
 
 	EntityConfig(UUID uuid) {
 		this.uuid = uuid;
@@ -70,22 +72,30 @@ public class EntityConfig {
 	/**
 	 * Copy gender settings included in the given {@link ItemStack item NBT} to the current entity
 	 *
-	 * @see WildfireHelper#writeToNbt
+	 * @see BreastDataComponent
 	 */
 	public void readFromStack(@NotNull ItemStack chestplate) {
-		CompoundTag nbt = !chestplate.isEmpty() ? chestplate.getTagElement("WildfireGender") : null;
-		if(nbt == null) {
+		CustomData data = chestplate.get(DataComponents.CUSTOM_DATA);
+		if (chestplate.isEmpty() || data == null) {
+			this.fromComponent = null;
+			this.gender = Gender.MALE;
+			return;
+		} else if (fromComponent != null && Objects.equals(data, fromComponent.nbtComponent())) {
+			// nothing's changed since the last time we checked, so there's no need to read from the
+			// underlying nbt tag again
+			return;
+		}
+		fromComponent = BreastDataComponent.fromComponent(data);
+		if (fromComponent == null) {
 			this.gender = Gender.MALE;
 			return;
 		}
-		this.pBustSize = nbt.contains("BreastSize") ? nbt.getFloat("BreastSize") : 0f;
-		this.gender = this.pBustSize > 0.02f ? Gender.FEMALE : Gender.MALE;
-		if(nbt.contains("Cleavage")) breasts.updateCleavage(nbt.getFloat("Cleavage"));
-		if(nbt.contains("Uniboob")) breasts.updateUniboob(nbt.getBoolean("Uniboob"));
-		if(nbt.contains("XOffset")) breasts.updateXOffset(nbt.getFloat("XOffset"));
-		if(nbt.contains("YOffset")) breasts.updateYOffset(nbt.getFloat("YOffset"));
-		if(nbt.contains("ZOffset")) breasts.updateZOffset(nbt.getFloat("ZOffset"));
-		if(nbt.contains("Jacket")) jacketLayer = nbt.getBoolean("Jacket");
+		breastPhysics = false;
+		pBustSize = fromComponent.breastSize();
+		gender = pBustSize >= 0.02F ? Gender.FEMALE : Gender.MALE;
+		breasts.updateCleavage(fromComponent.cleavage());
+		breasts.updateOffsets(fromComponent.offsets());
+		this.jacketLayer = fromComponent.jacket();
 	}
 
 	/**
