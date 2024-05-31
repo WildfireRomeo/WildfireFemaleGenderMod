@@ -91,7 +91,7 @@ public abstract class AbstractConfiguration {
 	}
 
 	public void load() {
-		if(!supportsSaving()) return;
+		if(!supportsSaving() || !CFG_FILE.exists()) return;
 		try(FileReader configurationFile = new FileReader(CFG_FILE)) {
 			JsonObject obj = new Gson().fromJson(configurationFile, JsonObject.class);
 			for(Map.Entry<String, JsonElement> entry : obj.entrySet()) {
