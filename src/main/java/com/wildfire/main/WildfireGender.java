@@ -119,7 +119,7 @@ public class WildfireGender {
         if (evt.getTarget() instanceof Player toSync && evt.getEntity() instanceof ServerPlayer sendTo) {
             UUID uuid = toSync.getUUID();
             Set<ServerPlayer> trackers = trackedPlayers.get(uuid);
-            if (trackers.remove(sendTo) && trackers.isEmpty()) {
+            if (trackers != null && trackers.remove(sendTo) && trackers.isEmpty()) {
                 trackedPlayers.remove(uuid);
             }
         }
