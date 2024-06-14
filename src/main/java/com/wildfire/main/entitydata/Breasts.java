@@ -51,7 +51,9 @@ public final class Breasts {
           }
     );
 
-    private float xOffset = ClientConfiguration.BREASTS_OFFSET_X.getDefault(), yOffset = ClientConfiguration.BREASTS_OFFSET_Y.getDefault(), zOffset = ClientConfiguration.BREASTS_OFFSET_Z.getDefault();
+    private float xOffset = ClientConfiguration.BREASTS_OFFSET_X.getDefault(),
+          yOffset = ClientConfiguration.BREASTS_OFFSET_Y.getDefault(),
+          zOffset = ClientConfiguration.BREASTS_OFFSET_Z.getDefault();
     private float cleavage = ClientConfiguration.BREASTS_CLEAVAGE.getDefault();
     private boolean uniboob = ClientConfiguration.BREASTS_UNIBOOB.getDefault();
 

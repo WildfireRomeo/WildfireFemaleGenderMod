@@ -7,7 +7,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.wildfire.main.config.ClientConfiguration;
 import com.wildfire.main.config.FloatConfigKey;
 import java.util.function.Function;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
@@ -59,13 +63,14 @@ public record BreastDataComponent(float breastSize, float cleavage, Vector3f off
         return new BreastDataComponent(parsedData.breastSize, parsedData.cleavage, parsedData.offsets, parsedData.jacket, component);
     }
 
-    public void write(ItemStack stack) {
+    public void write(HolderLookup.Provider lookup, ItemStack stack) {
         if (stack.isEmpty()) {
             throw new IllegalArgumentException("The provided ItemStack must not be empty");
         }
         // see the class javadoc for why we're using the custom data component instead of using this class
         // as its own data component type
-        DataResult<CustomData> result = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).update(MAP_CODEC, this);
+        RegistryOps<Tag> registryOps = lookup.createSerializationContext(NbtOps.INSTANCE);
+        DataResult<CustomData> result = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).update(registryOps, MAP_CODEC, this);
         if (result.isSuccess()) {
             //Note: We don't have to handle the case that update normally does of if it is now empty then remove it
             // as we know we have added our own data to it, so it isn't empty

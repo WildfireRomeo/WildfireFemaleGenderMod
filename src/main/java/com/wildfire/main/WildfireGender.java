@@ -20,6 +20,7 @@ package com.wildfire.main;
 
 import com.mojang.logging.LogUtils;
 import com.wildfire.api.IGenderArmor;
+import com.wildfire.api.WildfireAPI;
 import com.wildfire.main.config.GeneralClientConfig;
 import com.wildfire.main.entitydata.BreastDataComponent;
 import com.wildfire.main.entitydata.PlayerConfig;
@@ -40,6 +41,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
@@ -57,7 +59,7 @@ import org.slf4j.Logger;
 @Mod(WildfireGender.MODID)
 public class WildfireGender {
 
-    public static final String MODID = "wildfire_gender";
+    public static final String MODID = WildfireAPI.MODID;
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public static Map<UUID, PlayerConfig> PLAYER_CACHE = new ConcurrentHashMap<>();
@@ -82,7 +84,7 @@ public class WildfireGender {
     }
 
     public static ResourceLocation rl(String path) {
-        return new ResourceLocation(MODID, path);
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 
     public static Set<ServerPlayer> getTrackers(Player target) {
@@ -125,8 +127,17 @@ public class WildfireGender {
         }
     }
 
+    private static EquipmentSlot getEquipmentSlot(ItemStack stack) {
+        EquipmentSlot slot = stack.getEquipmentSlot();
+        if (slot == null) {
+            Equipable equipable = Equipable.get(stack);
+            return equipable == null ? EquipmentSlot.MAINHAND : equipable.getEquipmentSlot();
+        }
+        return slot;
+    }
+
     private void onEntitySpawn(EntityJoinLevelEvent event) {
-        if (!event.getLevel().isClientSide && event.getEntity() instanceof ItemEntity entity && LivingEntity.getEquipmentSlotForItem(entity.getItem()) == EquipmentSlot.CHEST) {
+        if (!event.getLevel().isClientSide && event.getEntity() instanceof ItemEntity entity && getEquipmentSlot(entity.getItem()) == EquipmentSlot.CHEST) {
             //Remove our tag if it is present when an item drops (such as from an armor stand being broken)
             ItemStack stack = entity.getItem();
             if (BreastDataComponent.removeFromStack(stack)) {
@@ -143,7 +154,7 @@ public class WildfireGender {
             // Only apply to chestplates
             if (stack.isEmpty()) {
                 EquipmentSlot clickedSlot = armorStand.getClickedSlot(event.getLocalPos());
-                EquipmentSlot equipmentslot2 = armorStand.isDisabled(clickedSlot) ? LivingEntity.getEquipmentSlotForItem(stack) : clickedSlot;
+                EquipmentSlot equipmentslot2 = armorStand.isDisabled(clickedSlot) ? getEquipmentSlot(stack) : clickedSlot;
                 if (equipmentslot2 == EquipmentSlot.CHEST) {
                     //Copy of logic from ArmorStand#swapItem
                     ItemStack itemstack = armorStand.getItemBySlot(equipmentslot2);
@@ -154,7 +165,7 @@ public class WildfireGender {
                         }
                     }
                 }
-            } else if (LivingEntity.getEquipmentSlotForItem(stack) == EquipmentSlot.CHEST && WildfireHelper.getArmorConfig(stack).armorStandsCopySettings() &&
+            } else if (getEquipmentSlot(stack) == EquipmentSlot.CHEST && WildfireHelper.getArmorConfig(stack).armorStandsCopySettings() &&
                        !armorStand.isDisabled(EquipmentSlot.CHEST)) {
                 //Copy of logic from ArmorStand#swapItem
                 ItemStack itemstack = armorStand.getItemBySlot(EquipmentSlot.CHEST);
@@ -190,7 +201,7 @@ public class WildfireGender {
                     if (armorConfig.armorStandsCopySettings()) {
                         BreastDataComponent component = BreastDataComponent.fromPlayer(player, playerConfig);
                         if (component != null) {
-                            component.write(stack);
+                            component.write(player.level().registryAccess(), stack);
                         }
                     }
                 }

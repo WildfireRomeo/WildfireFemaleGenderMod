@@ -93,7 +93,7 @@ public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidMode
 	}
 
 	@Override
-	public void render(@NotNull PoseStack matrixStack, @NotNull MultiBufferSource bufferSource, int packedLightIn, @NotNull ENTITY entity, float limbAngle,
+	public void render(@NotNull PoseStack matrixStack, @NotNull MultiBufferSource bufferSource, int light, @NotNull ENTITY entity, float limbAngle,
 		float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
 		if (GeneralClientConfig.INSTANCE.disableRendering.get() || entity.isSpectator()) {
 			//Rendering is disabled client side, or the entity is in spectator so only the head will be rendered
@@ -154,20 +154,20 @@ public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidMode
 
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
-			float lTotal = Mth.lerp(partialTicks, leftBreastPhysics.getPrePositionY(), leftBreastPhysics.getPositionY());
-			float lTotalX = Mth.lerp(partialTicks, leftBreastPhysics.getPrePositionX(), leftBreastPhysics.getPositionX());
+			float lPhysPositionY = Mth.lerp(partialTicks, leftBreastPhysics.getPrePositionY(), leftBreastPhysics.getPositionY());
+			float lPhysPositionX = Mth.lerp(partialTicks, leftBreastPhysics.getPrePositionX(), leftBreastPhysics.getPositionX());
 			float leftBounceRotation = Mth.lerp(partialTicks, leftBreastPhysics.getPreBounceRotation(), leftBreastPhysics.getBounceRotation());
-			float rTotal;
-			float rTotalX;
+			float rPhysPositionY;
+			float rPhysPositionX;
 			float rightBounceRotation;
 			if (breasts.isUniboob()) {
-				rTotal = lTotal;
-				rTotalX = lTotalX;
+				rPhysPositionY = lPhysPositionY;
+				rPhysPositionX = lPhysPositionX;
 				rightBounceRotation = leftBounceRotation;
 			} else {
 				BreastPhysics rightBreastPhysics = entityConfig.getRightBreastPhysics();
-				rTotal = Mth.lerp(partialTicks, rightBreastPhysics.getPrePositionY(), rightBreastPhysics.getPositionY());
-				rTotalX = Mth.lerp(partialTicks, rightBreastPhysics.getPrePositionX(), rightBreastPhysics.getPositionX());
+				rPhysPositionY = Mth.lerp(partialTicks, rightBreastPhysics.getPrePositionY(), rightBreastPhysics.getPositionY());
+				rPhysPositionX = Mth.lerp(partialTicks, rightBreastPhysics.getPrePositionX(), rightBreastPhysics.getPositionX());
 				rightBounceRotation = Mth.lerp(partialTicks, rightBreastPhysics.getPreBounceRotation(), rightBreastPhysics.getBounceRotation());
 			}
 			float breastSize = bSize * 1.5f;
@@ -190,14 +190,14 @@ public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidMode
 										  entity.level().getBlockState(BlockPos.containing(entity.getX(), entity.getEyeY(), entity.getZ())).is(Blocks.BUBBLE_COLUMN));
 			boolean bounceEnabled = entityConfig.hasBreastPhysics() && (!isChestplateOccupied || resistance < 1); //oh, you found this?
 
-			int combineTex = LivingEntityRenderer.getOverlayCoords(entity, 0);
+			int overlay = LivingEntityRenderer.getOverlayCoords(entity, 0);
 			HumanoidModel<ENTITY> model = getParentModel();
 			boolean hasJacketLayer = entity instanceof Player player ? player.isModelPartShown(PlayerModelPart.JACKET) : entityConfig.hasJacketLayer();
-			renderBreastWithTransforms(entity, model, armorStack, matrixStack, bufferSource, breastRenderType, packedLightIn, combineTex, overlayAlpha, bounceEnabled,
-				lTotalX, lTotal, leftBounceRotation, breastSize, breastOffsetX, breastOffsetY, breastOffsetZ, zOff, outwardAngle, breasts.isUniboob(),
+			renderBreastWithTransforms(entity, model, armorStack, matrixStack, bufferSource, breastRenderType, light, overlay, overlayAlpha, bounceEnabled,
+				lPhysPositionX, lPhysPositionY, leftBounceRotation, breastSize, breastOffsetX, breastOffsetY, breastOffsetZ, zOff, outwardAngle, breasts.isUniboob(),
 				isChestplateOccupied, breathingAnimation, true, hasJacketLayer);
-			renderBreastWithTransforms(entity, model, armorStack, matrixStack, bufferSource, breastRenderType, packedLightIn, combineTex, overlayAlpha, bounceEnabled,
-				rTotalX, rTotal, rightBounceRotation, breastSize, -breastOffsetX, breastOffsetY, breastOffsetZ, zOff, -outwardAngle, breasts.isUniboob(),
+			renderBreastWithTransforms(entity, model, armorStack, matrixStack, bufferSource, breastRenderType, light, overlay, overlayAlpha, bounceEnabled,
+				rPhysPositionX, rPhysPositionY, rightBounceRotation, breastSize, -breastOffsetX, breastOffsetY, breastOffsetZ, zOff, -outwardAngle, breasts.isUniboob(),
 				isChestplateOccupied, breathingAnimation, false, hasJacketLayer);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		} catch(Exception e) {
@@ -219,7 +219,7 @@ public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidMode
 	}
 
 	private void renderBreastWithTransforms(ENTITY entity, HumanoidModel<ENTITY> model, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource,
-		@Nullable RenderType breastRenderType, int packedLightIn, int combineTex, float alpha, boolean bounceEnabled, float totalX, float total, float bounceRotation,
+		@Nullable RenderType breastRenderType, int light, int overlay, float alpha, boolean bounceEnabled, float physPositionX, float physPositionY, float bounceRotation,
 		float breastSize, float breastOffsetX, float breastOffsetY, float breastOffsetZ, float zOff, float outwardAngle, boolean uniboob, boolean isChestplateOccupied,
 		boolean breathingAnimation, boolean left, boolean hasJacketLayer) {
 		matrixStack.pushPose();
@@ -243,8 +243,8 @@ public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidMode
 			}
 
 			if (bounceEnabled) {
-				matrixStack.translate(totalX / 32f, 0, 0);
-				matrixStack.translate(0, total / 32f, 0);
+				matrixStack.translate(physPositionX / 32f, 0, 0);
+				matrixStack.translate(0, physPositionY / 32f, 0);
 			}
 
 			matrixStack.translate(breastOffsetX * 0.0625f, 0.05625f + (breastOffsetY * 0.0625f), zOff - 0.0625f * 2f + (breastOffsetZ * 0.0625f)); //shift down to correct position
@@ -262,7 +262,7 @@ public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidMode
 			float rotationMultiplier = 0;
 			if (bounceEnabled) {
 				matrixStack.translate(0, -0.035f * breastSize, 0); //shift down to correct position
-				rotationMultiplier = -total / 12f;
+				rotationMultiplier = -physPositionY / 12f;
 			}
 			float totalRotation = breastSize + rotationMultiplier;
 			if (!bounceEnabled) {
@@ -287,7 +287,7 @@ public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidMode
 
 			matrixStack.scale(0.9995f, 1f, 1f); //z-fighting FIXXX
 
-			renderBreast(entity, armorStack, matrixStack, bufferSource, breastRenderType, packedLightIn, combineTex, alpha, left, hasJacketLayer);
+			renderBreast(entity, armorStack, matrixStack, bufferSource, breastRenderType, light, overlay, alpha, left, hasJacketLayer);
 		} catch(Exception e) {
 			WildfireGender.LOGGER.error("Failed to render breast", e);
 		}
@@ -305,14 +305,15 @@ public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidMode
 	}
 
 	private void renderBreast(ENTITY entity, ItemStack armorStack, PoseStack matrixStack, MultiBufferSource bufferSource,
-		@Nullable RenderType breastRenderType, int packedLightIn, int packedOverlayIn, float alpha, boolean left, boolean hasJacketLayer) {
+		@Nullable RenderType breastRenderType, int light, int overlay, float alpha, boolean left, boolean hasJacketLayer) {
 		if (breastRenderType != null) {
 			//Only render the breasts if we have a render type for them
 			VertexConsumer vertexConsumer = bufferSource.getBuffer(breastRenderType);
-			renderBox(left ? lBreast : rBreast, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1F, 1F, 1F, alpha);
+			int color = FastColor.ARGB32.color(FastColor.as8BitChannel(alpha), 0xFFFFFFFF);
+			renderBox(left ? lBreast : rBreast, matrixStack, vertexConsumer, light, overlay, color);
 			if (hasJacketLayer) {
 				shiftForJacket(matrixStack);
-				renderBox(left ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1F, 1F, 1F, alpha);
+				renderBox(left ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, light, overlay, color);
 			}
 		} else if (hasJacketLayer) {//Copy exact size
 			shiftForJacket(matrixStack);
@@ -327,58 +328,43 @@ public class GenderLayer<ENTITY extends LivingEntity, MODEL extends HumanoidMode
 			WildfireModelRenderer.BreastModelBox armor = left ? lBoobArmor : rBoobArmor;
 
 			Holder<ArmorMaterial> material = armorItem.getMaterial();
-			int color = armorStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(armorStack, 0xFFA06540) : -1;
+			int color = armorStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(armorStack, 0xFFA06540) : 0xFFFFFFFF;
 			for (Layer layer : material.value().layers()) {
-				float armorR;
-				float armorG;
-				float armorB;
-				if (layer.dyeable() && color != -1) {
-					armorR = FastColor.ARGB32.red(color) / 255.0F;
-					armorG = FastColor.ARGB32.green(color) / 255.0F;
-					armorB = FastColor.ARGB32.blue(color) / 255.0F;
-				} else {
-					armorR = 1.0F;
-					armorG = 1.0F;
-					armorB = 1.0F;
-				}
-
 				ResourceLocation armorTexture = ClientHooks.getArmorTexture(entity, armorStack, layer, false, EquipmentSlot.CHEST);
 
 				RenderType armorType = RenderType.armorCutoutNoCull(armorTexture);
 				VertexConsumer armorVertexConsumer = bufferSource.getBuffer(armorType);
-				renderBox(armor, matrixStack, armorVertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, armorR, armorG, armorB, 1);
+				renderBox(armor, matrixStack, armorVertexConsumer, light, OverlayTexture.NO_OVERLAY, layer.dyeable() ? color : 0xFFFFFFFF);
 			}
 
 			ArmorTrim trim = armorStack.get(DataComponents.TRIM);
 			if (trim != null) {
 				TextureAtlasSprite sprite = this.armorTrimAtlas.getSprite(trim.outerTexture(material));
 				VertexConsumer trimVertexConsumer = sprite.wrap(bufferSource.getBuffer(Sheets.armorTrimsSheet(trim.pattern().value().decal())));
-				renderBox(armor, matrixStack, trimVertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+				renderBox(armor, matrixStack, trimVertexConsumer, light, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
 			}
 
 			if (armorStack.hasFoil()) {
-				renderBox(armor, matrixStack, bufferSource.getBuffer(RenderType.armorEntityGlint()), packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+				renderBox(armor, matrixStack, bufferSource.getBuffer(RenderType.armorEntityGlint()), light, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
 			}
 
 			matrixStack.popPose();
 		}
 	}
 
-	private static void renderBox(WildfireModelRenderer.ModelBox model, PoseStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn,
-		float red, float green, float blue, float alpha) {
+	private static void renderBox(WildfireModelRenderer.ModelBox model, PoseStack matrixStack, VertexConsumer bufferIn, int light, int overlay, int color) {
 		Matrix4f matrix4f = matrixStack.last().pose();
 		Matrix3f matrix3f =	matrixStack.last().normal();
 		for (WildfireModelRenderer.TexturedQuad quad : model.quads) {
 			Vector3f vector3f = new Vector3f(quad.normal.getX(), quad.normal.getY(), quad.normal.getZ());
 			vector3f.mul(matrix3f);
 			for (PositionTextureVertex vertex : quad.vertexPositions) {
-				bufferIn.vertex(matrix4f, vertex.x() / 16.0F, vertex.y() / 16.0F, vertex.z() / 16.0F)
-					.color(red, green, blue, alpha)
-					.uv(vertex.texturePositionX(), vertex.texturePositionY())
-					.overlayCoords(packedOverlayIn)
-					.uv2(packedLightIn)
-					.normal(vector3f.x(), vector3f.y(), vector3f.z())
-					.endVertex();
+				bufferIn.addVertex(matrix4f, vertex.x() / 16.0F, vertex.y() / 16.0F, vertex.z() / 16.0F)
+					.setColor(color)
+					.setUv(vertex.texturePositionX(), vertex.texturePositionY())
+					.setOverlay(overlay)
+					.setLight(light)
+					.setNormal(vector3f.x(), vector3f.y(), vector3f.z());
 			}
 		}
 	}

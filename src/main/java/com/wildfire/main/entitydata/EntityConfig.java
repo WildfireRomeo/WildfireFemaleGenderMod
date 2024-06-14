@@ -62,7 +62,7 @@ public class EntityConfig {
 	protected boolean jacketLayer = true;
 	protected @Nullable BreastDataComponent fromComponent;
 
-	EntityConfig(UUID uuid) {
+	protected EntityConfig(UUID uuid) {
 		this.uuid = uuid;
 		this.breasts = new Breasts();
 		lBreastPhysics = new BreastPhysics(this);

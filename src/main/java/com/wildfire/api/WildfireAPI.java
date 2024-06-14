@@ -18,11 +18,12 @@
 
 package com.wildfire.api;
 
-import com.wildfire.main.WildfireGender;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.capabilities.ItemCapability;
 
 public final class WildfireAPI {
+
+    public static final String MODID = "wildfire_gender";
 
     private WildfireAPI() {
     }
@@ -30,5 +31,5 @@ public final class WildfireAPI {
     /**
      * Item capability used for gender armor.
      */
-    public static final ItemCapability<IGenderArmor, Void> GENDER_ARMOR_CAPABILITY = ItemCapability.createVoid(new ResourceLocation(WildfireGender.MODID, "gender_armor"), IGenderArmor.class);
+    public static final ItemCapability<IGenderArmor, Void> GENDER_ARMOR_CAPABILITY = ItemCapability.createVoid(ResourceLocation.fromNamespaceAndPath(MODID, "gender_armor"), IGenderArmor.class);
 }
