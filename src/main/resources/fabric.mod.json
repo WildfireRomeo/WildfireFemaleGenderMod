@@ -49,8 +49,7 @@
     "java": ">=21"
   },
   "conflicts": {
-    "skinlayers": "*",
-    "allthetrims": "*"
+    "skinlayers": "*"
   },
   "custom": {
     "modmenu": {
