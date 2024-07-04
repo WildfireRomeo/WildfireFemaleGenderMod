@@ -1,0 +1,61 @@
+{
+	"category.wildfire_gender.generic": "Wildfire의 여성 성별 모드",
+	"key.wildfire_gender.gender_menu": "여성 성별 메뉴",
+	"toast.wildfire_gender.get_started": "'%s' 눌러 설정을 엽니다.",
+
+	"wildfire_gender.player_list.title": "여성 성별 모드",
+	"wildfire_gender.player_list.settings_button": "설정",
+	"wildfire_gender.player_list.sync_status": "동기화 상태",
+	"wildfire_gender.player_list.state.loading": "데이더 가져오는 중...",
+	"wildfire_gender.player_list.state.synced": "동기화 완료",
+	"wildfire_gender.player_list.bounce_multiplier": "흔들림 정도: %s배",
+	"wildfire_gender.player_list.breast_momentum": "가슴 흔들림 정도: %s%%",
+	"wildfire_gender.player_list.female_sounds": "여성적 소리: %s",
+
+	"wildfire_gender.wardrobe.title": "Wildfire의 여성 성별 모드",
+	"wildfire_gender.breast_customization.tab_customization": "커스터마이즈",
+	"wildfire_gender.breast_customization.tab_presets": "기본값",
+
+	"wildfire_gender.breast_customization.presets.add_new": "새로 추가...",
+	"wildfire_gender.breast_customization.presets.delete": "삭제",
+
+	"wildfire_gender.wardrobe.slider.breast_size": "가슴 크기: %s%%",
+	"wildfire_gender.wardrobe.slider.separation": "분할 정도: %s",
+	"wildfire_gender.wardrobe.slider.height": "높이: %s",
+	"wildfire_gender.wardrobe.slider.depth": "깊이: %s",
+	"wildfire_gender.wardrobe.slider.rotation": "분할 각도: %s도",
+
+	"wildfire_gender.appearance_settings.title": "생김새 설정",
+	"wildfire_gender.char_settings.title": "캐릭터 설정",
+	"wildfire_gender.char_settings.physics": "가슴 흔들림: %s",
+
+	"wildfire_gender.char_settings.override_armor_physics": "갑옷 흔들림: %s",
+	"wildfire_gender.tooltip.override_armor_physics.line1": "가슴 흔들림은 장착된 갑옷에 의해 더 이상 감소/억제되지 않습니다.",
+	"wildfire_gender.tooltip.override_armor_physics.line2": "이것은 갑옷을 숨기는 리소스팩 또는 갑옷을 변경하는 리소스팩과 함께 사용하기 위한 것입니다.",
+
+	"wildfire_gender.char_settings.hide_in_armor": "갑옷을 입었을떄 숨기기: %s",
+	"wildfire_gender.char_settings.hurt_sounds": "여성적 소리: %s",
+	"wildfire_gender.tooltip.hurt_sounds": "성별이 여성 또는 기타로 설정되면 캐릭터가 데미지을 입을 때 여성적 상처음을 재생합니다.",
+
+	"wildfire_gender.breast_customization.dual_physics": "개별 흔들림: %s",
+
+	"wildfire_gender.label.gender": "성별",
+	"wildfire_gender.label.female": "여자",
+	"wildfire_gender.label.male": "남자",
+	"wildfire_gender.label.other": "기타",
+
+	"wildfire_gender.label.enabled": "켜짐",
+	"wildfire_gender.label.disabled": "꺼짐",
+	"wildfire_gender.label.yes": "켜짐",
+	"wildfire_gender.label.no": "꺼짐",
+	"wildfire_gender.label.with_creator": "당신은 이 모드를 만든 사람과 같은 서버에 있습니다!",
+
+	"wildfire_gender.slider.bounce": "흔들림 강도: %s%%",
+	"wildfire_gender.slider.floppy": "가슴 흔들림 정도: %s%%",
+	"wildfire_gender.slider.min_bounce": "이럴거면 흔들림이 왜 켜져있죠?",
+	"wildfire_gender.slider.max_bounce": "강력한 흔들림!!!",
+	"wildfire_gender.tooltip.bounce_warning": "흔들림 정도를 높은 값으로 설정하면 굉장히 부자연스러워 보입니다!",
+
+	"wildfire_gender.cancer_awareness.title": "이번 달은 유방암 인식의 달이에요!",
+	"wildfire_gender.coming_soon": "곧 나옵니다!"
+}
