@@ -68,7 +68,7 @@ public class WildfireGender {
     //Tracked player to the set of tracking players
     private final Map<UUID, Set<ServerPlayer>> trackedPlayers = new HashMap<>();
 
-    public WildfireGender(ModContainer modContainer, IEventBus modEventBus) {
+    public WildfireGender(IEventBus modEventBus) {
         instance = this;
 
         modEventBus.addListener(WildfireHelper::registerCapabilities);
@@ -77,10 +77,6 @@ public class WildfireGender {
         NeoForge.EVENT_BUS.addListener(this::onStopTracking);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, this::onEntitySpawn);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::onRightClickArmorStand);
-
-        if (FMLEnvironment.dist.isClient()) {
-            GeneralClientConfig.register(modContainer);
-        }
     }
 
     public static ResourceLocation rl(String path) {

@@ -18,19 +18,12 @@
 
 package com.wildfire.main.config;
 
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
 
 public class GeneralClientConfig {
 
 	public static final GeneralClientConfig INSTANCE = new GeneralClientConfig();
-
-	public static void register(ModContainer modContainer) {
-		modContainer.addConfig(new ModConfig(Type.CLIENT, INSTANCE.configSpec, modContainer, "WildfireGender/client.toml"));
-	}
 
 	public final ModConfigSpec configSpec;
 
