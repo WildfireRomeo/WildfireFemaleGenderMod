@@ -22,16 +22,14 @@ import com.wildfire.api.IGenderArmor;
 import com.wildfire.api.WildfireAPI;
 import com.wildfire.render.armor.SimpleGenderArmor;
 import com.wildfire.render.armor.EmptyGenderArmor;
-import com.wildfire.main.config.FloatConfigKey;
 import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.item.*;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.ArmorMaterial;
+import net.minecraft.item.ArmorMaterials;
+import net.minecraft.item.ItemStack;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.MathHelper;
 
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Function;
 
 public final class WildfireHelper {
     private WildfireHelper() {
@@ -81,23 +79,5 @@ public final class WildfireHelper {
             // other wearables
             return EmptyGenderArmor.INSTANCE;
         }
-    }
-
-    /**
-     * Utility method returning an {@link Optional} containing the requested value from the provided {@link NbtCompound}
-     */
-    public static <T> Optional<T> readNbt(NbtCompound compound, String key, Function<String, T> reader) {
-        if(!compound.contains(key)) {
-            return Optional.empty();
-        }
-        return Optional.of(reader.apply(key));
-    }
-
-    /**
-     * Variant of {@link #readNbt}, clamping a {@code float} value to the allowed range by the provided config key.
-     */
-    public static Optional<Float> readNbt(NbtCompound compound, String key, FloatConfigKey configKey) {
-        return readNbt(compound, key, compound::getFloat)
-                .map(v -> MathHelper.clamp(v, configKey.getMinInclusive(), configKey.getMaxInclusive()));
     }
 }

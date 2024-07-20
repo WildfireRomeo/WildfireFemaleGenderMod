@@ -18,96 +18,82 @@
 
 package com.wildfire.main.networking;
 
+import com.mojang.datafixers.util.Function6;
 import com.wildfire.main.entitydata.Breasts;
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.Gender;
-import net.minecraft.network.PacketByteBuf;
-import org.joml.Vector3f;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.util.Uuids;
 
 import java.util.UUID;
 
 abstract class AbstractSyncPacket {
+
+    protected static <T extends AbstractSyncPacket> PacketCodec<ByteBuf, T> codec(SyncPacketConstructor<T> constructor) {
+        return PacketCodec.tuple(
+                Uuids.PACKET_CODEC, p -> p.uuid,
+                Gender.CODEC, p -> p.gender,
+                PacketCodecs.FLOAT, p -> p.bustSize,
+                PacketCodecs.BOOL, p -> p.hurtSounds,
+                BreastPhysics.CODEC, p -> p.physics,
+                Breasts.CODEC, p -> p.breasts,
+                constructor
+        );
+    }
+
     protected final UUID uuid;
-    private final Gender gender;
-    private final float bustSize;
+    protected final Gender gender;
+    protected final float bustSize;
+    protected final boolean hurtSounds;
+    protected final BreastPhysics physics;
+    protected final Breasts breasts;
 
-    //physics variables
-    private final boolean breastPhysics;
-    private final boolean showInArmor;
-    private final float bounceMultiplier;
-    private final float floppyMultiplier;
-
-    private final Vector3f offsets;
-    private final boolean uniboob;
-    private final float cleavage;
-
-    private final boolean hurtSounds;
+    protected AbstractSyncPacket(UUID uuid, Gender gender, float bustSize, boolean hurtSounds, BreastPhysics physics, Breasts breasts) {
+        this.uuid = uuid;
+        this.gender = gender;
+        this.bustSize = bustSize;
+        this.hurtSounds = hurtSounds;
+        this.physics = physics;
+        this.breasts = breasts;
+    }
 
     protected AbstractSyncPacket(PlayerConfig plr) {
-        this.uuid = plr.uuid;
-        this.gender = plr.getGender();
-        this.bustSize = plr.getBustSize();
-        this.hurtSounds = plr.hasHurtSounds();
-
-        //physics variables
-        this.breastPhysics = plr.hasBreastPhysics();
-        this.showInArmor = plr.showBreastsInArmor();
-        this.bounceMultiplier = plr.getBounceMultiplier();
-        this.floppyMultiplier = plr.getFloppiness();
-
-        Breasts breasts = plr.getBreasts();
-        this.offsets = breasts.getOffsets();
-        this.uniboob = breasts.isUniboob();
-        this.cleavage = breasts.getCleavage();
-    }
-
-    protected AbstractSyncPacket(PacketByteBuf buffer) {
-        this.uuid = buffer.readUuid();
-        this.gender = buffer.readEnumConstant(Gender.class);
-        this.bustSize = buffer.readFloat();
-        this.hurtSounds = buffer.readBoolean();
-
-        //physics variables
-        this.breastPhysics = buffer.readBoolean();
-        this.showInArmor = buffer.readBoolean();
-        this.bounceMultiplier = buffer.readFloat();
-        this.floppyMultiplier = buffer.readFloat();
-
-        this.offsets = buffer.readVector3f();
-        this.uniboob = buffer.readBoolean();
-        this.cleavage = buffer.readFloat();
-    }
-
-    protected void encode(PacketByteBuf buffer) {
-        buffer.writeUuid(this.uuid);
-        buffer.writeEnumConstant(this.gender);
-        buffer.writeFloat(this.bustSize);
-        buffer.writeBoolean(this.hurtSounds);
-        buffer.writeBoolean(this.breastPhysics);
-        buffer.writeBoolean(this.showInArmor);
-        buffer.writeFloat(this.bounceMultiplier);
-        buffer.writeFloat(this.floppyMultiplier);
-
-        buffer.writeVector3f(offsets);
-        buffer.writeBoolean(this.uniboob);
-        buffer.writeFloat(this.cleavage);
+        this(plr.uuid, plr.getGender(), plr.getBustSize(), plr.hasHurtSounds(), new BreastPhysics(plr), plr.getBreasts());
     }
 
     protected void updatePlayerFromPacket(PlayerConfig plr) {
         plr.updateGender(gender);
         plr.updateBustSize(bustSize);
         plr.updateHurtSounds(hurtSounds);
+        physics.applyTo(plr);
+        plr.getBreasts().copyFrom(breasts);
+    }
 
-        //physics
-        plr.updateBreastPhysics(breastPhysics);
-        plr.updateShowBreastsInArmor(showInArmor);
-        plr.updateBounceMultiplier(bounceMultiplier);
-        plr.updateFloppiness(floppyMultiplier);
-        //System.out.println(plr.username + " - " + plr.gender);
+    protected record BreastPhysics(boolean physics, boolean showInArmor, float bounceMultiplier, float floppyMultiplier) {
 
-        Breasts breasts = plr.getBreasts();
-        breasts.updateOffsets(offsets);
-        breasts.updateUniboob(uniboob);
-        breasts.updateCleavage(cleavage);
+        public static final PacketCodec<ByteBuf, BreastPhysics> CODEC = PacketCodec.tuple(
+                PacketCodecs.BOOL, BreastPhysics::physics,
+                PacketCodecs.BOOL, BreastPhysics::showInArmor,
+                PacketCodecs.FLOAT, BreastPhysics::bounceMultiplier,
+                PacketCodecs.FLOAT, BreastPhysics::floppyMultiplier,
+                BreastPhysics::new
+        );
+
+        private BreastPhysics(PlayerConfig plr) {
+            this(plr.hasBreastPhysics(), plr.showBreastsInArmor(), plr.getBounceMultiplier(), plr.getFloppiness());
+        }
+
+        private void applyTo(PlayerConfig plr) {
+            plr.updateBreastPhysics(physics);
+            plr.updateShowBreastsInArmor(showInArmor);
+            plr.updateBounceMultiplier(bounceMultiplier);
+            plr.updateFloppiness(floppyMultiplier);
+        }
+    }
+
+    @FunctionalInterface
+    protected interface SyncPacketConstructor<T extends AbstractSyncPacket> extends Function6<UUID, Gender, Float, Boolean, BreastPhysics, Breasts, T> {
     }
 }

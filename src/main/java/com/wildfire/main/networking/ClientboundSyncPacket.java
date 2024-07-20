@@ -18,30 +18,33 @@
 
 package com.wildfire.main.networking;
 
+import com.wildfire.main.Gender;
 import com.wildfire.main.WildfireGender;
+import com.wildfire.main.entitydata.Breasts;
 import com.wildfire.main.entitydata.PlayerConfig;
+import io.netty.buffer.ByteBuf;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
+import java.util.UUID;
+
 public final class ClientboundSyncPacket extends AbstractSyncPacket implements CustomPayload {
 
 	public static final Id<ClientboundSyncPacket> ID = new CustomPayload.Id<>(Identifier.of(WildfireGender.MODID, "sync"));
-	public static final PacketCodec<RegistryByteBuf, ClientboundSyncPacket> CODEC = PacketCodec.of(ClientboundSyncPacket::encode, ClientboundSyncPacket::new);
+	public static final PacketCodec<ByteBuf, ClientboundSyncPacket> CODEC = codec(ClientboundSyncPacket::new);
 
-	ClientboundSyncPacket(PlayerConfig plr) {
+	public ClientboundSyncPacket(PlayerConfig plr) {
 		super(plr);
 	}
 
-	ClientboundSyncPacket(PacketByteBuf buffer) {
-		super(buffer);
+	private ClientboundSyncPacket(UUID uuid, Gender gender, float bustSize, boolean hurtSounds, BreastPhysics physics, Breasts breasts) {
+		super(uuid, gender, bustSize, hurtSounds, physics, breasts);
 	}
 
 	@Override
