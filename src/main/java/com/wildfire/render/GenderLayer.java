@@ -55,6 +55,7 @@ import org.joml.*;
 
 @Environment(EnvType.CLIENT)
 public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> extends FeatureRenderer<T, M> {
+	private static final float DEG_TO_RAD = (float) (Math.PI / 180);
 
 	private BreastModelBox lBreast, rBreast;
 	private final FeatureRendererContext<T, M> context;
@@ -204,14 +205,9 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 
 		ModelPart body = model.body;
 		matrixStack.translate(body.pivotX * 0.0625f, body.pivotY * 0.0625f, body.pivotZ * 0.0625f);
-		if(body.roll != 0.0F) {
-			matrixStack.multiply(new Quaternionf().rotationXYZ(0f, 0f, body.roll));
-		}
-		if(body.yaw != 0.0F) {
-			matrixStack.multiply(new Quaternionf().rotationXYZ(0f, body.yaw, 0f));
-		}
-		if(body.pitch != 0.0F) {
-			matrixStack.multiply(new Quaternionf().rotationXYZ(body.pitch, 0f, 0f));
+
+		if (body.roll != 0.0F | body.yaw != 0.0F | body.pitch != 0.0F) {
+			matrixStack.multiply(new Quaternionf().rotationZYX(body.roll, body.yaw, body.pitch));
 		}
 
 		if(bounceEnabled) {
@@ -225,37 +221,35 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 			matrixStack.translate(-0.0625f * 2 * (side.isLeft ? 1 : -1), 0, 0);
 		}
 		if(bounceEnabled) {
-			matrixStack.multiply(new Quaternionf().rotationXYZ(0, (float)((side.isLeft ? lPhysBounceRotation : rPhysBounceRotation) * (Math.PI / 180f)), 0));
+			matrixStack.multiply(new Quaternionf().rotationY((side.isLeft ? lPhysBounceRotation : rPhysBounceRotation) * DEG_TO_RAD));
 		}
 		if(!breasts.isUniboob()) {
 			matrixStack.translate(0.0625f * 2 * (side.isLeft ? 1 : -1), 0, 0);
 		}
 
-		float rotationMultiplier = 0;
+		float rotation = breastSize;
 		if(bounceEnabled) {
 			matrixStack.translate(0, -0.035f * breastSize, 0); //shift down to correct position
-			rotationMultiplier = -(side.isLeft ? lPhysPositionY : rPhysPositionY) / 12f;
+			rotation -= (side.isLeft ? lPhysPositionY : rPhysPositionY) / 12f;
 		}
-		float totalRotation = breastSize + rotationMultiplier;
-		if(!bounceEnabled) {
-			totalRotation = breastSize;
-		}
-		if(totalRotation > breastSize + 0.2F) {
-			totalRotation = breastSize + 0.2F;
-		}
-		totalRotation = Math.min(totalRotation, 1); //hard limit for MAX
+
+		rotation = Math.min(rotation, breastSize + 0.2f);
+		rotation = Math.min(rotation, 1); //hard limit for MAX
 
 		if(isChestplateOccupied) {
 			matrixStack.translate(0, 0, 0.01f);
 		}
 
-		matrixStack.multiply(new Quaternionf().rotationXYZ(0, (float)((side.isLeft ? outwardAngle : -outwardAngle) * (Math.PI / 180f)), 0));
-		matrixStack.multiply(new Quaternionf().rotationXYZ((float)(-35f * totalRotation * (Math.PI / 180f)), 0, 0));
+		Quaternionf rotationTransform = new Quaternionf()
+				.rotationY((side.isLeft ? outwardAngle : -outwardAngle) * DEG_TO_RAD)
+				.rotateX(-35f * rotation * DEG_TO_RAD);
 
 		if(breathingAnimation) {
 			float f5 = -MathHelper.cos(entity.age * 0.09F) * 0.45F + 0.45F;
-			matrixStack.multiply(new Quaternionf().rotationXYZ((float)(f5 * (Math.PI / 180f)), 0, 0));
+			rotationTransform.rotateX(f5 * DEG_TO_RAD);
 		}
+
+		matrixStack.multiply(rotationTransform);
 
 		matrixStack.scale(0.9995f, 1f, 1f); //z-fighting FIXXX
 	}
