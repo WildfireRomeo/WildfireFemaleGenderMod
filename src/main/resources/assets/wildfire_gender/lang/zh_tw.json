@@ -1,0 +1,61 @@
+{
+  "category.wildfire_gender.generic": "Wildfire's Female Gender Mod",
+  "key.wildfire_gender.gender_menu": "性別菜單",
+  "toast.wildfire_gender.get_started": "按下 '%s' 鍵開始！",
+  
+  "wildfire_gender.player_list.title": "Female Gender Mod",
+  "wildfire_gender.player_list.settings_button": "設置",
+  "wildfire_gender.player_list.sync_status": "同步狀態",
+  "wildfire_gender.player_list.state.loading": "正在載入數據...",
+  "wildfire_gender.player_list.state.synced": "同步玩家",
+  "wildfire_gender.player_list.bounce_multiplier": "反彈係數：%sx",
+  "wildfire_gender.player_list.breast_momentum": "乳房動量：%s%%",
+  "wildfire_gender.player_list.female_sounds": "女性聲音：%s",
+  
+  "wildfire_gender.wardrobe.title": "自訂選項",
+  "wildfire_gender.breast_customization.tab_customization": "自訂設置",
+  "wildfire_gender.breast_customization.tab_presets": "預設設置",
+  
+  "wildfire_gender.breast_customization.presets.add_new": "新增...",
+  "wildfire_gender.breast_customization.presets.delete": "刪除",
+  
+  "wildfire_gender.wardrobe.slider.breast_size": "乳房大小：%s%%",
+  "wildfire_gender.wardrobe.slider.separation": "分離：%s",
+  "wildfire_gender.wardrobe.slider.height": "高度：%s",
+  "wildfire_gender.wardrobe.slider.depth": "深度：%s",
+  "wildfire_gender.wardrobe.slider.rotation": "旋轉：%s度",
+  
+  "wildfire_gender.appearance_settings.title": "外觀設置",
+  "wildfire_gender.char_settings.title": "角色設置",
+  "wildfire_gender.char_settings.physics": "乳房物理：%s",
+  
+  "wildfire_gender.char_settings.override_armor_physics": "盔甲物理：%s",
+  "wildfire_gender.tooltip.override_armor_physics.line1": "啟用時，乳房物理將不再受裝備的盔甲減少/壓制",
+  "wildfire_gender.tooltip.override_armor_physics.line2": "這是為了與隱藏盔甲的資源包或類似的極簡盔甲包配合而設的。",
+  
+  "wildfire_gender.char_settings.hide_in_armor": "隱藏在盔甲中：%s",
+  "wildfire_gender.char_settings.hurt_sounds": "女性受傷的聲音：%s",
+  "wildfire_gender.tooltip.hurt_sounds": "使女性受傷的聲音",
+  
+  "wildfire_gender.breast_customization.dual_physics": "對偶物理：%s",
+  
+  "wildfire_gender.label.gender": "性別",
+  "wildfire_gender.label.female": "女性",
+  "wildfire_gender.label.male": "男性",
+  "wildfire_gender.label.other": "其他",
+  
+  "wildfire_gender.label.enabled": "啟用",
+  "wildfire_gender.label.disabled": "停用",
+  "wildfire_gender.label.yes": "是",
+  "wildfire_gender.label.no": "否",
+  "wildfire_gender.label.with_creator": "您正在與該模組的作者一起在伺服器上玩！",
+  
+  "wildfire_gender.slider.bounce": "彈跳強度：%s%%",
+  "wildfire_gender.slider.floppy": "乳房動量：%s%%",
+  "wildfire_gender.slider.min_bounce": "為什麼開啟物理？",
+  "wildfire_gender.slider.max_bounce": "動漫乳房物理!!!",
+  "wildfire_gender.tooltip.bounce_warning": "將「反彈強度」設置為高值看起來非常不自然！",
+  "wildfire_gender.cancer_awareness.title": "嘿，這是乳腺癌宣傳月！",
+  
+  "wildfire_gender.coming_soon": "即將推出"
+}
