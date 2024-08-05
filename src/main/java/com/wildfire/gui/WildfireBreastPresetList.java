@@ -3,6 +3,7 @@ package com.wildfire.gui;
 import com.wildfire.gui.screen.WildfireBreastCustomizationScreen;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.config.BreastPresetConfiguration;
+import com.wildfire.main.entitydata.PlayerConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -14,6 +15,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
 public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPresetList.Entry> {
@@ -30,7 +32,7 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
         public BreastPresetListEntry(String name, BreastPresetConfiguration data) {
             this.name = name;
             this.data = data;
-            this.ident = new Identifier(WildfireGender.MODID, "textures/presets/iknowthisisnull.png");
+            this.ident = Identifier.of(WildfireGender.MODID, "textures/presets/iknowthisisnull.png");
         }
 
     }
@@ -38,9 +40,9 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
     private BreastPresetListEntry[] BREAST_PRESETS = new BreastPresetListEntry[] {
 
     };
-    private static final Identifier TXTR_SYNC = new Identifier(WildfireGender.MODID, "textures/sync.png");
-    private static final Identifier TXTR_UNKNOWN = new Identifier(WildfireGender.MODID, "textures/unknown.png");
-    private static final Identifier TXTR_CACHED = new Identifier(WildfireGender.MODID, "textures/cached.png");
+    private static final Identifier TXTR_SYNC = Identifier.of(WildfireGender.MODID, "textures/sync.png");
+    private static final Identifier TXTR_UNKNOWN = Identifier.of(WildfireGender.MODID, "textures/unknown.png");
+    private static final Identifier TXTR_CACHED = Identifier.of(WildfireGender.MODID, "textures/cached.png");
     private final int listWidth;
     private final WildfireBreastCustomizationScreen parent;
 
@@ -62,7 +64,7 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
     @Override
     protected void drawMenuListBackground(DrawContext context) {}
 
-    // copy of EntryListWidget#renderList without the added margin between entries
+    // copy of super without the added margin between entries
     @Override
     protected void renderList(DrawContext context, int mouseX, int mouseY, float delta) {
         int left = this.getRowLeft();
@@ -125,12 +127,14 @@ public class WildfireBreastPresetList extends EntryListWidget<WildfireBreastPres
             this.nInfo = nInfo;
             this.thumbnail = nInfo.ident;
             btnOpenGUI = new WildfireButton(0, 0, getRowWidth() - 6, itemHeight, Text.empty(), button -> {
-                parent.getPlayer().updateBustSize(nInfo.data.get(BreastPresetConfiguration.BUST_SIZE));
-                parent.getPlayer().getBreasts().updateXOffset(nInfo.data.get(BreastPresetConfiguration.BREASTS_OFFSET_X));
-                parent.getPlayer().getBreasts().updateYOffset(nInfo.data.get(BreastPresetConfiguration.BREASTS_OFFSET_Y));
-                parent.getPlayer().getBreasts().updateZOffset(nInfo.data.get(BreastPresetConfiguration.BREASTS_OFFSET_Z));
-                parent.getPlayer().getBreasts().updateCleavage(nInfo.data.get(BreastPresetConfiguration.BREASTS_CLEAVAGE));
-                parent.getPlayer().getBreasts().updateUniboob(nInfo.data.get(BreastPresetConfiguration.BREASTS_UNIBOOB));
+                PlayerConfig plr = Objects.requireNonNull(parent.getPlayer(), "getPlayer()");
+                plr.updateBustSize(nInfo.data.get(BreastPresetConfiguration.BUST_SIZE));
+                plr.getBreasts().updateXOffset(nInfo.data.get(BreastPresetConfiguration.BREASTS_OFFSET_X));
+                plr.getBreasts().updateYOffset(nInfo.data.get(BreastPresetConfiguration.BREASTS_OFFSET_Y));
+                plr.getBreasts().updateZOffset(nInfo.data.get(BreastPresetConfiguration.BREASTS_OFFSET_Z));
+                plr.getBreasts().updateCleavage(nInfo.data.get(BreastPresetConfiguration.BREASTS_CLEAVAGE));
+                plr.getBreasts().updateUniboob(nInfo.data.get(BreastPresetConfiguration.BREASTS_UNIBOOB));
+                PlayerConfig.saveGenderInfo(plr);
             });
         }
 

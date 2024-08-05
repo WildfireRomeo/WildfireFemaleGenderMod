@@ -26,10 +26,6 @@ import com.mojang.logging.LogUtils;
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.networking.WildfireSync;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -43,7 +39,6 @@ public class WildfireGender implements ModInitializer {
 	public void onInitialize() {
 		WildfireSync.register();
 		WildfireEventHandler.registerCommonEvents();
-		EntityTrackingEvents.START_TRACKING.register(this::onBeginTracking);
 	}
 
 	public static @Nullable PlayerConfig getPlayerById(UUID id) {
@@ -52,18 +47,5 @@ public class WildfireGender implements ModInitializer {
 
 	public static @NotNull PlayerConfig getOrAddPlayerById(UUID id) {
 		return PLAYER_CACHE.computeIfAbsent(id, PlayerConfig::new);
-	}
-
-	private void onBeginTracking(Entity tracked, ServerPlayerEntity syncTo) {
-		if(tracked instanceof PlayerEntity toSync) {
-			PlayerConfig genderToSync = WildfireGender.getPlayerById(toSync.getUuid());
-			if(genderToSync == null) return;
-			// Note that we intentionally don't check if we've previously synced a player with this code path;
-			// because we use entity tracking to sync, it's entirely possible that one player would leave the
-			// tracking distance of another, change their settings, and then re-enter their tracking distance;
-			// we wouldn't sync while they're out of tracking distance, and as such, their settings would be out
-			// of sync until they relog.
-			WildfireSync.sendToClient(syncTo, genderToSync);
-		}
 	}
 }

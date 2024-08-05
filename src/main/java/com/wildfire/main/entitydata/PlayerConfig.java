@@ -38,16 +38,21 @@ public class PlayerConfig extends EntityConfig {
 	public SyncStatus syncStatus = SyncStatus.UNKNOWN;
 
 	private final Configuration cfg;
-	private boolean hurtSounds = Configuration.HURT_SOUNDS.getDefault();
-	private boolean armorPhysOverride = Configuration.ARMOR_PHYSICS_OVERRIDE.getDefault();
+	protected boolean hurtSounds = Configuration.HURT_SOUNDS.getDefault();
+	protected boolean armorPhysOverride = Configuration.ARMOR_PHYSICS_OVERRIDE.getDefault();
+	protected boolean showBreastsInArmor = Configuration.SHOW_IN_ARMOR.getDefault();
 
-	public PlayerConfig(UUID uuid) {
-		this(uuid, Configuration.GENDER.getDefault());
+	/**
+	 * @deprecated Use {@link #updateGender(Gender)} instead
+	 */
+	@Deprecated
+	public PlayerConfig(UUID uuid, Gender gender) {
+		this(uuid);
+		updateGender(gender);
 	}
 
-	public PlayerConfig(UUID uuid, Gender gender) {
+	public PlayerConfig(UUID uuid) {
 		super(uuid);
-		this.gender = gender;
 		this.cfg = new Configuration(this.uuid.toString());
 		this.cfg.set(Configuration.USERNAME, this.uuid);
 		this.cfg.setDefault(Configuration.GENDER);

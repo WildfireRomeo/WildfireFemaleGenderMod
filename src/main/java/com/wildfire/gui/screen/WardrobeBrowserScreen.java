@@ -23,6 +23,7 @@ import com.wildfire.main.Gender;
 import com.wildfire.main.WildfireGender;
 
 import java.util.Calendar;
+import java.util.Objects;
 import java.util.UUID;
 
 import com.wildfire.gui.WildfireButton;
@@ -39,9 +40,9 @@ import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class WardrobeBrowserScreen extends BaseWildfireScreen {
-	private static final Identifier BACKGROUND_FEMALE = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg2.png");
-	private static final Identifier BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/wardrobe_bg3.png");
-	private static final Identifier TXTR_RIBBON = new Identifier(WildfireGender.MODID, "textures/bc_ribbon.png");
+	private static final Identifier BACKGROUND_FEMALE = Identifier.of(WildfireGender.MODID, "textures/gui/wardrobe_bg2.png");
+	private static final Identifier BACKGROUND = Identifier.of(WildfireGender.MODID, "textures/gui/wardrobe_bg3.png");
+	private static final Identifier TXTR_RIBBON = Identifier.of(WildfireGender.MODID, "textures/bc_ribbon.png");
 	private static final UUID CREATOR_UUID = UUID.fromString("23b6feed-2dfe-4f2e-9429-863fd4adb946");
 	private static final boolean isBreastCancerAwarenessMonth = Calendar.getInstance().get(Calendar.MONTH) == Calendar.OCTOBER;
 
@@ -52,7 +53,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	@Override
   	public void init() {
 	    int y = this.height / 2;
-		PlayerConfig plr = getPlayer();
+		PlayerConfig plr = Objects.requireNonNull(getPlayer(), "getPlayer()");
 
 		this.addDrawableChild(new WildfireButton(this.width / 2 - 42, y - 52, 158, 20, getGenderLabel(plr.getGender()), button -> {
 			Gender gender = switch (plr.getGender()) {
@@ -87,7 +88,9 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 	@Override
 	public void renderBackground(DrawContext ctx, int mouseX, int mouseY, float delta) {
 		super.renderBackground(ctx, mouseX, mouseY, delta);
-		Identifier backgroundTexture = getPlayer().getGender().canHaveBreasts() ? BACKGROUND_FEMALE : BACKGROUND;
+		PlayerConfig plr = getPlayer();
+		if(plr == null) return;
+		Identifier backgroundTexture = plr.getGender().canHaveBreasts() ? BACKGROUND_FEMALE : BACKGROUND;
 		ctx.drawTexture(backgroundTexture, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156);
 
 		if(client != null && client.world != null) {

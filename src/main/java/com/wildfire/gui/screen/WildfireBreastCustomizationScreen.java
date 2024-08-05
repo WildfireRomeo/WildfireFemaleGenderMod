@@ -37,6 +37,7 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Environment(EnvType.CLIENT)
@@ -57,7 +58,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
     public void init() {
         int j = this.height / 2 - 11;
 
-        PlayerConfig plr = getPlayer();
+        PlayerConfig plr = Objects.requireNonNull(getPlayer(), "getPlayer()");
         Breasts breasts = plr.getBreasts();
         FloatConsumer onSave = value -> {
             //Just save as we updated the actual value in value change
@@ -146,20 +147,23 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
     private void createNewPreset(String presetName) {
         BreastPresetConfiguration cfg = new BreastPresetConfiguration(presetName);
+        PlayerConfig plr = Objects.requireNonNull(getPlayer(), "getPlayer()");
         cfg.set(BreastPresetConfiguration.PRESET_NAME, presetName);
-        cfg.set(BreastPresetConfiguration.BUST_SIZE, this.getPlayer().getBustSize());
-        cfg.set(BreastPresetConfiguration.BREASTS_UNIBOOB, this.getPlayer().getBreasts().isUniboob());
-        cfg.set(BreastPresetConfiguration.BREASTS_CLEAVAGE, this.getPlayer().getBreasts().getCleavage());
-        cfg.set(BreastPresetConfiguration.BREASTS_OFFSET_X, this.getPlayer().getBreasts().getXOffset());
-        cfg.set(BreastPresetConfiguration.BREASTS_OFFSET_Y, this.getPlayer().getBreasts().getYOffset());
-        cfg.set(BreastPresetConfiguration.BREASTS_OFFSET_Z, this.getPlayer().getBreasts().getZOffset());
+        cfg.set(BreastPresetConfiguration.BUST_SIZE, plr.getBustSize());
+        cfg.set(BreastPresetConfiguration.BREASTS_UNIBOOB, plr.getBreasts().isUniboob());
+        cfg.set(BreastPresetConfiguration.BREASTS_CLEAVAGE, plr.getBreasts().getCleavage());
+        cfg.set(BreastPresetConfiguration.BREASTS_OFFSET_X, plr.getBreasts().getXOffset());
+        cfg.set(BreastPresetConfiguration.BREASTS_OFFSET_Y, plr.getBreasts().getYOffset());
+        cfg.set(BreastPresetConfiguration.BREASTS_OFFSET_Z, plr.getBreasts().getZOffset());
         cfg.save();
 
         PRESET_LIST.refreshList();
     }
 
     private void updatePresetTab() {
-        boolean canHaveBreasts = getPlayer().getGender().canHaveBreasts();
+        PlayerConfig plr = getPlayer();
+        if(plr == null) return;
+        boolean canHaveBreasts = plr.getGender().canHaveBreasts();
         breastSlider.visible = canHaveBreasts && currentTab == 0;
         xOffsetBoobSlider.visible = canHaveBreasts && currentTab == 0;
         yOffsetBoobSlider.visible = canHaveBreasts && currentTab == 0;

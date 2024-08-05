@@ -58,15 +58,19 @@ public class EntityConfig {
 	protected boolean breastPhysics = Configuration.BREAST_PHYSICS.getDefault();
 	protected float bounceMultiplier = Configuration.BOUNCE_MULTIPLIER.getDefault();
 	protected float floppyMultiplier = Configuration.FLOPPY_MULTIPLIER.getDefault();
-	protected boolean showBreastsInArmor = Configuration.SHOW_IN_ARMOR.getDefault();
-	// note: hurt sounds and armor physics override are not defined here, as they have no relevance
+	// note: hurt sounds, armor physics override, and show in armor are not defined here, as they have no relevance
 	// to entities, and are instead entirely in PlayerConfig
+
+	// TODO ideally these physics objects would be made entirely client-sided, but this class is
+	//      used on both the client and server (primarily through PlayerConfig), making it very
+	//      difficult to do so without some major changes to split this up further into a common class
+	//      with a client extension class (e.g. the PlayerEntity & AbstractClientPlayerEntity classes)
 	protected final BreastPhysics lBreastPhysics, rBreastPhysics;
 	protected final Breasts breasts;
 	protected boolean jacketLayer = true;
 	protected @Nullable BreastDataComponent fromComponent;
 
-	EntityConfig(UUID uuid) {
+	protected EntityConfig(UUID uuid) {
 		this.uuid = uuid;
 		this.breasts = new Breasts();
 		lBreastPhysics = new BreastPhysics(this);

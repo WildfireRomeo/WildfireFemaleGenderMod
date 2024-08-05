@@ -25,10 +25,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.impl.client.rendering.ArmorRendererRegistryImpl;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.*;
-import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.item.ItemRenderer;
@@ -41,13 +39,13 @@ import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
+import net.minecraft.entity.player.PlayerModelPart;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.trim.ArmorTrim;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.ItemTags;
-import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import org.jetbrains.annotations.NotNull;
@@ -74,7 +72,8 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 	}
 
 	@Override
-	public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, @NotNull T ent, float limbAngle, float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
+	public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light, @NotNull T ent, float limbAngle,
+	                   float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if(client.player == null) {
 			// we're currently in a menu, give up rendering before we crash the game
@@ -100,25 +99,18 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 			if(ent instanceof ArmorStandEntity && !genderArmor.armorStandsCopySettings()) return;
 
 			final RegistryEntry<ArmorMaterial> material = ((ArmorItem) chestplate.getItem()).getMaterial();
-			final int color = chestplate.isIn(ItemTags.DYEABLE) ? DyedColorComponent.getColor(chestplate, -6265536) : Colors.WHITE;
+			final int color = chestplate.isIn(ItemTags.DYEABLE) ? ColorHelper.Argb.fullAlpha(DyedColorComponent.getColor(chestplate, -6265536)) : -1;
 			final boolean glint = chestplate.hasGlint();
 
 			renderSides(ent, getContextModel(), matrixStack, side -> {
 				material.value().layers().forEach(layer -> {
-					float r, g, b;
-					if(layer.isDyeable() && color != Colors.WHITE) {
-						r = (float)ColorHelper.Argb.getRed(color) / 255f;
-						g = (float)ColorHelper.Argb.getGreen(color) / 255f;
-						b = (float)ColorHelper.Argb.getBlue(color) / 255f;
-					} else {
-						r = g = b = 1f;
-					}
-					renderBreastArmor(layer.getTexture(false), matrixStack, vertexConsumerProvider, packedLightIn, side, r, g, b, glint);
+					int layerColor = layer.isDyeable() ? color : -1;
+					renderBreastArmor(layer.getTexture(false), matrixStack, vertexConsumerProvider, light, side, layerColor, glint);
 				});
 
 				ArmorTrim trim = armorStack.get(DataComponentTypes.TRIM);
 				if(trim != null) {
-					renderArmorTrim(material, matrixStack, vertexConsumerProvider, packedLightIn, trim, glint, side);
+					renderArmorTrim(material, matrixStack, vertexConsumerProvider, light, trim, glint, side);
 				}
 			});
 		} catch(Exception e) {
@@ -145,11 +137,11 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 
 	// TODO eventually expose some way for mods to override this, maybe through a default impl in IGenderArmor or similar
 	protected void renderBreastArmor(Identifier texture, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider,
-	                                 int light, BreastSide side, float r, float g, float b, boolean glint) {
+	                                 int light, BreastSide side, int color, boolean glint) {
 		BreastModelBox armor = side.isLeft ? lBoobArmor : rBoobArmor;
 		RenderLayer armorType = RenderLayer.getArmorCutoutNoCull(texture);
-		VertexConsumer armorVertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumerProvider, armorType, false, glint);
-		renderBox(armor, matrixStack, armorVertexConsumer, light, OverlayTexture.DEFAULT_UV, r, g, b, 1);
+		VertexConsumer armorVertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumerProvider, armorType, glint);
+		renderBox(armor, matrixStack, armorVertexConsumer, light, OverlayTexture.DEFAULT_UV, ColorHelper.Argb.fullAlpha(color));
 	}
 
 	protected void renderArmorTrim(RegistryEntry<ArmorMaterial> material, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider,
@@ -159,14 +151,14 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 		VertexConsumer vertexConsumer = sprite.getTextureSpecificVertexConsumer(
 				vertexConsumerProvider.getBuffer(TexturedRenderLayers.getArmorTrims(trim.getPattern().value().decal())));
 		// Render the armor trim itself
-		renderBox(trimModelBox, matrixStack, vertexConsumer, packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
+		renderBox(trimModelBox, matrixStack, vertexConsumer, packedLightIn, OverlayTexture.DEFAULT_UV, -1);
 		// The enchantment glint however requires special handling; due to how Minecraft's enchant glint rendering works, rendering
 		// it at the same time as the trim itself results in the glint not rendering in sync with the rest of the armor.
 		// We *also* can't simply render the glint for both the trim and armor at the same time, due to the slight delta we apply
 		// to fix z-fighting between the trim and armor - and as such - a glint has to be rendered for each respective layer.
 		if(hasGlint) {
 			renderBox(trimModelBox, matrixStack, vertexConsumerProvider.getBuffer(RenderLayer.getArmorEntityGlint()),
-					packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
+					packedLightIn, OverlayTexture.DEFAULT_UV, -1);
 		}
 	}
 }

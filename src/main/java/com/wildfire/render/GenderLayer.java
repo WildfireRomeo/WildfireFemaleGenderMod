@@ -39,7 +39,6 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
-import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
@@ -47,6 +46,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectUtil;
+import net.minecraft.entity.player.PlayerModelPart;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.*;
 import org.jetbrains.annotations.NotNull;
@@ -60,12 +60,12 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 	private final FeatureRendererContext<T, M> context;
 	private static final OverlayModelBox lBreastWear, rBreastWear;
 
-	private float preBreastSize = 0f, preBreastOffsetZ;
+	private float preBreastSize, preBreastOffsetZ;
 	private Breasts breasts;
 	protected ItemStack armorStack;
 	protected IGenderArmor genderArmor;
 	protected boolean isChestplateOccupied, bounceEnabled, breathingAnimation;
-	protected float breastOffsetX, breastOffsetY, breastOffsetZ, lPhysPositionY, lPhysPositionX, rPhysPositionY, rTotalX,
+	protected float breastOffsetX, breastOffsetY, breastOffsetZ, lPhysPositionY, lPhysPositionX, rPhysPositionY, rPhysPositionX,
 			lPhysBounceRotation, rPhysBounceRotation, breastSize, zOffset, outwardAngle;
 
 	static {
@@ -93,7 +93,7 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 	}
 
 	@Override
-	public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, @NotNull T ent, float limbAngle,
+	public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light, @NotNull T ent, float limbAngle,
 					   float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if(client.player == null) {
@@ -106,10 +106,10 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 
 		try {
 			if(!setupRender(ent, entityConfig, partialTicks)) return;
-			int combineTex = LivingEntityRenderer.getOverlay(ent, 0);
+			int overlay = LivingEntityRenderer.getOverlay(ent, 0);
 
 			renderSides(ent, getContextModel(), matrixStack, side -> {
-				renderBreast(ent, matrixStack, vertexConsumerProvider, packedLightIn, combineTex, side);
+				renderBreast(ent, matrixStack, vertexConsumerProvider, light, overlay, side);
 			});
 		} catch(Exception e) {
 			WildfireGender.LOGGER.error("Failed to render breast layer", e);
@@ -156,12 +156,12 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		lPhysBounceRotation = MathHelper.lerp(partialTicks, leftBreastPhysics.getPreBounceRotation(), leftBreastPhysics.getBounceRotation());
 		if(breasts.isUniboob()) {
 			rPhysPositionY = lPhysPositionY;
-			rTotalX = lPhysPositionX;
+			rPhysPositionX = lPhysPositionX;
 			rPhysBounceRotation = lPhysBounceRotation;
 		} else {
 			BreastPhysics rightBreastPhysics = entityConfig.getRightBreastPhysics();
 			rPhysPositionY = MathHelper.lerp(partialTicks, rightBreastPhysics.getPrePositionY(), rightBreastPhysics.getPositionY());
-			rTotalX = MathHelper.lerp(partialTicks, rightBreastPhysics.getPrePositionX(), rightBreastPhysics.getPositionX());
+			rPhysPositionX = MathHelper.lerp(partialTicks, rightBreastPhysics.getPrePositionX(), rightBreastPhysics.getPositionX());
 			rPhysBounceRotation = MathHelper.lerp(partialTicks, rightBreastPhysics.getPreBounceRotation(), rightBreastPhysics.getBounceRotation());
 		}
 		breastSize = bSize * 1.5f;
@@ -215,7 +215,7 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		}
 
 		if(bounceEnabled) {
-			matrixStack.translate((side.isLeft ? lPhysPositionX : rTotalX) / 32f, 0, 0);
+			matrixStack.translate((side.isLeft ? lPhysPositionX : rPhysPositionX) / 32f, 0, 0);
 			matrixStack.translate(0, (side.isLeft ? lPhysPositionY : rPhysPositionY) / 32f, 0);
 		}
 
@@ -260,16 +260,18 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		matrixStack.scale(0.9995f, 1f, 1f); //z-fighting FIXXX
 	}
 
-	private void renderBreast(T entity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int packedLightIn, int packedOverlayIn, BreastSide side) {
+	private void renderBreast(T entity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light,
+	                          int overlay, BreastSide side) {
 		RenderLayer breastRenderType = getRenderLayer(entity);
 		if(breastRenderType == null) return; // only render if the player is visible in some capacity
-		float alpha = entity.isInvisible() ? 0.15F : 1;
+		int alpha = entity.isInvisible() ? ColorHelper.channelFromFloat(0.15f) : 255;
+		int color = ColorHelper.Argb.getArgb(alpha, 255, 255, 255);
 		VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(breastRenderType);
-		renderBox(side.isLeft ? lBreast : rBreast, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
+		renderBox(side.isLeft ? lBreast : rBreast, matrixStack, vertexConsumer, light, overlay, color);
 		if(entity instanceof AbstractClientPlayerEntity player && player.isPartVisible(PlayerModelPart.JACKET)) {
 			matrixStack.translate(0, 0, -0.015f);
 			matrixStack.scale(1.05f, 1.05f, 1.05f);
-			renderBox(side.isLeft ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, packedLightIn, packedOverlayIn, 1f, 1f, 1f, alpha);
+			renderBox(side.isLeft ? lBreastWear : rBreastWear, matrixStack, vertexConsumer, light, overlay, color);
 		}
 	}
 
@@ -291,23 +293,22 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
 		}
 	}
 
-	protected static void renderBox(WildfireModelRenderer.ModelBox model, MatrixStack matrixStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn,
-	                                float red, float green, float blue, float alpha) {
+	protected static void renderBox(WildfireModelRenderer.ModelBox model, MatrixStack matrixStack, VertexConsumer vertexConsumer,
+	                                int light, int overlay, int color) {
 		Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
 		Matrix3f matrix3f = matrixStack.peek().getNormalMatrix();
-		for (WildfireModelRenderer.TexturedQuad quad : model.quads) {
-			Vector3f vector3f = new Vector3f(quad.normal.x, quad.normal.y, quad.normal.z);
-			vector3f.mul(matrix3f);
+		for(WildfireModelRenderer.TexturedQuad quad : model.quads) {
+			Vector3f vector3f = new Vector3f(quad.normal.x, quad.normal.y, quad.normal.z).mul(matrix3f);
 			float normalX = vector3f.x;
 			float normalY = vector3f.y;
 			float normalZ = vector3f.z;
-			for (PositionTextureVertex vertex : quad.vertexPositions) {
+			for(PositionTextureVertex vertex : quad.vertexPositions) {
 				float j = vertex.x() / 16.0F;
 				float k = vertex.y() / 16.0F;
 				float l = vertex.z() / 16.0F;
-				Vector4f vector4f = new Vector4f(j, k, l, 1.0F);
-				vector4f.mul(matrix4f);
-				bufferIn.vertex(vector4f.x, vector4f.y, vector4f.z, red, green, blue, alpha, vertex.texturePositionX(), vertex.texturePositionY(), packedOverlayIn, packedLightIn, normalX, normalY, normalZ);
+				Vector4f vector4f = new Vector4f(j, k, l, 1.0F).mul(matrix4f);
+				vertexConsumer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), color, vertex.u(), vertex.v(),
+						overlay, light, normalX, normalY, normalZ);
 			}
 		}
 	}

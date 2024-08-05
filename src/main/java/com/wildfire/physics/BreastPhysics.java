@@ -378,9 +378,7 @@ public class BreastPhysics {
 	}
 
 	private int clampMovement(float movement) {
-		int val = (int) (10 - movement*2f);
-		if(val < 1) val = 1;
-		return val;
+		return Math.max((int) (10 - movement*2f), 1);
 	}
 
 	/**
@@ -390,13 +388,14 @@ public class BreastPhysics {
 	 * @param p2    Upper boundary point
 	 * @param point The target point within the range of {@code p1} and {@code p2} to get the distance from the median of
 	 *
-	 * @return A {@code float} of how far the provided point is from the median of the two boundary points, with
-	 *         {@code 1f} being at the median exactly, and {@code 0f} being at either of the two provided boundary
-	 *         points.<br>
+	 * @return A {@code float} indicating how far the provided {@code point} is from the median of the two boundary
+	 *         points, with {@code 1f} being at the median exactly, and {@code 0f} being at either of the two
+	 *         provided boundary points.<br>
 	 *         If the provided point is in the latter half of the range between the two boundary points, the returned
 	 *         float will be negative.
 	 *
-	 * @throws IllegalArgumentException If {@code p2} is greater than {@code p1}, or if {@code atPoint} is out of bounds
+	 * @throws IllegalArgumentException If {@code p1} is equal to or greater than {@code p2},
+	 *                                  or if {@code point} is not within the specified range.
 	 */
 	@SuppressWarnings("SameParameterValue")
 	private static float distanceFromMedian(final int p1, final int p2, float point) {
@@ -405,14 +404,20 @@ public class BreastPhysics {
 			throw new IllegalArgumentException("p2 must be greater than p1");
 		}
 		if(point < p1 || point > p2) {
-			throw new IllegalArgumentException("point must be within bounds of p1 and p2");
+			throw new IllegalArgumentException(point + " is not within bounds of (" + p1 + ", " + p2 + ")");
 		}
 
 		if(point == p1 || point == p2) {
 			return 0;
 		}
+		// subtract p1 to get the actual inner range, then divide to get the median
 		float median = (p2 - p1) / 2f;
-		if(point > median) point = -(point - median);
+		point -= p1;
+		if(point > median) {
+			// invert the provided point to instead become smaller the further we are away from the median
+			// in the latter half of the specified range
+			point = -(median - (point - median));
+		}
 		return point / median;
 	}
 }

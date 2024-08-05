@@ -22,6 +22,8 @@ import com.wildfire.gui.GuiUtils;
 import com.wildfire.gui.WildfireSlider;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.config.Configuration;
+
+import java.util.Objects;
 import java.util.UUID;
 
 import com.wildfire.gui.WildfireButton;
@@ -42,7 +44,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
     private static final Text ENABLED = Text.translatable("wildfire_gender.label.enabled").formatted(Formatting.GREEN);
     private static final Text DISABLED = Text.translatable("wildfire_gender.label.disabled").formatted(Formatting.RED);
-    private static final Identifier BACKGROUND = new Identifier(WildfireGender.MODID, "textures/gui/settings_bg.png");
+    private static final Identifier BACKGROUND = Identifier.of(WildfireGender.MODID, "textures/gui/settings_bg.png");
 
     private WildfireSlider bounceSlider, floppySlider;
     private boolean bounceWarning;
@@ -53,7 +55,7 @@ public class WildfireCharacterSettingsScreen extends BaseWildfireScreen {
 
     @Override
     public void init() {
-        PlayerConfig aPlr = getPlayer();
+        PlayerConfig aPlr = Objects.requireNonNull(getPlayer(), "getPlayer()");
         int x = this.width / 2;
         int y = this.height / 2;
         int yPos = y - 47;

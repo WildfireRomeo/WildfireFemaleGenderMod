@@ -239,8 +239,7 @@ public final class WildfireModelRenderer {
 	      }
 	   }
 
-   public record PositionTextureVertex(float x, float y, float z, float texturePositionX, float texturePositionY) {
-
+   public record PositionTextureVertex(float x, float y, float z, float u, float v) {
       public PositionTextureVertex withTexturePosition(float texU, float texV) {
          return new PositionTextureVertex(x, y, z, texU, texV);
       }
