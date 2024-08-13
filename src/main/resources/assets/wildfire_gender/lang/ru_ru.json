@@ -1,0 +1,60 @@
+{
+	"category.wildfire_gender.generic": "Wildfire's Female Gender Mod",
+	"key.wildfire_gender.gender_menu": "Меню",
+
+	"wildfire_gender.hurt.female": "Female Player Hurt",
+
+	"wildfire_gender.player_list.title": "Female Gender Mod",
+	"wildfire_gender.player_list.settings_button": "Настройки",
+	"wildfire_gender.player_list.sync_status": "Состояние синхронизации",
+	"wildfire_gender.player_list.state.loading": "Загрузка данных...",
+	"wildfire_gender.player_list.state.synced": "Игроки синхронизированны",
+
+	"wildfire_gender.wardrobe.title": "Меню кастомизации",
+	"wildfire_gender.wardrobe.slider.breast_size": "Размер груди: %s%%",
+	"wildfire_gender.wardrobe.slider.separation": "Расстояние: %s",
+	"wildfire_gender.wardrobe.slider.height": "Высота: %s",
+	"wildfire_gender.wardrobe.slider.depth": "Глубина: %s",
+	"wildfire_gender.wardrobe.slider.rotation": "Вращение: %s градусов",
+
+	"wildfire_gender.appearance_settings.title": "Настройки внешности",
+	"wildfire_gender.char_settings.title": "Настройки персонажа",
+	"wildfire_gender.char_settings.physics": "Физика груди: %s",
+	"wildfire_gender.tooltip.breast_physics": "Обеспечивает физику груди",
+	"wildfire_gender.char_settings.hide_in_armor": "Скрывать под броней: %s",
+	"wildfire_gender.tooltip.hide_in_armor": "Скрывает грудь при ношении Брони",
+	"wildfire_gender.char_settings.hurt_sounds": "Звуки при ранении: %s",
+	"wildfire_gender.tooltip.hurt_sounds": "Женские звуки при ранении",
+
+	"wildfire_gender.breast_customization.dual_physics": "Двойная физика: %s",
+
+	"wildfire_gender.player_list.bounce_multiplier": "Множитель отскока: %sx",
+	"wildfire_gender.player_list.breast_momentum": "Импульс груди: %s%%",
+	"wildfire_gender.player_list.female_sounds": "Женские звуки при ранении: %s",
+
+	"wildfire_gender.settings.title": "Меню настроек Wildfire's",
+
+	"wildfire_gender.acknowledge.confirm": "Окей",
+
+	"wildfire_gender.label.gender": "Пол",
+	"wildfire_gender.label.female": "Женщина",
+	"wildfire_gender.label.male": "Мужчина",
+	"wildfire_gender.label.other": "Другой",
+
+	"wildfire_gender.label.enabled": "Вкл",
+	"wildfire_gender.label.disabled": "Выкл",
+	"wildfire_gender.label.yes": "Да",
+	"wildfire_gender.label.no": "Нет",
+	"wildfire_gender.label.exit": "X",
+	"wildfire_gender.label.too_far": "Слишком Далеко",
+	"wildfire_gender.label.with_creator": "Вы играете на одном сервере с создателем этого мода!",
+
+	"wildfire_gender.slider.bounce": "Упругость: %sx",
+	"wildfire_gender.slider.floppy": "Импульс груди: %s%%",
+	"wildfire_gender.slider.min_bounce": "Почему вообще включена Физика?",
+	"wildfire_gender.slider.max_bounce": "Физика груди как в Аниме!!!",
+	"wildfire_gender.tooltip.bounce_warning": "Установка высокого значения «Упругость» будет выглядеть очень неестественно!",
+
+	"wildfire_gender.cancer_awareness.title": "Эй, сегодня месяц повышения осведомленности о раке молочной железы!",
+	"wildfire_gender.cancer_awareness.description": "Нажмите здесь, чтобы сделать пожертвование в фонд §dСьюзан Г. Комен§f!"
+}
