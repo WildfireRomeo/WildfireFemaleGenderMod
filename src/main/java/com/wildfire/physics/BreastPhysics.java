@@ -114,7 +114,7 @@ public class BreastPhysics {
 				}
 				this.preBreastSize = this.breastSize;
 			} else {
-				this.breastSize = 0f;
+				this.preBreastSize = this.breastSize = 0f;
 			}
 			return;
 		}
