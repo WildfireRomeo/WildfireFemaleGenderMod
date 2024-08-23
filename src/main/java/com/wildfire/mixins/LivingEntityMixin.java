@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LivingEntity.class)
 @Environment(EnvType.CLIENT)
-public abstract class LivingEntityMixin {
+abstract class LivingEntityMixin {
 	@Inject(
 		method = "onDamaged",
 		at = @At(
