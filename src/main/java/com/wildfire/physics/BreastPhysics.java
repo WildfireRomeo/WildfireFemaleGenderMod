@@ -52,7 +52,7 @@ public class BreastPhysics {
 
 	private final EntityConfig entityConfig;
 	private int randomB = 1;
-	private boolean alreadyFalling = false;
+	private double lastVerticalMoveVelocity;
 
 	public BreastPhysics(EntityConfig entityConfig) {
 		this.entityConfig = entityConfig;
@@ -194,12 +194,14 @@ public class BreastPhysics {
 		if(!entityConfig.getBreasts().isUniboob()) {
 			bounceIntensity = bounceIntensity * WildfireHelper.randFloat(0.5f, 1.5f);
 		}
-		if(entity.fallDistance > 0 && !alreadyFalling) {
-			randomB = entity.getWorld().random.nextBoolean() ? -1 : 1;
-			alreadyFalling = true;
-		}
-		if(entity.fallDistance == 0) alreadyFalling = false;
 
+		double vertVelocity = entity.getVelocity().y;
+		// Randomize which side the breast will angle toward when the player jumps/has upward velocity applied to them,
+		// or stops falling
+		if((lastVerticalMoveVelocity <= 0 && vertVelocity > 0) || (lastVerticalMoveVelocity < 0 && vertVelocity == 0)) {
+			randomB = entity.getWorld().random.nextBoolean() ? -1 : 1;
+		}
+		lastVerticalMoveVelocity = vertVelocity;
 
 		this.targetBounceY = (float) motion.y * bounceIntensity;
 		this.targetBounceY += breastWeight;
