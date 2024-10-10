@@ -24,13 +24,16 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.util.Util;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Environment(EnvType.CLIENT)
 public class WildfireGenderClient implements ClientModInitializer {
+	private static final Executor LOAD_EXECUTOR = Util.getIoWorkerExecutor().named("wildfire_gender$loadPlayerData");
+
 	@Override
 	public void onInitializeClient() {
 		WildfireSounds.register();
@@ -38,8 +41,8 @@ public class WildfireGenderClient implements ClientModInitializer {
 		WildfireEventHandler.registerClientEvents();
 	}
 
-	public static Future<Optional<PlayerConfig>> loadGenderInfo(UUID uuid, boolean markForSync) {
-		return Util.getIoWorkerExecutor().submit(() -> Optional.ofNullable(PlayerConfig.loadCachedPlayer(uuid, markForSync)));
+	public static CompletableFuture<@Nullable PlayerConfig> loadGenderInfo(UUID uuid, boolean markForSync) {
+		return CompletableFuture.supplyAsync(() -> PlayerConfig.loadCachedPlayer(uuid, markForSync), LOAD_EXECUTOR);
 	}
 
 	public static void loadPlayerIfMissing(UUID uuid, boolean markForSync) {

@@ -27,8 +27,10 @@ import net.fabricmc.fabric.impl.client.rendering.ArmorRendererRegistryImpl;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.*;
+import net.minecraft.client.render.entity.equipment.EquipmentModelLoader;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.entity.state.BipedEntityRenderState;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.texture.Sprite;
@@ -40,20 +42,20 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerModelPart;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.trim.ArmorTrim;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.item.equipment.EquipmentModel;
+import net.minecraft.item.equipment.trim.ArmorTrim;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
-import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
-public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel<T>> extends GenderLayer<T, M> {
+public class GenderArmorLayer<S extends BipedEntityRenderState, M extends BipedEntityModel<S>> extends GenderLayer<S, M> {
 
 	private final SpriteAtlasTexture armorTrimsAtlas;
+	private final EquipmentModelLoader equipmentModelLoader;
 	protected static final BreastModelBox lBoobArmor, rBoobArmor;
 	protected static final BreastModelBox lTrim, rTrim;
 	private EntityConfig entityConfig;
@@ -66,24 +68,27 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 		rTrim = new BreastModelBox(64, 32, 20, 17, 0, 0.0F, 0F, 4, 5, 4, 0.001F, false);
 	}
 
-	public GenderArmorLayer(FeatureRendererContext<T, M> render, BakedModelManager bakery) {
+	public GenderArmorLayer(FeatureRendererContext<S, M> render, BakedModelManager bakery, EquipmentModelLoader equipmentModelLoader) {
 		super(render);
-		armorTrimsAtlas = bakery.getAtlas(TexturedRenderLayers.ARMOR_TRIMS_ATLAS_TEXTURE);
+		this.armorTrimsAtlas = bakery.getAtlas(TexturedRenderLayers.ARMOR_TRIMS_ATLAS_TEXTURE);
+		this.equipmentModelLoader = equipmentModelLoader;
 	}
 
 	@Override
-	public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light, @NotNull T ent, float limbAngle,
-	                   float limbDistance, float partialTicks, float animationProgress, float headYaw, float headPitch) {
+	public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light, S state, float limbAngle, float limbDistance) {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if(client.player == null) {
 			// we're currently in a menu, give up rendering before we crash the game
 			return;
 		}
 
-		final ItemStack chestplate = ent.getEquippedStack(EquipmentSlot.CHEST);
-		// If the entity has no armor to render, just immediately give up
-		// Note that we have to be very fast at abandoning rendering here, as this class is also attached to armor stands
-		if(chestplate.isEmpty() || !(chestplate.getItem() instanceof ArmorItem)) return;
+		LivingEntity ent = getEntity(state);
+		if(ent == null) return;
+
+		final ItemStack chestplate = state.equippedChestStack;
+		// Check if the worn item in the chest slot is actually equippable in the chest slot, and has a model to render
+		var component = chestplate.get(DataComponentTypes.EQUIPPABLE);
+		if(component == null || component.slot() != EquipmentSlot.CHEST || component.model().isEmpty()) return;
 		// And similarly just entirely give up if the item has a renderer registered with Fabric API
 		// This will likely result in the player's breasts sticking out through the armor layer unless the mod in question
 		// implements an IGenderArmor to prevent them from rendering entirely, but oh well; at least we won't be
@@ -95,22 +100,27 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 			entityConfig = EntityConfig.getEntity(ent);
 			if(entityConfig == null) return;
 
-			if(!setupRender(ent, entityConfig, partialTicks)) return;
+			if(!setupRender(state, entityConfig)) return;
 			if(ent instanceof ArmorStandEntity && !genderArmor.armorStandsCopySettings()) return;
 
-			final RegistryEntry<ArmorMaterial> material = ((ArmorItem) chestplate.getItem()).getMaterial();
-			final int color = chestplate.isIn(ItemTags.DYEABLE) ? ColorHelper.Argb.fullAlpha(DyedColorComponent.getColor(chestplate, -6265536)) : -1;
-			final boolean glint = chestplate.hasGlint();
+			int color = chestplate.isIn(ItemTags.DYEABLE) ? DyedColorComponent.getColor(chestplate, -1) : -1;
+			boolean glint = chestplate.hasGlint();
 
-			renderSides(ent, getContextModel(), matrixStack, side -> {
-				material.value().layers().forEach(layer -> {
-					int layerColor = layer.isDyeable() ? color : -1;
-					renderBreastArmor(layer.getTexture(false), matrixStack, vertexConsumerProvider, light, side, layerColor, glint);
+			renderSides(state, getContextModel(), matrixStack, side -> {
+				var modelId = component.model().orElseThrow();
+				equipmentModelLoader.get(modelId).getLayers(EquipmentModel.LayerType.HUMANOID).forEach(layer -> {
+					// mojang what the Optional hell is this
+					int layerColor = layer.dyeable().map(dye -> {
+						int defaultColor = dye.colorWhenUndyed().map(ColorHelper::fullAlpha).orElse(-1);
+						return color != -1 ? color : defaultColor;
+					}).orElse(-1);
+					var texture = layer.getFullTextureId(EquipmentModel.LayerType.HUMANOID);
+					renderBreastArmor(texture, matrixStack, vertexConsumerProvider, light, side, layerColor, glint);
 				});
 
-				ArmorTrim trim = armorStack.get(DataComponentTypes.TRIM);
+				var trim = armorStack.get(DataComponentTypes.TRIM);
 				if(trim != null) {
-					renderArmorTrim(material, matrixStack, vertexConsumerProvider, light, trim, glint, side);
+					renderArmorTrim(modelId, matrixStack, vertexConsumerProvider, light, trim, glint, side);
 				}
 			});
 		} catch(Exception e) {
@@ -124,8 +134,9 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 	}
 
 	@Override
-	protected void setupTransformations(T entity, M model, MatrixStack matrixStack, BreastSide side) {
-		super.setupTransformations(entity, model, matrixStack, side);
+	protected void setupTransformations(S state, M model, MatrixStack matrixStack, BreastSide side) {
+		super.setupTransformations(state, model, matrixStack, side);
+		LivingEntity entity = Objects.requireNonNull(getEntity(state), "getEntity()");
 		if((entity instanceof AbstractClientPlayerEntity player && player.isPartVisible(PlayerModelPart.JACKET)) ||
 				(entity instanceof ArmorStandEntity && entityConfig.hasJacketLayer())) {
 			matrixStack.translate(0, 0, -0.015f);
@@ -141,15 +152,15 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 		BreastModelBox armor = side.isLeft ? lBoobArmor : rBoobArmor;
 		RenderLayer armorType = RenderLayer.getArmorCutoutNoCull(texture);
 		VertexConsumer armorVertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumerProvider, armorType, glint);
-		renderBox(armor, matrixStack, armorVertexConsumer, light, OverlayTexture.DEFAULT_UV, ColorHelper.Argb.fullAlpha(color));
+		renderBox(armor, matrixStack, armorVertexConsumer, light, OverlayTexture.DEFAULT_UV, ColorHelper.fullAlpha(color));
 	}
 
-	protected void renderArmorTrim(RegistryEntry<ArmorMaterial> material, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider,
+	protected void renderArmorTrim(Identifier model, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider,
 	                               int packedLightIn, ArmorTrim trim, boolean hasGlint, BreastSide side) {
 		BreastModelBox trimModelBox = side.isLeft ? lTrim : rTrim;
-		Sprite sprite = this.armorTrimsAtlas.getSprite(trim.getGenericModelId(material));
+		Sprite sprite = this.armorTrimsAtlas.getSprite(trim.getTexture(EquipmentModel.LayerType.HUMANOID, model));
 		VertexConsumer vertexConsumer = sprite.getTextureSpecificVertexConsumer(
-				vertexConsumerProvider.getBuffer(TexturedRenderLayers.getArmorTrims(trim.getPattern().value().decal())));
+				vertexConsumerProvider.getBuffer(TexturedRenderLayers.getArmorTrims(trim.pattern().value().decal())));
 		// Render the armor trim itself
 		renderBox(trimModelBox, matrixStack, vertexConsumer, packedLightIn, OverlayTexture.DEFAULT_UV, -1);
 		// The enchantment glint however requires special handling; due to how Minecraft's enchant glint rendering works, rendering

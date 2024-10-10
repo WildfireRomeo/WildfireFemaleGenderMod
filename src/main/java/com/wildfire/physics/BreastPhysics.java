@@ -228,8 +228,8 @@ public class BreastPhysics {
 		//button option for extra entities
 		if(entity.getVehicle() != null) {
 			if(entity.getVehicle() instanceof BoatEntity boat) {
-				int rowTime = (int) boat.interpolatePaddlePhase(0, entity.limbAnimator.getPos());
-				int rowTime2 = (int) boat.interpolatePaddlePhase(1, entity.limbAnimator.getPos());
+				int rowTime = (int) boat.lerpPaddlePhase(0, entity.limbAnimator.getPos());
+				int rowTime2 = (int) boat.lerpPaddlePhase(1, entity.limbAnimator.getPos());
 
 				float rotationL = (float) MathHelper.clampedLerp(-(float)Math.PI / 3F, -0.2617994F, (double) ((MathHelper.sin(-rowTime2) + 1.0F) / 2.0F));
 				float rotationR = (float) MathHelper.clampedLerp(-(float)Math.PI / 4F, (float)Math.PI / 4F, (double) ((MathHelper.sin(-rowTime + 1.0F) + 1.0F) / 2.0F));

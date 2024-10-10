@@ -16,21 +16,13 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.wildfire.main;
+package com.wildfire.render;
 
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
+import net.minecraft.entity.LivingEntity;
+import org.jetbrains.annotations.Nullable;
 
-public final class WildfireSounds {
-	private WildfireSounds() {
-		throw new UnsupportedOperationException();
-	}
-
-	public static final SoundEvent FEMALE_HURT = SoundEvent.of(Identifier.of(WildfireGender.MODID, "female_hurt"));
-
-	static void register() {
-		Registry.register(Registries.SOUND_EVENT, FEMALE_HURT.id(), FEMALE_HURT);
-	}
+// See LivingEntityRenderStateMixin for the actual implementation
+public interface RenderStateEntityCapture {
+	@Nullable LivingEntity getEntity();
+	void setEntity(LivingEntity entity);
 }

@@ -23,7 +23,7 @@ import org.joml.Vector3f;
 import java.util.function.Function;
 
 /**
- * <p>Record class for storing player breast settings on armor equipped onto armor stands</p>
+ * <p>Data component-like class for storing player breast settings on armor equipped onto armor stands</p>
  *
  * <p>Note that while this is treated similarly to any other {@link DataComponentTypes data component} for performance reasons,
  * this is never written as its own component on item stacks, but instead uses the {@link DataComponentTypes#CUSTOM_DATA custom NBT data component}

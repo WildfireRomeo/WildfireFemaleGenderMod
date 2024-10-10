@@ -33,6 +33,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -91,7 +92,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 		PlayerConfig plr = getPlayer();
 		if(plr == null) return;
 		Identifier backgroundTexture = plr.getGender().canHaveBreasts() ? BACKGROUND_FEMALE : BACKGROUND;
-		ctx.drawTexture(backgroundTexture, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156);
+		ctx.drawTexture(RenderLayer::getGuiTextured, backgroundTexture, (this.width - 248) / 2, (this.height - 134) / 2, 0, 0, 248, 156, 256, 256);
 
 		if(client != null && client.world != null) {
 			int xP = this.width / 2 - 82;
@@ -127,7 +128,7 @@ public class WardrobeBrowserScreen extends BaseWildfireScreen {
 			int bcaY = y - 45;
 			ctx.fill(x - 159, bcaY + 106, x + 159, bcaY + 136, 0x55000000);
 			ctx.drawTextWithShadow(textRenderer, Text.translatable("wildfire_gender.cancer_awareness.title").formatted(Formatting.BOLD, Formatting.ITALIC), this.width / 2 - 148, bcaY + 117, 0xFFFFFF);
-			ctx.drawTexture(TXTR_RIBBON, x + 130, bcaY + 109, 26, 26, 0, 0, 20, 20, 20, 20);
+			ctx.drawTexture(RenderLayer::getGuiTextured, TXTR_RIBBON, x + 130, bcaY + 109, 0, 0, 26, 26, 20, 20, 20, 20);
 		}
 	}
 }
