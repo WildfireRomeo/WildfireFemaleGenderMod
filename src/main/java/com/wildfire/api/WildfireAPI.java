@@ -32,9 +32,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 @SuppressWarnings("unused")
 public class WildfireAPI {
@@ -83,7 +82,7 @@ public class WildfireAPI {
      * @param  markForSync true if you want to send the gender settings to the server upon loading.
      */
     @Environment(EnvType.CLIENT)
-    public static Future<Optional<PlayerConfig>> loadGenderInfo(UUID uuid, boolean markForSync) {
+    public static CompletableFuture<@Nullable PlayerConfig> loadGenderInfo(UUID uuid, boolean markForSync) {
         return WildfireGenderClient.loadGenderInfo(uuid, markForSync);
     }
 

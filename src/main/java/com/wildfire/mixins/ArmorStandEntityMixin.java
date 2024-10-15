@@ -24,8 +24,6 @@ import com.wildfire.main.WildfireGender;
 import com.wildfire.main.entitydata.BreastDataComponent;
 import com.wildfire.main.entitydata.PlayerConfig;
 import com.wildfire.main.WildfireHelper;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -34,22 +32,13 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(ArmorStandEntity.class)
-public abstract class ArmorStandEntityMixin extends LivingEntity {
+abstract class ArmorStandEntityMixin extends LivingEntity {
 	protected ArmorStandEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
 		super(entityType, world);
-	}
-
-	@Unique
-	private void wildfiregender$removeBreastDataFromStack(ItemStack stack) {
-		NbtComponent component = stack.get(DataComponentTypes.CUSTOM_DATA);
-		if(component != null && component.contains("WildfireGender")) {
-			NbtComponent.set(DataComponentTypes.CUSTOM_DATA, stack, nbt -> nbt.remove("WildfireGender"));
-		}
 	}
 
 	@ModifyArg(
@@ -72,7 +61,7 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
 			// that may still have the tag from older versions, or from potential cross-mod interactions
 			// which allow for removing items from armor stands without calling the vanilla
 			// #equip and/or #onBreak methods
-			wildfiregender$removeBreastDataFromStack(stack);
+			BreastDataComponent.removeFromStack(stack);
 			return stack;
 		}
 
@@ -80,7 +69,7 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
 		if(armorConfig.armorStandsCopySettings()) {
 			BreastDataComponent component = BreastDataComponent.fromPlayer(player, playerConfig);
 			if(component != null) {
-				component.write(stack);
+				component.write(player.getWorld().getRegistryManager(), stack);
 			}
 		}
 
@@ -97,7 +86,7 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
 	)
 	public ItemStack wildfiregender$removeBreastDataOnReplace(ItemStack stack, @Local(argsOnly = true) PlayerEntity player) {
 		if(!player.getWorld().isClient()) {
-			wildfiregender$removeBreastDataFromStack(stack);
+			BreastDataComponent.removeFromStack(stack);
 		}
 		return stack;
 	}
@@ -112,7 +101,7 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
 	)
 	public ItemStack wildfiregender$removeBreastDataOnBreak(ItemStack stack) {
 		if(!getWorld().isClient()) {
-			wildfiregender$removeBreastDataFromStack(stack);
+			BreastDataComponent.removeFromStack(stack);
 		}
 		return stack;
 	}

@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
 @Mixin({ArmorStandEntity.class, PlayerEntity.class})
-public abstract class BreastPhysicsTickMixin {
+abstract class BreastPhysicsTickMixin {
 	@Inject(at = @At("TAIL"), method = "tick")
 	public void wildfiregender$tickBreastPhysics(CallbackInfo info) {
 		LivingEntity entity = (LivingEntity)(Object)this;

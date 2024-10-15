@@ -79,7 +79,7 @@ public final class WildfireEventHandler {
 	}
 
 	/**
-	 * Register all events applicable the server-side for both a dedicated server and singleplayer
+	 * Register all events applicable to the server-side for both a dedicated server and singleplayer
 	 */
 	public static void registerCommonEvents() {
 		EntityTrackingEvents.START_TRACKING.register(WildfireEventHandler::onBeginTracking);
@@ -102,14 +102,14 @@ public final class WildfireEventHandler {
 	 * Attach breast render layers to players and armor stands
 	 */
 	@Environment(EnvType.CLIENT)
-	private static void registerRenderLayers(EntityType<? extends LivingEntity> entityType, LivingEntityRenderer<?, ?> entityRenderer,
+	private static void registerRenderLayers(EntityType<? extends LivingEntity> entityType, LivingEntityRenderer<?, ?, ?> entityRenderer,
 	                                         LivingEntityFeatureRendererRegistrationCallback.RegistrationHelper registrationHelper,
 	                                         EntityRendererFactory.Context context) {
 		if(entityRenderer instanceof PlayerEntityRenderer playerRenderer) {
 			registrationHelper.register(new GenderLayer<>(playerRenderer));
-			registrationHelper.register(new GenderArmorLayer<>(playerRenderer, context.getModelManager()));
+			registrationHelper.register(new GenderArmorLayer<>(playerRenderer, context.getModelManager(), context.getEquipmentModelLoader()));
 		} else if(entityRenderer instanceof ArmorStandEntityRenderer armorStandRenderer) {
-			registrationHelper.register(new GenderArmorLayer<>(armorStandRenderer, context.getModelManager()));
+			registrationHelper.register(new GenderArmorLayer<>(armorStandRenderer, context.getModelManager(), context.getEquipmentModelLoader()));
 		}
 	}
 

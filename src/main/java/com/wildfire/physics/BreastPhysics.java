@@ -52,7 +52,7 @@ public class BreastPhysics {
 
 	private final EntityConfig entityConfig;
 	private int randomB = 1;
-	private boolean alreadyFalling = false;
+	private double lastVerticalMoveVelocity;
 
 	public BreastPhysics(EntityConfig entityConfig) {
 		this.entityConfig = entityConfig;
@@ -114,7 +114,7 @@ public class BreastPhysics {
 				}
 				this.preBreastSize = this.breastSize;
 			} else {
-				this.breastSize = 0f;
+				this.preBreastSize = this.breastSize = 0f;
 			}
 			return;
 		}
@@ -194,12 +194,14 @@ public class BreastPhysics {
 		if(!entityConfig.getBreasts().isUniboob()) {
 			bounceIntensity = bounceIntensity * WildfireHelper.randFloat(0.5f, 1.5f);
 		}
-		if(entity.fallDistance > 0 && !alreadyFalling) {
-			randomB = entity.getWorld().random.nextBoolean() ? -1 : 1;
-			alreadyFalling = true;
-		}
-		if(entity.fallDistance == 0) alreadyFalling = false;
 
+		double vertVelocity = entity.getVelocity().y;
+		// Randomize which side the breast will angle toward when the player jumps/has upward velocity applied to them,
+		// or stops falling
+		if((lastVerticalMoveVelocity <= 0 && vertVelocity > 0) || (lastVerticalMoveVelocity < 0 && vertVelocity == 0)) {
+			randomB = entity.getWorld().random.nextBoolean() ? -1 : 1;
+		}
+		lastVerticalMoveVelocity = vertVelocity;
 
 		this.targetBounceY = (float) motion.y * bounceIntensity;
 		this.targetBounceY += breastWeight;
@@ -226,8 +228,8 @@ public class BreastPhysics {
 		//button option for extra entities
 		if(entity.getVehicle() != null) {
 			if(entity.getVehicle() instanceof BoatEntity boat) {
-				int rowTime = (int) boat.interpolatePaddlePhase(0, entity.limbAnimator.getPos());
-				int rowTime2 = (int) boat.interpolatePaddlePhase(1, entity.limbAnimator.getPos());
+				int rowTime = (int) boat.lerpPaddlePhase(0, entity.limbAnimator.getPos());
+				int rowTime2 = (int) boat.lerpPaddlePhase(1, entity.limbAnimator.getPos());
 
 				float rotationL = (float) MathHelper.clampedLerp(-(float)Math.PI / 3F, -0.2617994F, (double) ((MathHelper.sin(-rowTime2) + 1.0F) / 2.0F));
 				float rotationR = (float) MathHelper.clampedLerp(-(float)Math.PI / 4F, (float)Math.PI / 4F, (double) ((MathHelper.sin(-rowTime + 1.0F) + 1.0F) / 2.0F));
@@ -240,7 +242,7 @@ public class BreastPhysics {
 					this.targetBounceY = (Math.random() > 0.5 ? -bounceIntensity : bounceIntensity) / 6f;
 					this.targetBounceY += breastWeight;
 				}
-			} else if(entity.getVehicle() instanceof HorseEntity horse) {
+			} else if(entity.getVehicle() instanceof AbstractHorseEntity horse) {
 				float movement = (float) horse.getVelocity().lengthSquared();
 				if(horse.age % clampMovement(movement) == 5 && movement > 0.05f) {
 					this.targetBounceY = bounceIntensity / 4f;

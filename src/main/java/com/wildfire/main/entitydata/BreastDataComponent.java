@@ -1,26 +1,64 @@
 package com.wildfire.main.entitydata;
 
-import com.wildfire.main.WildfireHelper;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.wildfire.main.config.Configuration;
+import com.wildfire.main.config.FloatConfigKey;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerModelPart;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.registry.RegistryOps;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import java.util.function.Function;
+
 /**
- * <p>Record class for storing player breast settings on armor equipped onto armor stands</p>
+ * <p>Data component-like class for storing player breast settings on armor equipped onto armor stands</p>
  *
  * <p>Note that while this is treated similarly to any other {@link DataComponentTypes data component} for performance reasons,
  * this is never written as its own component on item stacks, but instead uses the {@link DataComponentTypes#CUSTOM_DATA custom NBT data component}
  * for compatibility with vanilla clients on servers.</p>
  */
 public record BreastDataComponent(float breastSize, float cleavage, Vector3f offsets, boolean jacket, @Nullable NbtComponent nbtComponent) {
+
+	private static Codec<Float> boundedFloat(FloatConfigKey configKey) {
+		return Codec.FLOAT.xmap(val -> MathHelper.clamp(val, configKey.getMinInclusive(), configKey.getMaxInclusive()), Function.identity());
+	}
+
+	private static final String KEY = "WildfireGender";
+	private static final Codec<BreastDataComponent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+			boundedFloat(Configuration.BUST_SIZE)
+					.optionalFieldOf("BreastSize", 0f)
+					.forGetter(BreastDataComponent::breastSize),
+			boundedFloat(Configuration.BREASTS_CLEAVAGE)
+					.optionalFieldOf("Cleavage", Configuration.BREASTS_CLEAVAGE.getDefault())
+					.forGetter(BreastDataComponent::cleavage),
+			Codec.BOOL
+					.optionalFieldOf("Jacket", true)
+					.forGetter(BreastDataComponent::jacket),
+			boundedFloat(Configuration.BREASTS_OFFSET_X)
+					.optionalFieldOf("XOffset", 0f)
+					.forGetter(component -> component.offsets.x),
+			boundedFloat(Configuration.BREASTS_OFFSET_Y)
+					.optionalFieldOf("YOffset", 0f)
+					.forGetter(component -> component.offsets.y),
+			boundedFloat(Configuration.BREASTS_OFFSET_Z)
+					.optionalFieldOf("ZOffset", 0f)
+					.forGetter(component -> component.offsets.y)
+		).apply(instance, (breastSize, cleavage, jacket, x, y, z) -> new BreastDataComponent(breastSize, cleavage, new Vector3f(x, y, z), jacket, null))
+	);
+	private static final MapCodec<BreastDataComponent> MAP_CODEC = CODEC.fieldOf(KEY);
+
 	public static @Nullable BreastDataComponent fromPlayer(@NotNull PlayerEntity player, @NotNull PlayerConfig config) {
 		if(!config.getGender().canHaveBreasts() || !config.showBreastsInArmor()) {
 			return null;
@@ -35,36 +73,34 @@ public record BreastDataComponent(float breastSize, float cleavage, Vector3f off
 			return null;
 		}
 
-		@SuppressWarnings("deprecation") NbtCompound root = component.getNbt();
-		if(!root.contains("WildfireGender", NbtElement.COMPOUND_TYPE)) {
+		DataResult<BreastDataComponent> result = component.get(MAP_CODEC);
+		if(result.isError()) {
 			return null;
 		}
-		NbtCompound nbt = root.getCompound("WildfireGender");
 
-		float breastSize = WildfireHelper.readNbt(nbt, "BreastSize", Configuration.BUST_SIZE).orElse(0f);
-		float cleavage = WildfireHelper.readNbt(nbt, "Cleavage", Configuration.BREASTS_CLEAVAGE).orElseGet(Configuration.BREASTS_CLEAVAGE::getDefault);
-		boolean jacket = WildfireHelper.readNbt(nbt, "Jacket", nbt::getBoolean).orElse(true);
-		Vector3f offsets = new Vector3f(
-				WildfireHelper.readNbt(nbt, "XOffset", Configuration.BREASTS_OFFSET_X).orElse(0f),
-				WildfireHelper.readNbt(nbt, "YOffset", Configuration.BREASTS_OFFSET_Y).orElse(0f),
-				WildfireHelper.readNbt(nbt, "ZOffset", Configuration.BREASTS_OFFSET_Z).orElse(0f));
-
-		return new BreastDataComponent(breastSize, cleavage, offsets, jacket, component);
+		return result.getOrThrow().withComponent(component);
 	}
 
-	public void write(ItemStack stack) {
+	public void write(RegistryWrapper.WrapperLookup lookup, ItemStack stack) {
 		if(stack.isEmpty()) {
 			throw new IllegalArgumentException("The provided ItemStack must not be empty");
 		}
-		NbtCompound nbt = new NbtCompound();
-		nbt.putFloat("BreastSize", breastSize);
-		nbt.putFloat("Cleavage", cleavage);
-		nbt.putFloat("XOffset", offsets.x);
-		nbt.putFloat("YOffset", offsets.y);
-		nbt.putFloat("ZOffset", offsets.z);
-		nbt.putBoolean("Jacket", jacket);
-		// see the class javadoc for why we're using the custom data component instead of using this class
-		// as its own data component type
-		NbtComponent.set(DataComponentTypes.CUSTOM_DATA, stack, stackNbt -> stackNbt.put("WildfireGender", nbt));
+
+		RegistryOps<NbtElement> op = lookup.getOps(NbtOps.INSTANCE);
+		DataResult<NbtComponent> result = stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).with(op, MAP_CODEC, this);
+		if(result.isSuccess()) {
+			stack.set(DataComponentTypes.CUSTOM_DATA, result.getOrThrow());
+		}
+	}
+
+	public static void removeFromStack(ItemStack stack) {
+		NbtComponent component = stack.get(DataComponentTypes.CUSTOM_DATA);
+		if(component != null && component.contains(KEY)) {
+			NbtComponent.set(DataComponentTypes.CUSTOM_DATA, stack, nbt -> nbt.remove(KEY));
+		}
+	}
+
+	private BreastDataComponent withComponent(NbtComponent component) {
+		return new BreastDataComponent(breastSize, cleavage, offsets, jacket, component);
 	}
 }

@@ -20,6 +20,9 @@ package com.wildfire.main.entitydata;
 
 import com.wildfire.main.config.ConfigKey;
 import com.wildfire.main.config.Configuration;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import org.joml.Vector3f;
 
 import java.util.function.Consumer;
@@ -29,6 +32,23 @@ import java.util.function.Consumer;
  */
 @SuppressWarnings("UnusedReturnValue")
 public final class Breasts {
+
+    public static final PacketCodec<ByteBuf, Breasts> CODEC = PacketCodec.tuple(
+            PacketCodecs.FLOAT, Breasts::getXOffset,
+            PacketCodecs.FLOAT, Breasts::getYOffset,
+            PacketCodecs.FLOAT, Breasts::getZOffset,
+            PacketCodecs.BOOL, Breasts::isUniboob,
+            PacketCodecs.FLOAT, Breasts::getCleavage,
+            (x, y, z, uniboob, cleavage) -> {
+                Breasts breasts = new Breasts();
+                breasts.xOffset = x;
+                breasts.yOffset = y;
+                breasts.zOffset = z;
+                breasts.cleavage = cleavage;
+                breasts.uniboob = uniboob;
+                return breasts;
+            }
+    );
 
     private float xOffset = Configuration.BREASTS_OFFSET_X.getDefault(),
             yOffset = Configuration.BREASTS_OFFSET_Y.getDefault(),
@@ -136,5 +156,16 @@ public final class Breasts {
      */
     public boolean updateUniboob(boolean value) {
         return updateValue(Configuration.BREASTS_UNIBOOB, value, v -> this.uniboob = v);
+    }
+
+    /**
+     * Copy settings from the provided {@link Breasts breasts data} onto the current instance
+     */
+    public void copyFrom(Breasts breasts) {
+        this.xOffset = breasts.xOffset;
+        this.yOffset = breasts.yOffset;
+        this.zOffset = breasts.zOffset;
+        this.cleavage = breasts.cleavage;
+        this.uniboob = breasts.uniboob;
     }
 }

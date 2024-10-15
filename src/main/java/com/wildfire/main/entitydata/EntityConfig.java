@@ -36,10 +36,10 @@ import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>A stripped down version of a {@link PlayerConfig player's config}, intended for use with non-player entities.</p>
@@ -50,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class EntityConfig {
 
-	public static final Map<UUID, EntityConfig> ENTITY_CACHE = new ConcurrentHashMap<>();
+	public static final Map<UUID, EntityConfig> ENTITY_CACHE = new HashMap<>();
 
 	public final UUID uuid;
 	protected Gender gender = Configuration.GENDER.getDefault();
