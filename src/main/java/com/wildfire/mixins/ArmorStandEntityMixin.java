@@ -19,11 +19,9 @@
 package com.wildfire.mixins;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import com.wildfire.api.IGenderArmor;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.entitydata.BreastDataComponent;
 import com.wildfire.main.entitydata.PlayerConfig;
-import com.wildfire.main.WildfireHelper;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -51,7 +49,7 @@ abstract class ArmorStandEntityMixin extends LivingEntity {
 	)
 	public ItemStack wildfiregender$attachBreastData(ItemStack stack, @Local(argsOnly = true) EquipmentSlot slot,
 	                                                 @Local(argsOnly = true) PlayerEntity player) {
-		if(player == null || player.getWorld().isClient() || slot != EquipmentSlot.CHEST) {
+		if(player == null || getWorld().isClient() || slot != EquipmentSlot.CHEST) {
 			return stack;
 		}
 
@@ -65,12 +63,11 @@ abstract class ArmorStandEntityMixin extends LivingEntity {
 			return stack;
 		}
 
-		IGenderArmor armorConfig = WildfireHelper.getArmorConfig(stack);
-		if(armorConfig.armorStandsCopySettings()) {
-			BreastDataComponent component = BreastDataComponent.fromPlayer(player, playerConfig);
-			if(component != null) {
-				component.write(player.getWorld().getRegistryManager(), stack);
-			}
+		// Note that we always attach player data to the item stack as a server has no concept of resource packs,
+		// making it impossible to compare against any armor data that isn't registered through the mod API.
+		BreastDataComponent component = BreastDataComponent.fromPlayer(player, playerConfig);
+		if(component != null) {
+			component.write(player.getWorld().getRegistryManager(), stack);
 		}
 
 		return stack;
