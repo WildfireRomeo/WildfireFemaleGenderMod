@@ -193,13 +193,19 @@ public class GenderLayer<S extends BipedEntityRenderState, M extends BipedEntity
 			rPhysPositionX = MathHelper.lerp(partialTicks, rightBreastPhysics.getPrePositionX(), rightBreastPhysics.getPositionX());
 			rPhysBounceRotation = MathHelper.lerp(partialTicks, rightBreastPhysics.getPreBounceRotation(), rightBreastPhysics.getBounceRotation());
 		}
-		breastSize = bSize * 1.5f;
-		if(breastSize > 0.7f) breastSize = 0.7f;
-		if(bSize > 0.7f) breastSize = bSize;
-		if(breastSize < 0.02f) return false;
 
-		zOffset = 0.0625f - (bSize * 0.0625f);
-		breastSize = bSize + 0.5f * Math.abs(bSize - 0.7f) * 2f;
+		breastSize = Math.min(bSize * 1.5f, 0.7f); // Limit the max size to 0.7f
+
+		if (bSize > 0.7f) {
+			breastSize = bSize; // If bSize exceeds 0.7f, use bSize
+		}
+
+		if (breastSize < 0.02f) {
+			return false; // Return false if breastSize is too small
+		}
+
+		zOffset = 0.0625f - (bSize * 0.0625f); // Calculate zOffset
+		breastSize += 0.5f * Math.abs(bSize - 0.7f) * 2f; // Adjust breastSize based on bSize
 
 		float resistance = MathHelper.clamp(genderArmor.physicsResistance(), 0, 1);
 		//Note: We only check if the breathing animation should be enabled if the chestplate's physics resistance
@@ -273,7 +279,6 @@ public class GenderLayer<S extends BipedEntityRenderState, M extends BipedEntity
 		if(breathingAnimation) {
 			float f5 = -MathHelper.cos(state.age * 0.09F) * 0.45F + 0.45F;
 			rotationTransform.rotateX(f5 * DEG_TO_RAD);
-			//matrixStack.multiply(new Quaternionf().rotationXYZ((float)(f5 * (Math.PI / 180f)), 0, 0));
 		}
 
 		matrixStack.multiply(rotationTransform);
