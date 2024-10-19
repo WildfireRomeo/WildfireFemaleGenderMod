@@ -69,7 +69,7 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
               button -> MinecraftClient.getInstance().setScreen(parent)));
 
         //Customization Tab
-        this.addDrawableChild(btnCustomization = new WildfireButton(this.width / 2 + 30, j - 60, 158 / 2 - 1, 10,
+        this.addDrawableChild(btnCustomization = new WildfireButton(this.width / 2 + 30, j - 60, 158, 10,
                 Text.translatable("wildfire_gender.breast_customization.tab_customization"), button -> {
             currentTab = 0;
             btnCustomization.active = false;
@@ -91,6 +91,10 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
             btnDeletePreset.visible = true;
             PRESET_LIST.refreshList();
         }));
+
+        //Disable for now.
+        btnPresets.visible = false;
+
         if(!FabricLoader.getInstance().isDevelopmentEnvironment()) {
             btnPresets.setTooltip(Tooltip.of(Text.translatable("wildfire_gender.coming_soon")));
         }
@@ -175,7 +179,8 @@ public class WildfireBreastCustomizationScreen extends BaseWildfireScreen {
 
     @Override
     public void renderBackground(DrawContext ctx, int mouseX, int mouseY, float delta) {
-        super.renderBackground(ctx, mouseX, mouseY, delta);
+        this.renderInGameBackground(ctx);
+
         int x = this.width / 2;
         int y = this.height / 2;
         ctx.fill(x + 28, y - 64 - 21, x + 190, y + 68, 0x55000000);

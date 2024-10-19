@@ -25,6 +25,9 @@ import java.util.UUID;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.CraftingScreen;
+import net.minecraft.client.gui.screen.ingame.FurnaceScreen;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,6 +41,7 @@ public abstract class BaseWildfireScreen extends Screen {
         super(title);
         this.parent = parent;
         this.playerUUID = uuid;
+
     }
 
     public @Nullable PlayerConfig getPlayer() {
