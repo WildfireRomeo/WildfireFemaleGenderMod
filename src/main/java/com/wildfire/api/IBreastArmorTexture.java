@@ -35,16 +35,16 @@ public interface IBreastArmorTexture {
 
 	Codec<IBreastArmorTexture> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Vec2i.CODEC
-					.optionalFieldOf("texture_size", BreastArmorTexture.DEFAULT.textureSize())
+					.optionalFieldOf("texture_size", DEFAULT_TEXTURE_SIZE)
 					.forGetter(IBreastArmorTexture::textureSize),
 			Vec2i.CODEC
-					.optionalFieldOf("left_uv", BreastArmorTexture.DEFAULT.leftUv())
+					.optionalFieldOf("left_uv", DEFAULT_LEFT_UV)
 					.forGetter(IBreastArmorTexture::leftUv),
 			Vec2i.CODEC
 					.optionalFieldOf("right_uv", new Vec2i(-1, -1))
 					.forGetter(IBreastArmorTexture::rightUv),
 			Vec2i.CODEC
-					.optionalFieldOf("dimensions", BreastArmorTexture.DEFAULT.dimensions())
+					.optionalFieldOf("dimensions", DEFAULT_DIMENSIONS)
 					.forGetter(IBreastArmorTexture::dimensions)
 	).apply(instance, (size, leftUv, rightUv, dimensions) -> {
 		var right = rightUv;
