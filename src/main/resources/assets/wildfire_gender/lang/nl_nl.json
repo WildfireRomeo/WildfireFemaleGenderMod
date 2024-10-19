@@ -1,0 +1,61 @@
+{
+	"category.wildfire_gender.generic": "Wildfire's Vrouwelijke Geslachts Mod",
+	"key.wildfire_gender.gender_menu": "Vrouwelijke Geslachts Menu",
+	"toast.wildfire_gender.get_started": "Druk op '%s' om te starten!",
+
+	"wildfire_gender.player_list.title": "Vrouwelijke Geslachts Mod",
+	"wildfire_gender.player_list.settings_button": "Instellingen",
+	"wildfire_gender.player_list.sync_status": "Status Synchroniseren",
+	"wildfire_gender.player_list.state.loading": "Data Laden...",
+	"wildfire_gender.player_list.state.synced": "Speler Gesynchroniseerd",
+	"wildfire_gender.player_list.bounce_multiplier": "Veerkracht Vermenigvuldiger: %sx",
+	"wildfire_gender.player_list.breast_momentum": "Borst Momentum: %s%%",
+	"wildfire_gender.player_list.female_sounds": "Vrouwelijk Geluiden: %s",
+
+	"wildfire_gender.wardrobe.title": "Wildfire's Vrouwelijke Geslachts Mod",
+	"wildfire_gender.breast_customization.tab_customization": "Aanpassen",
+	"wildfire_gender.breast_customization.tab_presets": "Voorbeelden",
+
+	"wildfire_gender.breast_customization.presets.add_new": "Iets nieuw toevoegen...",
+	"wildfire_gender.breast_customization.presets.delete": "Verwijderen",
+
+	"wildfire_gender.wardrobe.slider.breast_size": "Borst Grote: %s%%",
+	"wildfire_gender.wardrobe.slider.separation": "Tussenruimte: %s",
+	"wildfire_gender.wardrobe.slider.height": "Hoogte: %s",
+	"wildfire_gender.wardrobe.slider.depth": "Diepte: %s",
+	"wildfire_gender.wardrobe.slider.rotation": "Rotatie: %s graden",
+
+	"wildfire_gender.appearance_settings.title": "Uiterlijk instellingen",
+	"wildfire_gender.char_settings.title": "Karakter Instellingen",
+	"wildfire_gender.char_settings.physics": "Borst Zwaartekracht: %s",
+
+	"wildfire_gender.char_settings.override_armor_physics": "Harnas Zwaartekracht: %s",
+	"wildfire_gender.tooltip.override_armor_physics.line1": "Borst zwaartekracht zal niet langer onderdrukt worden bij jouw aangetrokken harnas, als dit aan staat",
+	"wildfire_gender.tooltip.override_armor_physics.line2": "Dit is bedoeld voor het gebruik met bronpakketen die harnas verstoppen of iets in die geest",
+
+	"wildfire_gender.char_settings.hide_in_armor": "Verstop In Harnas: %s",
+	"wildfire_gender.char_settings.hurt_sounds": "Vrouwelijke Pijn Geluiden: %s",
+	"wildfire_gender.tooltip.hurt_sounds": "Jou karakter zal een vrouwelijke pijn geluid spelen als je schade neemt en als je geslacht is ingesteld op Vrouwelijk of Anders",
+
+	"wildfire_gender.breast_customization.dual_physics": "Dubbel-Zwaartekracht: %s",
+
+	"wildfire_gender.label.gender": "Geslacht",
+	"wildfire_gender.label.female": "Vrouwelijk",
+	"wildfire_gender.label.male": "Mannelijk",
+	"wildfire_gender.label.other": "Anders",
+
+	"wildfire_gender.label.enabled": "Aan",
+	"wildfire_gender.label.disabled": "Uit",
+	"wildfire_gender.label.yes": "Ja",
+	"wildfire_gender.label.no": "Nee",
+	"wildfire_gender.label.with_creator": "Je speelt op een server met de maker van deze mod!",
+
+	"wildfire_gender.slider.bounce": "Verkracht Intensiteit: %s%%",
+	"wildfire_gender.slider.floppy": "Borst Momentum: %s%%",
+	"wildfire_gender.slider.min_bounce": "Waarom Is Zwaartekracht Aan?",
+	"wildfire_gender.slider.max_bounce": "Anime Borst Zwaartekracht!!!",
+	"wildfire_gender.tooltip.bounce_warning": "Instelling 'Verkracht Intensiteit' op een hoog nummer ziet er erg niet natuurlijk uit!",
+
+	"wildfire_gender.cancer_awareness.title": "Hé, het is Borst Kanker Aandacht Maand",
+	"wildfire_gender.coming_soon": "Komt Binnenkort"
+}
