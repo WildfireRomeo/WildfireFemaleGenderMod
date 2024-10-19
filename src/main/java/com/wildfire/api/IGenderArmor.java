@@ -18,10 +18,44 @@
 
 package com.wildfire.api;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.wildfire.api.impl.BreastArmorTexture;
+import com.wildfire.api.impl.GenderArmor;
+import com.wildfire.main.WildfireHelper;
+import net.minecraft.util.TriState;
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Implement this on a custom class for your chestplates or items that go in the chest slot to configure how it interacts with breast rendering.
  */
 public interface IGenderArmor {
+
+    Codec<IGenderArmor> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            WildfireHelper.boundedFloat(0f, 1f)
+                    .optionalFieldOf("resistance", 0.5f)
+                    .forGetter(IGenderArmor::physicsResistance),
+            WildfireHelper.boundedFloat(0f, 1f)
+                    .optionalFieldOf("tightness", 0f)
+                    .forGetter(IGenderArmor::tightness),
+            Codec.BOOL
+                    .optionalFieldOf("covers_breasts", true)
+                    .forGetter(IGenderArmor::coversBreasts),
+            Codec.BOOL
+                    .optionalFieldOf("hide_breasts", false)
+                    .forGetter(IGenderArmor::alwaysHidesBreasts),
+            WildfireHelper.TRISTATE
+                    .optionalFieldOf("render_on_armor_stands", TriState.DEFAULT)
+                    .forGetter(armor -> armor.armorStandsCopySettings() ? TriState.TRUE : TriState.FALSE),
+            IBreastArmorTexture.CODEC
+                    .optionalFieldOf("texture", BreastArmorTexture.DEFAULT)
+                    .forGetter(IGenderArmor::texture)
+    ).apply(instance, (resistance, tightness, covers, hideBreasts, armorStands, texture) -> {
+        if(!covers) {
+            return GenderArmor.EMPTY;
+        }
+        return new GenderArmor(resistance, tightness, true, hideBreasts, armorStands.asBoolean(resistance == 1f), texture);
+    }));
 
     /**
      * Determines whether this {@link IGenderArmor} "covers" the breasts or if it has an open front ({@code false}) like the elytra.
@@ -55,10 +89,10 @@ public interface IGenderArmor {
      *
      * @return Value between {@code 0} (no resistance, full physics) and {@code 1} (total resistance, no physics).
      *
-     * @implNote Defaults to {@code 0} (no resistance, full physics).
+     * @implNote Defaults to {@code 0.5f} (50% physics resistance).
      */
     default float physicsResistance() {
-        return 0;
+        return 0.5f;
     }
 
     /**
@@ -77,9 +111,8 @@ public interface IGenderArmor {
      * <p>Determines whether armor stands should copy the breast settings of the player equipping this chestplate
      * onto it.</p>
      *
-     * <p>If this returns {@code true}, an equipping player's breast settings will be copied onto the
-     * item stack's {@link net.minecraft.component.DataComponentTypes#CUSTOM_DATA custom NBT data component}
-     * under the tag {@code WildfireGender}.</p>
+     * <p>If this returns {@code true}, the equipping player's breast settings will also be rendered when this
+     * armor piece is equipped onto an armor stand.</p>
      *
      * <p>This is designed for armor types that are metallic in nature, and not armor types that would (realistically)
      * be flexible enough to accommodate for a player's breasts on their own (such as Leather and Chain).</p>
@@ -95,5 +128,19 @@ public interface IGenderArmor {
      */
     default boolean armorStandsCopySettings() {
         return !alwaysHidesBreasts() && coversBreasts() && physicsResistance() == 1f;
+    }
+
+    /**
+     * Overrides certain values when this armor piece is being rendered
+     *
+     * @return The relevant {@link IBreastArmorTexture}
+     *
+     * @implNote Defaults to {@link BreastArmorTexture#DEFAULT}
+     *
+     * @see IBreastArmorTexture
+     * @see BreastArmorTexture
+     */
+    default @NotNull IBreastArmorTexture texture() {
+        return BreastArmorTexture.DEFAULT;
     }
 }
