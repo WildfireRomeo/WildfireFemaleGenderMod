@@ -7,7 +7,9 @@ It works on client-side without issues but if you wish to add syncing support th
 
 ## Default Controls
 
-G - Open Wildfire's Gender Menu
+Control | Action |
+| --- | ---
+`G` | Open the Female Gender Menu
 
 ## License
 
